@@ -2,6 +2,7 @@ import { useState } from "react";
 import useArchiveStore from "../store/archiveStore";
 import useSettingsStore from "../store/settingsStore";
 import useProviderStore from "../store/providerStore";
+import { TEMPLATES, TEMPLATES_BY_PROVIDER } from "../utils/templates";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -52,6 +53,29 @@ const CATEGORY_COLORS = {
 const DEFAULT_COLOR = "#94a3b8";
 
 const GITHUB_BASE = "https://github.com/sking-4242/archon";
+
+const GALLERY_CATEGORY_COLOR = {
+  Web:         "bg-blue-100 text-blue-700",
+  Serverless:  "bg-purple-100 text-purple-700",
+  Networking:  "bg-teal-100 text-teal-700",
+  Data:        "bg-amber-100 text-amber-700",
+  Containers:  "bg-cyan-100 text-cyan-700",
+  "AI/ML":     "bg-pink-100 text-pink-700",
+  DevOps:      "bg-orange-100 text-orange-700",
+  Security:    "bg-red-100 text-red-700",
+  Database:    "bg-yellow-100 text-yellow-700",
+  Integration: "bg-violet-100 text-violet-700",
+  Monitoring:  "bg-green-100 text-green-700",
+  Storage:     "bg-sky-100 text-sky-700",
+};
+
+const PROVIDER_GALLERY_TABS = [
+  { id: "all",    label: "All",     icon: "🌐" },
+  { id: "aws",    label: "AWS",     icon: "☁️" },
+  { id: "azure",  label: "Azure",   icon: "🔷" },
+  { id: "gcp",    label: "GCP",     icon: "🟡" },
+  { id: "onprem", label: "On-Prem", icon: "🖥️" },
+];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -535,11 +559,86 @@ function SuggestionsPanel() {
   );
 }
 
+// ── Templates Gallery ─────────────────────────────────────────────────────────
+
+function TemplatesGallery({ onLoadTemplate }) {
+  const [activeProvider, setActiveProvider] = useState("all");
+
+  const list =
+    activeProvider === "all"
+      ? TEMPLATES
+      : (TEMPLATES_BY_PROVIDER[activeProvider] ?? []);
+
+  return (
+    <section id="templates-gallery" className="border-t border-gray-200 bg-white px-8 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-base font-bold text-gray-800">All Templates</h2>
+          <p className="text-xs text-gray-500 mt-0.5">
+            {list.length} templates — click any to load it straight into the canvas
+          </p>
+        </div>
+        <div className="flex gap-1.5">
+          {PROVIDER_GALLERY_TABS.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setActiveProvider(t.id)}
+              className={[
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all",
+                activeProvider === t.id
+                  ? "bg-indigo-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+              ].join(" ")}
+            >
+              <span>{t.icon}</span>
+              <span>{t.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-4">
+        {list.map((tpl) => (
+          <button
+            key={tpl.id}
+            onClick={() => onLoadTemplate(tpl)}
+            className="text-left border border-gray-200 rounded-xl p-4 hover:border-indigo-400 hover:shadow-md transition-all group bg-white"
+          >
+            <div className="flex items-start justify-between mb-2 gap-2">
+              <span className="text-sm font-semibold text-gray-800 group-hover:text-indigo-700 leading-snug">
+                {tpl.name}
+              </span>
+              <span
+                className={`text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 ${GALLERY_CATEGORY_COLOR[tpl.category] ?? "bg-gray-100 text-gray-600"}`}
+              >
+                {tpl.category}
+              </span>
+            </div>
+            <p className="text-xs text-gray-500 leading-relaxed">
+              {tpl.description}
+            </p>
+            <div className="mt-3 flex items-center gap-3 text-xs text-gray-400">
+              <span className="flex items-center gap-1">
+                <span>{PROVIDER_ICONS[tpl.graphMeta?.provider] ?? "📐"}</span>
+                <span className="font-medium text-gray-500">
+                  {PROVIDER_LABELS[tpl.graphMeta?.provider] ?? tpl.graphMeta?.provider}
+                </span>
+              </span>
+              <span>📦 {tpl.nodes.length}</span>
+              <span>🔗 {tpl.edges.length}</span>
+            </div>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 // ── Root ──────────────────────────────────────────────────────────────────────
 
-export default function LandingPage({ onNewCanvas, onLoadArchive, onOpenTemplates, onImportTF }) {
+export default function LandingPage({ onNewCanvas, onLoadArchive, onOpenTemplates, onImportTF, onLoadTemplate }) {
   return (
-    <div className="h-screen bg-gray-100 flex flex-col overflow-hidden">
+    <div className="h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
         <div className="flex items-center gap-3">
@@ -547,20 +646,31 @@ export default function LandingPage({ onNewCanvas, onLoadArchive, onOpenTemplate
           <span className="text-gray-400 text-xs">v0.3.0</span>
         </div>
         <button
-          onClick={onOpenTemplates}
+          onClick={() =>
+            document.getElementById("templates-gallery")?.scrollIntoView({ behavior: "smooth" })
+          }
           className="text-sm px-4 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 transition-colors"
         >
-          Browse Templates
+          Browse Templates ↓
         </button>
       </header>
 
-      {/* 2×2 grid — fills remaining height */}
-      <main className="flex-1 p-5 grid grid-cols-2 grid-rows-2 gap-4 min-h-0">
-        <NewArchitecturePanel    onNewCanvas={onNewCanvas} />
-        <SavedArchitecturesPanel onLoadArchive={onLoadArchive} />
-        <ImportTerraformPanel    onImportTF={onImportTF} />
-        <SuggestionsPanel />
-      </main>
+      {/* Scrollable body */}
+      <div className="flex-1 overflow-y-auto">
+        {/* 2×2 grid — fills first viewport */}
+        <main
+          className="p-5 grid grid-cols-2 grid-rows-2 gap-4"
+          style={{ height: "calc(100vh - 68px)", minHeight: "480px" }}
+        >
+          <NewArchitecturePanel    onNewCanvas={onNewCanvas} />
+          <SavedArchitecturesPanel onLoadArchive={onLoadArchive} />
+          <ImportTerraformPanel    onImportTF={onImportTF} />
+          <SuggestionsPanel />
+        </main>
+
+        {/* Full-width templates gallery */}
+        <TemplatesGallery onLoadTemplate={onLoadTemplate} />
+      </div>
     </div>
   );
 }

@@ -78,10 +78,12 @@ export default function App() {
         edges: tpl.edges,
         graphMeta: tpl.graphMeta,
       });
+      if (tpl.graphMeta?.provider) setInfraProvider(tpl.graphMeta.provider);
       updateFindings(tpl.nodes, tpl.edges, securityGroups);
       setTemplatesOpen(false);
+      setShowLanding(false);
     },
-    [loadState, updateFindings, securityGroups],
+    [loadState, updateFindings, setInfraProvider, securityGroups],
   );
 
   const handleSaveJSON = useCallback(() => {
@@ -310,6 +312,7 @@ export default function App() {
           setTemplatesOpen(true);
         }}
         onImportTF={handleImportTF}
+        onLoadTemplate={handleLoadTemplate}
       />
     );
   }
@@ -534,6 +537,7 @@ export default function App() {
         <TemplateModal
           onSelect={handleLoadTemplate}
           onClose={() => setTemplatesOpen(false)}
+          provider={infraProvider}
         />
       )}
     </div>

@@ -1,13 +1,23 @@
-import { TEMPLATES } from "../../utils/templates";
+import { TEMPLATES_BY_PROVIDER } from "../../utils/templates";
 
 const CATEGORY_COLOR = {
-  Web: "bg-blue-100 text-blue-700",
-  Serverless: "bg-purple-100 text-purple-700",
-  Networking: "bg-teal-100 text-teal-700",
-  Data: "bg-amber-100 text-amber-700",
+  Web:         "bg-blue-100 text-blue-700",
+  Serverless:  "bg-purple-100 text-purple-700",
+  Networking:  "bg-teal-100 text-teal-700",
+  Data:        "bg-amber-100 text-amber-700",
+  Containers:  "bg-cyan-100 text-cyan-700",
+  "AI/ML":     "bg-pink-100 text-pink-700",
+  DevOps:      "bg-orange-100 text-orange-700",
+  Security:    "bg-red-100 text-red-700",
+  Database:    "bg-yellow-100 text-yellow-700",
+  Integration: "bg-violet-100 text-violet-700",
+  Monitoring:  "bg-green-100 text-green-700",
+  Storage:     "bg-sky-100 text-sky-700",
 };
 
-export default function TemplateModal({ onSelect, onClose }) {
+export default function TemplateModal({ onSelect, onClose, provider = "aws" }) {
+  const list = TEMPLATES_BY_PROVIDER[provider] ?? TEMPLATES_BY_PROVIDER.aws;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl shadow-2xl w-[720px] max-h-[80vh] flex flex-col">
@@ -29,7 +39,7 @@ export default function TemplateModal({ onSelect, onClose }) {
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-6 grid grid-cols-2 gap-4">
-          {TEMPLATES.map((tpl) => (
+          {list.map((tpl) => (
             <button
               key={tpl.id}
               onClick={() => onSelect(tpl)}
