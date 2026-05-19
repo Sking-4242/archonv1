@@ -1,0 +1,95 @@
+export const ONPREM_PALETTE = [
+  {
+    category: "onprem_networking",
+    label: "Networking",
+    components: [
+      { type: "onprem_network_zone",  label: "Network Zone",     icon: "🌐", cloudType: "Network Zone" },
+      { type: "onprem_vlan",          label: "VLAN",             icon: "🔲", cloudType: "VLAN" },
+      { type: "onprem_firewall",      label: "Firewall",         icon: "🛡️", cloudType: "Firewall" },
+      { type: "onprem_load_balancer", label: "Load Balancer",    icon: "⚖️", cloudType: "Load Balancer" },
+      { type: "onprem_router",        label: "Router",           icon: "🔀", cloudType: "Router" },
+      { type: "onprem_switch",        label: "Switch",           icon: "🔌", cloudType: "Network Switch" },
+      { type: "onprem_dns",           label: "DNS Server",       icon: "🌏", cloudType: "DNS Server" },
+      { type: "onprem_proxy",         label: "Proxy / Reverse Proxy", icon: "🔄", cloudType: "Proxy" },
+      { type: "onprem_vpn",           label: "VPN Gateway",      icon: "🔒", cloudType: "VPN Gateway" },
+      { type: "onprem_ids_ips",       label: "IDS / IPS",        icon: "🚨", cloudType: "IDS/IPS" },
+    ],
+  },
+  {
+    category: "onprem_compute",
+    label: "Compute",
+    components: [
+      { type: "onprem_bare_metal",      label: "Bare Metal",          icon: "🖥️", cloudType: "Bare Metal Server" },
+      { type: "onprem_vm",              label: "Virtual Machine",     icon: "💻", cloudType: "VM (vSphere/KVM)" },
+      { type: "onprem_k8s",             label: "Kubernetes",          icon: "☸️", cloudType: "On-Prem Kubernetes" },
+      { type: "onprem_container",       label: "Container Host",      icon: "🐳", cloudType: "Container Host" },
+      { type: "onprem_hyperconverged",  label: "HCI Cluster",         icon: "⚡", cloudType: "Hyperconverged Infrastructure" },
+      { type: "onprem_gpu_server",      label: "GPU Server",          icon: "🎮", cloudType: "GPU Server" },
+    ],
+  },
+  {
+    category: "onprem_storage",
+    label: "Storage",
+    components: [
+      { type: "onprem_san",            label: "SAN",              icon: "💾", cloudType: "Storage Area Network" },
+      { type: "onprem_nas",            label: "NAS",              icon: "📁", cloudType: "Network Attached Storage" },
+      { type: "onprem_object_store",   label: "Object Store",     icon: "🪣", cloudType: "Object Store (MinIO)" },
+      { type: "onprem_backup_server",  label: "Backup Server",    icon: "🔄", cloudType: "Backup Server" },
+      { type: "onprem_tape_library",   label: "Tape Library",     icon: "📼", cloudType: "Tape Library" },
+    ],
+  },
+  {
+    category: "onprem_database",
+    label: "Database",
+    components: [
+      { type: "onprem_postgres",       label: "PostgreSQL",       icon: "🐘", cloudType: "PostgreSQL" },
+      { type: "onprem_mysql",          label: "MySQL / MariaDB",  icon: "🐬", cloudType: "MySQL / MariaDB" },
+      { type: "onprem_mssql",          label: "SQL Server",       icon: "🗄️", cloudType: "Microsoft SQL Server" },
+      { type: "onprem_redis",          label: "Redis",            icon: "🚀", cloudType: "Redis" },
+      { type: "onprem_elasticsearch",  label: "Elasticsearch",    icon: "🔍", cloudType: "Elasticsearch" },
+      { type: "onprem_mongodb",        label: "MongoDB",          icon: "🍃", cloudType: "MongoDB" },
+      { type: "onprem_cassandra",      label: "Cassandra",        icon: "🔱", cloudType: "Apache Cassandra" },
+    ],
+  },
+  {
+    category: "onprem_security",
+    label: "Security",
+    components: [
+      { type: "onprem_idp",   label: "Identity Provider",    icon: "👤", cloudType: "IdP (LDAP/AD)" },
+      { type: "onprem_vault", label: "Vault / HSM",          icon: "🔐", cloudType: "Vault / HSM" },
+      { type: "onprem_waf",   label: "WAF",                  icon: "🔒", cloudType: "WAF" },
+      { type: "onprem_siem",  label: "SIEM",                 icon: "🔭", cloudType: "SIEM" },
+      { type: "onprem_pam",   label: "PAM",                  icon: "🗝️", cloudType: "Privileged Access Management" },
+      { type: "onprem_ca",    label: "Certificate Authority",icon: "📜", cloudType: "CA / PKI" },
+    ],
+  },
+  {
+    category: "onprem_integration",
+    label: "Integration",
+    components: [
+      { type: "onprem_message_broker",  label: "Message Broker",    icon: "📣", cloudType: "Kafka / RabbitMQ" },
+      { type: "onprem_api_gateway",     label: "API Gateway",       icon: "🚪", cloudType: "API Gateway" },
+      { type: "onprem_service_mesh",    label: "Service Mesh",      icon: "🕸️", cloudType: "Istio / Linkerd" },
+      { type: "onprem_etl",             label: "ETL Pipeline",      icon: "🔄", cloudType: "ETL (Airflow / Spark)" },
+    ],
+  },
+  {
+    category: "onprem_observability",
+    label: "Observability",
+    components: [
+      { type: "onprem_monitoring",       label: "Monitoring",         icon: "📊", cloudType: "Prometheus / Grafana" },
+      { type: "onprem_log_aggregator",   label: "Log Aggregator",     icon: "📝", cloudType: "ELK / Loki" },
+      { type: "onprem_tracing",          label: "Distributed Tracing",icon: "🔍", cloudType: "Jaeger / Zipkin" },
+    ],
+  },
+  {
+    category: "onprem_devops",
+    label: "DevOps",
+    components: [
+      { type: "onprem_ci_cd",           label: "CI/CD",               icon: "🔄", cloudType: "Jenkins / GitLab CI" },
+      { type: "onprem_artifact_repo",   label: "Artifact Repository", icon: "🗂️", cloudType: "Nexus / Artifactory" },
+      { type: "onprem_git_server",      label: "Git Server",          icon: "📦", cloudType: "Gitea / GitLab" },
+      { type: "onprem_config_mgmt",     label: "Config Management",   icon: "⚙️", cloudType: "Ansible / Puppet / Chef" },
+    ],
+  },
+];

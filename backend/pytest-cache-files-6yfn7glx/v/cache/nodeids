@@ -1,0 +1,20 @@
+[
+  "tests/test_pricing.py::TestEstimateComponent::test_ec2_returns_estimate",
+  "tests/test_pricing.py::TestEstimateComponent::test_free_resource_returns_none",
+  "tests/test_pricing.py::TestEstimateComponent::test_rds_returns_estimate",
+  "tests/test_pricing.py::TestEstimateComponent::test_region_param_accepted",
+  "tests/test_pricing.py::TestEstimateComponent::test_s3_returns_estimate",
+  "tests/test_pricing.py::TestEstimateComponent::test_unknown_type_returns_none",
+  "tests/test_prompt_builder.py::TestBuildPrompt::test_component_label_in_prompt",
+  "tests/test_prompt_builder.py::TestBuildPrompt::test_returns_two_strings",
+  "tests/test_prompt_builder.py::TestBuildPrompt::test_system_prompt_not_empty",
+  "tests/test_prompt_builder.py::TestBuildPrompt::test_user_prompt_contains_arch_name",
+  "tests/test_prompt_builder.py::TestBuildPrompt::test_user_prompt_contains_region",
+  "tests/test_validators.py::TestStripFences::test_passthrough_no_fence",
+  "tests/test_validators.py::TestStripFences::test_strips_hcl_fence",
+  "tests/test_validators.py::TestStripFences::test_strips_plain_fence",
+  "tests/test_validators.py::TestStripFences::test_strips_whitespace",
+  "tests/test_validators.py::TestValidateHcl::test_empty_string_returns_no_errors",
+  "tests/test_validators.py::TestValidateHcl::test_invalid_hcl_returns_errors",
+  "tests/test_validators.py::TestValidateHcl::test_valid_hcl_returns_no_errors"
+]

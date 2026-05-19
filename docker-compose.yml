@@ -1,0 +1,75 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-archon_academy}
+      - POSTGRES_USER=${POSTGRES_USER:-archon}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-archon_dev}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-archon} -d ${POSTGRES_DB:-archon_academy}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    env_file:
+      - .env
+    environment:
+      - LLM_PROVIDER=${LLM_PROVIDER}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - XAI_API_KEY=${XAI_API_KEY}
+      - XAI_BASE_URL=${XAI_BASE_URL}
+      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - FRONTEND_PORT=${FRONTEND_PORT:-3000}
+      - ACADEMY_PORT=${ACADEMY_PORT:-3001}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://archon:archon_dev@db:5432/archon_academy}
+      - ACADEMY_SECRET_KEY=${ACADEMY_SECRET_KEY:-change-me-for-production}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    env_file:
+      - .env
+    environment:
+      - VITE_API_URL=${VITE_API_URL}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  academy:
+    build:
+      context: ./academy
+      dockerfile: Dockerfile
+    ports:
+      - "${ACADEMY_PORT:-3001}:3001"
+    env_file:
+      - .env
+    environment:
+      # Vite proxy target — the backend service name within the Docker network.
+      # Requests from the browser hit localhost:3001 and Vite forwards them here.
+      - BACKEND_URL=http://backend:8000
+      - ACADEMY_PORT=${ACADEMY_PORT:-3001}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
