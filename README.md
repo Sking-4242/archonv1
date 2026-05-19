@@ -18,6 +18,37 @@ Both products run from the same `docker compose up`. The shared backend handles 
 
 ---
 
+## Quickstart — one-click installer (recommended)
+
+```bash
+git clone https://github.com/Sking-4242/archonv1.git
+cd archonv1
+python install.py
+```
+
+The installer GUI sets your ports, builds all containers, seeds the database, and gives you **Open Professional** and **Open Academy** launch buttons when it's done.
+
+## Quickstart — manual
+
+```bash
+git clone https://github.com/Sking-4242/archonv1.git
+cd archonv1
+docker compose up --build -d
+docker compose exec backend python seed.py
+```
+
+- Professional: [http://localhost:3000](http://localhost:3000)
+- Academy: [http://localhost:3001](http://localhost:3001)
+
+---
+
+## Requirements
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) with Compose plugin (running)
+- [Python 3.11+](https://www.python.org/downloads/) — for the one-click installer only
+
+---
+
 ## Archon Professional
 
 Design cloud infrastructure visually. Connect components, configure security and IAM, then generate production-ready Terraform HCL with an AI model of your choice.
@@ -60,8 +91,6 @@ Design cloud infrastructure visually. Connect components, configure security and
 
 **SG port inspection (10 rules)** — checks security group inbound rules for dangerous exposures: all-traffic open · database ports open to internet · SSH/RDP open to internet · telnet · FTP · SMTP · POP3/IMAP · wide ephemeral port ranges · HTTP without HTTPS
 
-Each finding includes a fix suggestion. Acknowledging a warning (telnet, FTP, SMTP, POP3/IMAP, wide port ranges) saves the dismissal with an optional reason to localStorage and collapses it into a separate section.
-
 ### Cost estimation
 
 Per-component monthly cost estimates with region selection. Attempts live pricing first (AWS Pricing API, Azure Retail Prices API, GCP Cloud Billing API) and falls back to static estimates. Estimates display a **LIVE** badge when real API data is returned.
@@ -85,93 +114,20 @@ Save named architectures with thumbnail previews to the browser's localStorage. 
 
 Guided cloud architecture curriculum. Structured learning paths, interactive challenges, AI tutor feedback, and progress tracking — all sharing the same backend as Professional.
 
-Academy runs on its own React frontend (port `3001` by default) and uses a **PostgreSQL database** for user accounts, progress tracking, and course content. The database starts automatically as a Docker service alongside the backend and frontends — no external database setup is required.
+Open Academy at [http://localhost:3001](http://localhost:3001) after the stack is running.
 
-### Academy credentials — what you need to set
+### Default accounts
 
-There are two Academy-specific values in `.env` that must be filled in before `docker compose up`:
+Two accounts are created automatically when you run the installer or `seed.py`:
 
-**1. `POSTGRES_PASSWORD`** — the password for the PostgreSQL database user.
+| Role | Email | Password |
+|---|---|---|
+| **Instructor** | `admin@archon.academy` | `pass123` |
+| **Student** | `student@archon.academy` | `pass123` |
 
-This can be any string. It is only used internally between the backend container and the `db` container — it is never exposed to the browser. Pick something strong for any non-local deployment.
+The instructor account can create assignments, view the gradebook, and manage the rubric bank. The student account can browse the AWS component library, work on assignments, and view grades.
 
-```env
-POSTGRES_PASSWORD=your_database_password_here
-```
-
-**2. `DATABASE_URL`** — the full PostgreSQL connection string. Update this to match whatever you set for `POSTGRES_PASSWORD`:
-
-```env
-DATABASE_URL=postgresql://archon:your_database_password_here@db:5432/archon_academy
-```
-
-The format is: `postgresql://<POSTGRES_USER>:<POSTGRES_PASSWORD>@db:5432/<POSTGRES_DB>`
-
-The hostname `db` is the Docker Compose service name — leave it as `db` unless you rename the service.
-
-**3. `ACADEMY_SECRET_KEY`** — a secret used to sign JWT session tokens for Academy user accounts. Generate one with:
-
-```bash
-python -c "import secrets; print(secrets.token_hex(32))"
-```
-
-Paste the output into `.env`:
-
-```env
-ACADEMY_SECRET_KEY=a1b2c3d4e5f6...   # 64-character hex string
-```
-
-> **Important:** never commit `.env` to version control. The `.gitignore` excludes it by default.
-
-### Full Academy block in `.env`
-
-```env
-# Archon Academy
-ACADEMY_PORT=3001
-VITE_ACADEMY_API_URL=http://localhost:8000
-
-# PostgreSQL — used by Academy for user accounts and progress
-POSTGRES_DB=archon_academy
-POSTGRES_USER=archon
-POSTGRES_PASSWORD=your_password_here
-DATABASE_URL=postgresql://archon:your_password_here@db:5432/archon_academy
-
-# JWT secret — generate with: python -c "import secrets; print(secrets.token_hex(32))"
-ACADEMY_SECRET_KEY=your_generated_secret_here
-```
-
-Once these are set, run `docker compose up --build` and open [http://localhost:3001](http://localhost:3001). The database is created automatically on first boot.
-
----
-
-## Requirements
-
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) with Compose plugin (running)
-- [Python 3.11+](https://www.python.org/downloads/) — for the one-click installer only
-
----
-
-## Quickstart — one-click installer (recommended)
-
-```bash
-git clone https://github.com/Sking-4242/Archon.git
-cd Archon
-python install.py
-```
-
-The installer GUI lets you set backend, Professional, and Academy ports, configure the Ollama base URL, builds all containers, and provides **Open Professional** and **Open Academy** launch buttons.
-
-## Quickstart — manual
-
-```bash
-git clone https://github.com/Sking-4242/Archon.git
-cd Archon
-cp .env.example .env          # fill in your API key and ports
-docker compose up --build
-```
-
-- Professional: [http://localhost:3000](http://localhost:3000)
-- Academy: [http://localhost:3001](http://localhost:3001)
+> Change these passwords or add new accounts via the `/academy/auth/register` endpoint before sharing with real students.
 
 ---
 
