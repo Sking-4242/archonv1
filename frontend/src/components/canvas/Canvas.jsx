@@ -406,6 +406,7 @@ function CanvasInner({ onNodeSelect }) {
           label: comp.label,
           awsType: comp.awsType,
           icon: comp.icon,
+          nodeType: comp.type,
           category: comp.category,
           config: {},
           security_group_ids: [],

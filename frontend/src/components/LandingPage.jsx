@@ -77,6 +77,56 @@ const PROVIDER_GALLERY_TABS = [
   { id: "onprem", label: "On-Prem", icon: "🖥️" },
 ];
 
+// ── Provider Logo ─────────────────────────────────────────────────────────────
+
+function ProviderLogo({ provider, size = 28 }) {
+  if (provider === "aws") {
+    return (
+      <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-label="AWS">
+        <rect width="48" height="48" rx="9" fill="#FF9900" />
+        <text x="24" y="21" textAnchor="middle" fill="white" fontSize="11" fontWeight="800" fontFamily="Arial,sans-serif">AWS</text>
+        <path d="M15 31 C19 35 29 35 33 31" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+        <polyline points="30,28 33,31 30,34" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  }
+  if (provider === "azure") {
+    return (
+      <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-label="Azure">
+        <rect width="48" height="48" rx="9" fill="#0078D4" />
+        <path d="M22 13 L13 35 H20 L24 26 L31 35 H38 L28 13 Z" fill="white" />
+      </svg>
+    );
+  }
+  if (provider === "gcp") {
+    return (
+      <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-label="Google Cloud">
+        <rect width="48" height="48" rx="9" fill="white" stroke="#e2e8f0" strokeWidth="1.5" />
+        {/* Cloud body */}
+        <path d="M30 30 H18 a6 6 0 0 1 0-12 h0.4 A8 8 0 0 1 34 24 a6 6 0 0 1-4 6Z" fill="#4285F4" />
+        {/* Google G bar */}
+        <rect x="23" y="27" width="7" height="3" rx="1.5" fill="white" />
+        {/* Color dots */}
+        <circle cx="19" cy="36" r="2.5" fill="#EA4335" />
+        <circle cx="26" cy="36" r="2.5" fill="#FBBC05" />
+        <circle cx="33" cy="36" r="2.5" fill="#34A853" />
+      </svg>
+    );
+  }
+  // on-prem — simple server rack SVG
+  return (
+    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-label="On-Prem">
+      <rect width="48" height="48" rx="9" fill="#475569" />
+      <rect x="12" y="14" width="24" height="6" rx="2" fill="white" opacity="0.9" />
+      <rect x="12" y="22" width="24" height="6" rx="2" fill="white" opacity="0.7" />
+      <rect x="12" y="30" width="24" height="6" rx="2" fill="white" opacity="0.5" />
+      <circle cx="32" cy="17" r="1.5" fill="#4ade80" />
+      <circle cx="32" cy="25" r="1.5" fill="#4ade80" />
+      <circle cx="32" cy="33" r="1.5" fill="#facc15" />
+    </svg>
+  );
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function timeAgo(isoString) {
@@ -242,7 +292,7 @@ function NewArchitecturePanel({ onNewCanvas }) {
                     : "border-gray-200 text-gray-500 hover:border-gray-300 hover:bg-gray-50",
                 ].join(" ")}
               >
-                <span className="text-xl">{p.icon}</span>
+                <ProviderLogo provider={p.id} size={28} />
                 <span>{p.label}</span>
               </button>
             ))}
@@ -376,7 +426,7 @@ function SavedArchitecturesPanel({ onLoadArchive }) {
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-semibold text-gray-800 truncate">{entry.name}</div>
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
-                  <span className="text-base leading-none">{PROVIDER_ICONS[entry.provider] ?? "📐"}</span>
+                  <ProviderLogo provider={entry.provider} size={18} />
                   <span className="text-xs text-gray-500 font-medium">{PROVIDER_LABELS[entry.provider]}</span>
                   <span className="text-gray-300 text-xs">·</span>
                   <span className="text-xs text-gray-400">{entry.componentCount} components</span>
@@ -590,7 +640,7 @@ function TemplatesGallery({ onLoadTemplate }) {
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200",
               ].join(" ")}
             >
-              <span>{t.icon}</span>
+              {t.id === "all" ? <span>🌐</span> : <ProviderLogo provider={t.id} size={16} />}
               <span>{t.label}</span>
             </button>
           ))}
@@ -619,7 +669,7 @@ function TemplatesGallery({ onLoadTemplate }) {
             </p>
             <div className="mt-3 flex items-center gap-3 text-xs text-gray-400">
               <span className="flex items-center gap-1">
-                <span>{PROVIDER_ICONS[tpl.graphMeta?.provider] ?? "📐"}</span>
+                <ProviderLogo provider={tpl.graphMeta?.provider} size={16} />
                 <span className="font-medium text-gray-500">
                   {PROVIDER_LABELS[tpl.graphMeta?.provider] ?? tpl.graphMeta?.provider}
                 </span>

@@ -3,6 +3,41 @@ import { AWS_COMPONENTS, CATEGORIES as AWS_CATEGORIES } from "../../utils/awsCom
 import { AZURE_COMPONENTS, CATEGORIES as AZURE_CATEGORIES } from "../../utils/azureComponentLibrary";
 import { GCP_COMPONENTS, CATEGORIES as GCP_CATEGORIES } from "../../utils/gcpComponentLibrary";
 import { ONPREM_COMPONENTS, CATEGORIES as ONPREM_CATEGORIES } from "../../utils/onpremComponentLibrary";
+import { AWS_ICONS } from "../../assets/icons/awsIcons";
+import { AZURE_ICONS } from "../../assets/icons/azureIcons";
+import { GCP_ICONS } from "../../assets/icons/gcpIcons";
+
+// Maps academy component IDs to provider icon keys where they differ
+const ICON_ALIAS = {
+  ec2_instance: "ec2",
+  lambda_function: "lambda",
+  s3_bucket: "s3",
+  rds_instance: "rds",
+  kms: "kms_key",
+  secrets_manager: "secretsmanager",
+  load_balancer: "alb",
+  azure_load_balancer: "azure_lb",
+  azure_application_gateway: "azure_agw",
+  google_compute_engine: "gcp_gce",
+  google_gke: "gcp_gke",
+  google_cloud_run: "gcp_cloud_run",
+  google_cloud_storage: "gcp_gcs",
+  google_cloud_sql: "gcp_cloudsql",
+  google_bigquery: "gcp_bigquery",
+  google_cloud_spanner: "gcp_spanner",
+  google_alloydb: "gcp_alloydb",
+  google_vertex_ai: "gcp_vertex_ai",
+  google_apigee: "gcp_apigee",
+  google_looker: "gcp_looker",
+  google_security_command_center: "gcp_scc",
+};
+
+const ALL_ICONS = { ...AWS_ICONS, ...AZURE_ICONS, ...GCP_ICONS };
+
+function resolveIcon(componentId) {
+  const key = ICON_ALIAS[componentId] ?? componentId;
+  return ALL_ICONS[key] ?? null;
+}
 
 // ─── Provider configuration ───────────────────────────────────────────────────
 
@@ -136,7 +171,11 @@ function Drawer({ component, categories, allComponents, docLabel, badgeClass, on
         {/* Header */}
         <div className="flex items-start justify-between px-6 py-5 border-b border-gray-100">
           <div className="flex items-center gap-3">
-            <span className="text-3xl">{component.icon}</span>
+            {resolveIcon(component.id) ? (
+              <img src={resolveIcon(component.id)} alt={component.name} className="w-9 h-9 object-contain flex-shrink-0" />
+            ) : (
+              <span className="text-3xl">{component.icon}</span>
+            )}
             <div>
               <h2 className="text-lg font-semibold text-gray-900">{component.name}</h2>
               <span className={`text-xs font-medium border px-2 py-0.5 rounded-full ${badgeClass}`}>
@@ -285,7 +324,11 @@ function ComponentCard({ component, onClick }) {
       className="bg-white border border-gray-200 rounded-xl p-5 text-left hover:border-blue-300 hover:shadow-sm transition-all group w-full"
     >
       <div className="flex items-start gap-3">
-        <span className="text-2xl flex-shrink-0">{component.icon}</span>
+        {resolveIcon(component.id) ? (
+          <img src={resolveIcon(component.id)} alt={component.name} className="w-7 h-7 object-contain flex-shrink-0 mt-0.5" />
+        ) : (
+          <span className="text-2xl flex-shrink-0">{component.icon}</span>
+        )}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-gray-900 text-sm group-hover:text-blue-600 transition-colors">

@@ -69,7 +69,21 @@ export const COMPONENT_CONFIGS = {
       default: false,
     },
   ],
-  internet_gateway: [],
+  internet_gateway: [
+    {
+      key: "tags_name",
+      label: "Name Tag",
+      type: "text",
+      default: "main-igw",
+      basic: true,
+    },
+    {
+      key: "force_detach_before_destroy",
+      label: "Force Detach on Destroy",
+      type: "boolean",
+      default: false,
+    },
+  ],
   nat_gateway: [
     {
       key: "connectivity_type",
@@ -80,7 +94,22 @@ export const COMPONENT_CONFIGS = {
       basic: true,
     },
   ],
-  route_table: [],
+  route_table: [
+    {
+      key: "propagating_vgws",
+      label: "Propagate VGW Routes",
+      type: "boolean",
+      default: false,
+      basic: true,
+    },
+    {
+      key: "tags_name",
+      label: "Name Tag",
+      type: "text",
+      default: "",
+      basic: true,
+    },
+  ],
   elastic_ip: [
     {
       key: "domain",
@@ -1029,8 +1058,94 @@ export const COMPONENT_CONFIGS = {
       default: false,
     },
   ],
-  security_group: [],
-  iam_role: [],
+  security_group: [
+    {
+      key: "name",
+      label: "Security Group Name",
+      type: "text",
+      default: "my-security-group",
+      basic: true,
+    },
+    {
+      key: "description",
+      label: "Description",
+      type: "text",
+      default: "Managed by Terraform",
+      basic: true,
+    },
+    {
+      key: "ingress_from_port",
+      label: "Ingress Port (From)",
+      type: "number",
+      default: 80,
+      basic: true,
+    },
+    {
+      key: "ingress_to_port",
+      label: "Ingress Port (To)",
+      type: "number",
+      default: 80,
+    },
+    {
+      key: "ingress_protocol",
+      label: "Ingress Protocol",
+      type: "select",
+      options: ["tcp", "udp", "icmp", "-1"],
+      default: "tcp",
+    },
+    {
+      key: "ingress_cidr_blocks",
+      label: "Ingress CIDR Blocks",
+      type: "text",
+      default: "0.0.0.0/0",
+    },
+    {
+      key: "egress_all",
+      label: "Allow All Egress",
+      type: "boolean",
+      default: true,
+    },
+  ],
+  iam_role: [
+    {
+      key: "name",
+      label: "Role Name",
+      type: "text",
+      default: "my-iam-role",
+      basic: true,
+    },
+    {
+      key: "description",
+      label: "Description",
+      type: "text",
+      default: "",
+      basic: true,
+    },
+    {
+      key: "max_session_duration",
+      label: "Max Session Duration (s)",
+      type: "number",
+      default: 3600,
+    },
+    {
+      key: "force_detach_policies",
+      label: "Force Detach Policies on Destroy",
+      type: "boolean",
+      default: false,
+    },
+    {
+      key: "path",
+      label: "Path",
+      type: "text",
+      default: "/",
+    },
+    {
+      key: "permissions_boundary",
+      label: "Permissions Boundary ARN",
+      type: "text",
+      default: "",
+    },
+  ],
   kms_key: [
     {
       key: "key_usage",

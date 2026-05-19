@@ -1,5 +1,10 @@
 import { Handle, Position } from "@xyflow/react";
 import useValidationStore from "../../../store/validationStore";
+import { AWS_ICONS } from "../../../assets/icons/awsIcons";
+import { AZURE_ICONS } from "../../../assets/icons/azureIcons";
+import { GCP_ICONS } from "../../../assets/icons/gcpIcons";
+
+const ALL_ICONS = { ...AWS_ICONS, ...AZURE_ICONS, ...GCP_ICONS };
 
 const CATEGORY_COLORS = {
   networking: {
@@ -55,6 +60,8 @@ export default function AWSNode({ id, data, selected }) {
         ? "info"
         : null;
 
+  const svgUrl = data.nodeType ? ALL_ICONS[data.nodeType] : null;
+
   return (
     <div className="relative">
       <div
@@ -96,7 +103,13 @@ export default function AWSNode({ id, data, selected }) {
           className="!bg-gray-400"
         />
 
-        <div className={`text-2xl mb-1 ${colors.icon}`}>{data.icon}</div>
+        <div className="mb-1 flex items-center justify-center h-8">
+          {svgUrl ? (
+            <img src={svgUrl} alt={data.label} className="w-7 h-7 object-contain" />
+          ) : (
+            <span className={`text-2xl ${colors.icon}`}>{data.icon}</span>
+          )}
+        </div>
         <div className="text-xs font-semibold text-gray-700 leading-tight">
           {data.awsType}
         </div>
