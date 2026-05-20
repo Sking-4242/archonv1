@@ -1,0 +1,2225 @@
+{
+  "course": "aws",
+  "title": "AWS: Zero to Cloud Architect",
+  "description": "A complete AWS learning path from absolute beginner to cloud architect. Covers all major AWS certification tracks.",
+  "modules": [
+    {
+      "slug": "module-01-cloud-fundamentals",
+      "title": "What Is Cloud Computing?",
+      "description": "Learn what cloud computing is, why it exists, and how it compares to traditional on-premises infrastructure.",
+      "order": 1,
+      "difficulty": "beginner",
+      "cert_tags": [
+        "aws_ccp"
+      ],
+      "lessons": [
+        {
+          "file": "01-what-is-cloud.md",
+          "title": "What Is Cloud Computing?",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        },
+        {
+          "file": "02-cloud-vs-on-prem.md",
+          "title": "Cloud vs. On-Premises",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        },
+        {
+          "file": "03-service-models.md",
+          "title": "IaaS, PaaS, and SaaS",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        },
+        {
+          "file": "04-deployment-models.md",
+          "title": "Public, Private, and Hybrid Cloud",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        },
+        {
+          "file": "05-benefits-of-cloud.md",
+          "title": "Benefits of Cloud Computing",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        },
+        {
+          "file": "lab-aws-account.md",
+          "title": "Lab: Create Your AWS Account",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-02-aws-global-infrastructure",
+      "title": "AWS Global Infrastructure",
+      "description": "Understand how AWS is structured globally — regions, Availability Zones, edge locations, and how to choose where to run your workloads.",
+      "order": 2,
+      "difficulty": "beginner",
+      "cert_tags": [
+        "aws_ccp",
+        "aws_saa"
+      ],
+      "lessons": [
+        {
+          "file": "01-regions.md",
+          "title": "AWS Regions",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa"
+          ]
+        },
+        {
+          "file": "02-availability-zones.md",
+          "title": "Availability Zones",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa"
+          ]
+        },
+        {
+          "file": "03-edge-locations.md",
+          "title": "Edge Locations and CloudFront POPs",
+          "minutes": 6,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa"
+          ]
+        },
+        {
+          "file": "04-choosing-a-region.md",
+          "title": "How to Choose a Region",
+          "minutes": 6,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa"
+          ]
+        },
+        {
+          "file": "lab-infrastructure-map.md",
+          "title": "Lab: Explore the AWS Infrastructure Map",
+          "minutes": 15,
+          "type": "canvas",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-03-pricing-and-billing",
+      "title": "AWS Pricing and Billing",
+      "description": "Understand how AWS pricing works, how to avoid surprise bills, and how to estimate and manage cloud costs.",
+      "order": 3,
+      "difficulty": "beginner",
+      "cert_tags": [
+        "aws_ccp"
+      ],
+      "lessons": [
+        {
+          "file": "01-pricing-model.md",
+          "title": "AWS Pricing Model",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        },
+        {
+          "file": "02-free-tier.md",
+          "title": "The AWS Free Tier",
+          "minutes": 5,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        },
+        {
+          "file": "03-pricing-models.md",
+          "title": "On-Demand, Reserved, Spot, and Savings Plans",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa"
+          ]
+        },
+        {
+          "file": "04-support-plans.md",
+          "title": "AWS Support Plans",
+          "minutes": 6,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        },
+        {
+          "file": "05-cost-explorer.md",
+          "title": "Cost Explorer and AWS Budgets",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_soa"
+          ]
+        },
+        {
+          "file": "lab-billing-alerts.md",
+          "title": "Lab: Set Up Billing Alerts and Explore Cost Explorer",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-04-iam",
+      "title": "Identity and Access Management (IAM)",
+      "description": "Master AWS IAM — users, groups, roles, policies, and the principle of least privilege. The foundation of AWS security.",
+      "order": 4,
+      "difficulty": "beginner",
+      "cert_tags": [
+        "aws_ccp",
+        "aws_saa",
+        "aws_scs"
+      ],
+      "lessons": [
+        {
+          "file": "01-iam-overview.md",
+          "title": "IAM Overview",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_dva",
+            "aws_soa"
+          ]
+        },
+        {
+          "file": "02-users-groups-roles.md",
+          "title": "Users, Groups, and Roles",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_soa"
+          ]
+        },
+        {
+          "file": "03-policies.md",
+          "title": "IAM Policies and JSON Structure",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_soa",
+            "aws_dva"
+          ]
+        },
+        {
+          "file": "04-least-privilege.md",
+          "title": "Principle of Least Privilege",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_scs"
+          ]
+        },
+        {
+          "file": "05-mfa.md",
+          "title": "Multi-Factor Authentication (MFA)",
+          "minutes": 6,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_scs"
+          ]
+        },
+        {
+          "file": "06-organizations.md",
+          "title": "AWS Organizations and Multi-Account Strategy",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_soa",
+            "aws_scs"
+          ]
+        },
+        {
+          "file": "lab-iam-setup.md",
+          "title": "Lab: Create Users, Groups, and Policies",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-05-shared-responsibility-and-compliance",
+      "title": "Shared Responsibility Model and Compliance",
+      "description": "Understand what AWS is responsible for versus what you are responsible for, and how AWS meets major compliance frameworks.",
+      "order": 5,
+      "difficulty": "beginner",
+      "cert_tags": [
+        "aws_ccp",
+        "aws_saa",
+        "aws_scs"
+      ],
+      "lessons": [
+        {
+          "file": "01-shared-responsibility.md",
+          "title": "The Shared Responsibility Model",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa"
+          ]
+        },
+        {
+          "file": "02-security-in-the-cloud.md",
+          "title": "Security In the Cloud (Your Responsibility)",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_scs"
+          ]
+        },
+        {
+          "file": "03-security-of-the-cloud.md",
+          "title": "Security Of the Cloud (AWS Responsibility)",
+          "minutes": 6,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp"
+          ]
+        },
+        {
+          "file": "04-compliance.md",
+          "title": "Compliance Programs and AWS Artifact",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-06-well-architected-framework",
+      "title": "AWS Well-Architected Framework",
+      "description": "A survey of the six pillars of the Well-Architected Framework. This module is revisited in depth in Module 25.",
+      "order": 6,
+      "difficulty": "beginner",
+      "cert_tags": [
+        "aws_ccp",
+        "aws_saa",
+        "aws_sap"
+      ],
+      "lessons": [
+        {
+          "file": "01-framework-overview.md",
+          "title": "Well-Architected Framework Overview",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_sap"
+          ]
+        },
+        {
+          "file": "02-operational-excellence.md",
+          "title": "Pillar: Operational Excellence",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_sap"
+          ]
+        },
+        {
+          "file": "03-security.md",
+          "title": "Pillar: Security",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_sap"
+          ]
+        },
+        {
+          "file": "04-reliability.md",
+          "title": "Pillar: Reliability",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_sap"
+          ]
+        },
+        {
+          "file": "05-performance-efficiency.md",
+          "title": "Pillar: Performance Efficiency",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_sap"
+          ]
+        },
+        {
+          "file": "06-cost-optimization.md",
+          "title": "Pillar: Cost Optimization",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_sap"
+          ]
+        },
+        {
+          "file": "07-sustainability.md",
+          "title": "Pillar: Sustainability",
+          "minutes": 5,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_sap"
+          ]
+        },
+        {
+          "file": "lab-well-architected.md",
+          "title": "Lab: Run the Well-Architected Tool",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-07-ec2",
+      "title": "Compute: EC2",
+      "description": "Deep dive into Amazon EC2 — the backbone of AWS compute. Instance types, pricing models, storage, and networking.",
+      "order": 7,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_soa",
+        "aws_dva"
+      ],
+      "lessons": [
+        {
+          "file": "01-ec2-overview.md",
+          "title": "EC2 Overview",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_soa",
+            "aws_dva"
+          ]
+        },
+        {
+          "file": "02-instance-types.md",
+          "title": "Instance Types and Families",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_soa"
+          ]
+        },
+        {
+          "file": "03-amis.md",
+          "title": "AMIs and Launch Templates",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_saa",
+            "aws_soa",
+            "aws_dva"
+          ]
+        },
+        {
+          "file": "04-pricing-models.md",
+          "title": "EC2 Pricing Models",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_soa"
+          ]
+        },
+        {
+          "file": "05-security-groups.md",
+          "title": "Security Groups and Key Pairs",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_saa",
+            "aws_soa",
+            "aws_dva"
+          ]
+        },
+        {
+          "file": "06-ebs.md",
+          "title": "EBS Volumes and Snapshots",
+          "minutes": 9,
+          "type": "content",
+          "cert_tags": [
+            "aws_saa",
+            "aws_soa",
+            "aws_dva"
+          ]
+        },
+        {
+          "file": "07-placement-groups.md",
+          "title": "Placement Groups and Elastic IPs",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_saa",
+            "aws_soa"
+          ]
+        },
+        {
+          "file": "lab-ebs-volume.md",
+          "title": "Lab: Attach and Resize an EBS Volume",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "aws_saa",
+            "aws_soa"
+          ]
+        },
+        {
+          "file": "lab-launch-ec2.md",
+          "title": "Lab: Launch and Connect to an EC2 Instance",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-08-scaling-and-load-balancing",
+      "title": "Scaling and Load Balancing",
+      "description": "Build highly available, scalable applications using Auto Scaling Groups and Elastic Load Balancing.",
+      "order": 8,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_soa"
+      ],
+      "lessons": [
+        {
+          "file": "01-elb-overview.md",
+          "title": "Elastic Load Balancing Overview",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_saa",
+            "aws_soa",
+            "aws_dva"
+          ]
+        },
+        {
+          "file": "02-alb-vs-nlb.md",
+          "title": "ALB vs. NLB vs. CLB",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_saa",
+            "aws_soa",
+            "aws_dva"
+          ]
+        },
+        {
+          "file": "03-listener-rules.md",
+          "title": "Listener Rules and Health Checks",
+          "minutes": 7,
+          "type": "content",
+          "cert_tags": [
+            "aws_saa",
+            "aws_soa"
+          ]
+        },
+        {
+          "file": "04-auto-scaling-groups.md",
+          "title": "Auto Scaling Groups",
+          "minutes": 9,
+          "type": "content",
+          "cert_tags": [
+            "aws_ccp",
+            "aws_saa",
+            "aws_soa"
+          ]
+        },
+        {
+          "file": "05-scaling-policies.md",
+          "title": "Scaling Policies",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "aws_saa",
+            "aws_soa"
+          ]
+        },
+        {
+          "file": "lab-alb-asg.md",
+          "title": "Lab: Build an ASG Behind an ALB",
+          "minutes": 45,
+          "type": "canvas",
+          "cert_tags": [
+            "aws_saa",
+            "aws_soa"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-09-s3",
+      "title": "Storage: S3",
+      "description": "Master Amazon S3 — from basic buckets and objects to storage classes, versioning, security, and static hosting.",
+      "order": 9,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_soa",
+        "aws_dea"
+      ],
+      "lessons": [
+        {
+          "file": "01-s3-overview.md",
+          "title": "S3 Overview: Buckets and Objects",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-storage-classes.md",
+          "title": "S3 Storage Classes and Cost Optimization",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "03-versioning.md",
+          "title": "S3 Versioning and Object Lock",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "04-security.md",
+          "title": "S3 Security: Policies, Encryption, and Access Control",
+          "minutes": 12,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "05-replication.md",
+          "title": "S3 Replication: CRR and SRR",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "06-performance.md",
+          "title": "S3 Performance Optimization",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "07-event-notifications.md",
+          "title": "S3 Event Notifications and S3 Select",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "08-access-points.md",
+          "title": "S3 Access Points and Multi-Region Access Points",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "lab-lifecycle.md",
+          "title": "Canvas Lab: S3 Lifecycle and Storage Tiers",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "lab-static-website.md",
+          "title": "Canvas Lab: S3 Static Website with CloudFront",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-10-storage-ebs-efs",
+      "title": "Storage: EBS, EFS, and Beyond",
+      "description": "Understand AWS block and file storage — EBS volume types, EFS for shared file systems, FSx, Storage Gateway, and AWS Backup.",
+      "order": 10,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_soa"
+      ],
+      "lessons": [
+        {
+          "file": "01-ebs-deep-dive.md",
+          "title": "EBS Deep Dive: Volume Types and Performance",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-ebs-snapshots.md",
+          "title": "EBS Snapshots and Data Lifecycle Manager",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "03-efs.md",
+          "title": "Amazon EFS: Elastic File System",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "04-fsx.md",
+          "title": "Amazon FSx: Purpose-Built Managed File Systems",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "05-storage-gateway.md",
+          "title": "AWS Storage Gateway: Hybrid Cloud Storage",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "lab-efs-mount.md",
+          "title": "Canvas Lab: Shared EFS Mount Across Multiple EC2 Instances",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-11-rds-and-aurora",
+      "title": "Databases: RDS and Aurora",
+      "description": "Learn AWS managed relational databases — RDS engines, Multi-AZ, read replicas, and the Aurora architecture.",
+      "order": 11,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_dbs"
+      ],
+      "lessons": [
+        {
+          "file": "01-rds-fundamentals.md",
+          "title": "RDS Fundamentals: Managed Relational Databases",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-multi-az-and-read-replicas.md",
+          "title": "RDS Multi-AZ and Read Replicas",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "03-backups-and-snapshots.md",
+          "title": "RDS Backups, Snapshots, and PITR",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "04-aurora-architecture.md",
+          "title": "Amazon Aurora Architecture",
+          "minutes": 12,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "05-aurora-advanced.md",
+          "title": "Aurora Advanced: Global Database, Parallel Query, and ML",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "06-rds-proxy.md",
+          "title": "RDS Proxy: Connection Pooling and IAM Auth",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "lab-rds-ha.md",
+          "title": "Canvas Lab: Highly Available RDS with Read Replica",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "lab-rds-launch.md",
+          "title": "Lab: Launch RDS and Connect from EC2",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": []
+        }
+      ]
+    },
+    {
+      "slug": "module-12-dynamodb-and-databases",
+      "title": "Databases: DynamoDB and Beyond",
+      "description": "Master DynamoDB and learn when to choose other AWS database services — ElastiCache, Redshift, Neptune, and more.",
+      "order": 12,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_dbs",
+        "aws_dea"
+      ],
+      "lessons": [
+        {
+          "file": "01-dynamodb-fundamentals.md",
+          "title": "DynamoDB Fundamentals: Tables, Items, and Keys",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-queries-indexes.md",
+          "title": "DynamoDB Queries, Scans, and Indexes",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "03-streams-transactions-dax.md",
+          "title": "DynamoDB Streams, Transactions, and DAX",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "04-global-tables-design.md",
+          "title": "DynamoDB Global Tables and Single-Table Design",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "05-elasticache.md",
+          "title": "ElastiCache: Redis and Memcached",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "06-other-databases.md",
+          "title": "AWS Specialized Databases: Redshift, Neptune, and More",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "lab-dynamodb-design.md",
+          "title": "Canvas Lab: DynamoDB Table Design for an Order System",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "lab-dynamodb.md",
+          "title": "Lab: Create a DynamoDB Table and Query It",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": []
+        }
+      ]
+    },
+    {
+      "slug": "module-13-vpc-networking",
+      "title": "Networking: VPC",
+      "description": "Build production-grade networks on AWS using VPC — subnets, routing, NAT, security groups, NACLs, endpoints, and Transit Gateway.",
+      "order": 13,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_ans"
+      ],
+      "lessons": [
+        {
+          "file": "01-vpc-fundamentals.md",
+          "title": "VPC Fundamentals: Your Private Network on AWS",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-security-groups-nacls.md",
+          "title": "Security Groups and Network ACLs",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "03-vpc-peering-transit-gateway.md",
+          "title": "VPC Peering and Transit Gateway",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "04-vpn-direct-connect.md",
+          "title": "AWS VPN and Direct Connect",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "05-vpc-endpoints.md",
+          "title": "VPC Endpoints: Private AWS Service Access",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "06-network-firewall.md",
+          "title": "AWS Network Firewall and Traffic Inspection",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "07-vpc-design-patterns.md",
+          "title": "VPC Design Patterns and Best Practices",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "lab-nat-gateway.md",
+          "title": "Lab: Add a NAT Gateway and Test Egress",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-vpc-build.md",
+          "title": "Canvas Lab: Build a Three-Tier VPC",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "lab-vpc-peering.md",
+          "title": "Canvas Lab: Multi-VPC Peering and Route Configuration",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-14-dns-cdn-and-hybrid",
+      "title": "Networking: DNS, CDN, and Hybrid Connectivity",
+      "description": "Route traffic intelligently with Route 53, accelerate content delivery with CloudFront, and connect on-premises with Direct Connect and VPN.",
+      "order": 14,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_ans"
+      ],
+      "lessons": [
+        {
+          "file": "01-route53-fundamentals.md",
+          "title": "Route 53 Fundamentals: Hosted Zones and Record Types",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-routing-policies.md",
+          "title": "Route 53 Routing Policies",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "03-cloudfront.md",
+          "title": "Amazon CloudFront: CDN and Edge Caching",
+          "minutes": 12,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "04-global-accelerator.md",
+          "title": "AWS Global Accelerator",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "05-outposts-wavelength.md",
+          "title": "AWS Outposts, Wavelength, and Local Zones",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "06-route53-resolver.md",
+          "title": "Route 53 Resolver and Hybrid DNS",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "lab-cloudfront.md",
+          "title": "Lab: CloudFront in Front of an S3 Origin",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-route53-failover.md",
+          "title": "Canvas Lab: Multi-Region Route 53 Failover",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-15-security-services",
+      "title": "Security Services",
+      "description": "A deep dive into AWS security tooling — KMS, Secrets Manager, Shield, WAF, GuardDuty, Inspector, Macie, and Security Hub.",
+      "order": 15,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_scs"
+      ],
+      "lessons": [
+        {
+          "file": "01-iam-advanced.md",
+          "title": "IAM Advanced: Policies, Roles, and Boundaries",
+          "minutes": 12,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "SCS-C02"
+          ]
+        },
+        {
+          "file": "02-kms.md",
+          "title": "AWS KMS: Key Management and Encryption",
+          "minutes": 12,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "SCS-C02"
+          ]
+        },
+        {
+          "file": "03-secrets-manager.md",
+          "title": "Secrets Manager and SSM Parameter Store",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02",
+            "SCS-C02"
+          ]
+        },
+        {
+          "file": "04-acm-cloudhsm-macie.md",
+          "title": "ACM, CloudHSM, and Amazon Macie",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "SCS-C02"
+          ]
+        },
+        {
+          "file": "05-guardduty-security-hub.md",
+          "title": "GuardDuty and AWS Security Hub",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "SCS-C02"
+          ]
+        },
+        {
+          "file": "06-config-cloudtrail.md",
+          "title": "AWS Config and CloudTrail",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "SCS-C02"
+          ]
+        },
+        {
+          "file": "07-waf-shield-firewall-manager.md",
+          "title": "WAF, Shield Advanced, and Firewall Manager",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "SCS-C02"
+          ]
+        },
+        {
+          "file": "lab-guardduty.md",
+          "title": "Lab: Enable GuardDuty and Review Findings",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-kms-encryption.md",
+          "title": "Lab: KMS Key and S3 Encryption",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-security-design.md",
+          "title": "Canvas Lab: Design a Secure Three-Tier Architecture",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "lab-security-review.md",
+          "title": "Canvas Lab: Spot the Security Gaps",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "SCS-C02"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-16-monitoring-and-observability",
+      "title": "Monitoring, Logging, and Observability",
+      "description": "Monitor your AWS workloads with CloudWatch, audit with CloudTrail, enforce with Config, and trace with X-Ray.",
+      "order": 16,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_soa",
+        "aws_dop"
+      ],
+      "lessons": [
+        {
+          "file": "01-cloudwatch-metrics.md",
+          "title": "CloudWatch Metrics, Alarms, and Dashboards",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-cloudwatch-logs.md",
+          "title": "CloudWatch Logs: Ingestion, Filtering, and Insights",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02",
+            "SCS-C02"
+          ]
+        },
+        {
+          "file": "03-xray-tracing.md",
+          "title": "AWS X-Ray: Distributed Tracing",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "04-synthetics-rum.md",
+          "title": "CloudWatch Synthetics, RUM, and ServiceLens",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "05-systems-manager.md",
+          "title": "AWS Systems Manager: Operational Management",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "SCS-C02"
+          ]
+        },
+        {
+          "file": "06-eventbridge.md",
+          "title": "Amazon EventBridge: Event-Driven Architecture",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "lab-cloudtrail.md",
+          "title": "Lab: Query CloudTrail with Logs Insights",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-cloudwatch.md",
+          "title": "Lab: Build a CloudWatch Dashboard and Alarm",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-eventbridge-pipeline.md",
+          "title": "Canvas Lab: Event-Driven Pipeline with EventBridge",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "lab-monitoring-design.md",
+          "title": "Canvas Lab: Design a CloudWatch Observability Stack",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-17-serverless-lambda",
+      "title": "Serverless: Lambda and API Gateway",
+      "description": "Build serverless applications with AWS Lambda and expose them via API Gateway. Covers triggers, concurrency, cold starts, and authorizers.",
+      "order": 17,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_dva"
+      ],
+      "lessons": [
+        {
+          "file": "01-lambda-fundamentals.md",
+          "title": "Lambda Fundamentals: Functions, Triggers, and Runtimes",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-lambda-advanced.md",
+          "title": "Lambda Advanced: VPC, Destinations, and Power Tuning",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "03-step-functions.md",
+          "title": "AWS Step Functions: Serverless Orchestration",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "04-api-gateway.md",
+          "title": "Amazon API Gateway",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "05-sam-serverless-patterns.md",
+          "title": "AWS SAM and Serverless Application Patterns",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "DVA-C02",
+            "SAA-C03"
+          ]
+        },
+        {
+          "file": "lab-api-gateway.md",
+          "title": "Lab: Wire Lambda to API Gateway",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-lambda.md",
+          "title": "Lab: Deploy a Lambda Function",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-serverless-api.md",
+          "title": "Canvas Lab: Serverless API Architecture",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "lab-step-functions.md",
+          "title": "Canvas Lab: Order Processing with Step Functions",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-18-containers-ecs-eks",
+      "title": "Containers: ECS, EKS, and Fargate",
+      "description": "Run containerized workloads on AWS using ECS, EKS, and Fargate. Covers Docker basics, task definitions, and service deployments.",
+      "order": 18,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_dva",
+        "aws_dop"
+      ],
+      "lessons": [
+        {
+          "file": "01-containers-on-aws.md",
+          "title": "Containers on AWS: ECS, EKS, and Fargate",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-ecs-deep-dive.md",
+          "title": "ECS Deep Dive: Tasks, Services, and Deployments",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "03-eks-architecture.md",
+          "title": "EKS Architecture: Nodes, Pods, and Networking",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "04-container-security.md",
+          "title": "Container Security on AWS",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "SCS-C02"
+          ]
+        },
+        {
+          "file": "05-app-runner-copilot.md",
+          "title": "AWS App Runner and AWS Copilot",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "DVA-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "lab-ecs-fargate.md",
+          "title": "Lab: Deploy a Container to ECS Fargate",
+          "minutes": 35,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-ecs-microservices.md",
+          "title": "Canvas Lab: ECS Fargate Microservices Architecture",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-19-messaging-and-integration",
+      "title": "Application Integration and Messaging",
+      "description": "Decouple your applications using SQS, SNS, EventBridge, and Step Functions. Build event-driven architectures on AWS.",
+      "order": 19,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_saa",
+        "aws_dva"
+      ],
+      "lessons": [
+        {
+          "file": "01-sqs.md",
+          "title": "Amazon SQS: Simple Queue Service",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-sns.md",
+          "title": "Amazon SNS: Simple Notification Service",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "03-kinesis.md",
+          "title": "Amazon Kinesis: Real-Time Data Streaming",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "04-mq-msk-appflow.md",
+          "title": "Amazon MQ, MSK, and AppFlow",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "05-integration-patterns.md",
+          "title": "Messaging Architecture Patterns",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "lab-messaging-fanout.md",
+          "title": "Canvas Lab: Event-Driven Fan-Out Pipeline",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02"
+          ]
+        },
+        {
+          "file": "lab-sqs-lambda.md",
+          "title": "Lab: Build an SQS + Lambda Pipeline with DLQ",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": []
+        }
+      ]
+    },
+    {
+      "slug": "module-20-developer-tools-cicd",
+      "title": "Developer Tools and CI/CD",
+      "description": "Build and automate delivery pipelines on AWS using CodeCommit, CodeBuild, CodeDeploy, CodePipeline, CDK, and SAM.",
+      "order": 20,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "aws_dva",
+        "aws_dop"
+      ],
+      "lessons": [
+        {
+          "file": "01-codecommit-codebuild.md",
+          "title": "CodeCommit and CodeBuild",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "DVA-C02",
+            "SAA-C03"
+          ]
+        },
+        {
+          "file": "02-codedeploy.md",
+          "title": "AWS CodeDeploy: Automated Deployments",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "DVA-C02",
+            "SAA-C03"
+          ]
+        },
+        {
+          "file": "03-codepipeline.md",
+          "title": "AWS CodePipeline: CI/CD Orchestration",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "DVA-C02",
+            "SAA-C03"
+          ]
+        },
+        {
+          "file": "04-codeartifact-codestar.md",
+          "title": "CodeArtifact, CodeStar, and Cloud9",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "DVA-C02",
+            "SAA-C03"
+          ]
+        },
+        {
+          "file": "05-infrastructure-as-code.md",
+          "title": "Infrastructure as Code: CloudFormation and CDK",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "DVA-C02",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "lab-cicd-pipeline.md",
+          "title": "Canvas Lab: Full CI/CD Pipeline for ECS",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": [
+            "DVA-C02",
+            "SAA-C03"
+          ]
+        },
+        {
+          "file": "lab-cloudformation.md",
+          "title": "Canvas Lab: Infrastructure as Code with CloudFormation",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": [
+            "DVA-C02",
+            "SAA-C03"
+          ]
+        },
+        {
+          "file": "lab-codepipeline.md",
+          "title": "Lab: Build a CodePipeline to EC2",
+          "minutes": 35,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-sam.md",
+          "title": "Lab: Deploy a SAM Application",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": []
+        }
+      ]
+    },
+    {
+      "slug": "module-21-analytics-and-data-engineering",
+      "title": "Analytics and Data Engineering",
+      "description": "Process and analyze data at scale on AWS using Kinesis, Glue, Athena, EMR, Lake Formation, and QuickSight.",
+      "order": 21,
+      "difficulty": "advanced",
+      "cert_tags": [
+        "aws_dea",
+        "aws_saa"
+      ],
+      "lessons": [
+        {
+          "file": "01-data-lake-architecture.md",
+          "title": "Data Lake Architecture on AWS",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "02-glue.md",
+          "title": "AWS Glue: Managed ETL and Data Integration",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "03-athena.md",
+          "title": "Amazon Athena: Serverless SQL Analytics",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "04-redshift.md",
+          "title": "Amazon Redshift: Cloud Data Warehouse",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "05-opensearch-emr-quicksight.md",
+          "title": "OpenSearch, EMR, and QuickSight",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "06-data-engineering-pipelines.md",
+          "title": "Data Engineering Pipelines and Orchestration",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "lab-analytics-pipeline.md",
+          "title": "Canvas Lab: Data Lake and Analytics Pipeline",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "lab-athena.md",
+          "title": "Lab: Catalog S3 with Glue and Query with Athena",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": []
+        }
+      ]
+    },
+    {
+      "slug": "module-22-machine-learning-and-ai",
+      "title": "Machine Learning and AI Services",
+      "description": "Explore AWS ML and AI — SageMaker for custom models, and the suite of pre-built AI services and Amazon Bedrock foundation models.",
+      "order": 22,
+      "difficulty": "advanced",
+      "cert_tags": [
+        "aws_mla",
+        "aws_mls"
+      ],
+      "lessons": [
+        {
+          "file": "01-ml-services-overview.md",
+          "title": "AWS Machine Learning Services Overview",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "MLS-C01",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-bedrock.md",
+          "title": "Amazon Bedrock: Foundation Models and Generative AI",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "MLS-C01"
+          ]
+        },
+        {
+          "file": "03-sagemaker.md",
+          "title": "Amazon SageMaker: Custom ML Model Development",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "MLS-C01"
+          ]
+        },
+        {
+          "file": "04-ai-services.md",
+          "title": "AI Services: Rekognition, Comprehend, Textract, and More",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "MLS-C01",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "05-ml-operations.md",
+          "title": "MLOps: Operationalizing Machine Learning",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "MLS-C01",
+            "SAA-C03"
+          ]
+        },
+        {
+          "file": "lab-ai-integration.md",
+          "title": "Canvas Lab: AI-Powered Document Processing Pipeline",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "MLS-C01"
+          ]
+        },
+        {
+          "file": "lab-bedrock-rag.md",
+          "title": "Canvas Lab: Bedrock RAG Architecture",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "MLS-C01"
+          ]
+        },
+        {
+          "file": "lab-bedrock.md",
+          "title": "Lab: Invoke a Bedrock Model via the Console",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-rekognition.md",
+          "title": "Lab: Image Analysis with Rekognition",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": []
+        }
+      ]
+    },
+    {
+      "slug": "module-23-high-availability-and-dr",
+      "title": "High Availability and Disaster Recovery",
+      "description": "Design for failure. Understand RTO vs. RPO, the four DR strategies, and how to build multi-region active/active architectures.",
+      "order": 23,
+      "difficulty": "advanced",
+      "cert_tags": [
+        "aws_sap",
+        "aws_saa"
+      ],
+      "lessons": [
+        {
+          "file": "01-ha-fundamentals.md",
+          "title": "High Availability Fundamentals",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "02-disaster-recovery.md",
+          "title": "Disaster Recovery Strategies",
+          "minutes": 12,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "03-auto-scaling.md",
+          "title": "Auto Scaling: Dynamic Capacity Management",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "04-resilience-hub.md",
+          "title": "AWS Resilience Hub and Chaos Engineering",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "lab-dr-warm-standby.md",
+          "title": "Canvas Lab: Warm Standby DR Architecture",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "lab-failover.md",
+          "title": "Lab: Simulate Failover with Route 53",
+          "minutes": 30,
+          "type": "canvas",
+          "cert_tags": []
+        }
+      ]
+    },
+    {
+      "slug": "module-24-cost-optimization",
+      "title": "Cost Optimization in Practice",
+      "description": "Stop overpaying. Right-size instances, leverage Spot, choose between Reserved and Savings Plans, and build a cost tagging strategy.",
+      "order": 24,
+      "difficulty": "advanced",
+      "cert_tags": [
+        "aws_sap",
+        "aws_soa"
+      ],
+      "lessons": [
+        {
+          "file": "01-cost-fundamentals.md",
+          "title": "AWS Cost Optimization Fundamentals",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-purchasing-strategies.md",
+          "title": "Reserved Instances, Savings Plans, and Spot",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "03-storage-cost-optimization.md",
+          "title": "Storage Cost Optimization",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "04-cost-tools.md",
+          "title": "AWS Cost Management Tools in Depth",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "lab-cost-explorer.md",
+          "title": "Lab: Analyze Costs and Build a Savings Plan Recommendation",
+          "minutes": 20,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-cost-optimization.md",
+          "title": "Canvas Lab: Cost Optimization Review",
+          "minutes": 25,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        }
+      ]
+    },
+    {
+      "slug": "module-25-well-architected-deep-dive",
+      "title": "Well-Architected Framework: Deep Dive",
+      "description": "A full pillar-by-pillar deep dive into the Well-Architected Framework — anti-patterns, lens reviews, and architectural decision records.",
+      "order": 25,
+      "difficulty": "expert",
+      "cert_tags": [
+        "aws_sap",
+        "aws_dop"
+      ],
+      "lessons": [
+        {
+          "file": "01-war-framework.md",
+          "title": "The AWS Well-Architected Framework",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "02-operational-excellence.md",
+          "title": "Operational Excellence Pillar",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "03-performance-sustainability.md",
+          "title": "Performance Efficiency and Sustainability Pillars",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "04-architecture-patterns.md",
+          "title": "Architecture Patterns: Putting It All Together",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        },
+        {
+          "file": "05-exam-strategy.md",
+          "title": "Exam Strategy and Certification Path",
+          "minutes": 8,
+          "type": "content",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02",
+            "CLF-C02"
+          ]
+        },
+        {
+          "file": "lab-war-review.md",
+          "title": "Lab: Run a Well-Architected Review",
+          "minutes": 45,
+          "type": "canvas",
+          "cert_tags": []
+        },
+        {
+          "file": "lab-well-architected-review.md",
+          "title": "Canvas Lab: Full Well-Architected Review",
+          "minutes": 45,
+          "type": "canvas",
+          "cert_tags": [
+            "SAA-C03",
+            "SAP-C02"
+          ]
+        }
+      ]
+    }
+  ]
+}

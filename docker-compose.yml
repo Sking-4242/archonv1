@@ -35,6 +35,9 @@ services:
       - ACADEMY_PORT=${ACADEMY_PORT:-3001}
       - DATABASE_URL=${DATABASE_URL:-postgresql://archon:archon_dev@db:5432/archon_academy}
       - ACADEMY_SECRET_KEY=${ACADEMY_SECRET_KEY:-change-me-for-production}
+      - CONTENT_ROOT=/app/content
+    volumes:
+      - ./academy/content:/app/content:ro
     depends_on:
       db:
         condition: service_healthy

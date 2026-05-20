@@ -7,8 +7,10 @@ import LoginPage from "./components/auth/LoginPage";
 import StudentHome from "./components/student/StudentHome";
 import StudentAssignments from "./components/student/StudentAssignments";
 import StudentModules from "./components/student/StudentModules";
+import StudentModuleDetail from "./components/student/StudentModuleDetail";
 import StudentLessons from "./components/student/StudentLessons";
 import StudentLibrary from "./components/student/StudentLibrary";
+import StudentLibraryBrowser from "./components/student/StudentLibraryBrowser";
 import StudentSandbox from "./components/student/StudentSandbox";
 import StudentGrades from "./components/student/StudentGrades";
 import StudentTools from "./components/student/StudentTools";
@@ -72,8 +74,10 @@ export default function App() {
         <Route path="/dashboard"      element={<StudentShell><StudentHome /></StudentShell>} />
         <Route path="/assignments"    element={<StudentShell><StudentAssignments /></StudentShell>} />
         <Route path="/modules"        element={<StudentShell><StudentModules /></StudentShell>} />
+        <Route path="/modules/:moduleId" element={<StudentShell><StudentModuleDetail /></StudentShell>} />
         <Route path="/lessons"        element={<StudentShell><StudentLessons /></StudentShell>} />
-        <Route path="/library"        element={<StudentShell><StudentLibrary /></StudentShell>} />
+        <Route path="/library"         element={<StudentShell><StudentLibrary /></StudentShell>} />
+        <Route path="/course-library"  element={<StudentShell><StudentLibraryBrowser /></StudentShell>} />
         <Route path="/sandbox"        element={<StudentShell><StudentSandbox /></StudentShell>} />
         <Route path="/grades"         element={<StudentShell><StudentGrades /></StudentShell>} />
         <Route path="/tools"          element={<StudentShell><StudentTools /></StudentShell>} />
@@ -91,16 +95,17 @@ export default function App() {
         />
 
         {/* Instructor routes */}
-        <Route path="/instructor"                  element={<InstructorShell><InstructorHome /></InstructorShell>} />
-        <Route path="/instructor/assignments"      element={<InstructorShell><InstructorAssignments /></InstructorShell>} />
-        <Route path="/instructor/modules"          element={<InstructorShell><InstructorModules /></InstructorShell>} />
-        <Route path="/instructor/lesson-plans"     element={<InstructorShell><InstructorLessonPlans /></InstructorShell>} />
-        <Route path="/instructor/gradebook"        element={<InstructorShell><InstructorGradebook /></InstructorShell>} />
-        <Route path="/instructor/analytics"        element={<InstructorShell><InstructorAnalytics /></InstructorShell>} />
-        <Route path="/instructor/rubric-bank"      element={<InstructorShell><InstructorRubricBank /></InstructorShell>} />
-        <Route path="/instructor/announcements"    element={<InstructorShell><InstructorAnnouncements /></InstructorShell>} />
-        <Route path="/instructor/teams"            element={<InstructorShell><InstructorTeams /></InstructorShell>} />
-        <Route path="/instructor/settings"         element={<InstructorShell><InstructorSettings /></InstructorShell>} />
+        <Route path="/instructor"                        element={<InstructorShell><InstructorHome /></InstructorShell>} />
+        <Route path="/instructor/assignments"            element={<InstructorShell><InstructorAssignments /></InstructorShell>} />
+        <Route path="/instructor/modules"                element={<InstructorShell><InstructorModules /></InstructorShell>} />
+        <Route path="/instructor/lesson-plans"           element={<InstructorShell><InstructorLessonPlans /></InstructorShell>} />
+        <Route path="/instructor/lessons/:lessonId/edit" element={<InstructorShell><InstructorLessonPlans /></InstructorShell>} />
+        <Route path="/instructor/gradebook"              element={<InstructorShell><InstructorGradebook /></InstructorShell>} />
+        <Route path="/instructor/analytics"              element={<InstructorShell><InstructorAnalytics /></InstructorShell>} />
+        <Route path="/instructor/rubric-bank"            element={<InstructorShell><InstructorRubricBank /></InstructorShell>} />
+        <Route path="/instructor/announcements"          element={<InstructorShell><InstructorAnnouncements /></InstructorShell>} />
+        <Route path="/instructor/teams"                  element={<InstructorShell><InstructorTeams /></InstructorShell>} />
+        <Route path="/instructor/settings"               element={<InstructorShell><InstructorSettings /></InstructorShell>} />
 
         {/* Submission review — full screen */}
         <Route

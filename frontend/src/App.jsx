@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import Canvas from "./components/canvas/Canvas";
 import ComponentPanel from "./components/panels/ComponentPanel";
 import SecurityTab from "./components/panels/SecurityTab";
@@ -239,6 +239,34 @@ export default function App() {
     );
     saveArchitecture(g);
   }, [graphMeta, infraProvider, nodes, edges, securityGroups, iamRoles, saveArchitecture]);
+
+  // ── Consume ?seed= param from Academy canvas lab links ───────────────────────
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const seed = params.get("seed");
+    if (!seed) return;
+    try {
+      const template = JSON.parse(atob(seed));
+      loadState({
+        nodes: template.nodes ?? [],
+        edges: template.edges ?? [],
+        graphMeta: {
+          id: crypto.randomUUID(),
+          name: template.graphMeta?.name ?? "Academy Lab",
+          provider: template.graphMeta?.provider ?? "aws",
+          region: template.graphMeta?.region ?? "us-east-1",
+        },
+      });
+      if (template.graphMeta?.provider) setInfraProvider(template.graphMeta.provider);
+      setShowLanding(false);
+    } catch {
+      // malformed seed — ignore and show landing
+    } finally {
+      // strip param from URL so it doesn't re-apply on refresh
+      const clean = window.location.pathname;
+      window.history.replaceState({}, "", clean);
+    }
+  }, []);
 
   const handleNewCanvas = useCallback(
     (providerName, opts = {}) => {
