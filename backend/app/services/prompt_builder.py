@@ -1,3 +1,5 @@
+import json
+
 from app.models.graph import Graph
 
 _SYSTEM_PROMPT = (
@@ -14,14 +16,28 @@ _SYSTEM_PROMPT = (
     " last.\n"
     "- Include a terraform{} block with required_providers and backend"
     " configuration.\n"
-    "- Include output{} blocks for key resource attributes (IDs, ARNs, endpoints)."
+    "- Include output{} blocks for key resource attributes (IDs, ARNs, endpoints).\n"
+    "- If a component lists config values, treat them as the authoritative Terraform"
+    " resource configuration. Reproduce those attribute key-value pairs exactly in"
+    " the generated HCL resource block for that component."
 )
 
 _MAX_LABEL_LEN = 200
+_MAX_CONFIG_VAL_LEN = 800   # longer limit for config values (may contain full blocks)
 
 
 def _sanitize(value: str) -> str:
     return str(value).strip()[:_MAX_LABEL_LEN]
+
+
+def _serialize_config_value(v) -> str:
+    """Serialize a config value for the LLM prompt.
+    Dicts and lists are JSON-encoded so nested blocks (vpc_config, environment, etc.)
+    are legible.  Plain scalars are stringified directly.
+    """
+    if isinstance(v, (dict, list)):
+        return json.dumps(v, default=str)[:_MAX_CONFIG_VAL_LEN]
+    return str(v)[:_MAX_CONFIG_VAL_LEN]
 
 
 def _serialize_components(components) -> str:
@@ -31,7 +47,7 @@ def _serialize_components(components) -> str:
     for c in components:
         lines.append(f"- [{_sanitize(c.type)}] {_sanitize(c.label)} (id: {c.id})")
         for k, v in (c.config or {}).items():
-            lines.append(f"    {_sanitize(str(k))}: {_sanitize(str(v))}")
+            lines.append(f"    {_sanitize(str(k))}: {_serialize_config_value(v)}")
         if c.security_group_ids:
             lines.append(f"    security_group_ids: {', '.join(c.security_group_ids)}")
         if c.iam_role_id:

@@ -66,6 +66,112 @@ function ConfigField({ field, value, onChange }) {
   );
 }
 
+// ── Terraform Config Editor ───────────────────────────────────────────────────
+
+function displayConfigValue(v) {
+  if (v === null || v === undefined) return "";
+  if (typeof v === "object") return JSON.stringify(v, null, 2);
+  return String(v);
+}
+
+function parseConfigValue(str) {
+  const trimmed = str.trim();
+  if (trimmed === "") return "";
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    return str;
+  }
+}
+
+function TerraformConfigEditor({ config, structuredKeys, onChange, onDelete }) {
+  const [newKey, setNewKey] = useState("");
+  const [newVal, setNewVal] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const rawEntries = Object.entries(config).filter(
+    ([k]) => !structuredKeys.has(k)
+  );
+
+  const handleAdd = () => {
+    const k = newKey.trim();
+    if (!k) return;
+    onChange(k, parseConfigValue(newVal));
+    setNewKey("");
+    setNewVal("");
+  };
+
+  const count = rawEntries.length;
+
+  return (
+    <div>
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-1 text-xs text-indigo-500 hover:text-indigo-700 transition-colors w-full"
+      >
+        <span>{open ? "▾" : "▸"}</span>
+        <span>
+          Terraform Attributes{count > 0 ? ` (${count})` : ""}
+        </span>
+      </button>
+
+      {open && (
+        <div className="mt-2 space-y-1.5 pl-2 border-l-2 border-indigo-100">
+          {/* Existing entries */}
+          {rawEntries.map(([k, v]) => (
+            <div key={k} className="flex gap-1 items-start">
+              <span className="w-28 flex-shrink-0 px-2 py-1 text-[10px] font-mono text-gray-500 bg-gray-50 border border-gray-200 rounded truncate" title={k}>
+                {k}
+              </span>
+              <input
+                type="text"
+                defaultValue={displayConfigValue(v)}
+                onBlur={(e) => onChange(k, parseConfigValue(e.target.value))}
+                className="flex-1 min-w-0 border border-gray-200 rounded px-2 py-1 text-[10px] font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+              />
+              <button
+                onClick={() => onDelete(k)}
+                className="flex-shrink-0 text-gray-300 hover:text-red-400 text-xs px-1 leading-none mt-1"
+                title="Remove attribute"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+
+          {/* Add new row */}
+          <div className="flex gap-1 items-center pt-1">
+            <input
+              type="text"
+              value={newKey}
+              onChange={(e) => setNewKey(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+              placeholder="key"
+              className="w-28 flex-shrink-0 border border-dashed border-gray-300 rounded px-2 py-1 text-[10px] font-mono focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            />
+            <input
+              type="text"
+              value={newVal}
+              onChange={(e) => setNewVal(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleAdd()}
+              placeholder="value"
+              className="flex-1 min-w-0 border border-dashed border-gray-300 rounded px-2 py-1 text-[10px] font-mono focus:outline-none focus:ring-1 focus:ring-indigo-400"
+            />
+            <button
+              onClick={handleAdd}
+              disabled={!newKey.trim()}
+              className="flex-shrink-0 text-indigo-500 hover:text-indigo-700 disabled:text-gray-300 text-sm font-bold px-1 leading-none"
+              title="Add attribute"
+            >
+              +
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function ComponentPanel({ nodeId }) {
   const node = useGraphStore((s) => s.nodes.find((n) => n.id === nodeId));
   const updateNodeData = useGraphStore((s) => s.updateNodeData);
@@ -93,6 +199,12 @@ export default function ComponentPanel({ nodeId }) {
 
   const handleConfigChange = (key, value) => {
     updateNodeData(node.id, { config: { ...config, [key]: value } });
+  };
+
+  const handleConfigDelete = (key) => {
+    const next = { ...config };
+    delete next[key];
+    updateNodeData(node.id, { config: next });
   };
 
   const handleLabelBlur = () => updateNodeData(node.id, { label });
@@ -208,6 +320,14 @@ export default function ComponentPanel({ nodeId }) {
             )}
           </div>
         )}
+
+        {/* Terraform Attributes — raw key/value config (imported + user-added) */}
+        <TerraformConfigEditor
+          config={config}
+          structuredKeys={new Set(allFields.map((f) => f.key))}
+          onChange={handleConfigChange}
+          onDelete={handleConfigDelete}
+        />
 
         {/* Security Groups */}
         <div>

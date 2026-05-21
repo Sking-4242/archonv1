@@ -25,6 +25,9 @@ _SYSTEM = (
     "batch=scheduled batch job, event=Cloud Functions or Eventarc trigger.\n"
     "9. Respect the region in the graph meta for the GCP region field.\n"
     "10. If instructions are provided on a component, honour them in the resource config.\n"
+    "11. If a component lists config values, treat them as the authoritative Terraform "
+    "resource configuration. Reproduce those attribute key-value pairs exactly in the "
+    "generated HCL resource block for that component.\n"
 )
 
 

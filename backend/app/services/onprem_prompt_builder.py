@@ -25,6 +25,9 @@ _SYSTEM = (
     "dependency=service dependency, streaming=message stream, "
     "batch=cron/batch job, event=event trigger.\n"
     "8. If instructions are provided on a component, honour them.\n"
+    "11. If a component lists config values, treat them as the authoritative Terraform "
+    "resource configuration. Reproduce those attribute key-value pairs exactly in the "
+    "generated HCL resource block for that component.\n"
     "9. Produce idempotent, production-quality code.\n"
 )
 

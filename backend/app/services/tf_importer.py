@@ -190,7 +190,12 @@ _CAT_GAP     = 60
 
 # ─── Reference detection ─────────────────────────────────────────────────────
 
-_REF_RE = re.compile(r'\$\{([a-z][a-z0-9_]*)\.([a-z][a-z0-9_-]*)\.')
+# Matches ${resource_type.resource_name.attr}  and  ${resource_type.resource_name[…]}
+# Case-insensitive type, names may start with a digit or contain hyphens, and splat
+# expressions (name[*] or name[0]) are also captured.
+_REF_RE = re.compile(
+    r'\$\{([A-Za-z][A-Za-z0-9_]*)\.([A-Za-z0-9][A-Za-z0-9_-]*)[\.\[]'
+)
 
 def _collect_refs(value: Any, out: set[tuple[str, str]]) -> None:
     """Recursively walk a parsed HCL value and collect (resource_type, resource_name) refs."""
@@ -224,21 +229,115 @@ def _str_val(v: Any) -> str:
         return str(v)
     return ""
 
+# ─── HCL pre-processing ──────────────────────────────────────────────────────
+
+def _preprocess_hcl(content: str) -> str:
+    """
+    Normalise HCL content so python-hcl2 can parse it.
+
+    python-hcl2 does not support semicolons as attribute separators even
+    though they are valid in the HCL2 spec.  This function replaces every
+    semicolon that sits outside a string literal or comment with a newline,
+    which is equivalent and fully accepted by the parser.
+
+    Context tracked:
+      - Double-quoted strings (with escape sequences)
+      - Line comments: # ... newline  and  // ... newline
+      - Block comments: /* ... */
+    """
+    result: list[str] = []
+    in_string      = False
+    in_line_comment  = False
+    in_block_comment = False
+    i = 0
+    n = len(content)
+
+    while i < n:
+        ch = content[i]
+        nxt = content[i + 1] if i + 1 < n else ""
+
+        if in_block_comment:
+            result.append(ch)
+            if ch == "*" and nxt == "/":
+                result.append(nxt)
+                i += 2
+                in_block_comment = False
+            else:
+                i += 1
+
+        elif in_line_comment:
+            result.append(ch)
+            if ch == "\n":
+                in_line_comment = False
+            i += 1
+
+        elif in_string:
+            result.append(ch)
+            if ch == "\\" and i + 1 < n:
+                # Escaped character — pass through verbatim
+                i += 1
+                result.append(content[i])
+            elif ch == '"':
+                in_string = False
+            i += 1
+
+        else:
+            # Normal context — check what we're entering
+            if ch == "/" and nxt == "*":
+                in_block_comment = True
+                result.append(ch)
+                i += 1
+            elif ch == "/" and nxt == "/":
+                in_line_comment = True
+                result.append(ch)
+                i += 1
+            elif ch == "#":
+                in_line_comment = True
+                result.append(ch)
+                i += 1
+            elif ch == '"':
+                in_string = True
+                result.append(ch)
+                i += 1
+            elif ch == ";":
+                result.append("\n")
+                i += 1
+            else:
+                result.append(ch)
+                i += 1
+
+    return "".join(result)
+
+
 # ─── HCL parsing ─────────────────────────────────────────────────────────────
 
-def _parse_files(file_contents: list[str]) -> dict[str, dict[str, dict]]:
+def _parse_files(
+    file_contents: list[str],
+    parse_warnings: list[str] | None = None,
+) -> dict[str, dict[str, dict]]:
     """
     Parse multiple .tf file contents and merge all resource blocks into
     {resource_type: {resource_name: attrs}} — ignoring duplicates from
     separate files by suffixing conflicting names.
+
+    Parse errors are appended to parse_warnings (if provided) rather than
+    silently swallowed so callers can surface them to the user.
     """
     merged: dict[str, dict[str, dict]] = defaultdict(dict)
 
-    for content in file_contents:
+    for idx, raw_content in enumerate(file_contents):
+        content = _preprocess_hcl(raw_content)
         try:
             parsed = hcl2.load(io.StringIO(content))
-        except Exception:
-            continue  # skip unparseable files
+        except Exception as exc:
+            label = f"file {idx + 1}"
+            msg = f"Could not parse {label}: {exc}"
+            # Truncate very long parser error messages
+            if len(msg) > 300:
+                msg = msg[:300] + "…"
+            if parse_warnings is not None:
+                parse_warnings.append(msg)
+            continue
 
         # hcl2 returns {"resource": [ {type: {name: attrs}}, ... ], ...}
         for resource_list in parsed.get("resource", []):
@@ -340,6 +439,19 @@ def _extract_iam_roles(
 
     return roles
 
+# Config keys that are handled by other mechanisms and should not be double-stored
+# in the component's raw config dict.
+_CONFIG_SKIP_KEYS = frozenset({
+    # Terraform meta-arguments — not resource config
+    "depends_on", "lifecycle", "count", "for_each",
+    # Security groups → stored as security_group_ids on the component
+    "security_groups", "vpc_security_group_ids", "security_group_ids", "security_group_id",
+    # IAM → stored as iam_role_id on the component
+    "iam_instance_profile", "execution_role_arn", "role",
+    # Tags → used only for label extraction
+    "tags",
+})
+
 # ─── Component building ───────────────────────────────────────────────────────
 
 def _resolve_sg_ids(
@@ -421,51 +533,21 @@ def _build_components(
             if mapped:
                 archon_type, category, icon, display_name = mapped
 
-                # Extract well-known config fields
-                config: dict[str, Any] = {}
+                # ── Full attribute capture ────────────────────────────────
+                # Store all HCL attributes verbatim so they round-trip through
+                # generation. Keys in _CONFIG_SKIP_KEYS are handled by other
+                # mechanisms (SG IDs, IAM role, label from tags, etc.).
+                config: dict[str, Any] = {
+                    k: v for k, v in attrs.items()
+                    if k not in _CONFIG_SKIP_KEYS and not k.startswith("_")
+                }
 
-                if res_type == "aws_instance":
-                    if "instance_type" in attrs:
-                        config["instance_type"] = _str_val(attrs["instance_type"])
-                elif res_type in ("aws_db_instance",):
-                    for field in ("instance_class", "engine", "engine_version", "multi_az",
-                                  "storage_encrypted", "allocated_storage"):
-                        if field in attrs:
-                            config[field] = attrs[field]
-                elif res_type == "aws_rds_cluster":
-                    for field in ("engine", "engine_version", "master_username"):
-                        if field in attrs:
-                            config[field] = attrs[field]
-                elif res_type == "aws_lambda_function":
-                    for field in ("runtime", "memory_size", "timeout", "handler"):
-                        if field in attrs:
-                            config[field] = attrs[field]
-                elif res_type in ("aws_elasticache_cluster", "aws_elasticache_replication_group"):
-                    for field in ("node_type", "engine", "num_cache_nodes"):
-                        if field in attrs:
-                            config[field] = attrs[field]
-                elif res_type in ("aws_lb", "aws_alb"):
-                    if "load_balancer_type" in attrs:
-                        lt = _str_val(attrs["load_balancer_type"])
-                        archon_type = "nlb" if lt == "network" else "alb"
-                        display_name = "NLB" if lt == "network" else "ALB"
-                        config["load_balancer_type"] = lt
-                elif res_type == "aws_eks_cluster":
-                    if "version" in attrs:
-                        config["version"] = _str_val(attrs["version"])
-                elif res_type in ("aws_ecs_cluster", "aws_ecs_service"):
-                    if "launch_type" in attrs:
-                        config["launch_type"] = _str_val(attrs["launch_type"])
-                elif res_type == "aws_s3_bucket":
-                    if "bucket" in attrs:
-                        config["bucket_name"] = _str_val(attrs["bucket"])
-                elif res_type == "aws_vpc":
-                    if "cidr_block" in attrs:
-                        config["cidr_block"] = _str_val(attrs["cidr_block"])
-                elif res_type == "aws_subnet":
-                    for field in ("cidr_block", "availability_zone"):
-                        if field in attrs:
-                            config[field] = _str_val(attrs[field])
+                # ── Type overrides that depend on attribute values ─────────
+                if res_type in ("aws_lb", "aws_alb"):
+                    lt = _str_val(config.get("load_balancer_type", ""))
+                    if lt == "network":
+                        archon_type = "nlb"
+                        display_name = "NLB"
 
                 # Resolve security group IDs
                 sg_ids = []
@@ -492,6 +574,8 @@ def _build_components(
                 tags = attrs.get("tags", {})
                 if isinstance(tags, list):
                     tags = tags[0] if tags else {}
+                if not isinstance(tags, dict):
+                    tags = {}
                 label = _str_val(tags.get("Name", "")) or res_name.replace("_", " ").title()
 
                 components.append({
@@ -539,21 +623,31 @@ def _build_components(
 
 # ─── Edge inference ───────────────────────────────────────────────────────────
 
-# Attribute names that imply a meaningful architectural relationship
-# (exclude pure metadata references like tags, name, etc.)
-_EDGE_ATTRS = {
-    "subnet_id", "subnet_ids", "subnets", "vpc_id", "security_groups",
-    "vpc_security_group_ids", "security_group_ids", "security_group_id",
-    "load_balancer_arn", "target_group_arn", "target_group_arns",
-    "cluster_id", "cluster_arn", "function_name", "function_arn",
-    "source_arn", "destination_arn", "topic_arn", "queue_arn",
-    "stream_arn", "firehose_arn", "role", "role_arn",
-    "iam_instance_profile", "execution_role_arn",
-    "db_subnet_group_name", "cache_subnet_group_name",
-    "nat_gateway_id", "internet_gateway_id", "gateway_id",
-    "transit_gateway_id", "vpc_endpoint_id",
-    "allocation_id", "vpc_zone_identifier", "vpc_zone_identifiers",
-}
+# Attributes whose values are pure metadata — never contain useful resource refs.
+# Everything NOT in this set is scanned for resource references when building edges.
+_EDGE_ATTR_SKIP = frozenset({
+    # Human-readable strings / scalars
+    "name", "description", "comment", "display_name", "friendly_name",
+    "type", "id", "environment", "lifecycle",
+    # Network primitives
+    "cidr_block", "cidr_blocks", "ipv6_cidr_blocks", "prefix_list_ids",
+    "availability_zone", "availability_zones", "region",
+    "from_port", "to_port", "protocol", "self",
+    # Compute image / code config
+    "ami", "image_id", "instance_type", "key_name", "user_data",
+    "runtime", "handler", "package_type", "filename", "s3_key", "s3_bucket",
+    "node_type", "instance_class", "engine", "engine_version",
+    # Credentials / secrets (strings, not refs)
+    "master_username", "master_password", "password", "username",
+    "access_key", "secret_key", "token",
+    # Tags block — contains Name=..., Env=... etc., not resource refs
+    "tags", "default_tags",
+    # Pure numeric / boolean config
+    "port", "allocated_storage", "max_capacity", "min_capacity",
+    "desired_count", "min_size", "max_size",
+    # Embedded policy JSON strings — big blobs, not HCL refs
+    "assume_role_policy", "policy", "inline_policy",
+})
 
 # Skip these resource types as edge targets (they're already encoded as
 # security_group_ids / iam_role_id on components, not visual edges)
@@ -567,6 +661,22 @@ def _build_edges(
     edges: list[dict] = []
     seen: set[frozenset] = set()
 
+    def _add_edge(src_id: str, tgt_id: str) -> None:
+        if not tgt_id or tgt_id == src_id:
+            return
+        pair = frozenset([src_id, tgt_id])
+        if pair in seen:
+            return
+        seen.add(pair)
+        edges.append({
+            "id":              f"e-{uuid.uuid4().hex[:8]}",
+            "source":          src_id,
+            "target":          tgt_id,
+            "type":            "network",
+            "bidirectional":   False,
+            "suggested_rules": [],
+        })
+
     for res_type, instances in resources.items():
         for res_name, attrs in instances.items():
             src_key = (res_type, res_name)
@@ -574,30 +684,31 @@ def _build_edges(
             if not src_id:
                 continue
 
+            # ── Attribute reference scan (blocklist approach) ─────────────
+            # Scan every attribute not in the noise blocklist for resource refs.
+            # We only create edges when the target is an actual canvas node, so
+            # spurious strings simply produce no matches.
             for attr_name, attr_val in attrs.items():
-                if attr_name not in _EDGE_ATTRS:
+                if attr_name.startswith("_") or attr_name in _EDGE_ATTR_SKIP:
                     continue
                 refs: set[tuple[str, str]] = set()
                 _collect_refs(attr_val, refs)
                 for ref_type, ref_name in refs:
                     if ref_type in _SKIP_EDGE_TARGETS:
                         continue
-                    tgt_key = (ref_type, ref_name)
-                    tgt_id = resource_node_id_map.get(tgt_key)
-                    if not tgt_id or tgt_id == src_id:
-                        continue
-                    pair = frozenset([src_id, tgt_id])
-                    if pair in seen:
-                        continue
-                    seen.add(pair)
-                    edges.append({
-                        "id":            f"e-{uuid.uuid4().hex[:8]}",
-                        "source":        src_id,
-                        "target":        tgt_id,
-                        "type":          "network",
-                        "bidirectional": False,
-                        "suggested_rules": [],
-                    })
+                    tgt_id = resource_node_id_map.get((ref_type, ref_name))
+                    _add_edge(src_id, tgt_id)
+
+            # ── depends_on edge pass ──────────────────────────────────────
+            # depends_on is a list of strings like "aws_instance.web" — these
+            # are explicit architectural dependencies declared by the author.
+            for dep in _ensure_list(attrs.get("depends_on", [])):
+                if not isinstance(dep, str):
+                    continue
+                parts = dep.strip().split(".")
+                if len(parts) >= 2:
+                    tgt_id = resource_node_id_map.get((parts[0], parts[1]))
+                    _add_edge(src_id, tgt_id)
 
     return edges
 
@@ -798,20 +909,26 @@ _LEAF_GAP_V   = 12
 # Subnet containers
 _SUB_PAD_X    = 16
 _SUB_PAD_TOP  = 36   # room for the subnet header
-_SUB_PAD_BTM  = 12
+_SUB_PAD_BTM  = 16
 _SUB_EMPTY_W  = 240  # default size when subnet has no nested children
 _SUB_EMPTY_H  = 140
 
-# VPC containers
-_SUB_COLS     = 3    # max subnet columns inside a VPC
-_SUB_GAP_H    = 20
-_SUB_GAP_V    = 20
-_VPC_PAD_X    = 24
-_VPC_PAD_TOP  = 48   # room for the VPC header
-_VPC_PAD_BTM  = 20
+# VPC containers — subnets are packed in a flowing left-to-right layout
+_SUB_GAP_H       = 24   # horizontal gap between sibling subnets
+_SUB_GAP_V       = 24   # vertical gap between subnet rows
+_VPC_PAD_X       = 28
+_VPC_PAD_TOP     = 52   # room for the VPC header
+_VPC_PAD_BTM     = 24
+_VPC_MAX_INNER_W = 1100 # wrap subnets to next row beyond this inner width
 
 # Top-level grid
-_NODE_GAP     = 40   # gap between adjacent top-level nodes
+_NODE_W        = 160    # default width for plain (non-container) nodes
+_NODE_H        = 80     # default height
+_NODE_GAP_H    = 48     # horizontal gap between top-level items in the same row
+_NODE_GAP_V    = 60     # vertical gap between category rows
+_TOP_WRAP_W    = 1400   # wrap threshold for top-level rows
+_CANVAS_X0     = 80     # left margin
+_CANVAS_Y0     = 80     # top margin
 
 
 def _compute_layout(components: list[dict]) -> list[dict]:
@@ -829,7 +946,7 @@ def _compute_layout(components: list[dict]) -> list[dict]:
         parent = comp_by_id.get(comp["parentId"], {})
         return 1 if "parentId" not in parent else 2
 
-    # ── Step 1: size + position level-2 leaves (resources inside subnets) ─
+    # ── Step 1: size leaf nodes (resources inside subnets) ────────────────
     for comp in components:
         if depth(comp) == 2:
             comp["style"] = {"width": _LEAF_W, "height": _LEAF_H}
@@ -857,61 +974,76 @@ def _compute_layout(components: list[dict]) -> list[dict]:
                     "y": _SUB_PAD_TOP + (i // cols) * (_LEAF_H + _LEAF_GAP_V),
                 }
 
-    # ── Step 3: size VPCs and position their subnet children ──────────────
+    # ── Step 3: size VPCs using flowing-pack subnet placement ─────────────
+    # Each subnet is placed at its own width — no forced uniform grid cells.
+    # Subnets wrap to a new row when the row exceeds _VPC_MAX_INNER_W.
     for comp in components:
         if depth(comp) != 0:
             continue
         sub_kids = [k for k in children_by_parent.get(comp["id"], []) if depth(k) == 1]
         if not sub_kids:
             continue
-        n          = len(sub_kids)
-        cols       = min(n, _SUB_COLS)
-        rows       = (n + cols - 1) // cols
-        max_sub_w  = max(k["style"]["width"]  for k in sub_kids)
-        max_sub_h  = max(k["style"]["height"] for k in sub_kids)
-        vpc_w      = 2 * _VPC_PAD_X + cols * max_sub_w + (cols - 1) * _SUB_GAP_H
-        vpc_h      = _VPC_PAD_TOP + rows * max_sub_h + (rows - 1) * _SUB_GAP_V + _VPC_PAD_BTM
-        comp["style"] = {"width": max(vpc_w, 400), "height": max(vpc_h, 200)}
 
-        for i, sub in enumerate(sub_kids):
-            sub["position"] = {
-                "x": _VPC_PAD_X + (i % cols) * (max_sub_w + _SUB_GAP_H),
-                "y": _VPC_PAD_TOP + (i // cols) * (max_sub_h + _SUB_GAP_V),
-            }
+        sx = _VPC_PAD_X
+        sy = _VPC_PAD_TOP
+        row_h   = 0
+        max_row_right = _VPC_PAD_X  # track furthest right edge reached
 
-    # ── Step 4: position top-level nodes in a left-to-right category flow ─
+        for sub in sub_kids:
+            sw = sub["style"]["width"]
+            sh = sub["style"]["height"]
+
+            # Wrap to next row if this subnet would overflow
+            if sx > _VPC_PAD_X and sx + sw > _VPC_PAD_X + _VPC_MAX_INNER_W:
+                sy   += row_h + _SUB_GAP_V
+                sx    = _VPC_PAD_X
+                row_h = 0
+
+            sub["position"] = {"x": sx, "y": sy}
+            max_row_right   = max(max_row_right, sx + sw)
+            sx   += sw + _SUB_GAP_H
+            row_h = max(row_h, sh)
+
+        vpc_w = max_row_right + _VPC_PAD_X
+        vpc_h = sy + row_h + _VPC_PAD_BTM
+        comp["style"] = {
+            "width":  max(vpc_w, 400),
+            "height": max(vpc_h, 200),
+        }
+
+    # ── Step 4: position top-level nodes in a category-ordered flowing grid ─
     top_level = [c for c in components if depth(c) == 0]
     groups: dict[str, list[dict]] = defaultdict(list)
     for comp in top_level:
         groups[comp["category"]].append(comp)
 
-    wrap_x = 80 + _MAX_PER_ROW * _H_SPACING + 200  # column wrap threshold
-
-    y = 80
+    y = _CANVAS_Y0
     for category in _CATEGORY_ORDER:
         items = groups.get(category, [])
         if not items:
             continue
 
-        x = 80
+        x     = _CANVAS_X0
         row_h = 0
 
         for comp in items:
-            node_w = comp.get("style", {}).get("width",  120)
-            node_h = comp.get("style", {}).get("height",  80)
+            node_w = comp.get("style", {}).get("width",  _NODE_W)
+            node_h = comp.get("style", {}).get("height", _NODE_H)
 
-            if x > 80 and x + node_w > wrap_x:
-                x  = 80
-                y += row_h + _CAT_GAP
+            # Wrap to next row if we'd exceed the wrap threshold
+            if x > _CANVAS_X0 and x + node_w > _CANVAS_X0 + _TOP_WRAP_W:
+                y    += row_h + _NODE_GAP_V
+                x     = _CANVAS_X0
                 row_h = 0
 
             comp["position"] = {"x": x, "y": y}
-            x    += node_w + _NODE_GAP
-            row_h = max(row_h, node_h)
+            x     += node_w + _NODE_GAP_H
+            row_h  = max(row_h, node_h)
 
-        y += row_h + _CAT_GAP
+        y += row_h + _NODE_GAP_V
 
     return components
+
 
 # ─── Public entry point ───────────────────────────────────────────────────────
 
@@ -920,66 +1052,62 @@ def import_terraform(
     filenames: list[str] | None = None,
 ) -> dict:
     """
-    Parse one or more .tf file contents and return:
-    {
-        "graph": { ...Graph JSON... },
-        "warnings": ["..."],
-    }
+    Parse one or more Terraform file contents and return a dict with:
+      - "graph": Graph-compatible dict (components, edges, security_groups,
+                 iam_roles, name, region)
+      - "warnings": list of human-readable warning strings
     """
-    resources = _parse_files(file_contents)
+    parse_warnings: list[str] = []
+    resources = _parse_files(file_contents, parse_warnings)
 
-    sg_id_map:  dict[tuple[str, str], str] = {}
+    # ── Security groups & IAM (extracted before components so IDs are ready) ─
+    sg_id_map: dict[tuple[str, str], str] = {}
     iam_id_map: dict[tuple[str, str], str] = {}
 
     security_groups = _extract_security_groups(resources, sg_id_map)
     iam_roles       = _extract_iam_roles(resources, iam_id_map)
 
-    components, resource_node_id_map, warnings = _build_components(
+    # ── Components ────────────────────────────────────────────────────────────
+    components, resource_node_id_map, comp_warnings = _build_components(
         resources, sg_id_map, iam_id_map
     )
 
+    # ── Parent assignment (VPC / subnet nesting) ──────────────────────────────
     components = _assign_parents(components, resources, resource_node_id_map)
-    components = _compute_layout(components)
-    edges      = _build_edges(resources, resource_node_id_map)
 
-    # Derive additional edges from security-group ingress rules (e.g. EC2 → RDS)
-    _seen_pairs: set[frozenset] = {frozenset([e["source"], e["target"]]) for e in edges}
-    edges += _infer_sg_edges(components, resources, _seen_pairs)
+    # ── Edges ─────────────────────────────────────────────────────────────────
+    edges = _build_edges(resources, resource_node_id_map)
 
-    # Remove edges that merely restate a parent-child containment relationship
-    _parent_of: dict[str, str] = {
-        c["id"]: c["parentId"] for c in components if "parentId" in c
+    existing_pairs: set[frozenset] = {
+        frozenset([e["source"], e["target"]]) for e in edges
     }
-    edges = [
-        e for e in edges
-        if not (
-            _parent_of.get(e["source"]) == e["target"] or
-            _parent_of.get(e["target"]) == e["source"]
-        )
-    ]
+    edges += _infer_sg_edges(components, resources, existing_pairs)
 
-    # Strip internal tracking fields before serialising
+    # ── Layout ────────────────────────────────────────────────────────────────
+    components = _compute_layout(components)
+
+    # Strip internal _res_type / _res_name keys before returning
     for comp in components:
         comp.pop("_res_type", None)
         comp.pop("_res_name", None)
 
-    # Deduplicate warnings
-    seen_w: set[str] = set()
-    unique_warnings: list[str] = []
-    for w in warnings:
-        if w not in seen_w:
-            seen_w.add(w)
-            unique_warnings.append(w)
+    # ── Infer architecture name from filenames ────────────────────────────────
+    arch_name = "Imported Architecture"
+    if filenames:
+        stem = filenames[0].removesuffix(".tf").replace("_", " ").replace("-", " ")
+        if stem:
+            arch_name = stem.title()
+
+    warnings = parse_warnings + comp_warnings
 
     graph = {
         "id":              str(uuid.uuid4()),
-        "name":            (filenames[0].replace(".tf", "") if filenames else "imported-architecture"),
-        "provider":        "aws",
+        "name":            arch_name,
         "region":          "us-east-1",
         "components":      components,
+        "edges":           edges,
         "security_groups": security_groups,
         "iam_roles":       iam_roles,
-        "edges":           edges,
     }
 
-    return {"graph": graph, "warnings": unique_warnings}
+    return {"graph": graph, "warnings": warnings}
