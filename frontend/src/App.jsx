@@ -481,7 +481,7 @@ export default function App() {
 
           {/* Estimate slide-in */}
           {estimateOpen && (
-            <div className="absolute top-0 right-0 bottom-0 w-96 bg-white border-l border-gray-200 shadow-xl z-10 flex flex-col">
+            <div className="absolute top-0 right-0 bottom-0 w-[520px] bg-white border-l border-gray-200 shadow-xl z-10 flex flex-col">
               <EstimatePanel
                 graph={graph}
                 onClose={() => setEstimateOpen(false)}

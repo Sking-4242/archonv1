@@ -154,17 +154,11 @@ export default function EstimatePanel({ graph, onClose }) {
               </option>
             ))}
           </select>
-          {result && (
-            result.live_prices ? (
-              <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
-                LIVE
-              </span>
-            ) : (
-              <span className="text-xs text-gray-400">
-                static · {result.prices_as_of}
-              </span>
-            )
+          {result?.live_prices && (
+            <span className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse inline-block" />
+              LIVE
+            </span>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -212,6 +206,15 @@ export default function EstimatePanel({ graph, onClose }) {
             {error}
           </div>
         )}
+        {status === "done" && result && !result.live_prices && result.live_attempted && (
+          <div className="mb-4 flex items-start gap-2 px-3 py-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
+            <span className="mt-0.5 flex-shrink-0">⚠</span>
+            <span>
+              Live pricing unavailable — using static rates from {result.prices_as_of}.
+              Add cloud credentials to <code className="font-mono bg-amber-100 px-0.5 rounded">.env</code> for real-time pricing.
+            </span>
+          </div>
+        )}
         {status === "done" && result && (
           <div className="space-y-4">
             {/* Totals */}
@@ -242,7 +245,12 @@ export default function EstimatePanel({ graph, onClose }) {
                   Priced Resources
                 </div>
                 <div className="border border-gray-200 rounded-lg overflow-hidden">
-                  <table className="w-full text-xs">
+                  <table className="w-full text-xs table-fixed">
+                    <colgroup>
+                      <col className="w-[38%]" />
+                      <col />
+                      <col className="w-24" />
+                    </colgroup>
                     <thead>
                       <tr className="bg-gray-50 border-b border-gray-200">
                         <th className="text-left px-3 py-2 text-gray-500 font-medium">
@@ -251,7 +259,7 @@ export default function EstimatePanel({ graph, onClose }) {
                         <th className="text-left px-3 py-2 text-gray-500 font-medium">
                           Details
                         </th>
-                        <th className="text-right px-3 py-2 text-gray-500 font-medium">
+                        <th className="text-right px-3 py-2 text-gray-500 font-medium whitespace-nowrap">
                           $/month
                         </th>
                       </tr>
@@ -263,11 +271,11 @@ export default function EstimatePanel({ graph, onClose }) {
                           className="border-b border-gray-100 last:border-0"
                         >
                           <td className="px-3 py-2">
-                            <div className="font-medium text-gray-800">
+                            <div className="font-medium text-gray-800 truncate" title={item.component_label}>
                               {item.component_label}
                             </div>
-                            <div className="text-gray-400">
-                              {item.component_id}
+                            <div className="text-gray-400 truncate">
+                              {item.component_type}
                             </div>
                           </td>
                           <td className="px-3 py-2 text-gray-500">
@@ -278,7 +286,7 @@ export default function EstimatePanel({ graph, onClose }) {
                               </div>
                             )}
                           </td>
-                          <td className="px-3 py-2 text-right font-mono font-medium text-gray-900">
+                          <td className="px-3 py-2 text-right font-mono font-medium text-gray-900 whitespace-nowrap">
                             <div className="flex items-center justify-end gap-1.5">
                               {item.live && (
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" title="Live price" />

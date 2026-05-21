@@ -68,6 +68,7 @@ class EstimateResponse(BaseModel):
     region: str
     excluded_note: str
     live_prices: bool = False
+    live_attempted: bool = False  # True when provider has live pricing (aws/azure/gcp)
 
 
 def _static_estimate(infra_provider: str, component, region: str) -> dict | None:
@@ -164,4 +165,5 @@ def estimate(graph: Graph) -> EstimateResponse:
         region=graph.region,
         excluded_note=_EXCLUDED_NOTES.get(infra_provider, ""),
         live_prices=any_live,
+        live_attempted=infra_provider in ("aws", "azure", "gcp"),
     )

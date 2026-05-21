@@ -835,18 +835,28 @@ def _assign_parents(
     Indirect placement: db_subnet_group_name / subnet_group_name resolved
                         through aws_db_subnet_group / aws_elasticache_subnet_group
     """
-    # ── Build subnet-group → first-subnet-node lookup ─────────────────────
-    _sg_to_subnet: dict[tuple[str, str], str] = {}
+    # ── Build subnet-group → VPC-node lookup ──────────────────────────────
+    # Resources using subnet groups (RDS, ElastiCache, Redshift…) span
+    # multiple subnets/AZs, so we place them at the VPC level, not inside
+    # a specific subnet.
+    _sg_to_vpc: dict[tuple[str, str], str] = {}
     for sg_type, sid_key in _SUBNET_GROUP_TYPES.items():
         for sg_name, sg_attrs in resources.get(sg_type, {}).items():
             refs: set[tuple[str, str]] = set()
             _collect_refs(sg_attrs.get(sid_key, []), refs)
             for ref_type, ref_name in refs:
                 if ref_type == "aws_subnet":
-                    nid = resource_node_id_map.get(("aws_subnet", ref_name))
-                    if nid:
-                        _sg_to_subnet[(sg_type, sg_name)] = nid
-                        break  # use first matching subnet per group
+                    subnet_attrs = resources.get("aws_subnet", {}).get(ref_name, {})
+                    vpc_refs: set[tuple[str, str]] = set()
+                    _collect_refs(subnet_attrs.get("vpc_id", ""), vpc_refs)
+                    for vpc_type, vpc_name in vpc_refs:
+                        if vpc_type == "aws_vpc":
+                            vpc_nid = resource_node_id_map.get(("aws_vpc", vpc_name))
+                            if vpc_nid:
+                                _sg_to_vpc[(sg_type, sg_name)] = vpc_nid
+                                break
+                    if (sg_type, sg_name) in _sg_to_vpc:
+                        break  # VPC found — done with this subnet group
 
     # ── Assign parentIds ──────────────────────────────────────────────────
     for comp in components:
@@ -884,7 +894,8 @@ def _assign_parents(
                 if "parentId" in comp:
                     break
 
-            # Level 2b: indirect via subnet group (RDS, ElastiCache, Redshift…)
+            # Level 2b: indirect via subnet group → place at VPC level
+            # (RDS, ElastiCache, Redshift… span multiple subnets/AZs)
             if "parentId" not in comp:
                 for attr_key in _SUBNET_GROUP_ATTRS:
                     val = attrs.get(attr_key)
@@ -893,9 +904,9 @@ def _assign_parents(
                     refs = set()
                     _collect_refs(val, refs)
                     for ref_type, ref_name in refs:
-                        nid = _sg_to_subnet.get((ref_type, ref_name))
-                        if nid:
-                            comp["parentId"] = nid
+                        vpc_nid = _sg_to_vpc.get((ref_type, ref_name))
+                        if vpc_nid:
+                            comp["parentId"] = vpc_nid
                             break
                     if "parentId" in comp:
                         break
@@ -957,9 +968,15 @@ def _compute_layout(components: list[dict]) -> list[dict]:
         if depth(comp) == 2:
             comp["style"] = {"width": _LEAF_W, "height": _LEAF_H}
 
-    # ── Step 2: size subnets and position their leaf children ─────────────
+    # ── Step 2: size depth-1 nodes ────────────────────────────────────────
+    # Subnet containers get their size from their leaf children.
+    # VPC-level resource nodes (RDS, ElastiCache…) get leaf sizes directly.
     for comp in components:
         if depth(comp) != 1:
+            continue
+        if comp.get("type") != "subnet":
+            # VPC-level resource — treat as a plain leaf node
+            comp["style"] = {"width": _LEAF_W, "height": _LEAF_H}
             continue
         kids = children_by_parent.get(comp["id"], [])
         if not kids:
@@ -980,35 +997,56 @@ def _compute_layout(components: list[dict]) -> list[dict]:
                     "y": _SUB_PAD_TOP + (i // cols) * (_LEAF_H + _LEAF_GAP_V),
                 }
 
-    # ── Step 3: size VPCs using flowing-pack subnet placement ─────────────
-    # Each subnet is placed at its own width — no forced uniform grid cells.
-    # Subnets wrap to a new row when the row exceeds _VPC_MAX_INNER_W.
+    # ── Step 3: size VPCs — place subnets, then VPC-level resource children ─
+    # Subnets use flowing-pack placement.
+    # Resources that span subnets (RDS, ElastiCache…) are placed in a strip
+    # below the subnets inside the VPC, communicating multi-AZ placement.
+    _VPC_RES_GAP_H = 16   # gap between VPC-level resource nodes
+    _VPC_RES_GAP_V = 20   # gap between subnet rows and resource strip
     for comp in components:
-        if depth(comp) != 0:
+        if depth(comp) != 0 or comp.get("type") != "vpc":
             continue
-        sub_kids = [k for k in children_by_parent.get(comp["id"], []) if depth(k) == 1]
-        if not sub_kids:
+        all_kids  = children_by_parent.get(comp["id"], [])
+        sub_kids  = [k for k in all_kids if k.get("type") == "subnet"]
+        res_kids  = [k for k in all_kids if k.get("type") != "subnet"]
+
+        if not sub_kids and not res_kids:
             continue
 
         sx = _VPC_PAD_X
         sy = _VPC_PAD_TOP
-        row_h   = 0
-        max_row_right = _VPC_PAD_X  # track furthest right edge reached
+        row_h         = 0
+        max_row_right = _VPC_PAD_X
 
+        # Place subnets in flowing rows
         for sub in sub_kids:
             sw = sub["style"]["width"]
             sh = sub["style"]["height"]
-
-            # Wrap to next row if this subnet would overflow
             if sx > _VPC_PAD_X and sx + sw > _VPC_PAD_X + _VPC_MAX_INNER_W:
                 sy   += row_h + _SUB_GAP_V
                 sx    = _VPC_PAD_X
                 row_h = 0
-
             sub["position"] = {"x": sx, "y": sy}
             max_row_right   = max(max_row_right, sx + sw)
             sx   += sw + _SUB_GAP_H
             row_h = max(row_h, sh)
+
+        # Place VPC-level resource nodes in a row below the subnets
+        if res_kids:
+            sy   += row_h + _VPC_RES_GAP_V
+            row_h = 0
+            sx    = _VPC_PAD_X
+            for res in res_kids:
+                rw = res.get("style", {}).get("width",  _LEAF_W)
+                rh = res.get("style", {}).get("height", _LEAF_H)
+                if sx > _VPC_PAD_X and sx + rw > _VPC_PAD_X + _VPC_MAX_INNER_W:
+                    sy   += row_h + _SUB_GAP_V
+                    sx    = _VPC_PAD_X
+                    row_h = 0
+                res["position"]   = {"x": sx, "y": sy}
+                max_row_right     = max(max_row_right, sx + rw)
+                sx   += rw + _VPC_RES_GAP_H
+                row_h = max(row_h, rh)
 
         vpc_w = max_row_right + _VPC_PAD_X
         vpc_h = sy + row_h + _VPC_PAD_BTM
