@@ -374,6 +374,8 @@ def _extract_security_groups(
         outbound = []
 
         for rule_block in _ensure_list(attrs.get("ingress", [])):
+            if not isinstance(rule_block, dict):
+                continue
             inbound.append({
                 "protocol": _str_val(rule_block.get("protocol", "tcp")),
                 "port":     rule_block.get("from_port"),
@@ -385,6 +387,8 @@ def _extract_security_groups(
             })
 
         for rule_block in _ensure_list(attrs.get("egress", [])):
+            if not isinstance(rule_block, dict):
+                continue
             outbound.append({
                 "protocol": _str_val(rule_block.get("protocol", "-1")),
                 "port":     rule_block.get("from_port"),
@@ -559,6 +563,8 @@ def _build_components(
                 vpc_config = attrs.get("vpc_config", {})
                 if isinstance(vpc_config, list):
                     vpc_config = vpc_config[0] if vpc_config else {}
+                if not isinstance(vpc_config, dict):
+                    vpc_config = {}
                 if "security_group_ids" in vpc_config:
                     sg_ids.extend(_resolve_sg_ids(vpc_config["security_group_ids"], sg_id_map))
 
