@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import useValidationStore from "../../store/validationStore";
 import useGraphStore from "../../store/graphStore";
+import usePlanStore from "../../store/planStore";
 
 const SEVERITY = {
   critical: {
@@ -174,113 +175,282 @@ function FindingRow({ f, onSelectNode, isAcknowledged }) {
   );
 }
 
-export default function ValidateTab({ onSelectNode }) {
-  const findings = useValidationStore((s) => s.findings);
-  const acknowledgedFindings = useValidationStore((s) => s.acknowledgedFindings);
-  const [ackOpen, setAckOpen] = useState(false);
+function exportFindings(findings, archName) {
+  const LEVEL_LABEL = { critical: "CRITICAL", warning: "WARNING", info: "INFO" };
+  const lines = [
+    `Archon Validation Report — ${archName ?? "Architecture"}`,
+    `Generated: ${new Date().toLocaleString()}`,
+    `Total findings: ${findings.length}`,
+    "",
+  ];
+  for (const level of ["critical", "warning", "info"]) {
+    const group = findings.filter((f) => f.level === level);
+    if (!group.length) continue;
+    lines.push(`── ${LEVEL_LABEL[level]} (${group.length}) ─────────────────────────`);
+    for (const f of group) {
+      lines.push(`[${LEVEL_LABEL[level]}] ${f.title}`);
+      lines.push(`  Component : ${f.nodeLabel}`);
+      lines.push(`  Issue     : ${f.message}`);
+      if (f.fix) lines.push(`  Fix       : ${f.fix}`);
+      lines.push("");
+    }
+  }
+  const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${(archName ?? "architecture").replace(/\s+/g, "_")}_findings.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
-  const active = findings.filter((f) => !acknowledgedFindings[f.id]);
-  const acknowledged = findings.filter((f) => acknowledgedFindings[f.id]);
+// ─── Plan mode config ─────────────────────────────────────────────────────────
 
-  const critical = active.filter((f) => f.level === "critical");
-  const warning = active.filter((f) => f.level === "warning");
-  const info = active.filter((f) => f.level === "info");
+const PLAN_ACTION_CFG = {
+  create:  { label: "Create",  dot: "bg-green-500",  row: "border-l-4 border-green-500 bg-green-50",  text: "text-green-700"  },
+  update:  { label: "Update",  dot: "bg-amber-500",  row: "border-l-4 border-amber-400 bg-amber-50",  text: "text-amber-700"  },
+  replace: { label: "Replace", dot: "bg-orange-500", row: "border-l-4 border-orange-400 bg-orange-50", text: "text-orange-700" },
+  delete:  { label: "Destroy", dot: "bg-red-500",    row: "border-l-4 border-red-500 bg-red-50",      text: "text-red-700"    },
+  "no-op": { label: "No-op",   dot: "bg-gray-300",   row: "border-l-4 border-gray-200 bg-gray-50",    text: "text-gray-400"   },
+};
 
-  if (active.length === 0 && acknowledged.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12 gap-3">
-        <div className="text-4xl">✅</div>
-        <p className="text-sm font-semibold text-gray-700">No issues found</p>
-        <p className="text-xs text-gray-400">
-          Your architecture passes all checks. Add components and connections to
-          continue validation.
-        </p>
+function PlanActionPill({ action, count }) {
+  if (!count) return null;
+  const cfg = PLAN_ACTION_CFG[action] ?? PLAN_ACTION_CFG["no-op"];
+  return (
+    <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium border bg-white ${cfg.text}`}>
+      <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
+      {cfg.label}: {count}
+    </span>
+  );
+}
+
+function exportPlanChanges(changes, archName) {
+  const ORDER = ["create", "update", "replace", "delete", "no-op"];
+  const lines = [
+    `Archon Plan Diff — ${archName ?? "Architecture"}`,
+    `Generated: ${new Date().toLocaleString()}`,
+    `Total changes: ${changes.length}`,
+    "",
+  ];
+  for (const action of ORDER) {
+    const group = changes.filter((c) => c.action === action);
+    if (!group.length) continue;
+    const cfg = PLAN_ACTION_CFG[action];
+    lines.push(`── ${cfg.label.toUpperCase()} (${group.length}) ─────────────────────────`);
+    for (const c of group) {
+      lines.push(`[${cfg.label.toUpperCase()}] ${c.address}`);
+      lines.push(`  ${c.description}`);
+      lines.push("");
+    }
+  }
+  const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${(archName ?? "plan").replace(/\s+/g, "_")}_plan_diff.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function PlanModeView({ planSummary, archName, onClearPlan }) {
+  const counts = planSummary.counts ?? {};
+  const changes = planSummary.changes ?? [];
+  const ORDER = ["create", "update", "replace", "delete", "no-op"];
+  const activeCount = (counts.create ?? 0) + (counts.update ?? 0) + (counts.replace ?? 0) + (counts.delete ?? 0);
+
+  return (
+    <div className="flex flex-col h-full overflow-hidden">
+      {/* Plan header */}
+      <div className="px-4 py-3 border-b border-gray-200 bg-indigo-50">
+        <div className="flex items-center justify-between mb-1.5">
+          <p className="text-xs font-semibold text-indigo-700 uppercase tracking-wide">
+            Plan Diff · {activeCount} change{activeCount !== 1 ? "s" : ""}
+          </p>
+          <div className="flex items-center gap-2">
+            {changes.length > 0 && (
+              <button
+                onClick={() => exportPlanChanges(changes, archName)}
+                className="text-xs px-2 py-0.5 rounded border border-indigo-200 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                title="Download plan diff as text"
+              >
+                ↓ Export
+              </button>
+            )}
+            <button
+              onClick={onClearPlan}
+              className="text-xs px-2 py-0.5 rounded border border-gray-300 text-gray-500 hover:bg-gray-100 transition-colors"
+              title="Clear plan and return to validation view"
+            >
+              ✕ Clear Plan
+            </button>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {ORDER.map((a) =>
+            counts[a] ? <PlanActionPill key={a} action={a} count={counts[a]} /> : null
+          )}
+        </div>
       </div>
+
+      {/* Change list */}
+      <div className="flex-1 overflow-y-auto">
+        {changes.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12 gap-3">
+            <div className="text-4xl">✅</div>
+            <p className="text-sm font-semibold text-gray-700">No changes planned</p>
+            <p className="text-xs text-gray-400">All resources are up to date.</p>
+          </div>
+        ) : (
+          <>
+            {ORDER.map((action) => {
+              const group = changes.filter((c) => c.action === action);
+              if (!group.length) return null;
+              const cfg = PLAN_ACTION_CFG[action];
+              return (
+                <div key={action}>
+                  <div className="sticky top-0 z-10 px-4 py-1.5 bg-gray-100 border-b border-gray-200 flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      {cfg.label} · {group.length}
+                    </span>
+                  </div>
+                  {group.map((c) => (
+                    <div key={c.address} className={`${cfg.row} border-b border-gray-100 px-4 py-2.5`}>
+                      <p className={`text-xs font-semibold leading-tight ${cfg.text}`}>
+                        {c.display_name}
+                      </p>
+                      <p className="text-xs text-gray-600 mt-0.5 leading-snug">
+                        {c.description}
+                      </p>
+                      <p className="text-xs text-gray-400 font-mono mt-0.5 truncate" title={c.address}>
+                        {c.address}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              );
+            })}
+          </>
+        )}
+        <div className="px-4 py-4 text-xs text-gray-400 text-center">
+          Click any node on the canvas to inspect its configuration.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
+export default function ValidateTab({ onSelectNode }) {
+  const findings      = useValidationStore((s) => s.findings);
+  const acknowledged  = useValidationStore((s) => s.acknowledgedFindings);
+  const archName      = useGraphStore((s) => s.graphMeta?.name);
+  const planSummary   = usePlanStore((s) => s.planSummary);
+  const clearPlan     = usePlanStore((s) => s.clearPlan);
+
+  // ── Plan mode — show diff view instead of validation findings ─────────────
+  if (planSummary) {
+    return (
+      <PlanModeView
+        planSummary={planSummary}
+        archName={archName}
+        onClearPlan={clearPlan}
+      />
     );
   }
+
+  // ── Normal validation mode ─────────────────────────────────────────────────
+  const active      = findings.filter((f) => !acknowledged[f.id]);
+  const dismissed   = findings.filter((f) =>  acknowledged[f.id]);
+
+  const criticalCnt = active.filter((f) => f.level === "critical").length;
+  const warningCnt  = active.filter((f) => f.level === "warning").length;
+  const infoCnt     = active.filter((f) => f.level === "info").length;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 bg-white">
-        <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
-          {active.length} active {active.length === 1 ? "issue" : "issues"}
-          {acknowledged.length > 0 && (
-            <span className="normal-case font-normal text-gray-400">
-              {" "}· {acknowledged.length} dismissed
-            </span>
+      <div className="px-4 py-3 border-b border-gray-200">
+        <div className="flex items-center justify-between mb-1.5">
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+            Validation · {active.length} finding{active.length !== 1 ? "s" : ""}
+          </p>
+          {findings.length > 0 && (
+            <button
+              onClick={() => exportFindings(active, archName)}
+              className="text-xs px-2 py-0.5 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
+              title="Export findings as text"
+            >
+              ↓ Export
+            </button>
           )}
-        </p>
+        </div>
         <div className="flex flex-wrap gap-1.5">
-          <SeverityPill level="critical" count={critical.length} />
-          <SeverityPill level="warning" count={warning.length} />
-          <SeverityPill level="info" count={info.length} />
+          <SeverityPill level="critical" count={criticalCnt} />
+          <SeverityPill level="warning"  count={warningCnt}  />
+          <SeverityPill level="info"     count={infoCnt}     />
         </div>
       </div>
 
-      {/* Active findings */}
+      {/* Finding list */}
       <div className="flex-1 overflow-y-auto">
-        {active.length === 0 && acknowledged.length > 0 && (
-          <div className="flex flex-col items-center justify-center py-10 gap-2 text-center px-6">
-            <div className="text-3xl">✅</div>
-            <p className="text-sm font-semibold text-gray-700">All issues dismissed</p>
+        {active.length === 0 && dismissed.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12 gap-3">
+            <div className="text-4xl">✅</div>
+            <p className="text-sm font-semibold text-gray-700">No issues found</p>
             <p className="text-xs text-gray-400">
-              Review dismissed items below or add more components to continue.
+              Add components and connect them to see validation results.
             </p>
           </div>
-        )}
+        ) : (
+          <>
+            {["critical", "warning", "info"].map((level) => {
+              const group = active.filter((f) => f.level === level);
+              if (!group.length) return null;
+              const cfg = SEVERITY[level];
+              return (
+                <div key={level}>
+                  <div className="sticky top-0 z-10 px-4 py-1.5 bg-gray-100 border-b border-gray-200 flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
+                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                      {cfg.label} · {group.length}
+                    </span>
+                  </div>
+                  {group.map((f) => (
+                    <FindingRow
+                      key={f.id}
+                      f={f}
+                      onSelectNode={onSelectNode}
+                      isAcknowledged={false}
+                    />
+                  ))}
+                </div>
+              );
+            })}
 
-        {["critical", "warning", "info"].map((level) => {
-          const group = active.filter((f) => f.level === level);
-          if (group.length === 0) return null;
-          const cfg = SEVERITY[level];
-          return (
-            <div key={level}>
-              <div className="sticky top-0 z-10 px-4 py-1.5 bg-gray-100 border-b border-gray-200 flex items-center gap-1.5">
-                <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-                <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  {cfg.label} · {group.length}
-                </span>
-              </div>
-              {group.map((f) => (
-                <FindingRow
-                  key={f.id}
-                  f={f}
-                  onSelectNode={onSelectNode}
-                  isAcknowledged={false}
-                />
-              ))}
-            </div>
-          );
-        })}
-
-        {/* Acknowledged section */}
-        {acknowledged.length > 0 && (
-          <div className="border-t border-gray-200 mt-2">
-            <button
-              className="w-full flex items-center justify-between px-4 py-2 bg-gray-50 hover:bg-gray-100 text-xs text-gray-500 font-semibold"
-              onClick={() => setAckOpen((v) => !v)}
-            >
-              <span>Acknowledged ({acknowledged.length})</span>
-              <span>{ackOpen ? "▲" : "▼"}</span>
-            </button>
-            {ackOpen && (
+            {dismissed.length > 0 && (
               <div>
-                {acknowledged.map((f) => (
+                <div className="sticky top-0 z-10 px-4 py-1.5 bg-gray-100 border-b border-gray-200">
+                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
+                    Dismissed · {dismissed.length}
+                  </span>
+                </div>
+                {dismissed.map((f) => (
                   <FindingRow
                     key={f.id}
                     f={f}
                     onSelectNode={onSelectNode}
-                    isAcknowledged
+                    isAcknowledged={true}
                   />
                 ))}
               </div>
             )}
-          </div>
+          </>
         )}
-
         <div className="px-4 py-4 text-xs text-gray-400 text-center">
-          Click any finding to select the component on the canvas.
+          Click any finding to highlight the affected node.
         </div>
       </div>
     </div>

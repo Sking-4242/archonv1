@@ -9,6 +9,7 @@ import ChatPanel from "./components/panels/ChatPanel";
 import ValidateTab from "./components/panels/ValidateTab";
 import SettingsModal from "./components/ui/SettingsModal";
 import TemplateModal from "./components/ui/TemplateModal";
+import ImportPlanModal from "./components/ui/ImportPlanModal";
 import LandingPage from "./components/LandingPage";
 import useGraphStore from "./store/graphStore";
 import useSecurityStore from "./store/securityStore";
@@ -17,6 +18,7 @@ import useSettingsStore from "./store/settingsStore";
 import useValidationStore from "./store/validationStore";
 import useProviderStore from "./store/providerStore";
 import useArchiveStore from "./store/archiveStore";
+import usePlanStore from "./store/planStore";
 import { serializeGraph } from "./utils/serializer";
 
 const PROVIDER_LABELS = {
@@ -33,6 +35,7 @@ export default function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
+  const [importPlanOpen, setImportPlanOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [estimateOpen, setEstimateOpen] = useState(false);
   const [generateOpen, setGenerateOpen] = useState(false);
@@ -59,6 +62,8 @@ export default function App() {
   const infraProvider = useProviderStore((s) => s.infraProvider);
   const setInfraProvider = useProviderStore((s) => s.setInfraProvider);
   const saveArchitecture = useArchiveStore((s) => s.saveArchitecture);
+  const setPlanSummary = usePlanStore((s) => s.setPlanSummary);
+  const clearPlan = usePlanStore((s) => s.clearPlan);
 
   const criticalCount = findings.filter((f) => f.level === "critical").length;
   const warningCount = findings.filter((f) => f.level === "warning").length;
@@ -79,11 +84,11 @@ export default function App() {
         graphMeta: tpl.graphMeta,
       });
       if (tpl.graphMeta?.provider) setInfraProvider(tpl.graphMeta.provider);
-      updateFindings(tpl.nodes, tpl.edges, securityGroups);
+      updateFindings(tpl.nodes, tpl.edges, securityGroups, iamRoles);
       setTemplatesOpen(false);
       setShowLanding(false);
     },
-    [loadState, updateFindings, setInfraProvider, securityGroups],
+    [loadState, updateFindings, setInfraProvider, securityGroups, iamRoles],
   );
 
   const handleSaveJSON = useCallback(() => {
@@ -143,7 +148,9 @@ export default function App() {
           });
           const loadedSGs = data.security_groups ?? [];
           if (loadedSGs.length) setSecurityGroups(loadedSGs);
-          updateFindings(restoredNodes, restoredEdges, loadedSGs.length ? loadedSGs : securityGroups);
+          const loadedRoles = data.iam_roles ?? [];
+          if (loadedRoles.length) setIAMRoles(loadedRoles);
+          updateFindings(restoredNodes, restoredEdges, loadedSGs.length ? loadedSGs : securityGroups, loadedRoles.length ? loadedRoles : iamRoles);
           if (data.provider) setInfraProvider(data.provider);
         } catch {
           alert("Invalid JSON file.");
@@ -152,7 +159,7 @@ export default function App() {
       reader.readAsText(file);
     };
     input.click();
-  }, [loadState, updateFindings, setInfraProvider, setSecurityGroups, securityGroups]);
+  }, [loadState, updateFindings, setInfraProvider, setSecurityGroups, setIAMRoles, securityGroups, iamRoles]);
 
   const handleImportTF = useCallback(() => {
     const input = document.createElement("input");
@@ -207,7 +214,9 @@ export default function App() {
         setSecurityGroups(importedSGs);
         setIAMRoles(graph.iam_roles ?? []);
         setInfraProvider(graph.provider ?? "aws");
-        updateFindings(restoredNodes, restoredEdges, importedSGs);
+        const importedRoles = graph.iam_roles ?? [];
+        setIAMRoles(importedRoles);
+        updateFindings(restoredNodes, restoredEdges, importedSGs, importedRoles);
         setShowLanding(false);
         if (warnings.length > 0) {
           const unique = [...new Set(warnings)];
@@ -222,6 +231,54 @@ export default function App() {
     };
     input.click();
   }, [loadState, setSecurityGroups, setIAMRoles, setInfraProvider, updateFindings]);
+
+  const handleImportPlanApply = useCallback(
+    ({ graph, summary, warnings }) => {
+      const restoredNodes = (graph.components ?? []).map((c) => ({
+        id: c.id,
+        type: c.type,
+        position: c.position ?? { x: 0, y: 0 },
+        ...(c.parentId ? { parentId: c.parentId } : {}),
+        ...(c.style    ? { style:    c.style    } : {}),
+        data: {
+          label: c.label ?? c.data?.label ?? c.type,
+          awsType: c.awsType ?? c.data?.awsType ?? c.type,
+          icon: c.icon ?? c.data?.icon ?? "📦",
+          config: c.config ?? c.data?.config ?? {},
+          category: c.category ?? c.data?.category ?? "",
+          nodeType: c.nodeType ?? c.data?.nodeType ?? c.type,
+          change_action: c.data?.change_action ?? null,
+          tf_address: c.data?.tf_address ?? null,
+          security_group_ids: c.security_group_ids ?? [],
+          iam_role_id: c.iam_role_id ?? null,
+        },
+      }));
+      const restoredEdges = graph.edges ?? [];
+      const planSGs = graph.security_groups ?? [];
+      const planRoles = graph.iam_roles ?? [];
+      clearPlan();
+      loadState({
+        nodes: restoredNodes,
+        edges: restoredEdges,
+        graphMeta: {
+          id: graph.id,
+          name: graph.name ?? "Terraform Plan",
+          provider: "aws",
+          region: graph.region ?? "us-east-1",
+        },
+      });
+      setSecurityGroups(planSGs);
+      setIAMRoles(planRoles);
+      setPlanSummary(summary);
+      setSidebarTab("Validate");
+      setShowLanding(false);
+      if (warnings?.length > 0) {
+        const unique = [...new Set(warnings)];
+        console.warn(`Plan import notices:\n${unique.join("\n")}`);
+      }
+    },
+    [loadState, setSecurityGroups, setIAMRoles, setPlanSummary, clearPlan]
+  );
 
   const handleArchNameCommit = useCallback(() => {
     const val = archNameRef.current?.value?.trim();
@@ -316,10 +373,12 @@ export default function App() {
       const archivedSGs = entry.graph.security_groups ?? [];
       if (archivedSGs.length) setSecurityGroups(archivedSGs);
       setInfraProvider(entry.graph.provider ?? "aws");
-      updateFindings(restoredNodes, restoredEdges, archivedSGs.length ? archivedSGs : securityGroups);
+      const archivedRoles = entry.graph.iam_roles ?? [];
+      if (archivedRoles.length) setIAMRoles(archivedRoles);
+      updateFindings(restoredNodes, restoredEdges, archivedSGs.length ? archivedSGs : securityGroups, archivedRoles.length ? archivedRoles : iamRoles);
       setShowLanding(false);
     },
-    [loadState, setInfraProvider, setSecurityGroups, updateFindings, securityGroups],
+    [loadState, setInfraProvider, setSecurityGroups, setIAMRoles, updateFindings, securityGroups, iamRoles],
   );
 
   const graph = serializeGraph(
@@ -405,6 +464,13 @@ export default function App() {
             title="Import Terraform .tf files"
           >
             Import .tf
+          </button>
+          <button
+            onClick={() => setImportPlanOpen(true)}
+            className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+            title="Visualize a Terraform plan (terraform show -json)"
+          >
+            Import Plan
           </button>
           <button
             onClick={handleLoadJSON}
@@ -566,6 +632,15 @@ export default function App() {
           onSelect={handleLoadTemplate}
           onClose={() => setTemplatesOpen(false)}
           provider={infraProvider}
+        />
+      )}
+
+      {/* Import Plan modal */}
+      {importPlanOpen && (
+        <ImportPlanModal
+          apiUrl={import.meta.env.VITE_API_URL ?? "http://localhost:8000"}
+          onApply={handleImportPlanApply}
+          onClose={() => setImportPlanOpen(false)}
         />
       )}
     </div>

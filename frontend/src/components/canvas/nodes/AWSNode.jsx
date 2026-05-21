@@ -44,6 +44,45 @@ const CATEGORY_COLORS = {
 const HANDLE_STYLE = { width: 8, height: 8 };
 const EMPTY_FINDINGS = [];
 
+// Change-action visual config
+const CHANGE_ACTION_CONFIG = {
+  create: {
+    ring: "ring-2 ring-green-500 ring-offset-1",
+    badge: "bg-green-500 text-white",
+    symbol: "+",
+    label: "Will be created",
+    dimmed: false,
+  },
+  update: {
+    ring: "ring-2 ring-amber-400 ring-offset-1",
+    badge: "bg-amber-500 text-white",
+    symbol: "~",
+    label: "Will be updated",
+    dimmed: false,
+  },
+  replace: {
+    ring: "ring-2 ring-orange-500 ring-offset-1",
+    badge: "bg-orange-500 text-white",
+    symbol: "⟳",
+    label: "Will be replaced",
+    dimmed: false,
+  },
+  delete: {
+    ring: "ring-2 ring-red-500 ring-offset-1",
+    badge: "bg-red-500 text-white",
+    symbol: "×",
+    label: "Will be destroyed",
+    dimmed: false,
+  },
+  "no-op": {
+    ring: "",
+    badge: "",
+    symbol: "",
+    label: "No change",
+    dimmed: true,
+  },
+};
+
 export default function AWSNode({ id, data, selected }) {
   const colors = CATEGORY_COLORS[data.category] ?? {
     bg: "bg-gray-50",
@@ -62,16 +101,22 @@ export default function AWSNode({ id, data, selected }) {
 
   const svgUrl = data.nodeType ? ALL_ICONS[data.nodeType] : null;
 
+  // Plan-mode change action
+  const changeAction = data.change_action ?? null;
+  const changeCfg = changeAction ? CHANGE_ACTION_CONFIG[changeAction] : null;
+  const inPlanMode = changeAction !== null && changeAction !== undefined;
+
   return (
-    <div className="relative">
+    <div className={`relative ${changeCfg?.dimmed ? "opacity-40" : ""}`}>
       <div
         className={`
           rounded-lg border-2 px-3 py-2 min-w-[120px] text-center shadow-sm cursor-pointer
           ${colors.bg} ${colors.border}
           ${selected ? "ring-2 ring-indigo-500 ring-offset-1" : ""}
-          ${!selected && worstLevel === "critical" ? "ring-2 ring-red-500 ring-offset-1" : ""}
-          ${!selected && worstLevel === "warning" ? "ring-2 ring-amber-400 ring-offset-1" : ""}
-          ${!selected && worstLevel === "info" ? "ring-2 ring-blue-400 ring-offset-1" : ""}
+          ${!selected && !inPlanMode && worstLevel === "critical" ? "ring-2 ring-red-500 ring-offset-1" : ""}
+          ${!selected && !inPlanMode && worstLevel === "warning" ? "ring-2 ring-amber-400 ring-offset-1" : ""}
+          ${!selected && !inPlanMode && worstLevel === "info" ? "ring-2 ring-blue-400 ring-offset-1" : ""}
+          ${!selected && changeCfg && !changeCfg.dimmed ? changeCfg.ring : ""}
         `}
       >
         <Handle
@@ -118,8 +163,22 @@ export default function AWSNode({ id, data, selected }) {
         </div>
       </div>
 
-      {/* Validation badge */}
-      {nodeFindings && nodeFindings.length > 0 && (
+      {/* Plan mode change-action badge */}
+      {changeCfg && changeCfg.symbol && (
+        <div
+          title={changeCfg.label}
+          className={`
+            absolute -top-2 -right-2 w-5 h-5 rounded-full flex items-center justify-center
+            text-xs font-bold shadow
+            ${changeCfg.badge}
+          `}
+        >
+          {changeCfg.symbol}
+        </div>
+      )}
+
+      {/* Validation badge (hidden in plan mode) */}
+      {!inPlanMode && nodeFindings && nodeFindings.length > 0 && (
         <div
           title={nodeFindings.map((f) => f.message).join("\n")}
           className={`

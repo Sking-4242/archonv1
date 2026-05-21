@@ -17,6 +17,7 @@ import "@xyflow/react/dist/style.css";
 
 import useGraphStore from "../../store/graphStore";
 import useSecurityStore from "../../store/securityStore";
+import useIAMStore from "../../store/iamStore";
 import useValidationStore from "../../store/validationStore";
 import { nodeTypes } from "./nodes";
 import { edgeTypes } from "./edges";
@@ -309,11 +310,12 @@ function CanvasInner({ onNodeSelect }) {
 
   const updateValidation = useValidationStore((s) => s.update);
   const securityGroups = useSecurityStore((s) => s.securityGroups);
+  const iamRoles = useIAMStore((s) => s.iamRoles);
 
   // Keep validation warnings in sync with graph state
   useEffect(() => {
-    updateValidation(nodes, edges, securityGroups);
-  }, [nodes, edges, securityGroups, updateValidation]);
+    updateValidation(nodes, edges, securityGroups, iamRoles);
+  }, [nodes, edges, securityGroups, iamRoles, updateValidation]);
 
   const closeContextMenu = useCallback(() => setContextMenu(null), []);
 

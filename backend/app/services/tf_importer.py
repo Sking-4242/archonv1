@@ -9,6 +9,14 @@ for loadState on the frontend.
 
 Unknown resource types are rendered as generic_tf nodes — nothing is
 silently dropped.
+
+Handles:
+  - resource {} blocks (regular resources)
+  - data {} blocks (data sources, keyed "data.TYPE" in the resource map)
+  - locals {} blocks (resolved for label display)
+  - module {} blocks (rendered as placeholder Module nodes)
+  - count / for_each multiplicity labels
+  - ${data.TYPE.NAME.attr} reference patterns (proper edge inference)
 """
 from __future__ import annotations
 
@@ -190,18 +198,45 @@ _CAT_GAP     = 60
 
 # ─── Reference detection ─────────────────────────────────────────────────────
 
-# Matches ${resource_type.resource_name.attr}  and  ${resource_type.resource_name[…]}
-# Case-insensitive type, names may start with a digit or contain hyphens, and splat
-# expressions (name[*] or name[0]) are also captured.
+# Matches ${resource_type.resource_name.attr} and ${resource_type.resource_name[…]}
+# Negative lookahead skips data./module./local./var. — these are handled separately.
 _REF_RE = re.compile(
-    r'\$\{([A-Za-z][A-Za-z0-9_]*)\.([A-Za-z0-9][A-Za-z0-9_-]*)[\.\[]'
+    r'\$\{(?!data\.|module\.|local\.|var\.)([A-Za-z][A-Za-z0-9_]*)\.([A-Za-z0-9][A-Za-z0-9_-]*)[\.\[]'
 )
 
+# Matches ${data.data_type.data_name.attr} — data source references.
+# Group 1 = data_type (e.g. "aws_ami"), group 2 = data_name (e.g. "ubuntu")
+_DATA_REF_RE = re.compile(
+    r'\$\{data\.([A-Za-z][A-Za-z0-9_]*)\.([A-Za-z0-9][A-Za-z0-9_-]*)[\.\[]'
+)
+
+# Matches bare references without ${} wrapper — e.g. depends_on entries like
+# "aws_instance.web" that python-hcl2 sometimes leaves as plain strings.
+_BARE_REF_RE = re.compile(
+    r'^([A-Za-z][A-Za-z0-9_]*)\.([A-Za-z0-9][A-Za-z0-9_-]*)$'
+)
+
+
 def _collect_refs(value: Any, out: set[tuple[str, str]]) -> None:
-    """Recursively walk a parsed HCL value and collect (resource_type, resource_name) refs."""
+    """
+    Recursively walk a parsed HCL value and collect (resource_type, resource_name) refs.
+
+    For regular resources: emits ("aws_vpc", "main")
+    For data sources:      emits ("data.aws_ami", "ubuntu")
+    Skips local./var./module. references (not resolvable to canvas nodes here).
+    """
     if isinstance(value, str):
+        # Interpolated refs: ${type.name.attr}
         for m in _REF_RE.finditer(value):
             out.add((m.group(1), m.group(2)))
+        # Data source refs: ${data.type.name.attr}
+        for m in _DATA_REF_RE.finditer(value):
+            out.add(("data." + m.group(1), m.group(2)))
+        # Bare string refs (e.g. from depends_on lists)
+        stripped = value.strip()
+        bm = _BARE_REF_RE.match(stripped)
+        if bm and not stripped.startswith(("local.", "var.", "module.", "data.")):
+            out.add((bm.group(1), bm.group(2)))
     elif isinstance(value, list):
         for item in value:
             _collect_refs(item, out)
@@ -239,21 +274,16 @@ def _preprocess_hcl(content: str) -> str:
     though they are valid in the HCL2 spec.  This function replaces every
     semicolon that sits outside a string literal or comment with a newline,
     which is equivalent and fully accepted by the parser.
-
-    Context tracked:
-      - Double-quoted strings (with escape sequences)
-      - Line comments: # ... newline  and  // ... newline
-      - Block comments: /* ... */
     """
     result: list[str] = []
-    in_string      = False
+    in_string        = False
     in_line_comment  = False
     in_block_comment = False
     i = 0
     n = len(content)
 
     while i < n:
-        ch = content[i]
+        ch  = content[i]
         nxt = content[i + 1] if i + 1 < n else ""
 
         if in_block_comment:
@@ -274,7 +304,6 @@ def _preprocess_hcl(content: str) -> str:
         elif in_string:
             result.append(ch)
             if ch == "\\" and i + 1 < n:
-                # Escaped character — pass through verbatim
                 i += 1
                 result.append(content[i])
             elif ch == '"':
@@ -282,7 +311,6 @@ def _preprocess_hcl(content: str) -> str:
             i += 1
 
         else:
-            # Normal context — check what we're entering
             if ch == "/" and nxt == "*":
                 in_block_comment = True
                 result.append(ch)
@@ -314,16 +342,25 @@ def _preprocess_hcl(content: str) -> str:
 def _parse_files(
     file_contents: list[str],
     parse_warnings: list[str] | None = None,
-) -> dict[str, dict[str, dict]]:
+) -> tuple[dict[str, dict[str, dict]], dict[str, Any]]:
     """
-    Parse multiple .tf file contents and merge all resource blocks into
-    {resource_type: {resource_name: attrs}} — ignoring duplicates from
-    separate files by suffixing conflicting names.
+    Parse multiple .tf file contents.
+
+    Returns a tuple of (resources, locals_map) where:
+
+    resources  — merged dict keyed by resource type string:
+      • Regular resources:  "aws_vpc"          → {name: attrs}
+      • Data sources:       "data.aws_ami"     → {name: attrs}
+      • Module blocks:      "_module"           → {mod_name: attrs}
+
+    locals_map — flattened locals for display-time substitution:
+                 {"env": "prod", "region": "us-east-1", ...}
 
     Parse errors are appended to parse_warnings (if provided) rather than
-    silently swallowed so callers can surface them to the user.
+    silently swallowed.
     """
     merged: dict[str, dict[str, dict]] = defaultdict(dict)
+    locals_map: dict[str, Any] = {}
 
     for idx, raw_content in enumerate(file_contents):
         content = _preprocess_hcl(raw_content)
@@ -331,15 +368,14 @@ def _parse_files(
             parsed = hcl2.load(io.StringIO(content))
         except Exception as exc:
             label = f"file {idx + 1}"
-            msg = f"Could not parse {label}: {exc}"
-            # Truncate very long parser error messages
+            msg   = f"Could not parse {label}: {exc}"
             if len(msg) > 300:
                 msg = msg[:300] + "…"
             if parse_warnings is not None:
                 parse_warnings.append(msg)
             continue
 
-        # hcl2 returns {"resource": [ {type: {name: attrs}}, ... ], ...}
+        # ── Regular resource blocks ───────────────────────────────────────
         for resource_list in parsed.get("resource", []):
             if not isinstance(resource_list, dict):
                 continue
@@ -348,12 +384,44 @@ def _parse_files(
                     continue
                 for res_name, attrs in instances.items():
                     key = res_name
-                    # Handle name collisions across files
                     if key in merged[res_type]:
                         key = f"{res_name}_{uuid.uuid4().hex[:4]}"
                     merged[res_type][key] = attrs if isinstance(attrs, dict) else {}
 
-    return dict(merged)
+        # ── Data source blocks ────────────────────────────────────────────
+        # data "aws_ami" "ubuntu" { ... }
+        # Stored as merged["data.aws_ami"]["ubuntu"] = attrs
+        for data_list in parsed.get("data", []):
+            if not isinstance(data_list, dict):
+                continue
+            for data_type, instances in data_list.items():
+                if not isinstance(instances, dict):
+                    continue
+                prefixed = "data." + data_type
+                for data_name, attrs in instances.items():
+                    key = data_name
+                    if key in merged[prefixed]:
+                        key = f"{data_name}_{uuid.uuid4().hex[:4]}"
+                    merged[prefixed][key] = attrs if isinstance(attrs, dict) else {}
+
+        # ── Locals blocks ─────────────────────────────────────────────────
+        for locals_block in parsed.get("locals", []):
+            if isinstance(locals_block, dict):
+                locals_map.update(locals_block)
+
+        # ── Module blocks ─────────────────────────────────────────────────
+        # module "vpc" { source = "./modules/vpc" ... }
+        # Stored as merged["_module"]["vpc"] = attrs
+        for module_list in parsed.get("module", []):
+            if not isinstance(module_list, dict):
+                continue
+            for mod_name, attrs in module_list.items():
+                key = mod_name
+                if key in merged["_module"]:
+                    key = f"{mod_name}_{uuid.uuid4().hex[:4]}"
+                merged["_module"][key] = attrs if isinstance(attrs, dict) else {}
+
+    return dict(merged), locals_map
 
 # ─── Security group extraction ────────────────────────────────────────────────
 
@@ -370,7 +438,7 @@ def _extract_security_groups(
         sg_id = str(uuid.uuid4())
         sg_id_map[("aws_security_group", sg_name)] = sg_id
 
-        inbound = []
+        inbound  = []
         outbound = []
 
         for rule_block in _ensure_list(attrs.get("ingress", [])):
@@ -438,21 +506,16 @@ def _extract_iam_roles(
             "id":          role_id,
             "name":        _str_val(attrs.get("name", role_name)),
             "description": _str_val(attrs.get("description", "")),
-            "policies":    [],   # Inline policies deferred — pulled from aws_iam_role_policy separately
+            "policies":    [],
         })
 
     return roles
 
-# Config keys that are handled by other mechanisms and should not be double-stored
-# in the component's raw config dict.
+# Config keys handled by other mechanisms — not stored in raw config dict.
 _CONFIG_SKIP_KEYS = frozenset({
-    # Terraform meta-arguments — not resource config
     "depends_on", "lifecycle", "count", "for_each",
-    # Security groups → stored as security_group_ids on the component
     "security_groups", "vpc_security_group_ids", "security_group_ids", "security_group_id",
-    # IAM → stored as iam_role_id on the component
     "iam_instance_profile", "execution_role_arn", "role",
-    # Tags → used only for label extraction
     "tags",
 })
 
@@ -462,10 +525,7 @@ def _resolve_sg_ids(
     value: Any,
     sg_id_map: dict[tuple[str, str], str],
 ) -> list[str]:
-    """
-    Given a parsed HCL attribute value (string or list), return a list of
-    archon SG UUIDs for any aws_security_group references found.
-    """
+    """Return archon SG UUIDs for any aws_security_group refs found in value."""
     refs: set[tuple[str, str]] = set()
     _collect_refs(value, refs)
     result = []
@@ -491,66 +551,159 @@ def _resolve_iam_id(
     return None
 
 
+# Resource types that are managed by other mechanisms and should not
+# create their own canvas nodes.
+_SKIP_RESOURCE_TYPES = frozenset({
+    # Handled as separate SG/IAM tab entries
+    "aws_security_group", "aws_security_group_rule",
+    "aws_iam_role", "aws_iam_policy", "aws_iam_role_policy",
+    "aws_iam_role_policy_attachment", "aws_iam_instance_profile",
+    "aws_iam_user", "aws_iam_group",
+    # Pure helper/linking resources — no visual value as standalone nodes
+    "aws_route_table_association",
+    "aws_s3_bucket_policy", "aws_s3_bucket_versioning",
+    "aws_lb_listener", "aws_alb_listener", "aws_lb_target_group",
+    "aws_db_subnet_group", "aws_db_parameter_group",
+    "aws_elasticache_subnet_group",
+    "aws_api_gateway_stage", "aws_efs_mount_target",
+    "aws_sns_topic_subscription", "aws_sqs_queue_policy",
+    "aws_cloudwatch_event_target", "aws_autoscaling_policy",
+    "aws_volume_attachment", "aws_kms_alias",
+    "aws_rds_cluster_instance", "aws_docdb_cluster_instance",
+})
+
+
 def _build_components(
     resources: dict[str, dict[str, dict]],
     sg_id_map: dict[tuple[str, str], str],
     iam_id_map: dict[tuple[str, str], str],
 ) -> tuple[list[dict], dict[tuple[str, str], str], list[str]]:
     """
-    Build the components list.
+    Build the components list from the merged resource map.
+    Handles regular resources, data sources (keyed "data.TYPE"), and
+    module placeholders (keyed "_module").
+
     Returns (components, resource_node_id_map, warnings).
     resource_node_id_map: {(resource_type, resource_name) -> node_id}
     """
-    components: list[dict] = []
+    components: list[dict]                        = []
     resource_node_id_map: dict[tuple[str, str], str] = {}
-    warnings: list[str] = []
+    warnings: list[str]                           = []
 
     for res_type, instances in resources.items():
-        # Skip pure helper/linking resources that don't deserve their own node
-        if res_type in (
-            # Handled as separate SG/IAM tab entries, not canvas nodes
-            "aws_security_group", "aws_security_group_rule",
-            "aws_iam_role", "aws_iam_policy", "aws_iam_role_policy",
-            "aws_iam_role_policy_attachment", "aws_iam_instance_profile",
-            "aws_iam_user", "aws_iam_group",
-            # Pure helper/linking resources — no visual value as standalone nodes
-            "aws_route_table_association",
-            "aws_s3_bucket_policy", "aws_s3_bucket_versioning",
-            "aws_lb_listener", "aws_alb_listener", "aws_lb_target_group",
-            "aws_db_subnet_group", "aws_db_parameter_group",
-            "aws_elasticache_subnet_group",
-            "aws_api_gateway_stage", "aws_efs_mount_target",
-            "aws_sns_topic_subscription", "aws_sqs_queue_policy",
-            "aws_cloudwatch_event_target", "aws_autoscaling_policy",
-            "aws_volume_attachment", "aws_kms_alias",
-            "aws_rds_cluster_instance", "aws_docdb_cluster_instance",
-        ):
+
+        # ── Module placeholder nodes ──────────────────────────────────────
+        if res_type == "_module":
+            for mod_name, attrs in instances.items():
+                node_id = str(uuid.uuid4())
+                resource_node_id_map[("_module", mod_name)] = node_id
+                source   = _str_val(attrs.get("source", ""))
+                aws_type = f"module ({source})" if source else "Terraform Module"
+                label    = mod_name.replace("_", " ").title()
+                components.append({
+                    "id":                node_id,
+                    "type":              "generic_tf",
+                    "label":             label,
+                    "awsType":           aws_type,
+                    "cloudType":         None,
+                    "icon":              "📦",
+                    "category":          "unknown",
+                    "config": {
+                        "_tf_resource_type": "_module",
+                        "_tf_resource_name": mod_name,
+                        "_tf_description":   f"Terraform module: {mod_name}" + (f" (source: {source})" if source else ""),
+                    },
+                    "security_group_ids": [],
+                    "iam_role_id":       None,
+                    "subnet_id":         None,
+                    "vpc_id":            None,
+                    "position":          {"x": 0, "y": 0},
+                    "_res_type":         "_module",
+                    "_res_name":         mod_name,
+                })
             continue
 
+        # ── Data source nodes ─────────────────────────────────────────────
+        if res_type.startswith("data."):
+            actual_type = res_type[5:]  # strip "data." prefix
+            mapped      = _TYPE_MAP.get(actual_type)
+            for data_name, attrs in instances.items():
+                node_id = str(uuid.uuid4())
+                resource_node_id_map[(res_type, data_name)] = node_id
+                label = data_name.replace("_", " ").title()
+
+                if mapped:
+                    archon_type, category, icon, display_name = mapped
+                    config: dict[str, Any] = {
+                        k: v for k, v in attrs.items()
+                        if k not in _CONFIG_SKIP_KEYS and not k.startswith("_")
+                    }
+                    components.append({
+                        "id":                node_id,
+                        "type":              archon_type,
+                        "label":             label,
+                        "awsType":           f"data.{display_name}",
+                        "cloudType":         None,
+                        "icon":              icon,
+                        "category":          category,
+                        "config":            config,
+                        "security_group_ids": [],
+                        "iam_role_id":       None,
+                        "subnet_id":         None,
+                        "vpc_id":            None,
+                        "position":          {"x": 0, "y": 0},
+                        "_res_type":         res_type,
+                        "_res_name":         data_name,
+                    })
+                else:
+                    components.append({
+                        "id":                node_id,
+                        "type":              "generic_tf",
+                        "label":             label,
+                        "awsType":           f"data.{actual_type}",
+                        "cloudType":         None,
+                        "icon":              "🔍",
+                        "category":          "unknown",
+                        "config": {
+                            "_tf_resource_type": res_type,
+                            "_tf_resource_name": data_name,
+                            "_tf_description":   f"Terraform data source: {actual_type}",
+                        },
+                        "security_group_ids": [],
+                        "iam_role_id":       None,
+                        "subnet_id":         None,
+                        "vpc_id":            None,
+                        "position":          {"x": 0, "y": 0},
+                        "_res_type":         res_type,
+                        "_res_name":         data_name,
+                    })
+            continue
+
+        # ── Skip helper/managed resource types ────────────────────────────
+        if res_type in _SKIP_RESOURCE_TYPES:
+            continue
+
+        # ── Regular resources ─────────────────────────────────────────────
         mapped = _TYPE_MAP.get(res_type)
 
         for res_name, attrs in instances.items():
-            node_id = str(uuid.uuid4())
+            node_id  = str(uuid.uuid4())
             resource_node_id_map[(res_type, res_name)] = node_id
             _res_key = {"_res_type": res_type, "_res_name": res_name}
 
             if mapped:
                 archon_type, category, icon, display_name = mapped
 
-                # ── Full attribute capture ────────────────────────────────
-                # Store all HCL attributes verbatim so they round-trip through
-                # generation. Keys in _CONFIG_SKIP_KEYS are handled by other
-                # mechanisms (SG IDs, IAM role, label from tags, etc.).
                 config: dict[str, Any] = {
                     k: v for k, v in attrs.items()
                     if k not in _CONFIG_SKIP_KEYS and not k.startswith("_")
                 }
 
-                # ── Type overrides that depend on attribute values ─────────
+                # Type overrides that depend on attribute values
                 if res_type in ("aws_lb", "aws_alb"):
                     lt = _str_val(config.get("load_balancer_type", ""))
                     if lt == "network":
-                        archon_type = "nlb"
+                        archon_type  = "nlb"
                         display_name = "NLB"
 
                 # Resolve security group IDs
@@ -559,7 +712,6 @@ def _build_components(
                                "security_group_ids", "security_group_id"):
                     if sg_key in attrs:
                         sg_ids.extend(_resolve_sg_ids(attrs[sg_key], sg_id_map))
-                # Lambda vpc_config
                 vpc_config = attrs.get("vpc_config", {})
                 if isinstance(vpc_config, list):
                     vpc_config = vpc_config[0] if vpc_config else {}
@@ -576,13 +728,23 @@ def _build_components(
                         if iam_id:
                             break
 
-                # User-defined label from tags or resource name
+                # Label from tags or resource name
                 tags = attrs.get("tags", {})
                 if isinstance(tags, list):
                     tags = tags[0] if tags else {}
                 if not isinstance(tags, dict):
                     tags = {}
                 label = _str_val(tags.get("Name", "")) or res_name.replace("_", " ").title()
+
+                # Count / for_each multiplicity label
+                count_val    = attrs.get("count")
+                for_each_val = attrs.get("for_each")
+                if count_val is not None:
+                    count_str = _str_val(count_val)
+                    if count_str and count_str not in ("1", ""):
+                        label = f"{label} ×{count_str}"
+                elif for_each_val is not None:
+                    label = f"{label} [for_each]"
 
                 components.append({
                     "id":                node_id,
@@ -603,7 +765,23 @@ def _build_components(
             else:
                 # Unknown resource type — render as generic_tf node
                 warnings.append(f"Unknown resource type '{res_type}' rendered as generic node")
-                label = res_name.replace("_", " ").title()
+                tags = attrs.get("tags", {})
+                if isinstance(tags, list):
+                    tags = tags[0] if tags else {}
+                if not isinstance(tags, dict):
+                    tags = {}
+                label = _str_val(tags.get("Name", "")) or res_name.replace("_", " ").title()
+
+                # Count / for_each multiplicity label
+                count_val    = attrs.get("count")
+                for_each_val = attrs.get("for_each")
+                if count_val is not None:
+                    count_str = _str_val(count_val)
+                    if count_str and count_str not in ("1", ""):
+                        label = f"{label} ×{count_str}"
+                elif for_each_val is not None:
+                    label = f"{label} [for_each]"
+
                 components.append({
                     "id":                node_id,
                     "type":              "generic_tf",
@@ -612,7 +790,7 @@ def _build_components(
                     "cloudType":         None,
                     "icon":              "📦",
                     "category":          "unknown",
-                    "config":            {
+                    "config": {
                         "_tf_resource_type": res_type,
                         "_tf_resource_name": res_name,
                         "_tf_description":   f"Terraform resource: {res_type}",
@@ -630,33 +808,26 @@ def _build_components(
 # ─── Edge inference ───────────────────────────────────────────────────────────
 
 # Attributes whose values are pure metadata — never contain useful resource refs.
-# Everything NOT in this set is scanned for resource references when building edges.
 _EDGE_ATTR_SKIP = frozenset({
-    # Human-readable strings / scalars
     "name", "description", "comment", "display_name", "friendly_name",
     "type", "id", "environment", "lifecycle",
-    # Network primitives
     "cidr_block", "cidr_blocks", "ipv6_cidr_blocks", "prefix_list_ids",
     "availability_zone", "availability_zones", "region",
     "from_port", "to_port", "protocol", "self",
-    # Compute image / code config
     "ami", "image_id", "instance_type", "key_name", "user_data",
     "runtime", "handler", "package_type", "filename", "s3_key", "s3_bucket",
     "node_type", "instance_class", "engine", "engine_version",
-    # Credentials / secrets (strings, not refs)
     "master_username", "master_password", "password", "username",
     "access_key", "secret_key", "token",
-    # Tags block — contains Name=..., Env=... etc., not resource refs
     "tags", "default_tags",
-    # Pure numeric / boolean config
     "port", "allocated_storage", "max_capacity", "min_capacity",
     "desired_count", "min_size", "max_size",
-    # Embedded policy JSON strings — big blobs, not HCL refs
     "assume_role_policy", "policy", "inline_policy",
+    # Data source filter blocks — not resource refs
+    "filter", "owners", "most_recent", "values",
 })
 
-# Skip these resource types as edge targets (they're already encoded as
-# security_group_ids / iam_role_id on components, not visual edges)
+# Skip these resource types as edge targets (encoded differently on the component)
 _SKIP_EDGE_TARGETS = {"aws_security_group", "aws_iam_role", "aws_iam_instance_profile"}
 
 
@@ -665,9 +836,9 @@ def _build_edges(
     resource_node_id_map: dict[tuple[str, str], str],
 ) -> list[dict]:
     edges: list[dict] = []
-    seen: set[frozenset] = set()
+    seen:  set[frozenset] = set()
 
-    def _add_edge(src_id: str, tgt_id: str) -> None:
+    def _add_edge(src_id: str, tgt_id: str | None) -> None:
         if not tgt_id or tgt_id == src_id:
             return
         pair = frozenset([src_id, tgt_id])
@@ -685,15 +856,13 @@ def _build_edges(
 
     for res_type, instances in resources.items():
         for res_name, attrs in instances.items():
+            # Use the canonical key for the source node
             src_key = (res_type, res_name)
-            src_id = resource_node_id_map.get(src_key)
+            src_id  = resource_node_id_map.get(src_key)
             if not src_id:
                 continue
 
-            # ── Attribute reference scan (blocklist approach) ─────────────
-            # Scan every attribute not in the noise blocklist for resource refs.
-            # We only create edges when the target is an actual canvas node, so
-            # spurious strings simply produce no matches.
+            # ── Attribute reference scan ──────────────────────────────────
             for attr_name, attr_val in attrs.items():
                 if attr_name.startswith("_") or attr_name in _EDGE_ATTR_SKIP:
                     continue
@@ -706,8 +875,6 @@ def _build_edges(
                     _add_edge(src_id, tgt_id)
 
             # ── depends_on edge pass ──────────────────────────────────────
-            # depends_on is a list of strings like "aws_instance.web" — these
-            # are explicit architectural dependencies declared by the author.
             for dep in _ensure_list(attrs.get("depends_on", [])):
                 if not isinstance(dep, str):
                     continue
@@ -728,17 +895,15 @@ def _infer_sg_edges(
     Derive traffic-flow edges from security-group ingress rules.
 
     If SG-Y allows ingress from SG-X, and resource A uses SG-X and resource B
-    uses SG-Y, we create a directed edge A → B.  This is how Terraform encodes
-    "EC2 can talk to RDS" — via SG rules rather than direct resource refs.
+    uses SG-Y, we create a directed edge A → B.
     """
-    # Map sg_name → [component_id, ...]
     sg_users: dict[str, list[str]] = {}
     for comp in components:
         res_type = comp.get("_res_type")
         res_name = comp.get("_res_name")
         if not res_type or not res_name:
             continue
-        attrs = resources.get(res_type, {}).get(res_name, {})
+        attrs   = resources.get(res_type, {}).get(res_name, {})
         comp_id = comp["id"]
         for sg_key in ("security_groups", "vpc_security_group_ids",
                        "security_group_ids", "security_group_id"):
@@ -753,7 +918,6 @@ def _infer_sg_edges(
                     if comp_id not in sg_users[ref_name]:
                         sg_users[ref_name].append(comp_id)
 
-    # Map target_sg_name → [source_sg_name, ...] from ingress rules
     sg_ingress: dict[str, list[str]] = {}
     for sg_name, sg_attrs in resources.get("aws_security_group", {}).items():
         ingress_list = sg_attrs.get("ingress", [])
@@ -797,13 +961,10 @@ def _infer_sg_edges(
 
 # ─── Parent assignment ────────────────────────────────────────────────────────
 
-# Attributes that place a resource inside a subnet (used for 3-level nesting)
 _SUBNET_PLACEMENT_ATTRS = frozenset({
     "subnet_id", "subnets", "vpc_zone_identifier", "vpc_zone_identifiers",
 })
 
-
-# Subnet-group resource types and the attribute that holds their subnet IDs
 _SUBNET_GROUP_TYPES: dict[str, str] = {
     "aws_db_subnet_group":          "subnet_ids",
     "aws_elasticache_subnet_group": "subnet_ids",
@@ -813,7 +974,6 @@ _SUBNET_GROUP_TYPES: dict[str, str] = {
     "aws_docdb_subnet_group":       "subnet_ids",
 }
 
-# Resource attributes that point to a subnet-group (by name reference)
 _SUBNET_GROUP_ATTRS: tuple[str, ...] = (
     "db_subnet_group_name",
     "subnet_group_name",
@@ -831,14 +991,10 @@ def _assign_parents(
     Assign parentId for 3 nesting levels:
       resource node  →  aws_subnet  →  aws_vpc
 
-    Direct placement:  subnet_id / subnets / vpc_zone_identifier attrs
+    Direct placement:   subnet_id / subnets / vpc_zone_identifier attrs
     Indirect placement: db_subnet_group_name / subnet_group_name resolved
                         through aws_db_subnet_group / aws_elasticache_subnet_group
     """
-    # ── Build subnet-group → VPC-node lookup ──────────────────────────────
-    # Resources using subnet groups (RDS, ElastiCache, Redshift…) span
-    # multiple subnets/AZs, so we place them at the VPC level, not inside
-    # a specific subnet.
     _sg_to_vpc: dict[tuple[str, str], str] = {}
     for sg_type, sid_key in _SUBNET_GROUP_TYPES.items():
         for sg_name, sg_attrs in resources.get(sg_type, {}).items():
@@ -856,18 +1012,19 @@ def _assign_parents(
                                 _sg_to_vpc[(sg_type, sg_name)] = vpc_nid
                                 break
                     if (sg_type, sg_name) in _sg_to_vpc:
-                        break  # VPC found — done with this subnet group
+                        break
 
-    # ── Assign parentIds ──────────────────────────────────────────────────
     for comp in components:
         res_type = comp.get("_res_type")
         res_name = comp.get("_res_name")
         if not res_type or not res_name:
             continue
+        # Data sources and modules don't get VPC/subnet placement
+        if res_type.startswith("data.") or res_type == "_module":
+            continue
         attrs = resources.get(res_type, {}).get(res_name, {})
 
         if res_type == "aws_subnet":
-            # Level 1: subnet → VPC
             refs = set()
             _collect_refs(attrs.get("vpc_id", ""), refs)
             for ref_type, ref_name in refs:
@@ -878,7 +1035,6 @@ def _assign_parents(
                         break
 
         elif res_type != "aws_vpc":
-            # Level 2a: direct subnet reference
             for attr_key in _SUBNET_PLACEMENT_ATTRS:
                 val = attrs.get(attr_key)
                 if val is None:
@@ -894,8 +1050,6 @@ def _assign_parents(
                 if "parentId" in comp:
                     break
 
-            # Level 2b: indirect via subnet group → place at VPC level
-            # (RDS, ElastiCache, Redshift… span multiple subnets/AZs)
             if "parentId" not in comp:
                 for attr_key in _SUBNET_GROUP_ATTRS:
                     val = attrs.get(attr_key)
@@ -916,36 +1070,32 @@ def _assign_parents(
 
 # ─── Layout ───────────────────────────────────────────────────────────────────
 
-# Leaf nodes (resources inside a subnet)
 _LEAF_W       = 160
 _LEAF_H       = 90
-_LEAF_COLS    = 2     # max resource columns inside a subnet
+_LEAF_COLS    = 2
 _LEAF_GAP_H   = 12
 _LEAF_GAP_V   = 12
 
-# Subnet containers
 _SUB_PAD_X    = 16
-_SUB_PAD_TOP  = 36   # room for the subnet header
+_SUB_PAD_TOP  = 36
 _SUB_PAD_BTM  = 16
-_SUB_EMPTY_W  = 240  # default size when subnet has no nested children
+_SUB_EMPTY_W  = 240
 _SUB_EMPTY_H  = 140
 
-# VPC containers — subnets are packed in a flowing left-to-right layout
-_SUB_GAP_H       = 24   # horizontal gap between sibling subnets
-_SUB_GAP_V       = 24   # vertical gap between subnet rows
+_SUB_GAP_H       = 24
+_SUB_GAP_V       = 24
 _VPC_PAD_X       = 28
-_VPC_PAD_TOP     = 52   # room for the VPC header
+_VPC_PAD_TOP     = 52
 _VPC_PAD_BTM     = 24
-_VPC_MAX_INNER_W = 1100 # wrap subnets to next row beyond this inner width
+_VPC_MAX_INNER_W = 1100
 
-# Top-level grid
-_NODE_W        = 160    # default width for plain (non-container) nodes
-_NODE_H        = 80     # default height
-_NODE_GAP_H    = 48     # horizontal gap between top-level items in the same row
-_NODE_GAP_V    = 60     # vertical gap between category rows
-_TOP_WRAP_W    = 1400   # wrap threshold for top-level rows
-_CANVAS_X0     = 80     # left margin
-_CANVAS_Y0     = 80     # top margin
+_NODE_W        = 160
+_NODE_H        = 80
+_NODE_GAP_H    = 48
+_NODE_GAP_V    = 60
+_TOP_WRAP_W    = 1400
+_CANVAS_X0     = 80
+_CANVAS_Y0     = 80
 
 
 def _compute_layout(components: list[dict]) -> list[dict]:
@@ -957,25 +1107,21 @@ def _compute_layout(components: list[dict]) -> list[dict]:
             children_by_parent[c["parentId"]].append(c)
 
     def depth(comp: dict) -> int:
-        """0 = top-level, 1 = inside VPC, 2 = inside subnet."""
         if "parentId" not in comp:
             return 0
         parent = comp_by_id.get(comp["parentId"], {})
         return 1 if "parentId" not in parent else 2
 
-    # ── Step 1: size leaf nodes (resources inside subnets) ────────────────
+    # Step 1: size leaf nodes
     for comp in components:
         if depth(comp) == 2:
             comp["style"] = {"width": _LEAF_W, "height": _LEAF_H}
 
-    # ── Step 2: size depth-1 nodes ────────────────────────────────────────
-    # Subnet containers get their size from their leaf children.
-    # VPC-level resource nodes (RDS, ElastiCache…) get leaf sizes directly.
+    # Step 2: size depth-1 nodes (subnets or VPC-level resources)
     for comp in components:
         if depth(comp) != 1:
             continue
         if comp.get("type") != "subnet":
-            # VPC-level resource — treat as a plain leaf node
             comp["style"] = {"width": _LEAF_W, "height": _LEAF_H}
             continue
         kids = children_by_parent.get(comp["id"], [])
@@ -997,12 +1143,9 @@ def _compute_layout(components: list[dict]) -> list[dict]:
                     "y": _SUB_PAD_TOP + (i // cols) * (_LEAF_H + _LEAF_GAP_V),
                 }
 
-    # ── Step 3: size VPCs — place subnets, then VPC-level resource children ─
-    # Subnets use flowing-pack placement.
-    # Resources that span subnets (RDS, ElastiCache…) are placed in a strip
-    # below the subnets inside the VPC, communicating multi-AZ placement.
-    _VPC_RES_GAP_H = 16   # gap between VPC-level resource nodes
-    _VPC_RES_GAP_V = 20   # gap between subnet rows and resource strip
+    # Step 3: size VPCs
+    _VPC_RES_GAP_H = 16
+    _VPC_RES_GAP_V = 20
     for comp in components:
         if depth(comp) != 0 or comp.get("type") != "vpc":
             continue
@@ -1018,7 +1161,6 @@ def _compute_layout(components: list[dict]) -> list[dict]:
         row_h         = 0
         max_row_right = _VPC_PAD_X
 
-        # Place subnets in flowing rows
         for sub in sub_kids:
             sw = sub["style"]["width"]
             sh = sub["style"]["height"]
@@ -1031,7 +1173,6 @@ def _compute_layout(components: list[dict]) -> list[dict]:
             sx   += sw + _SUB_GAP_H
             row_h = max(row_h, sh)
 
-        # Place VPC-level resource nodes in a row below the subnets
         if res_kids:
             sy   += row_h + _VPC_RES_GAP_V
             row_h = 0
@@ -1055,7 +1196,7 @@ def _compute_layout(components: list[dict]) -> list[dict]:
             "height": max(vpc_h, 200),
         }
 
-    # ── Step 4: position top-level nodes in a category-ordered flowing grid ─
+    # Step 4: position top-level nodes
     top_level = [c for c in components if depth(c) == 0]
     groups: dict[str, list[dict]] = defaultdict(list)
     for comp in top_level:
@@ -1074,7 +1215,6 @@ def _compute_layout(components: list[dict]) -> list[dict]:
             node_w = comp.get("style", {}).get("width",  _NODE_W)
             node_h = comp.get("style", {}).get("height", _NODE_H)
 
-            # Wrap to next row if we'd exceed the wrap threshold
             if x > _CANVAS_X0 and x + node_w > _CANVAS_X0 + _TOP_WRAP_W:
                 y    += row_h + _NODE_GAP_V
                 x     = _CANVAS_X0
@@ -1089,7 +1229,7 @@ def _compute_layout(components: list[dict]) -> list[dict]:
     return components
 
 
-# ─── Public entry point ───────────────────────────────────────────────────────
+# ─── Public entry point ──────────────────────────────────────────────────
 
 def import_terraform(
     file_contents: list[str],
@@ -1102,24 +1242,24 @@ def import_terraform(
       - "warnings": list of human-readable warning strings
     """
     parse_warnings: list[str] = []
-    resources = _parse_files(file_contents, parse_warnings)
+    resources, _locals_map = _parse_files(file_contents, parse_warnings)
 
-    # ── Security groups & IAM (extracted before components so IDs are ready) ─
-    sg_id_map: dict[tuple[str, str], str] = {}
+    # Security groups & IAM (extracted before components so IDs are ready)
+    sg_id_map: dict[tuple[str, str], str]  = {}
     iam_id_map: dict[tuple[str, str], str] = {}
 
     security_groups = _extract_security_groups(resources, sg_id_map)
     iam_roles       = _extract_iam_roles(resources, iam_id_map)
 
-    # ── Components ────────────────────────────────────────────────────────────
+    # Components
     components, resource_node_id_map, comp_warnings = _build_components(
         resources, sg_id_map, iam_id_map
     )
 
-    # ── Parent assignment (VPC / subnet nesting) ──────────────────────────────
+    # Parent assignment (VPC / subnet nesting)
     components = _assign_parents(components, resources, resource_node_id_map)
 
-    # ── Edges ─────────────────────────────────────────────────────────────────
+    # Edges
     edges = _build_edges(resources, resource_node_id_map)
 
     existing_pairs: set[frozenset] = {
@@ -1127,15 +1267,15 @@ def import_terraform(
     }
     edges += _infer_sg_edges(components, resources, existing_pairs)
 
-    # ── Layout ────────────────────────────────────────────────────────────────
+    # Layout
     components = _compute_layout(components)
 
-    # Strip internal _res_type / _res_name keys before returning
+    # Strip internal keys before returning
     for comp in components:
         comp.pop("_res_type", None)
         comp.pop("_res_name", None)
 
-    # ── Infer architecture name from filenames ────────────────────────────────
+    # Infer architecture name from filenames
     arch_name = "Imported Architecture"
     if filenames:
         stem = filenames[0].removesuffix(".tf").replace("_", " ").replace("-", " ")

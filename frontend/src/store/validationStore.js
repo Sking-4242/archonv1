@@ -250,6 +250,51 @@ const CONFIG_RULES = [
       `${n.data.label} does not enforce IMDSv2. Set metadata tokens to required to prevent SSRF attacks.`,
     fix: "Set IMDSv2 (Metadata Tokens) to required in the component config.",
   },
+  // ── FinOps rules ────────────────────────────────────────────────────────────
+  {
+    id: "ec2_prev_gen",
+    level: "info",
+    title: "Previous-generation EC2 instance type",
+    applies: (n) => n.type === "ec2",
+    check: (n) => {
+      const t = (n.data?.config?.instance_type ?? "").toLowerCase();
+      return /^(t1|t2|m1|m2|m3|m4|c1|c3|c4|r3|r4|i2|d2|g2|cr1|hs1)\./.test(t);
+    },
+    message: (n) =>
+      `${n.data.label} uses instance type "${n.data.config?.instance_type}". This is a previous-generation type with worse price-performance than current equivalents.`,
+    fix: "Upgrade to a current-generation equivalent: t2→t3/t4g, m4→m6i/m7g, c4→c6i/c7g, r4→r6i/r7g.",
+  },
+  {
+    id: "rds_no_reserved",
+    level: "info",
+    title: "RDS instance not marked for reserved pricing",
+    applies: (n) => n.type === "rds",
+    check: (n) => !n.data?.config?.reserved_instance,
+    message: (n) =>
+      `${n.data.label} is not marked as a reserved instance. Reserved instances save 30–60% for production databases.`,
+    fix: "Enable Reserved Instance in the component config to document the intent, then purchase an RI in the AWS Console.",
+  },
+  // ── Architecture rules ───────────────────────────────────────────────────────
+  {
+    id: "alb_no_access_logging",
+    level: "warning",
+    title: "ALB access logging disabled",
+    applies: (n) => n.type === "alb",
+    check: (n) => !n.data?.config?.access_logs_enabled,
+    message: (n) =>
+      `${n.data.label} does not have access logging enabled. Access logs are required for auditing and incident response.`,
+    fix: "Enable Access Logs in the component config and specify an S3 bucket to receive them.",
+  },
+  {
+    id: "s3_no_block_public_access",
+    level: "warning",
+    title: "S3 bucket missing Block Public Access",
+    applies: (n) => n.type === "s3",
+    check: (n) => !n.data?.config?.block_public_access,
+    message: (n) =>
+      `${n.data.label} does not have Block Public Access enabled. Without it, a misconfigured bucket policy or ACL could expose data publicly.`,
+    fix: "Enable Block Public Access in the component config. Disable only on buckets intentionally serving public content.",
+  },
 ];
 
 // ─── Topology-based rules ─────────────────────────────────────────────────────
@@ -459,6 +504,29 @@ const TOPOLOGY_RULES = [
       `${n.data.label} has no dead-letter queue. Failed async invocations will be silently dropped.`,
     fix: "Add an SQS queue or SNS topic and connect it to this Lambda as a DLQ.",
   },
+  {
+    id: "nat_single_az",
+    level: "warning",
+    title: "Single NAT Gateway — no cross-AZ redundancy",
+    applies: (n) => n.type === "nat_gateway",
+    check: (n, edges, nodes) => {
+      // Fire when there is exactly one NAT gateway but multiple private subnets
+      const natCount = nodes.filter((nd) => nd.type === "nat_gateway").length;
+      if (natCount > 1) return false;
+      const privateSubnets = nodes.filter(
+        (nd) => nd.type === "subnet" && !nd.data?.config?.public,
+      );
+      return privateSubnets.length >= 2;
+    },
+    message: (n) =>
+      `Only one NAT Gateway exists across ${
+        (() => {
+          // count not easily accessible here — use generic wording
+          return "multiple private subnets";
+        })()
+      }. If its AZ goes down, all private subnet egress fails.`,
+    fix: "Add a second NAT Gateway in a different Availability Zone and update each private subnet's route table.",
+  },
 ];
 
 // ─── SG port inspection rules ─────────────────────────────────────────────────
@@ -572,6 +640,91 @@ const SG_RULES = [
       `Security group "${sg.name}" allows HTTP (80) from the internet but not HTTPS (443).`,
     fix: "Add an HTTPS (443) inbound rule and redirect HTTP to HTTPS at the load balancer.",
   },
+  {
+    id: "sg_open_admin_port",
+    level: "warning",
+    title: "Admin or debug port open to internet",
+    canAcknowledge: true,
+    check: (sg) => {
+      const adminPorts = [
+        8080, 8443, 8888,  // common web admin / Jupyter
+        9200, 9300,        // Elasticsearch
+        5601,              // Kibana
+        9000,              // Portainer / SonarQube
+        2375, 2376,        // Docker daemon
+        6443,              // Kubernetes API
+        10250,             // Kubelet
+        4848,              // GlassFish admin
+        4040,              // Spark UI
+        8161,              // ActiveMQ admin
+      ];
+      return adminPorts.some((p) => sgAllowsPortFromPublic(sg, p));
+    },
+    message: (sg) =>
+      `Security group "${sg.name}" exposes an admin or debug port to 0.0.0.0/0. These interfaces often lack production-grade authentication.`,
+    fix: "Restrict admin port access to a specific IP range or VPN CIDR. If this is intentional, acknowledge the warning.",
+  },
+];
+
+// ─── IAM-based rules ─────────────────────────────────────────────────────────
+// Operate on the iamRoles array: [{ id, name, policies: [{ effect, actions[], resources[] }] }]
+
+const _SENSITIVE_SERVICES = new Set([
+  "iam", "s3", "ec2", "rds", "kms", "secretsmanager",
+  "cloudtrail", "guardduty", "organizations", "sts",
+]);
+
+function _hasWildcardOnSensitive(policies) {
+  for (const stmt of policies) {
+    if (stmt.effect !== "Allow") continue;
+    const actions = Array.isArray(stmt.actions)
+      ? stmt.actions
+      : String(stmt.actions ?? "").split(/[\s,]+/);
+    for (const action of actions) {
+      const a = action.trim().toLowerCase();
+      if (a === "*") return true;                     // allow everything
+      const [svc] = a.split(":");
+      if (a.endsWith(":*") && _SENSITIVE_SERVICES.has(svc)) return true;
+    }
+  }
+  return false;
+}
+
+function _hasAdminPolicy(policies) {
+  for (const stmt of policies) {
+    if (stmt.effect !== "Allow") continue;
+    const actions = Array.isArray(stmt.actions)
+      ? stmt.actions
+      : String(stmt.actions ?? "").split(/[\s,]+/);
+    const resources = Array.isArray(stmt.resources)
+      ? stmt.resources
+      : String(stmt.resources ?? "").split(/[\s,]+/);
+    const allActions = actions.some((a) => a.trim() === "*");
+    const allResources = resources.some((r) => r.trim() === "*");
+    if (allActions && allResources) return true;
+  }
+  return false;
+}
+
+const IAM_RULES = [
+  {
+    id: "iam_admin_policy",
+    level: "critical",
+    title: "IAM role grants full administrator access",
+    check: (role) => _hasAdminPolicy(role.policies ?? []),
+    message: (role) => `IAM role "${role.name}" has a policy allowing Action:* on Resource:*. This is equivalent to AdministratorAccess.`,
+    fix: "Replace the wildcard policy with specific actions and resources. Follow the principle of least privilege.",
+    canAcknowledge: false,
+  },
+  {
+    id: "iam_wildcard_sensitive",
+    level: "critical",
+    title: "IAM role has wildcard actions on sensitive service",
+    check: (role) => !_hasAdminPolicy(role.policies ?? []) && _hasWildcardOnSensitive(role.policies ?? []),
+    message: (role) => `IAM role "${role.name}" allows wildcard (*) actions on a sensitive service (IAM, S3, KMS, etc.). This is overly permissive.`,
+    fix: "Replace service-level wildcards (e.g. s3:*) with specific actions (e.g. s3:GetObject, s3:PutObject).",
+    canAcknowledge: false,
+  },
 ];
 
 // ─── Acknowledge persistence ──────────────────────────────────────────────────
@@ -590,15 +743,14 @@ function loadAcknowledged() {
 function saveAcknowledged(map) {
   try {
     localStorage.setItem(LS_KEY, JSON.stringify(map));
-  } catch {
-    // ignore storage errors
-  }
+  } catch {}
 }
 
 // ─── Main compute function ────────────────────────────────────────────────────
 
-function computeFindings(nodes, edges, securityGroups) {
+function computeFindings(nodes, edges, securityGroups, iamRoles) {
   const sgs = Array.isArray(securityGroups) ? securityGroups : [];
+  const roles = Array.isArray(iamRoles) ? iamRoles : [];
   const findings = [];
 
   // 1. Config-based rules
@@ -644,7 +796,6 @@ function computeFindings(nodes, edges, securityGroups) {
   }
 
   // 3. SG port inspection rules
-  // Build a map: sgId → [nodeIds that use it]
   const sgUsers = {};
   for (const node of nodes) {
     for (const sgId of node.data?.security_group_ids ?? []) {
@@ -652,19 +803,13 @@ function computeFindings(nodes, edges, securityGroups) {
       sgUsers[sgId].push(node.id);
     }
   }
-  // Also map canvas node ids for security_group type nodes
   const sgNodeById = {};
   for (const node of nodes) {
-    if (node.type === "security_group") {
-      sgNodeById[node.id] = node;
-    }
+    if (node.type === "security_group") sgNodeById[node.id] = node;
   }
-
   for (const sg of sgs) {
     for (const rule of SG_RULES) {
       if (!rule.check(sg)) continue;
-
-      // Fire on the SG canvas node if it exists
       const sgNode = sgNodeById[sg.id];
       const sgFindingBase = {
         ruleId: rule.id,
@@ -676,7 +821,6 @@ function computeFindings(nodes, edges, securityGroups) {
         sgId: sg.id,
         sgName: sg.name,
       };
-
       if (sgNode) {
         findings.push({
           ...sgFindingBase,
@@ -686,8 +830,6 @@ function computeFindings(nodes, edges, securityGroups) {
           nodeType: "security_group",
         });
       }
-
-      // Fire on every component that has this SG assigned
       for (const nodeId of sgUsers[sg.id] ?? []) {
         const node = nodes.find((n) => n.id === nodeId);
         if (!node) continue;
@@ -702,7 +844,26 @@ function computeFindings(nodes, edges, securityGroups) {
     }
   }
 
-  // ─── Sort and index ────────────────────────────────────────────────────────
+  // 4. IAM-based rules
+  for (const role of roles) {
+    for (const rule of IAM_RULES) {
+      if (!rule.check(role)) continue;
+      findings.push({
+        id: `${rule.id}::${role.id}`,
+        ruleId: rule.id,
+        nodeId: role.id,
+        nodeLabel: role.name,
+        nodeType: "iam_role",
+        level: rule.level,
+        title: rule.title,
+        message: rule.message(role),
+        fix: rule.fix,
+        canAcknowledge: rule.canAcknowledge ?? false,
+        sgId: null,
+      });
+    }
+  }
+
   const ORDER = { critical: 0, warning: 1, info: 2 };
   findings.sort((a, b) => ORDER[a.level] - ORDER[b.level]);
 
@@ -728,14 +889,11 @@ const useValidationStore = create((set, get) => ({
   warnings: {},
   acknowledgedFindings: loadAcknowledged(),
 
-  update: (nodes, edges, securityGroups) =>
-    set(computeFindings(nodes, edges, securityGroups)),
+  update: (nodes, edges, securityGroups, iamRoles) =>
+    set(computeFindings(nodes, edges, securityGroups, iamRoles)),
 
   acknowledge: (findingId, reason = "") => {
-    const next = {
-      ...get().acknowledgedFindings,
-      [findingId]: { reason, timestamp: Date.now() },
-    };
+    const next = { ...get().acknowledgedFindings, [findingId]: { reason, timestamp: Date.now() } };
     saveAcknowledged(next);
     set({ acknowledgedFindings: next });
   },
