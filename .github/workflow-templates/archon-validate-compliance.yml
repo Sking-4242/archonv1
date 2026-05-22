@@ -1,0 +1,84 @@
+# archon-validate-compliance.yml
+#
+# Archon CLI — compliance-filtered validation gate.
+#
+# This variant runs archon-cli validate filtered to a specific compliance
+# standard. Use it when you need a hard gate for PCI DSS, HIPAA, CIS, SOC 2,
+# or NIST CSF findings — separate from the general validation job.
+#
+# Supported STANDARD values: CIS | SOC2 | PCI | HIPAA | NIST
+#
+# Usage:
+#   Set the ARCHON_STANDARD env var below to your required standard.
+#   The job exits 1 (blocks merge) if any CRITICAL findings exist for
+#   that standard.
+
+name: Archon Compliance Gate
+
+on:
+  pull_request:
+    paths:
+      - "**.tf"
+      - "**.tfvars"
+      - "plan.json"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  ARCHON_STANDARD: PCI   # Change to: CIS | SOC2 | PCI | HIPAA | NIST
+
+jobs:
+  archon-compliance:
+    name: Archon — ${{ env.ARCHON_STANDARD }} Compliance Gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install archon-cli
+        run: pip install -e ./archon-cli
+
+      # Replace with your terraform plan steps (see archon-validate.yml)
+      - name: Generate plan JSON (replace this step)
+        run: |
+          if [ ! -f plan.json ]; then
+            echo '{"format_version":"1.2","variables":{},"planned_values":{"root_module":{"resources":[]}},"resource_changes":[],"configuration":{"root_module":{}}}' > plan.json
+          fi
+
+      - name: Run archon-cli validate (${{ env.ARCHON_STANDARD }})
+        id: validate
+        run: |
+          set +e
+          archon-cli validate plan.json \
+            --format github \
+            --standard "$ARCHON_STANDARD" \
+            > validate-report.md
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat validate-report.md
+
+      - name: Post compliance findings as PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('validate-report.md', 'utf8');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      - name: Fail on critical ${{ env.ARCHON_STANDARD }} findings
+        if: steps.validate.outputs.exit_code != '0'
+        run: |
+          echo "Archon found CRITICAL $ARCHON_STANDARD compliance findings. Review the PR comment above."
+          exit 1

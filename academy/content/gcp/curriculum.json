@@ -1,0 +1,349 @@
+{
+  "modules": [
+    {
+      "slug": "gcp-foundations",
+      "title": "GCP Foundations & Organization",
+      "description": "Resource hierarchy, billing, regions, and tooling",
+      "order": 1,
+      "difficulty": "beginner",
+      "cert_tags": [
+        "cdl",
+        "ace"
+      ],
+      "lessons": [
+        {
+          "title": "The GCP Resource Hierarchy: Organizations, Folders, and Projects",
+          "file": "the-gcp-resource-hierarchy-organizations-folders-and-project.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Billing Accounts vs. Projects: Decoupling Finance from Engineering",
+          "file": "billing-accounts-vs-projects-decoupling-finance-from-enginee.md",
+          "type": "content",
+          "minutes": 8
+        },
+        {
+          "title": "Regions, Zones, and the Global Fiber Network",
+          "file": "regions-zones-and-the-global-fiber-network.md",
+          "type": "content",
+          "minutes": 8
+        },
+        {
+          "title": "Interacting with GCP: Console, Cloud Shell, and gcloud",
+          "file": "interacting-with-gcp-console-cloud-shell-and-gcloud.md",
+          "type": "content",
+          "minutes": 8
+        }
+      ]
+    },
+    {
+      "slug": "gcp-identity-access",
+      "title": "Identity & Access Management",
+      "description": "Cloud Identity, IAM roles, Service Accounts, and Workload Identity",
+      "order": 2,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "ace",
+        "pca",
+        "pcse"
+      ],
+      "lessons": [
+        {
+          "title": "Cloud Identity & Google Workspace: The Identity Provider",
+          "file": "cloud-identity-google-workspace-the-identity-provider.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "IAM Roles: Basic, Predefined, and Custom",
+          "file": "iam-roles-basic-predefined-and-custom.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Service Accounts and the 'ActAs' Vulnerability",
+          "file": "service-accounts-and-the-actas-vulnerability.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Workload Identity Federation: The Multi-Cloud Bridge",
+          "file": "workload-identity-federation-the-multi-cloud-bridge.md",
+          "type": "content",
+          "minutes": 10
+        }
+      ]
+    },
+    {
+      "slug": "gcp-networking",
+      "title": "Networking",
+      "description": "Global VPC, subnets, peering, Shared VPCs, firewall rules, and VPC Service Controls",
+      "order": 3,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "ace",
+        "pca",
+        "pcse"
+      ],
+      "lessons": [
+        {
+          "title": "The Global VPC Architecture",
+          "file": "the-global-vpc-architecture.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Regional Subnets and IP Addressing",
+          "file": "regional-subnets-and-ip-addressing.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "VPC Peering and Shared VPCs",
+          "file": "vpc-peering-and-shared-vpcs.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "Cloud NAT and Private Google Access",
+          "file": "cloud-nat-and-private-google-access.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "Firewalls: Network-based vs. Service Accounts",
+          "file": "firewalls-network-based-vs-service-accounts.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "VPC Service Controls (Data Exfiltration Defense)",
+          "file": "vpc-service-controls-data-exfiltration-defense.md",
+          "type": "content",
+          "minutes": 10
+        }
+      ]
+    },
+    {
+      "slug": "gcp-governance-security",
+      "title": "Governance & Security",
+      "description": "Organization Policies and Cloud KMS",
+      "order": 4,
+      "difficulty": "advanced",
+      "cert_tags": [
+        "ace",
+        "pca",
+        "pcse"
+      ],
+      "lessons": [
+        {
+          "title": "Organization Policies (Governance as Code)",
+          "file": "organization-policies-governance-as-code.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "Cloud KMS (Key Management)",
+          "file": "cloud-kms-key-management.md",
+          "type": "content",
+          "minutes": 9
+        }
+      ]
+    },
+    {
+      "slug": "gcp-compute",
+      "title": "Compute",
+      "description": "Compute Engine VM families, custom types, MIGs, and sole-tenant nodes",
+      "order": 5,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "ace",
+        "pca"
+      ],
+      "lessons": [
+        {
+          "title": "Compute Engine VM Families",
+          "file": "compute-engine-vm-families.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Custom Machine Types & Spot VMs",
+          "file": "custom-machine-types-spot-vms.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "Managed Instance Groups (MIGs) & Auto-scaling",
+          "file": "managed-instance-groups-migs-auto-scaling.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Sole-Tenant Nodes & Live Migration",
+          "file": "sole-tenant-nodes-live-migration.md",
+          "type": "content",
+          "minutes": 9
+        }
+      ]
+    },
+    {
+      "slug": "gcp-load-balancing-cdn",
+      "title": "Load Balancing, CDN & Hybrid",
+      "description": "Cloud Load Balancing, CDN, Cloud Armor, Interconnect, and Cloud VPN",
+      "order": 6,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "ace",
+        "pca",
+        "pcse"
+      ],
+      "lessons": [
+        {
+          "title": "Cloud Load Balancing: Anycast and the Global Edge",
+          "file": "cloud-load-balancing-anycast-and-the-global-edge.md",
+          "type": "content",
+          "minutes": 11
+        },
+        {
+          "title": "Cloud CDN & Cloud Armor (WAF/DDoS)",
+          "file": "cloud-cdn-cloud-armor-wafddos.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Cloud Interconnect & Cloud VPN",
+          "file": "cloud-interconnect-cloud-vpn.md",
+          "type": "content",
+          "minutes": 10
+        }
+      ]
+    },
+    {
+      "slug": "gcp-containers-serverless",
+      "title": "Containers & Serverless",
+      "description": "Cloud Run, App Engine, GKE Standard and Autopilot",
+      "order": 7,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "ace",
+        "pca"
+      ],
+      "lessons": [
+        {
+          "title": "Cloud Run: Serverless Containers",
+          "file": "cloud-run-serverless-containers.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "App Engine: Standard vs. Flexible",
+          "file": "app-engine-standard-vs-flexible.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Google Kubernetes Engine (GKE) Architecture",
+          "file": "google-kubernetes-engine-gke-architecture.md",
+          "type": "content",
+          "minutes": 12
+        },
+        {
+          "title": "GKE Standard vs. GKE Autopilot",
+          "file": "gke-standard-vs-gke-autopilot.md",
+          "type": "content",
+          "minutes": 9
+        }
+      ]
+    },
+    {
+      "slug": "gcp-storage-databases",
+      "title": "Storage & Databases",
+      "description": "Cloud Storage, Persistent Disks, Cloud SQL, Spanner, Firestore, and Bigtable",
+      "order": 8,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "cdl",
+        "ace",
+        "pca"
+      ],
+      "lessons": [
+        {
+          "title": "Cloud Storage: Classes and Lifecycle Policies",
+          "file": "cloud-storage-classes-and-lifecycle-policies.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Persistent Disks & Local SSDs",
+          "file": "persistent-disks-local-ssds.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "Cloud SQL and Cloud Spanner",
+          "file": "cloud-sql-and-cloud-spanner.md",
+          "type": "content",
+          "minutes": 11
+        },
+        {
+          "title": "Firestore and Cloud Bigtable (NoSQL)",
+          "file": "firestore-and-cloud-bigtable-nosql.md",
+          "type": "content",
+          "minutes": 10
+        }
+      ]
+    },
+    {
+      "slug": "gcp-analytics-data",
+      "title": "Analytics & Data Pipelines",
+      "description": "BigQuery, Dataflow, and Pub/Sub streaming pipelines",
+      "order": 9,
+      "difficulty": "advanced",
+      "cert_tags": [
+        "cdl",
+        "pca"
+      ],
+      "lessons": [
+        {
+          "title": "BigQuery: The Serverless Data Warehouse",
+          "file": "bigquery-the-serverless-data-warehouse.md",
+          "type": "content",
+          "minutes": 11
+        },
+        {
+          "title": "Dataflow and Pub/Sub: Streaming Pipelines",
+          "file": "dataflow-and-pubsub-streaming-pipelines.md",
+          "type": "content",
+          "minutes": 10
+        }
+      ]
+    },
+    {
+      "slug": "gcp-operations-cost",
+      "title": "Operations & Cost Management",
+      "description": "Cloud Logging, the Log Router, and Committed Use Discounts",
+      "order": 10,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "ace",
+        "pca"
+      ],
+      "lessons": [
+        {
+          "title": "Cloud Logging and the Log Router",
+          "file": "cloud-logging-and-the-log-router.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "Cost Management and Committed Use Discounts (CUDs)",
+          "file": "cost-management-and-committed-use-discounts-cuds.md",
+          "type": "content",
+          "minutes": 9
+        }
+      ]
+    }
+  ]
+}

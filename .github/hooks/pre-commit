@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+# pre-commit — Archon CLI validation gate
+#
+# Runs archon-cli validate against plan.json before every commit.
+# Blocks the commit if CRITICAL findings are present.
+#
+# Installation:
+#   cp .github/hooks/pre-commit .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit
+#
+# Or install for everyone on the team using a hook manager like pre-commit
+# (https://pre-commit.com). See GITOPS_GUIDE.md for both approaches.
+#
+# The hook only runs if plan.json exists in the repo root. If you don't
+# have a plan file, the hook exits 0 (no-op).
+
+set -euo pipefail
+
+PLAN_FILE="plan.json"
+RED="\033[31m"
+YELLOW="\033[33m"
+GREEN="\033[32m"
+BOLD="\033[1m"
+RESET="\033[0m"
+
+# Only run if plan.json is present
+if [ ! -f "$PLAN_FILE" ]; then
+  exit 0
+fi
+
+# Verify archon-cli is installed
+if ! command -v archon-cli &>/dev/null; then
+  echo -e "${YELLOW}[archon] archon-cli not found — skipping validation.${RESET}"
+  echo -e "${YELLOW}[archon] Install with: pip install -e ./archon-cli${RESET}"
+  exit 0
+fi
+
+echo -e "${BOLD}[archon] Validating ${PLAN_FILE}...${RESET}"
+
+# Run validation — table format for readable terminal output
+set +e
+archon-cli validate "$PLAN_FILE"
+EXIT_CODE=$?
+set -e
+
+if [ "$EXIT_CODE" -ne 0 ]; then
+  echo ""
+  echo -e "${RED}${BOLD}[archon] Commit blocked — CRITICAL findings must be resolved before committing.${RESET}"
+  echo -e "${YELLOW}[archon] To skip this check (not recommended): git commit --no-verify${RESET}"
+  exit 1
+fi
+
+echo -e "${GREEN}${BOLD}[archon] Validation passed.${RESET}"
+exit 0

@@ -7,9 +7,11 @@ import GeneratePanel from "./components/panels/GeneratePanel";
 import EstimatePanel from "./components/panels/EstimatePanel";
 import ChatPanel from "./components/panels/ChatPanel";
 import ValidateTab from "./components/panels/ValidateTab";
+import DiscoverTab from "./components/panels/DiscoverTab";
 import SettingsModal from "./components/ui/SettingsModal";
 import TemplateModal from "./components/ui/TemplateModal";
 import ImportPlanModal from "./components/ui/ImportPlanModal";
+import ImportCLIReportModal from "./components/ui/ImportCLIReportModal";
 import LandingPage from "./components/LandingPage";
 import useGraphStore from "./store/graphStore";
 import useSecurityStore from "./store/securityStore";
@@ -29,13 +31,14 @@ const PROVIDER_LABELS = {
   xai: "xAI",
 };
 
-const SIDEBAR_TABS = ["Component", "Security", "IAM", "Validate"];
+const SIDEBAR_TABS = ["Component", "Security", "IAM", "Validate", "Discover"];
 
 export default function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [importPlanOpen, setImportPlanOpen] = useState(false);
+  const [importCLIOpen, setImportCLIOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [estimateOpen, setEstimateOpen] = useState(false);
   const [generateOpen, setGenerateOpen] = useState(false);
@@ -473,6 +476,13 @@ export default function App() {
             Import Plan
           </button>
           <button
+            onClick={() => setImportCLIOpen(true)}
+            className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+            title="Import a report from archon-cli (validate, cost, or discover)"
+          >
+            CLI Report
+          </button>
+          <button
             onClick={handleLoadJSON}
             className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
           >
@@ -606,6 +616,9 @@ export default function App() {
               {sidebarTab === "Validate" && (
                 <ValidateTab onSelectNode={(id) => handleNodeSelect(id)} />
               )}
+              {sidebarTab === "Discover" && (
+                <DiscoverTab onOpenImport={() => setImportCLIOpen(true)} />
+              )}
             </div>
           </aside>
         )}
@@ -641,6 +654,15 @@ export default function App() {
           apiUrl={import.meta.env.VITE_API_URL ?? "http://localhost:8000"}
           onApply={handleImportPlanApply}
           onClose={() => setImportPlanOpen(false)}
+        />
+      )}
+
+      {/* Import CLI Report modal */}
+      {importCLIOpen && (
+        <ImportCLIReportModal
+          onClose={() => setImportCLIOpen(false)}
+          onSwitchToValidate={() => setSidebarTab("Validate")}
+          onSwitchToDiscover={() => setSidebarTab("Discover")}
         />
       )}
     </div>

@@ -295,6 +295,253 @@ const CONFIG_RULES = [
       `${n.data.label} does not have Block Public Access enabled. Without it, a misconfigured bucket policy or ACL could expose data publicly.`,
     fix: "Enable Block Public Access in the component config. Disable only on buckets intentionally serving public content.",
   },
+
+  // ── ElastiCache rules ────────────────────────────────────────────────────
+  {
+    id: "elasticache_no_encryption_rest",
+    level: "critical",
+    title: "ElastiCache at-rest encryption disabled",
+    applies: (n) => n.type === "elasticache",
+    check: (n) => !n.data?.config?.at_rest_encryption_enabled,
+    message: (n) => `${n.data?.label || n.id} does not have at-rest encryption enabled.`,
+    fix: "Enable At-Rest Encryption in the component config.",
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+    canAcknowledge: false,
+  },
+  {
+    id: "elasticache_no_encryption_transit",
+    level: "critical",
+    title: "ElastiCache in-transit encryption disabled",
+    applies: (n) => n.type === "elasticache",
+    check: (n) => (n.data?.config?.transit_encryption_mode || "preferred") === "disabled",
+    message: (n) => `${n.data?.label || n.id} has In-Transit Encryption set to disabled.`,
+    fix: "Set In-Transit Encryption to required in the component config.",
+    standards: ["PCI", "HIPAA", "NIST"],
+    canAcknowledge: false,
+  },
+  {
+    id: "elasticache_no_auth",
+    level: "warning",
+    title: "ElastiCache Redis AUTH token not set",
+    applies: (n) => n.type === "elasticache",
+    check: (n) => (n.data?.config?.engine || "redis") === "redis" && !n.data?.config?.auth_token,
+    message: (n) => `${n.data?.label || n.id} (Redis) has no AUTH token configured.`,
+    fix: "Set an AUTH Token in the component config to require password authentication.",
+    standards: ["PCI"],
+    canAcknowledge: true,
+  },
+  {
+    id: "elasticache_no_backup",
+    level: "warning",
+    title: "ElastiCache snapshot retention disabled",
+    applies: (n) => n.type === "elasticache",
+    check: (n) => (Number(n.data?.config?.snapshot_retention_limit) || 0) < 1,
+    message: (n) => `${n.data?.label || n.id} has snapshot retention set to 0. No backups will be created.`,
+    fix: "Set Snapshot Retention to 1 or more days in the component config.",
+    standards: ["SOC2", "HIPAA", "NIST"],
+    canAcknowledge: true,
+  },
+  // ── SQS rules ────────────────────────────────────────────────────────────
+  {
+    id: "sqs_no_encryption",
+    level: "warning",
+    title: "SQS queue not encrypted",
+    applies: (n) => n.type === "sqs",
+    check: (n) => !n.data?.config?.sqs_managed_sse_enabled && !n.data?.config?.kms_master_key_id,
+    message: (n) => `${n.data?.label || n.id} has no server-side encryption configured.`,
+    fix: "Enable SQS-Managed SSE or set a KMS Key ID in the component config.",
+    standards: ["CIS", "HIPAA"],
+    canAcknowledge: true,
+  },
+  {
+    id: "sqs_no_dlq",
+    level: "warning",
+    title: "SQS queue has no dead-letter queue",
+    applies: (n) => n.type === "sqs",
+    check: (n) => (Number(n.data?.config?.redrive_max_receive_count) || 0) < 1,
+    message: (n) => `${n.data?.label || n.id} has no dead-letter queue configured. Failed messages will be lost.`,
+    fix: "Set Dead Letter Max Receive Count > 0 and configure a DLQ target.",
+    standards: ["SOC2", "NIST"],
+    canAcknowledge: true,
+  },
+  // ── SNS rules ────────────────────────────────────────────────────────────
+  {
+    id: "sns_no_encryption",
+    level: "warning",
+    title: "SNS topic not encrypted",
+    applies: (n) => n.type === "sns",
+    check: (n) => !n.data?.config?.kms_master_key_id,
+    message: (n) => `${n.data?.label || n.id} has no KMS key configured for at-rest encryption.`,
+    fix: "Set a KMS Key ID in the component config.",
+    standards: ["CIS", "HIPAA"],
+    canAcknowledge: true,
+  },
+  // ── CloudFront rules ──────────────────────────────────────────────────────
+  {
+    id: "cloudfront_no_https",
+    level: "critical",
+    title: "CloudFront allows unencrypted HTTP traffic",
+    applies: (n) => n.type === "cloudfront",
+    check: (n) => (n.data?.config?.viewer_protocol_policy || "redirect-to-https") === "allow-all",
+    message: (n) => `${n.data?.label || n.id} Viewer Protocol Policy is set to allow-all, permitting plaintext HTTP.`,
+    fix: "Set Viewer Protocol Policy to redirect-to-https or https-only.",
+    standards: ["PCI"],
+    canAcknowledge: false,
+  },
+  // ── EKS rules ────────────────────────────────────────────────────────────
+  {
+    id: "eks_public_endpoint",
+    level: "critical",
+    title: "EKS API endpoint publicly accessible",
+    applies: (n) => n.type === "eks",
+    check: (n) => {
+      const pub = n.data?.config?.endpoint_public_access !== false;
+      const cidrs = n.data?.config?.public_access_cidrs || "0.0.0.0/0";
+      return pub && String(cidrs).includes("0.0.0.0/0");
+    },
+    message: (n) => `${n.data?.label || n.id} has a public API endpoint accessible from 0.0.0.0/0.`,
+    fix: "Restrict Public Access CIDRs to known IP ranges, or disable public endpoint access.",
+    standards: ["PCI", "NIST"],
+    canAcknowledge: false,
+  },
+  {
+    id: "eks_no_logging",
+    level: "warning",
+    title: "EKS control plane logging disabled",
+    applies: (n) => n.type === "eks",
+    check: (n) => !n.data?.config?.enabled_cluster_log_types && !n.data?.config?.cluster_log_types,
+    message: (n) => `${n.data?.label || n.id} has no control plane log types enabled.`,
+    fix: "Set Enabled Log Types to api,audit,authenticator in the component config.",
+    standards: ["PCI", "NIST"],
+    canAcknowledge: true,
+  },
+  // ── KMS rules ────────────────────────────────────────────────────────────
+  {
+    id: "kms_no_rotation",
+    level: "warning",
+    title: "KMS key rotation disabled",
+    applies: (n) => n.type === "kms_key",
+    check: (n) => n.data?.config?.enable_key_rotation === false,
+    message: (n) => `${n.data?.label || n.id} does not have automatic key rotation enabled.`,
+    fix: "Enable Key Rotation in the component config.",
+    standards: ["CIS", "PCI"],
+    canAcknowledge: true,
+  },
+  // ── CloudTrail rules ──────────────────────────────────────────────────────
+  {
+    id: "cloudtrail_no_encryption",
+    level: "warning",
+    title: "CloudTrail logs not encrypted with KMS",
+    applies: (n) => n.type === "cloudtrail",
+    check: (n) => !n.data?.config?.kms_key_id && !n.data?.config?.kms_key_arn,
+    message: (n) => `${n.data?.label || n.id} does not have a KMS key configured for log encryption.`,
+    fix: "Set kms_key_id to the ARN of a KMS key in the Terraform resource.",
+    standards: ["CIS", "PCI", "HIPAA"],
+    canAcknowledge: true,
+  },
+  // ── Lambda rules ──────────────────────────────────────────────────────────
+  {
+    id: "lambda_public_access",
+    level: "critical",
+    title: "Lambda function URL publicly accessible without auth",
+    applies: (n) => n.type === "lambda",
+    check: (n) => {
+      const authType = n.data?.config?.authorization_type || n.data?.config?.function_url_auth_type;
+      return authType && String(authType).toUpperCase() === "NONE";
+    },
+    message: (n) => `${n.data?.label || n.id} has a function URL with authorization_type NONE.`,
+    fix: "Set authorization_type to AWS_IAM on the aws_lambda_function_url resource.",
+    standards: ["PCI", "HIPAA"],
+    canAcknowledge: false,
+  },
+  {
+    id: "lambda_no_vpc",
+    level: "warning",
+    title: "Lambda function not in a VPC",
+    applies: (n) => n.type === "lambda",
+    check: (n) => !n.data?.config?.vpc_id && !n.data?.config?.subnet_ids && !n.data?.config?.vpc_subnet_ids,
+    message: (n) => `${n.data?.label || n.id} is not configured in a VPC.`,
+    fix: "Add a vpc_config block referencing your VPC subnets and security groups.",
+    standards: ["PCI"],
+    canAcknowledge: true,
+  },
+  // ── EFS rules ────────────────────────────────────────────────────────────
+  {
+    id: "efs_no_encryption",
+    level: "critical",
+    title: "EFS file system not encrypted",
+    applies: (n) => n.type === "efs",
+    check: (n) => n.data?.config?.encrypted === false,
+    message: (n) => `${n.data?.label || n.id} does not have encryption at rest enabled.`,
+    fix: "Enable Encrypted in the component config.",
+    standards: ["SOC2", "PCI", "HIPAA", "NIST"],
+    canAcknowledge: false,
+  },
+  // ── Redshift rules ────────────────────────────────────────────────────────
+  {
+    id: "redshift_no_tls",
+    level: "critical",
+    title: "Redshift cluster does not require TLS",
+    applies: (n) => n.type === "redshift",
+    check: (n) => !n.data?.config?.require_ssl && !n.data?.config?.require_ssl_parameter,
+    message: (n) => `${n.data?.label || n.id} does not enforce TLS for client connections.`,
+    fix: "Set require_ssl = true in the Redshift parameter group.",
+    standards: ["PCI"],
+    canAcknowledge: false,
+  },
+  // ── RDS logging rules ─────────────────────────────────────────────────────
+  {
+    id: "rds_no_logging",
+    level: "warning",
+    title: "RDS CloudWatch log exports not configured",
+    applies: (n) => n.type === "rds",
+    check: (n) => {
+      const logs = n.data?.config?.enabled_cloudwatch_logs_exports;
+      if (!logs) return true;
+      const arr = Array.isArray(logs) ? logs : String(logs).split(",").filter(Boolean);
+      return arr.length === 0;
+    },
+    message: (n) => `${n.data?.label || n.id} has no CloudWatch log exports enabled.`,
+    fix: "Set enabled_cloudwatch_logs_exports to include error, general, and slowquery.",
+    standards: ["PCI", "HIPAA"],
+    canAcknowledge: true,
+  },
+  // ── Secrets Manager rules ─────────────────────────────────────────────────
+  {
+    id: "secrets_no_rotation",
+    level: "warning",
+    title: "Secrets Manager secret rotation disabled",
+    applies: (n) => n.type === "secretsmanager",
+    check: (n) => !n.data?.config?.rotation_enabled,
+    message: (n) => `${n.data?.label || n.id} does not have automatic rotation enabled.`,
+    fix: "Enable Rotation and configure a rotation Lambda in the component config.",
+    standards: ["PCI", "HIPAA"],
+    canAcknowledge: true,
+  },
+  // ── S3 SSL policy ─────────────────────────────────────────────────────────
+  {
+    id: "s3_no_ssl_policy",
+    level: "warning",
+    title: "S3 bucket policy may allow non-SSL access",
+    applies: (n) => n.type === "s3",
+    check: (n) => !n.data?.config?.block_public_policy,
+    message: (n) => `${n.data?.label || n.id} has Block Public Policy disabled. An aws:SecureTransport deny policy is recommended.`,
+    fix: "Enable Block Public Policy and add a bucket policy denying requests where aws:SecureTransport is false.",
+    standards: ["CIS", "SOC2", "PCI", "HIPAA"],
+    canAcknowledge: true,
+  },
+  // ── Subnet rules ──────────────────────────────────────────────────────────
+  {
+    id: "subnet_auto_public_ip",
+    level: "warning",
+    title: "Subnet auto-assigns public IP on launch",
+    applies: (n) => n.type === "subnet",
+    check: (n) => !!n.data?.config?.map_public_ip_on_launch,
+    message: (n) => `${n.data?.label || n.id} has map_public_ip_on_launch enabled. Instances receive public IPs automatically.`,
+    fix: "Disable Auto-assign Public IP unless this subnet is intentionally a public DMZ.",
+    standards: ["PCI", "HIPAA"],
+    canAcknowledge: true,
+  },
 ];
 
 // ─── Topology-based rules ─────────────────────────────────────────────────────
@@ -527,6 +774,68 @@ const TOPOLOGY_RULES = [
       }. If its AZ goes down, all private subnet egress fails.`,
     fix: "Add a second NAT Gateway in a different Availability Zone and update each private subnet's route table.",
   },
+
+  // ── CloudFront topology rules ────────────────────────────────────────────
+  {
+    id: "cloudfront_no_waf",
+    level: "warning",
+    title: "CloudFront distribution has no WAF",
+    applies: (n) => n.type === "cloudfront",
+    check: (n, edges, nodes) => {
+      const wafIds = new Set(nodes.filter((m) => m.type === "waf").map((m) => m.id));
+      if (wafIds.size === 0) return true;
+      return !edges.some(
+        (e) =>
+          (e.source === n.id && wafIds.has(e.target)) ||
+          (e.target === n.id && wafIds.has(e.source))
+      );
+    },
+    message: (n) => `${n.data?.label || n.id}: No WAF WebACL associated. Application-layer attacks are unmitigated.`,
+    fix: "Add a WAF component and connect it to the CloudFront distribution.",
+    standards: ["PCI", "NIST"],
+    canAcknowledge: true,
+  },
+  {
+    id: "cloudfront_no_logging",
+    level: "warning",
+    title: "CloudFront access logging not configured",
+    applies: (n) => n.type === "cloudfront",
+    check: (n) => !n.data?.config?.logging_config && !n.data?.config?.logging,
+    message: (n) => `${n.data?.label || n.id}: CloudFront access logs are not enabled. Required by PCI DSS 10.2.`,
+    fix: "Add a logging_config block pointing to an S3 bucket for access log storage.",
+    standards: ["PCI", "SOC2", "NIST"],
+    canAcknowledge: true,
+  },
+  // ── ALB HTTP redirect ─────────────────────────────────────────────────────
+  {
+    id: "alb_http_no_redirect",
+    level: "warning",
+    title: "Internet-facing ALB may lack HTTPS redirect",
+    applies: (n) => n.type === "alb",
+    check: (n) =>
+      (n.data?.config?.scheme || "internet-facing") === "internet-facing" &&
+      !n.data?.config?.ssl_policy &&
+      !n.data?.config?.certificate_arn,
+    message: (n) => `${n.data?.label || n.id} is internet-facing. Verify HTTP listeners redirect to HTTPS (PCI ELB.1).`,
+    fix: "Add an aws_lb_listener with action type redirect pointing to HTTPS port 443.",
+    standards: ["PCI", "HIPAA"],
+    canAcknowledge: true,
+  },
+  // ── Default SG ────────────────────────────────────────────────────────────
+  {
+    id: "default_sg_unrestricted",
+    level: "warning",
+    title: "Default security group has inbound rules",
+    applies: (n) => n.type === "security_group",
+    check: (n) => {
+      const name = (n.data?.label || n.data?.config?.name || "").toLowerCase();
+      return name === "default" || name === "default-sg" || name === "default security group";
+    },
+    message: (n) => `Security group "${n.data?.label || n.id}" is named "default". The default VPC SG should have no inbound rules (CIS 5.2).`,
+    fix: "Remove all inbound rules from the default security group. Use purpose-built security groups instead.",
+    standards: ["CIS", "PCI"],
+    canAcknowledge: true,
+  },
 ];
 
 // ─── SG port inspection rules ─────────────────────────────────────────────────
@@ -725,6 +1034,34 @@ const IAM_RULES = [
     fix: "Replace service-level wildcards (e.g. s3:*) with specific actions (e.g. s3:GetObject, s3:PutObject).",
     canAcknowledge: false,
   },
+  {
+    id: "iam_no_resource_constraint",
+    level: "warning",
+    title: "IAM role actions not scoped to specific resources",
+    check: (role) => {
+      if (_hasAdminPolicy(role.policies ?? [])) return false;
+      return (role.policies ?? []).some((stmt) => {
+        if (stmt.effect !== "Allow") return false;
+        const actions = Array.isArray(stmt.actions) ? stmt.actions : String(stmt.actions ?? "").split(/[\s,]+/);
+        const resources = Array.isArray(stmt.resources) ? stmt.resources : String(stmt.resources ?? "").split(/[\s,]+/);
+        const allActions = actions.some((a) => a.trim() === "*");
+        const allResources = resources.some((r) => r.trim() === "*");
+        return allResources && !allActions;
+      });
+    },
+    message: (role) => `IAM role "${role.name}" has allow statements with resource: "*" but specific actions. This grants those actions on all resources.`,
+    fix: "Restrict the Resource field to specific ARNs (e.g. arn:aws:s3:::my-bucket/*).",
+    canAcknowledge: false,
+  },
+  {
+    id: "iam_inline_policy",
+    level: "info",
+    title: "IAM inline policy detected",
+    check: (role) => !!role.isInline,
+    message: (role) => `IAM role "${role.name}" uses an inline policy. Inline policies cannot be reused or audited centrally.`,
+    fix: "Convert to a standalone aws_iam_policy resource and attach via aws_iam_role_policy_attachment.",
+    canAcknowledge: true,
+  },
 ];
 
 // ─── Acknowledge persistence ──────────────────────────────────────────────────
@@ -888,6 +1225,7 @@ const useValidationStore = create((set, get) => ({
   nodeFindings: {},
   warnings: {},
   acknowledgedFindings: loadAcknowledged(),
+  activeStandard: "all",  // "all" | "CIS" | "SOC2" | "PCI" | "HIPAA" | "NIST"
 
   update: (nodes, edges, securityGroups, iamRoles) =>
     set(computeFindings(nodes, edges, securityGroups, iamRoles)),
@@ -908,6 +1246,43 @@ const useValidationStore = create((set, get) => ({
   activeFindingCount: () => {
     const { findings, acknowledgedFindings } = get();
     return findings.filter((f) => !acknowledgedFindings[f.id]).length;
+  },
+
+  setActiveStandard: (standard) => set({ activeStandard: standard }),
+
+  // Returns findings filtered by activeStandard. "all" returns everything.
+  filteredFindings: () => {
+    const { findings, activeStandard } = get();
+    if (!activeStandard || activeStandard === "all") return findings;
+    return findings.filter((f) => (f.standards ?? []).includes(activeStandard));
+  },
+
+  // Load findings produced externally (archon-cli validate --format archon) into the store.
+  loadExternalFindings: (rawFindings) => {
+    const findings = rawFindings.map((f) => ({
+      id: f.id ?? `${f.ruleId}::${f.nodeId}`,
+      ruleId: f.ruleId,
+      nodeId: f.nodeId,
+      nodeLabel: f.nodeLabel,
+      nodeType: f.nodeType,
+      level: f.level,
+      title: f.title,
+      message: f.message,
+      fix: f.fix,
+      canAcknowledge: f.canAcknowledge ?? false,
+      sgId: f.sgId ?? null,
+      standards: f.standards ?? [],
+    }));
+    const nodeFindings = {};
+    for (const f of findings) {
+      if (!nodeFindings[f.nodeId]) nodeFindings[f.nodeId] = [];
+      nodeFindings[f.nodeId].push(f);
+    }
+    const warnings = {};
+    for (const [nid, flist] of Object.entries(nodeFindings)) {
+      warnings[nid] = flist.map((f) => ({ message: f.message, level: f.level }));
+    }
+    set({ findings, nodeFindings, warnings });
   },
 }));
 

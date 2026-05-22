@@ -1,6 +1,6 @@
 # Archon
 
-AI-assisted cloud architecture design platform.
+Multi-cloud infrastructure platform for designing, validating, discovering, and generating Terraform-ready architectures. Archon combines a visual canvas designer, a compliance-aware validation engine, a live AWS discovery tool, and a standalone CLI — all backed by an AI generation layer that supports every major LLM provider.
 
 **Version:** 0.5.0 &nbsp;|&nbsp; **License:** Apache 2.0 + Commons Clause
 
@@ -10,7 +10,7 @@ AI-assisted cloud architecture design platform.
 
 | | Archon Professional | Archon Academy |
 |---|---|---|
-| **What it is** | Visual cloud architecture studio | Guided cloud learning platform |
+| **What it is** | Cloud infrastructure design and validation studio | Guided cloud learning platform |
 | **Default port** | `3000` | `3001` |
 | **Backend** | Shared | Shared |
 
@@ -26,7 +26,7 @@ cd archonv1
 python install.py
 ```
 
-The installer GUI sets your ports, builds all containers, seeds the database, and gives you **Open Professional** and **Open Academy** launch buttons when it's done.
+The installer GUI sets your ports, builds all containers, and gives you **Open Professional** and **Open Academy** launch buttons when done.
 
 ## Quickstart — manual
 
@@ -40,94 +40,157 @@ docker compose exec backend python seed.py
 - Professional: [http://localhost:3000](http://localhost:3000)
 - Academy: [http://localhost:3001](http://localhost:3001)
 
----
-
 ## Requirements
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) with Compose plugin (running)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop) with Compose plugin
 - [Python 3.11+](https://www.python.org/downloads/) — for the one-click installer only
 
 ---
 
 ## Archon Professional
 
-Design cloud infrastructure visually. Connect components, configure security and IAM, then generate production-ready Terraform HCL with an AI model of your choice.
+### Canvas
+
+Design cloud infrastructure visually across four providers. Drag components from a searchable sidebar onto the canvas, connect them with typed edges, configure security and IAM, then generate production-ready Terraform.
+
+- Drag-and-drop components with VPC → Subnet → Resource nesting
+- 6 edge categories: **Data Flow**, **Network**, **Dependency**, **Streaming**, **Batch**, **Event**
+- Undo/redo (Ctrl+Z / Ctrl+Y), copy/paste, rubber-band multi-select
+- Inline label editing, note annotations, canvas PNG export
+- Keyboard shortcuts: `H` grab · `V` select · `Space` fit · `F` full zoom · `?` help
+- Architecture library: save named architectures with thumbnail previews to localStorage
+- 60 templates across all 4 providers (15 per provider) — load from the landing page or Templates menu
 
 ### Supported providers
 
 | Provider | Components | Terraform target |
 |---|---|---|
-| **AWS** | 130+ services across compute, storage, database, networking, security, AI/ML, analytics, DevOps | `hashicorp/aws` |
-| **Azure** | 60+ services including AKS, Functions, Cosmos DB, Service Bus, Azure AI | `hashicorp/azurerm` |
-| **GCP** | 55+ services including GKE, Cloud Run, BigQuery, Pub/Sub, Vertex AI | `hashicorp/google` |
+| **AWS** | 130+ services — compute, storage, database, networking, security, AI/ML, analytics, DevOps | `hashicorp/aws` |
+| **Azure** | 60+ services — AKS, Functions, Cosmos DB, Service Bus, Azure AI | `hashicorp/azurerm` |
+| **GCP** | 55+ services — GKE, Cloud Run, BigQuery, Pub/Sub, Vertex AI | `hashicorp/google` |
 | **On-Premises** | vSphere VMs, bare metal, NAS, load balancers, firewalls | `hashicorp/vsphere` + `null_resource` |
 
-### Canvas
+### Validation — 49 rules
 
-- Drag-and-drop components from a searchable sidebar
-- VPC → Subnet → Resource nesting with visual containment
-- 6 typed edge categories: **Data Flow**, **Network**, **Dependency**, **Streaming**, **Batch**, **Event**
-- Undo/redo (Ctrl+Z / Ctrl+Y), copy/paste, rubber-band multi-select
-- Inline label editing on any node
-- Note annotations for documentation
-- Canvas PNG export
-- Keyboard shortcuts: `H` grab · `V` select · `Space` fit · `F` full zoom · `?` help
+The validation engine checks your architecture live as you build. Findings appear highlighted on the canvas and in the Validate tab.
 
-### AI features
+**Config-based (13 rules)** — checks component settings: RDS/Aurora encryption, backup retention, publicly accessible, deletion protection · EBS encryption · EC2 IMDSv2 enforcement · Lambda X-Ray tracing · DynamoDB PITR · Redshift encryption · S3 SSE and versioning · ALB access logging · S3 block public access
 
-- **Generate** — produce Terraform HCL from the current diagram using any supported LLM
-- **AI canvas builder** — describe an architecture in plain English; the AI builds it on the canvas
-- **Architecture review** — AI security and best-practice analysis runs automatically on every Generate
-- **HCL validation** — syntax check followed by AI security review of the generated HCL
-- **AI chat panel** — persistent chat session with full canvas context
+**Topology-based (16 rules)** — checks the graph structure: databases exposed to internet · compute directly on IGW · missing security groups · missing IAM roles · WAF absent on public ALB · orphaned nodes · ALB with no targets · missing CloudWatch · single-AZ databases · no Secrets Manager path · private compute with no NAT gateway · databases in public subnets · ALB spanning one AZ · Lambda with no dead-letter queue · EC2 previous generation type
 
-### Security validation
+**SG port inspection (10 rules)** — checks security group inbound rules: all-traffic open · database ports open to internet · SSH/RDP from 0.0.0.0/0 · telnet · FTP · SMTP · POP3/IMAP · wide ephemeral ranges · HTTP without HTTPS
 
-37 rules checked live as you build, organized into three categories:
+**Compliance-specific (4 rules)** — additional checks required by standards: CloudTrail not enabled · VPC flow logs disabled · no customer-managed KMS key on data stores · WAF required on public ALB
 
-**Config-based (13 rules)** — checks component settings: RDS/Aurora encryption, backup retention, publicly accessible, deletion protection · EBS encryption · Lambda X-Ray tracing · DynamoDB PITR · Redshift encryption · S3 server-side encryption and versioning · EC2 IMDSv2 enforcement
+### Compliance standards
 
-**Topology-based (14 rules)** — checks the graph structure: databases exposed to internet · compute directly on IGW · missing security groups · missing IAM roles · WAF absent on public ALB · orphaned nodes · ALB with no targets · missing CloudWatch · single-AZ databases · compute connecting to RDS/ElastiCache with no Secrets Manager path · private subnet compute with no NAT gateway · databases in public subnets · ALB spanning one AZ · Lambda with no dead-letter queue
+Filter validation findings by compliance standard using the standard selector pills in the Validate tab. Each finding is tagged with all applicable standards.
 
-**SG port inspection (10 rules)** — checks security group inbound rules for dangerous exposures: all-traffic open · database ports open to internet · SSH/RDP open to internet · telnet · FTP · SMTP · POP3/IMAP · wide ephemeral port ranges · HTTP without HTTPS
+| Standard | Version |
+|---|---|
+| CIS AWS Foundations Benchmark | 3.0 |
+| SOC 2 Type II | 2017 TSC |
+| PCI DSS | v4.0 |
+| HIPAA Security Rule | 2013 |
+| NIST CSF | 2.0 |
 
 ### Cost estimation
 
-Per-component monthly cost estimates with region selection. Attempts live pricing first (AWS Pricing API, Azure Retail Prices API, GCP Cloud Billing API) and falls back to static estimates. Estimates display a **LIVE** badge when real API data is returned.
+Per-component monthly cost estimates with region selection. Attempts live pricing first (AWS Price List API, Azure Retail Prices API, GCP Cloud Billing API) and falls back to bundled static estimates. Shows a **LIVE** badge when real-time data is returned and an amber warning when live pricing falls back to static.
 
 ### Terraform
 
-- **Export** — generates multi-file Terraform HCL as a downloadable ZIP, split by resource type
-- **Import** — upload one or more `.tf` files; Archon parses them and renders the architecture on the canvas with correct VPC/subnet nesting and inferred resource relationships
+- **Export** — multi-file Terraform HCL as a downloadable ZIP, split by resource type
+- **Import .tf** — upload one or more `.tf` files; Archon parses HCL and renders the architecture with VPC/subnet nesting, inferred dependencies, data sources, module flattening, and `count`/`for_each` labels
+- **Import plan** — upload a `terraform show -json` plan JSON; Archon renders the plan with color-coded change-action badges (create/update/delete/replace) and surfaces plan-specific validation findings
 
-### Architecture library
+### Discovery
 
-Save named architectures with thumbnail previews to the browser's localStorage. The 4-quadrant landing page lets you start fresh, load a template, open a saved architecture, or import a file.
+Scan your live AWS account and bring discovered infrastructure directly into the canvas.
 
-### Templates
+1. Install the CLI: `pip install -e ./archon-cli`
+2. Run: `archon-cli discover --region us-east-1 --format archon -o report.json`
+3. Click **CLI Report** in the nav bar and import the file
+4. The **Discover tab** opens with all resources grouped by AWS service — search, filter, and place them onto the canvas individually or in bulk
 
-5 pre-built starting points: Web Tier, Serverless API, Data Pipeline, Microservices, Multi-Region.
+Covers 30 AWS service types across compute, network, storage, database, security, integration, and monitoring. Credentials are resolved locally via boto3. **Nothing leaves your machine.**
+
+See `DISCOVERY_GUIDE.md` for the full walkthrough, IAM permissions, and troubleshooting.
+
+### AI features
+
+- **Generate** — produce Terraform HCL from the current canvas using any supported LLM
+- **AI canvas builder** — describe an architecture in plain English; the AI builds it on the canvas
+- **Architecture review** — AI security and best-practice analysis runs on every Generate
+- **HCL validation** — syntax check followed by AI security review of the generated HCL
+- **AI chat panel** — persistent chat session with full canvas context
+
+---
+
+## archon-cli
+
+A standalone CLI for Terraform plan validation, cost analysis, and live AWS discovery. Works independently of the UI — plug it into CI/CD pipelines or use it locally.
+
+```bash
+pip install -e ./archon-cli
+```
+
+### Commands
+
+```bash
+# Validate a terraform plan (49 rules — exits 1 on critical findings)
+archon-cli validate plan.json
+
+# Filter findings by compliance standard
+archon-cli validate plan.json --standard PCI
+archon-cli validate plan.json --standard CIS
+
+# Calculate monthly cost delta for a plan
+archon-cli cost plan.json
+
+# Discover live AWS resources in a region
+archon-cli discover --region us-east-1
+archon-cli discover --region us-east-1 --profile production
+```
+
+### Output formats
+
+All commands support `--format table` (default), `--format json`, and `--format archon` (for Archon Pro import).
+
+```bash
+# Generate Archon Pro import files
+archon-cli validate plan.json --format archon -o findings.json
+archon-cli cost     plan.json --format archon -o cost.json
+archon-cli discover -r us-east-1 --format archon -o discovery.json
+```
+
+### CI/CD integration
+
+```bash
+# Blocks the pipeline on critical findings
+archon-cli validate plan.json
+
+# Store artifacts for review in Archon Pro
+archon-cli validate plan.json --format archon -o findings.json
+archon-cli cost     plan.json --format archon -o cost.json
+```
 
 ---
 
 ## Archon Academy
 
-Guided cloud architecture curriculum. Structured learning paths, interactive challenges, AI tutor feedback, and progress tracking — all sharing the same backend as Professional.
+Guided cloud architecture curriculum sharing the same backend as Professional. Structured learning paths, interactive challenges, AI tutor feedback, and progress tracking.
 
 Open Academy at [http://localhost:3001](http://localhost:3001) after the stack is running.
 
 ### Default accounts
-
-Two accounts are created automatically when you run the installer or `seed.py`:
 
 | Role | Email | Password |
 |---|---|---|
 | **Instructor** | `admin@archon.academy` | `pass123` |
 | **Student** | `student@archon.academy` | `pass123` |
 
-The instructor account can create assignments, view the gradebook, and manage the rubric bank. The student account can browse the AWS component library, work on assignments, and view grades.
-
-> Change these passwords or add new accounts via the `/academy/auth/register` endpoint before sharing with real students.
+> Change these passwords before sharing with real students.
 
 ---
 
@@ -152,45 +215,45 @@ Switch provider, model, and API key at runtime from **Settings** in the nav bar 
 archonv1/
 ├── frontend/                  Archon Professional (React + React Flow)
 │   └── src/
-│       ├── components/        Canvas, panels, nodes, edges, UI components
+│       ├── components/
 │       │   ├── canvas/        ReactFlow canvas, node types, edge types, sidebar
 │       │   ├── panels/        ComponentPanel, SecurityTab, IAMTab, ValidateTab,
-│       │   │                  GeneratePanel, EstimatePanel, AIChat
-│       │   └── ui/            RuleBuilder, PolicyBuilder, SGSelector, shared UI
+│       │   │                  DiscoverTab, GeneratePanel, EstimatePanel, AIChat
+│       │   └── ui/            RuleBuilder, PolicyBuilder, SGSelector,
+│       │                      StandardSelector, ImportCLIReportModal, shared UI
 │       ├── pages/             LandingPage
-│       ├── store/             Zustand stores (graph, security, IAM, validation,
-│       │                      settings, archive, provider)
+│       ├── store/             graphStore, securityStore, iamStore, validationStore,
+│       │                      discoveryStore, settingsStore, archiveStore,
+│       │                      providerStore, planStore
 │       └── utils/             componentConfig, palettes, ruleMatrix, templates,
 │                              serializer — for all 4 providers
 │
 ├── academy/                   Archon Academy (React)
-│   └── src/
 │
 ├── backend/                   Shared FastAPI backend
 │   └── app/
-│       ├── models/            Pydantic request/response models
-│       ├── routers/           generate, estimate, validate, export, import_tf
-│       ├── services/
-│       │   ├── llm/           Abstract LLMProvider + Anthropic, OpenAI, Gemini,
-│       │   │                  xAI, Ollama implementations
-│       │   ├── prompt_builder.py        AWS Terraform prompts
-│       │   ├── azure_prompt_builder.py
-│       │   ├── gcp_prompt_builder.py
-│       │   ├── onprem_prompt_builder.py
-│       │   ├── pricing.py               Static fallback pricing
-│       │   ├── live_pricing.py          Live pricing dispatcher (TTL cache)
-│       │   ├── aws_live_pricing.py      AWS Pricing API (boto3)
-│       │   ├── azure_live_pricing.py    Azure Retail Prices API
-│       │   ├── gcp_live_pricing.py      GCP Cloud Billing API
-│       │   ├── tf_importer.py           .tf → canvas JSON parser
-│       │   └── pdf_export.py            Architecture report PDF
-│       ├── tests/
-│       └── utils/             HCL validators
+│       ├── routers/           generate, estimate, validate, export, import_tf,
+│       │                      import_plan
+│       └── services/
+│           ├── llm/           Abstract LLMProvider + 5 implementations
+│           ├── prompt_builder.py / azure_ / gcp_ / onprem_
+│           ├── pricing.py / live_pricing.py / aws_ / azure_ / gcp_
+│           ├── tf_importer.py
+│           └── plan_importer.py
+│
+├── archon-cli/                Standalone Python CLI
+│   └── archon_cli/
+│       ├── validate.py        49-rule validation engine
+│       ├── cost.py            TF plan cost delta calculator
+│       ├── discover.py        Live AWS discovery (30 service types)
+│       ├── formatters.py      table / json / archon output formats
+│       ├── compliance.py      CIS / SOC2 / PCI / HIPAA / NIST mappings
+│       └── main.py            CLI entrypoint
 │
 ├── install.py                 One-click setup GUI (tkinter)
 ├── docker-compose.yml
 ├── .env.example
-├── GETTING_STARTED.md
+├── DISCOVERY_GUIDE.md         Full how-to for the discovery tool
 ├── ROADMAP.md
 └── test-tf/                   Sample Terraform files for import testing
 ```

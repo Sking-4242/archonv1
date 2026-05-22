@@ -1,0 +1,120 @@
+# archon-validate.yml
+#
+# Archon CLI — validate and cost-diff on every pull request.
+#
+# What this workflow does:
+#   1. Checks out the repository
+#   2. Installs Python and archon-cli
+#   3. Generates a terraform show -json plan (you must supply this step)
+#   4. Runs archon-cli validate and posts findings as a PR comment
+#   5. Runs archon-cli cost and posts the cost delta as a PR comment
+#   6. Fails the job if any CRITICAL validation findings are present
+#
+# Required setup:
+#   - Replace the "Generate plan JSON" step with your real terraform plan command
+#   - The workflow reads plan.json from the repo root by default
+#   - No AWS credentials are needed for validate or cost commands
+#   - For discover, credentials come from GitHub Actions OIDC or repo secrets
+#     (see GITOPS_GUIDE.md for the discover workflow variant)
+#
+# Permissions:
+#   This workflow posts PR comments using the built-in GITHUB_TOKEN.
+#   No additional secrets are required for validate and cost.
+
+name: Archon Validate
+
+on:
+  pull_request:
+    paths:
+      - "**.tf"
+      - "**.tfvars"
+      - "plan.json"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  archon-validate:
+    name: Archon — Validate + Cost
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install archon-cli
+        run: pip install -e ./archon-cli
+
+      # ── Replace this step with your actual terraform plan command ───────────
+      # Example using the hashicorp/setup-terraform action:
+      #
+      #   - name: Setup Terraform
+      #     uses: hashicorp/setup-terraform@v3
+      #
+      #   - name: Terraform Init
+      #     run: terraform init
+      #
+      #   - name: Terraform Plan
+      #     run: terraform plan -out=tfplan
+      #
+      #   - name: Export plan JSON
+      #     run: terraform show -json tfplan > plan.json
+      #
+      # For testing without a real Terraform setup, commit a plan.json directly.
+      - name: Generate plan JSON (replace this step)
+        run: |
+          if [ ! -f plan.json ]; then
+            echo '{"format_version":"1.2","variables":{},"planned_values":{"root_module":{"resources":[]}},"resource_changes":[],"configuration":{"root_module":{}}}' > plan.json
+          fi
+
+      # ── Validate ─────────────────────────────────────────────────────────────
+      - name: Run archon-cli validate
+        id: validate
+        run: |
+          set +e
+          archon-cli validate plan.json --format github > validate-report.md
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+          cat validate-report.md
+
+      - name: Post validation findings as PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('validate-report.md', 'utf8');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      # ── Cost ─────────────────────────────────────────────────────────────────
+      - name: Run archon-cli cost
+        run: archon-cli cost plan.json --format github > cost-report.md
+
+      - name: Post cost delta as PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('cost-report.md', 'utf8');
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body,
+            });
+
+      # ── Gate ─────────────────────────────────────────────────────────────────
+      - name: Fail on critical findings
+        if: steps.validate.outputs.exit_code != '0'
+        run: |
+          echo "Archon found CRITICAL validation findings. Review the PR comment above."
+          exit 1

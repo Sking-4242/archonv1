@@ -1,0 +1,338 @@
+{
+  "as_of": "2025-01",
+  "hours_per_month": 730,
+  "free_types": [
+    "auto_scaling_group",
+    "batch",
+    "cloudformation",
+    "codedeploy",
+    "elastic_ip",
+    "iam_role",
+    "internet_gateway",
+    "lakeformation",
+    "nat_gateway_route",
+    "route_table",
+    "security_group",
+    "shield",
+    "subnet",
+    "vpc"
+  ],
+  "ec2_hourly": {
+    "t3.micro": 0.0104,
+    "t3.small": 0.0208,
+    "t3.medium": 0.0416,
+    "t3.large": 0.0832,
+    "t3.xlarge": 0.1664,
+    "t3.2xlarge": 0.3328,
+    "m5.large": 0.096,
+    "m5.xlarge": 0.192,
+    "m5.2xlarge": 0.384,
+    "c5.large": 0.085,
+    "c5.xlarge": 0.17,
+    "r5.large": 0.126
+  },
+  "rds_hourly": {
+    "db.t3.micro": 0.017,
+    "db.t3.small": 0.034,
+    "db.t3.medium": 0.068,
+    "db.t3.large": 0.136,
+    "db.m5.large": 0.171,
+    "db.m5.xlarge": 0.342,
+    "db.r6g.large": 0.24,
+    "db.r6g.xlarge": 0.48
+  },
+  "flat_prices": {
+    "ec2": {
+      "monthly_cost": 7.59,
+      "description": "EC2 t3.micro"
+    },
+    "rds": {
+      "monthly_cost": 12.41,
+      "description": "RDS db.t3.micro"
+    },
+    "s3": {
+      "monthly_cost": 2.3,
+      "description": "S3 Standard (100 GB stored)"
+    },
+    "elb": {
+      "monthly_cost": 5.84,
+      "description": "Application Load Balancer"
+    },
+    "alb": {
+      "monthly_cost": 5.84,
+      "description": "Application Load Balancer"
+    },
+    "nlb": {
+      "monthly_cost": 4.38,
+      "description": "Network Load Balancer"
+    },
+    "nat_gateway": {
+      "monthly_cost": 32.85,
+      "description": "NAT Gateway"
+    },
+    "cloudfront": {
+      "monthly_cost": 1.0,
+      "description": "CloudFront (10 GB transfer)"
+    },
+    "lambda": {
+      "monthly_cost": 0.2,
+      "description": "Lambda (1M requests/mo)"
+    },
+    "dynamodb": {
+      "monthly_cost": 1.25,
+      "description": "DynamoDB (1M r/w units)"
+    },
+    "elasticache": {
+      "monthly_cost": 12.41,
+      "description": "ElastiCache cache.t3.micro"
+    },
+    "sns": {
+      "monthly_cost": 0.5,
+      "description": "SNS (1M notifications/mo)"
+    },
+    "sqs": {
+      "monthly_cost": 0.4,
+      "description": "SQS (1M requests/mo)"
+    },
+    "waf": {
+      "monthly_cost": 5.0,
+      "description": "WAF WebACL (1M requests/mo)"
+    },
+    "wafv2": {
+      "monthly_cost": 5.0,
+      "description": "WAF WebACL (1M requests/mo)"
+    },
+    "efs": {
+      "monthly_cost": 3.0,
+      "description": "EFS Standard (10 GB stored)"
+    },
+    "secretsmanager": {
+      "monthly_cost": 0.4,
+      "description": "Secrets Manager (1 secret)"
+    },
+    "cloudwatch": {
+      "monthly_cost": 3.0,
+      "description": "CloudWatch (10 custom metrics)"
+    },
+    "ebs": {
+      "monthly_cost": 8.0,
+      "description": "EBS gp3 (80 GB)"
+    },
+    "api_gateway": {
+      "monthly_cost": 3.5,
+      "description": "API Gateway REST (1M calls/mo)"
+    },
+    "kinesis": {
+      "monthly_cost": 15.0,
+      "description": "Kinesis Data Streams (1 shard)"
+    },
+    "step_functions": {
+      "monthly_cost": 0.25,
+      "description": "Step Functions (1K state transitions)"
+    },
+    "eventbridge": {
+      "monthly_cost": 1.0,
+      "description": "EventBridge (1M events/mo)"
+    },
+    "route53": {
+      "monthly_cost": 0.5,
+      "description": "Route 53 (1 hosted zone)"
+    },
+    "cognito": {
+      "monthly_cost": 0.0055,
+      "description": "Cognito (1000 MAUs)"
+    },
+    "kms_key": {
+      "monthly_cost": 1.0,
+      "description": "KMS Customer Managed Key"
+    },
+    "kms": {
+      "monthly_cost": 1.0,
+      "description": "KMS Customer Managed Key"
+    },
+    "eks": {
+      "monthly_cost": 73.0,
+      "description": "EKS Cluster"
+    },
+    "ecs_fargate": {
+      "monthly_cost": 37.0,
+      "description": "Fargate (0.25 vCPU, 0.5 GB, 730 hrs)"
+    },
+    "transit_gateway": {
+      "monthly_cost": 36.5,
+      "description": "Transit Gateway (1 attachment \u00d7 730 hrs)"
+    },
+    "vpn_gateway": {
+      "monthly_cost": 36.5,
+      "description": "VPN Gateway"
+    },
+    "direct_connect": {
+      "monthly_cost": 219.0,
+      "description": "Direct Connect 1 Gbps (dedicated)"
+    },
+    "vpc_endpoint": {
+      "monthly_cost": 7.3,
+      "description": "VPC Interface Endpoint"
+    },
+    "global_accelerator": {
+      "monthly_cost": 18.25,
+      "description": "Global Accelerator (2 IPs, light traffic)"
+    },
+    "app_runner": {
+      "monthly_cost": 16.0,
+      "description": "App Runner (1 vCPU, 2 GB, active)"
+    },
+    "ecr": {
+      "monthly_cost": 1.0,
+      "description": "ECR (10 GB storage)"
+    },
+    "lightsail": {
+      "monthly_cost": 10.0,
+      "description": "Lightsail small_2_0 bundle"
+    },
+    "fsx": {
+      "monthly_cost": 46.0,
+      "description": "FSx for Windows (300 GB SSD)"
+    },
+    "s3_glacier": {
+      "monthly_cost": 0.4,
+      "description": "S3 Glacier (10 GB stored)"
+    },
+    "backup": {
+      "monthly_cost": 5.0,
+      "description": "AWS Backup (100 GB warm storage)"
+    },
+    "storage_gateway": {
+      "monthly_cost": 12.6,
+      "description": "Storage Gateway (File, 100 GB)"
+    },
+    "aurora": {
+      "monthly_cost": 49.64,
+      "description": "Aurora db.t3.medium"
+    },
+    "redshift": {
+      "monthly_cost": 180.0,
+      "description": "Redshift dc2.large (1 node)"
+    },
+    "documentdb": {
+      "monthly_cost": 70.08,
+      "description": "DocumentDB db.t3.medium"
+    },
+    "neptune": {
+      "monthly_cost": 70.08,
+      "description": "Neptune db.t3.medium"
+    },
+    "opensearch": {
+      "monthly_cost": 52.56,
+      "description": "OpenSearch t3.small.search (2 nodes)"
+    },
+    "timestream": {
+      "monthly_cost": 25.0,
+      "description": "Timestream (write + query estimate)"
+    },
+    "guardduty": {
+      "monthly_cost": 30.0,
+      "description": "GuardDuty (light CloudTrail + DNS usage)"
+    },
+    "cloudtrail": {
+      "monthly_cost": 2.0,
+      "description": "CloudTrail (management events trail)"
+    },
+    "inspector": {
+      "monthly_cost": 2.0,
+      "description": "Inspector (1 EC2 instance/mo)"
+    },
+    "security_hub": {
+      "monthly_cost": 3.0,
+      "description": "Security Hub (10K checks/mo)"
+    },
+    "macie": {
+      "monthly_cost": 5.0,
+      "description": "Macie (1 GB S3 data scanned)"
+    },
+    "mq": {
+      "monthly_cost": 108.77,
+      "description": "Amazon MQ mq.m5.large"
+    },
+    "appsync": {
+      "monthly_cost": 4.0,
+      "description": "AppSync (4M query/mutation/mo)"
+    },
+    "glue": {
+      "monthly_cost": 44.0,
+      "description": "AWS Glue (2 DPU \u00d7 2 hr/day)"
+    },
+    "athena": {
+      "monthly_cost": 5.0,
+      "description": "Athena (1 TB scanned/mo)"
+    },
+    "emr": {
+      "monthly_cost": 120.0,
+      "description": "EMR m5.xlarge 2-node cluster"
+    },
+    "quicksight": {
+      "monthly_cost": 24.0,
+      "description": "QuickSight Enterprise (1 author)"
+    },
+    "msk": {
+      "monthly_cost": 326.31,
+      "description": "MSK kafka.m5.large (3 brokers)"
+    },
+    "kinesis_firehose": {
+      "monthly_cost": 2.0,
+      "description": "Kinesis Firehose (1 GB/mo)"
+    },
+    "sagemaker": {
+      "monthly_cost": 33.58,
+      "description": "SageMaker ml.t3.medium notebook"
+    },
+    "bedrock": {
+      "monthly_cost": 5.0,
+      "description": "Bedrock (light Sonnet usage)"
+    },
+    "rekognition": {
+      "monthly_cost": 1.0,
+      "description": "Rekognition (1K image analyses/mo)"
+    },
+    "comprehend": {
+      "monthly_cost": 1.0,
+      "description": "Comprehend (100K units/mo)"
+    },
+    "textract": {
+      "monthly_cost": 1.5,
+      "description": "Textract (1K pages/mo)"
+    },
+    "polly": {
+      "monthly_cost": 0.4,
+      "description": "Polly (100K characters/mo)"
+    },
+    "translate": {
+      "monthly_cost": 0.4,
+      "description": "Translate (100K characters/mo)"
+    },
+    "lex": {
+      "monthly_cost": 0.75,
+      "description": "Lex (1K speech requests/mo)"
+    },
+    "xray": {
+      "monthly_cost": 1.0,
+      "description": "X-Ray (100K traces/mo)"
+    },
+    "config": {
+      "monthly_cost": 2.0,
+      "description": "AWS Config (100 config items recorded)"
+    },
+    "codepipeline": {
+      "monthly_cost": 1.0,
+      "description": "CodePipeline (1 active pipeline)"
+    },
+    "codebuild": {
+      "monthly_cost": 5.0,
+      "description": "CodeBuild (100 build-minutes/mo)"
+    },
+    "codecommit": {
+      "monthly_cost": 1.0,
+      "description": "CodeCommit (5 active users)"
+    }
+  }
+}

@@ -1,0 +1,411 @@
+{
+  "modules": [
+    {
+      "slug": "azure-foundations",
+      "title": "Azure Foundations & Organization",
+      "description": "Azure resource hierarchy, cost model, and the control plane",
+      "order": 1,
+      "difficulty": "beginner",
+      "cert_tags": [
+        "az_900"
+      ],
+      "lessons": [
+        {
+          "title": "The Azure Hierarchy: Management Groups, Subscriptions, and Resource Groups",
+          "file": "the-azure-hierarchy-management-groups-subscriptions-and-reso.md",
+          "type": "content",
+          "minutes": 8
+        },
+        {
+          "title": "CapEx, OpEx, and the Azure Consumption Model",
+          "file": "capex-opex-and-the-azure-consumption-model.md",
+          "type": "content",
+          "minutes": 7
+        },
+        {
+          "title": "Azure Resource Manager (ARM): The Control Plane",
+          "file": "azure-resource-manager-arm-the-control-plane.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "The Shared Responsibility Model in Azure",
+          "file": "the-shared-responsibility-model-in-azure.md",
+          "type": "content",
+          "minutes": 7
+        }
+      ]
+    },
+    {
+      "slug": "azure-identity-security",
+      "title": "Identity, Access & Security",
+      "description": "Entra ID, RBAC, Conditional Access, Key Vault, and Policy",
+      "order": 2,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "az_104",
+        "az_500"
+      ],
+      "lessons": [
+        {
+          "title": "Microsoft Entra ID vs. Active Directory",
+          "file": "microsoft-entra-id-vs-active-directory.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Azure Role-Based Access Control (RBAC)",
+          "file": "azure-role-based-access-control-rbac.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Conditional Access & Zero Trust Architecture",
+          "file": "conditional-access-zero-trust-architecture.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Azure Policy: Governance as Code",
+          "file": "azure-policy-governance-as-code.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "Azure Key Vault: Secrets, Keys, and Certificates",
+          "file": "azure-key-vault-secrets-keys-and-certificates.md",
+          "type": "content",
+          "minutes": 10
+        }
+      ]
+    },
+    {
+      "slug": "azure-compute",
+      "title": "Compute",
+      "description": "Virtual Machines, Scale Sets, App Service, and specialized compute",
+      "order": 3,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "az_104",
+        "az_305"
+      ],
+      "lessons": [
+        {
+          "title": "Compute Availability: Zones, Sets, and Domains",
+          "file": "compute-availability-zones-sets-and-domains.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "Azure Virtual Machines Deep Dive: Families, Gen 2, and the Temporary Disk",
+          "file": "azure-virtual-machines-deep-dive-families-gen-2-and-the-temp.md",
+          "type": "content",
+          "minutes": 12
+        },
+        {
+          "title": "Virtual Machine Scale Sets (VMSS) & Auto-scaling",
+          "file": "virtual-machine-scale-sets-vmss-auto-scaling.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Azure App Service: The PaaS Compute Paradigm",
+          "file": "azure-app-service-the-paas-compute-paradigm.md",
+          "type": "content",
+          "minutes": 11
+        },
+        {
+          "title": "Specialized Compute: Dedicated Hosts & Spot Instances",
+          "file": "specialized-compute-dedicated-hosts-spot-instances.md",
+          "type": "content",
+          "minutes": 9
+        }
+      ]
+    },
+    {
+      "slug": "azure-networking",
+      "title": "Networking",
+      "description": "VNets, NSGs, VPN Gateways, ExpressRoute, and global routing",
+      "order": 4,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "az_104",
+        "az_305"
+      ],
+      "lessons": [
+        {
+          "title": "Virtual Networks (VNets) and Subnets",
+          "file": "virtual-networks-vnets-and-subnets.md",
+          "type": "content",
+          "minutes": 12
+        },
+        {
+          "title": "Network Security Groups (NSGs) & ASGs",
+          "file": "network-security-groups-nsgs-asgs.md",
+          "type": "content",
+          "minutes": 11
+        },
+        {
+          "title": "VNet Peering & VPN Gateways",
+          "file": "vnet-peering-vpn-gateways.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Azure ExpressRoute",
+          "file": "azure-expressroute.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "Global Routing: Front Door vs. Traffic Manager",
+          "file": "global-routing-front-door-vs-traffic-manager.md",
+          "type": "content",
+          "minutes": 10
+        }
+      ]
+    },
+    {
+      "slug": "azure-storage",
+      "title": "Storage",
+      "description": "Storage Accounts, Blob tiers, Managed Disks, and SAS tokens",
+      "order": 5,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "az_104",
+        "az_305"
+      ],
+      "lessons": [
+        {
+          "title": "Azure Storage Accounts: The Unified Storage Umbrella",
+          "file": "azure-storage-accounts-the-unified-storage-umbrella.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Blob Storage: Access Tiers & Lifecycle Management",
+          "file": "blob-storage-access-tiers-lifecycle-management.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Managed Disks: Block Storage for Virtual Machines",
+          "file": "managed-disks-block-storage-for-virtual-machines.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "Storage Security & Shared Access Signatures (SAS)",
+          "file": "storage-security-shared-access-signatures-sas.md",
+          "type": "content",
+          "minutes": 10
+        }
+      ]
+    },
+    {
+      "slug": "azure-databases",
+      "title": "Databases",
+      "description": "Azure SQL, Cosmos DB, open-source databases, and caching",
+      "order": 6,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "az_104",
+        "az_305"
+      ],
+      "lessons": [
+        {
+          "title": "Azure SQL: Deployment Options and Purchasing Models",
+          "file": "azure-sql-deployment-options-and-purchasing-models.md",
+          "type": "content",
+          "minutes": 11
+        },
+        {
+          "title": "Azure Cosmos DB: Globally Distributed NoSQL",
+          "file": "azure-cosmos-db-globally-distributed-nosql.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Open Source Databases & Caching",
+          "file": "open-source-databases-caching.md",
+          "type": "content",
+          "minutes": 9
+        }
+      ]
+    },
+    {
+      "slug": "azure-security-governance",
+      "title": "Security & Governance",
+      "description": "Defender for Cloud and CSPM",
+      "order": 7,
+      "difficulty": "advanced",
+      "cert_tags": [
+        "az_500",
+        "az_305"
+      ],
+      "lessons": [
+        {
+          "title": "Microsoft Defender for Cloud: CSPM and CWPP",
+          "file": "microsoft-defender-for-cloud-cspm-and-cwpp.md",
+          "type": "content",
+          "minutes": 11
+        }
+      ]
+    },
+    {
+      "slug": "azure-monitoring",
+      "title": "Monitoring & Observability",
+      "description": "Azure Monitor, Log Analytics, KQL, and alerting",
+      "order": 8,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "az_104",
+        "az_305"
+      ],
+      "lessons": [
+        {
+          "title": "Azure Monitor: The Central Nervous System",
+          "file": "azure-monitor-the-central-nervous-system.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Log Analytics Workspaces & KQL",
+          "file": "log-analytics-workspaces-kql.md",
+          "type": "content",
+          "minutes": 11
+        },
+        {
+          "title": "Alerts, Action Groups, & Automation",
+          "file": "alerts-action-groups-automation.md",
+          "type": "content",
+          "minutes": 9
+        }
+      ]
+    },
+    {
+      "slug": "azure-serverless-messaging",
+      "title": "Serverless & Messaging",
+      "description": "Azure Functions, Logic Apps, and the messaging tier",
+      "order": 9,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "az_104",
+        "az_305"
+      ],
+      "lessons": [
+        {
+          "title": "Azure Functions: Event-Driven Serverless Compute",
+          "file": "azure-functions-event-driven-serverless-compute.md",
+          "type": "content",
+          "minutes": 11
+        },
+        {
+          "title": "Logic Apps: Visual Workflow Orchestration",
+          "file": "logic-apps-visual-workflow-orchestration.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Messaging Architecture: Service Bus vs Event Grid vs Event Hubs",
+          "file": "messaging-architecture-service-bus-vs-event-grid-vs-event-hu.md",
+          "type": "content",
+          "minutes": 12
+        }
+      ]
+    },
+    {
+      "slug": "azure-containers",
+      "title": "Containers & Kubernetes",
+      "description": "ACR, ACI, AKS, and Azure Container Apps",
+      "order": 10,
+      "difficulty": "advanced",
+      "cert_tags": [
+        "az_104",
+        "az_305"
+      ],
+      "lessons": [
+        {
+          "title": "The Container Ecosystem: ACR and ACI",
+          "file": "the-container-ecosystem-acr-and-aci.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Azure Kubernetes Service (AKS) Architecture",
+          "file": "azure-kubernetes-service-aks-architecture.md",
+          "type": "content",
+          "minutes": 12
+        },
+        {
+          "title": "Azure Container Apps (ACA): Serverless Microservices",
+          "file": "azure-container-apps-aca-serverless-microservices.md",
+          "type": "content",
+          "minutes": 10
+        }
+      ]
+    },
+    {
+      "slug": "azure-reliability-dr",
+      "title": "Reliability & Disaster Recovery",
+      "description": "RTO/RPO, Azure Backup, and Site Recovery",
+      "order": 11,
+      "difficulty": "advanced",
+      "cert_tags": [
+        "az_104",
+        "az_305"
+      ],
+      "lessons": [
+        {
+          "title": "Designing for Failure: RTO, RPO, and Region Pairs",
+          "file": "designing-for-failure-rto-rpo-and-region-pairs.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Azure Backup: Vaults, Policies, and Soft Delete",
+          "file": "azure-backup-vaults-policies-and-soft-delete.md",
+          "type": "content",
+          "minutes": 10
+        },
+        {
+          "title": "Azure Site Recovery (ASR): Orchestrated DR",
+          "file": "azure-site-recovery-asr-orchestrated-dr.md",
+          "type": "content",
+          "minutes": 11
+        }
+      ]
+    },
+    {
+      "slug": "azure-cost-management",
+      "title": "Cost Management & Optimization",
+      "description": "Pricing calculators, Cost Management, Reservations, and Hybrid Benefit",
+      "order": 12,
+      "difficulty": "intermediate",
+      "cert_tags": [
+        "az_900",
+        "az_104"
+      ],
+      "lessons": [
+        {
+          "title": "Estimating Cloud Costs: Pricing vs. TCO",
+          "file": "estimating-cloud-costs-pricing-vs-tco.md",
+          "type": "content",
+          "minutes": 8
+        },
+        {
+          "title": "Azure Cost Management: Budgets, Tags, and Advisor",
+          "file": "azure-cost-management-budgets-tags-and-advisor.md",
+          "type": "content",
+          "minutes": 9
+        },
+        {
+          "title": "Discount Mechanisms: Reservations & Hybrid Benefit",
+          "file": "discount-mechanisms-reservations-hybrid-benefit.md",
+          "type": "content",
+          "minutes": 9
+        }
+      ]
+    }
+  ]
+}

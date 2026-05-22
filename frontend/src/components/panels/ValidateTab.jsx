@@ -1,7 +1,8 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import useValidationStore from "../../store/validationStore";
 import useGraphStore from "../../store/graphStore";
 import usePlanStore from "../../store/planStore";
+import StandardSelector from "../ui/StandardSelector";
 
 const SEVERITY = {
   critical: {
@@ -130,6 +131,18 @@ function FindingRow({ f, onSelectNode, isAcknowledged }) {
             <p className="text-xs text-gray-400 mt-0.5 font-mono truncate">
               {f.nodeLabel}
             </p>
+            {(f.standards ?? []).length > 0 && (
+              <div className="flex flex-wrap gap-0.5 mt-1">
+                {(f.standards ?? []).map((s) => (
+                  <span
+                    key={s}
+                    className="text-xs px-1 py-0 rounded bg-purple-50 border border-purple-200 text-purple-600 font-medium"
+                  >
+                    {s}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-1 shrink-0 mt-0.5">
             {f.fix && (
@@ -344,11 +357,16 @@ function PlanModeView({ planSummary, archName, onClearPlan }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function ValidateTab({ onSelectNode }) {
-  const findings      = useValidationStore((s) => s.findings);
-  const acknowledged  = useValidationStore((s) => s.acknowledgedFindings);
-  const archName      = useGraphStore((s) => s.graphMeta?.name);
-  const planSummary   = usePlanStore((s) => s.planSummary);
-  const clearPlan     = usePlanStore((s) => s.clearPlan);
+  const findings        = useValidationStore((s) => s.findings);
+  const activeStandard  = useValidationStore((s) => s.activeStandard);
+  const acknowledged    = useValidationStore((s) => s.acknowledgedFindings);
+  const filteredFindings = useMemo(() => {
+    if (!activeStandard || activeStandard === "all") return findings;
+    return findings.filter((f) => (f.standards ?? []).includes(activeStandard));
+  }, [findings, activeStandard]);
+  const archName         = useGraphStore((s) => s.graphMeta?.name);
+  const planSummary      = usePlanStore((s) => s.planSummary);
+  const clearPlan        = usePlanStore((s) => s.clearPlan);
 
   // ── Plan mode — show diff view instead of validation findings ─────────────
   if (planSummary) {
@@ -362,8 +380,8 @@ export default function ValidateTab({ onSelectNode }) {
   }
 
   // ── Normal validation mode ─────────────────────────────────────────────────
-  const active      = findings.filter((f) => !acknowledged[f.id]);
-  const dismissed   = findings.filter((f) =>  acknowledged[f.id]);
+  const active      = filteredFindings.filter((f) => !acknowledged[f.id]);
+  const dismissed   = filteredFindings.filter((f) =>  acknowledged[f.id]);
 
   const criticalCnt = active.filter((f) => f.level === "critical").length;
   const warningCnt  = active.filter((f) => f.level === "warning").length;
@@ -392,6 +410,7 @@ export default function ValidateTab({ onSelectNode }) {
           <SeverityPill level="warning"  count={warningCnt}  />
           <SeverityPill level="info"     count={infoCnt}     />
         </div>
+        <StandardSelector />
       </div>
 
       {/* Finding list */}
