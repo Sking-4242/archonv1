@@ -35,3 +35,9 @@ desktop.ini
 # Internal reference docs — not for distribution
 Archon_Product_Reference.pdf
 *.pdf
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
