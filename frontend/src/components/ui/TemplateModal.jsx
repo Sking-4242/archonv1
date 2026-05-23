@@ -59,8 +59,8 @@ export default function TemplateModal({ onSelect, onClose, provider = "aws" }) {
                 {tpl.description}
               </p>
               <div className="mt-3 flex gap-3 text-xs text-gray-400">
-                <span>📦 {tpl.nodes.length} components</span>
-                <span>🔗 {tpl.edges.length} connections</span>
+                <span>{tpl.nodes.length} components</span>
+                <span>{tpl.edges.length} connections</span>
               </div>
             </button>
           ))}

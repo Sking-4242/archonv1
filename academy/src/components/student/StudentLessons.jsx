@@ -2,19 +2,29 @@ import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { listLessons } from "../../api/lessons";
 
+const PROVIDERS = [
+  { id: "aws",   label: "AWS",   icon: "☁️",  active: "bg-orange-500 text-white border-orange-500", inactive: "bg-white text-gray-600 border-gray-200 hover:border-orange-300 hover:text-orange-600" },
+  { id: "azure", label: "Azure", icon: "🔷", active: "bg-blue-600 text-white border-blue-600",   inactive: "bg-white text-gray-600 border-gray-200 hover:border-blue-400 hover:text-blue-600" },
+  { id: "gcp",   label: "GCP",   icon: "🔴",  active: "bg-red-500 text-white border-red-500",    inactive: "bg-white text-gray-600 border-gray-200 hover:border-red-400 hover:text-red-500" },
+];
+
 export default function StudentLessons() {
   const navigate = useNavigate();
+  const [provider, setProvider] = useState("aws");
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all"); // "all" | "incomplete" | "complete"
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    listLessons()
+    setLoading(true);
+    setFilter("all");
+    setSearch("");
+    listLessons(provider)
       .then(setLessons)
       .catch(() => setLessons([]))
       .finally(() => setLoading(false));
-  }, []);
+  }, [provider]);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -54,12 +64,26 @@ export default function StudentLessons() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-xl font-semibold text-gray-900">Lessons</h1>
           <p className="text-sm text-gray-500 mt-0.5">
             {completedCount} of {lessons.length} completed · {completedMinutes} / {totalMinutes} min
           </p>
+        </div>
+        <div className="flex gap-1.5">
+          {PROVIDERS.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => setProvider(p.id)}
+              className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all ${
+                provider === p.id ? p.active : p.inactive
+              }`}
+            >
+              <span>{p.icon}</span>
+              <span>{p.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 

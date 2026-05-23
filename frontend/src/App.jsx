@@ -195,7 +195,7 @@ export default function App() {
           data: {
             label: c.label ?? c.type,
             awsType: c.awsType ?? c.cloudType ?? c.type,
-            icon: c.icon ?? "📦",
+            icon: c.icon ?? "",
             config: c.config ?? {},
             category: c.category ?? "",
             security_group_ids: c.security_group_ids ?? [],
@@ -246,7 +246,7 @@ export default function App() {
         data: {
           label: c.label ?? c.data?.label ?? c.type,
           awsType: c.awsType ?? c.data?.awsType ?? c.type,
-          icon: c.icon ?? c.data?.icon ?? "📦",
+          icon: c.icon ?? c.data?.icon ?? "",
           config: c.config ?? c.data?.config ?? {},
           category: c.category ?? c.data?.category ?? "",
           nodeType: c.nodeType ?? c.data?.nodeType ?? c.type,
@@ -446,14 +446,14 @@ export default function App() {
             className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
             title="Go to home"
           >
-            🏠 Home
+            Home
           </button>
           <button
             onClick={handleSaveToLibrary}
             className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
             title="Save to library"
           >
-            💾 Save to Library
+            Save to Library
           </button>
           <button
             onClick={() => setTemplatesOpen(true)}
@@ -535,7 +535,7 @@ export default function App() {
             className="text-xs px-2 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-300"
             title="Toggle dark mode"
           >
-            {darkMode ? "☀" : "🌙"}
+            {darkMode ? "Light" : "Dark"}
           </button>
           <span className="text-xs text-gray-400">
             {PROVIDER_LABELS[provider] ?? provider}
@@ -544,7 +544,7 @@ export default function App() {
             onClick={() => setSettingsOpen(true)}
             className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
           >
-            ⚙ Settings
+            Settings
           </button>
         </div>
       </header>

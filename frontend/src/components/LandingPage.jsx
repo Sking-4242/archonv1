@@ -6,14 +6,13 @@ import { TEMPLATES, TEMPLATES_BY_PROVIDER } from "../utils/templates";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const PROVIDER_ICONS = { aws: "☁️", azure: "🔷", gcp: "🟡", onprem: "🖥️" };
 const PROVIDER_LABELS = { aws: "AWS", azure: "Azure", gcp: "GCP", onprem: "On-Prem" };
 
 const INFRA_PROVIDERS = [
-  { id: "aws",    label: "AWS",     icon: "☁️" },
-  { id: "azure",  label: "Azure",   icon: "🔷" },
-  { id: "gcp",    label: "GCP",     icon: "🟡" },
-  { id: "onprem", label: "On-Prem", icon: "🖥️" },
+  { id: "aws",    label: "AWS"     },
+  { id: "azure",  label: "Azure"   },
+  { id: "gcp",    label: "GCP"     },
+  { id: "onprem", label: "On-Prem" },
 ];
 
 const AI_PROVIDERS = [
@@ -70,11 +69,11 @@ const GALLERY_CATEGORY_COLOR = {
 };
 
 const PROVIDER_GALLERY_TABS = [
-  { id: "all",    label: "All",     icon: "🌐" },
-  { id: "aws",    label: "AWS",     icon: "☁️" },
-  { id: "azure",  label: "Azure",   icon: "🔷" },
-  { id: "gcp",    label: "GCP",     icon: "🟡" },
-  { id: "onprem", label: "On-Prem", icon: "🖥️" },
+  { id: "all",    label: "All"     },
+  { id: "aws",    label: "AWS"     },
+  { id: "azure",  label: "Azure"   },
+  { id: "gcp",    label: "GCP"     },
+  { id: "onprem", label: "On-Prem" },
 ];
 
 // ── Provider Logo ─────────────────────────────────────────────────────────────
@@ -256,7 +255,7 @@ function NewArchitecturePanel({ onNewCanvas }) {
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
       <div className="px-6 pt-5 pb-3 border-b border-gray-100">
         <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
-          <span className="text-indigo-500">✦</span> New Architecture
+          New Architecture
         </h2>
       </div>
 
@@ -394,7 +393,7 @@ function SavedArchitecturesPanel({ onLoadArchive }) {
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
       <div className="px-6 pt-5 pb-3 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
         <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
-          <span>📁</span> Saved Architectures
+          Saved Architectures
         </h2>
         {entries.length > 0 && (
           <span className="text-xs text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full font-medium">
@@ -405,7 +404,6 @@ function SavedArchitecturesPanel({ onLoadArchive }) {
 
       {entries.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-center px-6">
-          <div className="text-5xl mb-4">📐</div>
           <p className="text-sm font-semibold text-gray-600">No saved architectures yet</p>
           <p className="text-xs text-gray-400 mt-2 leading-relaxed">
             Build an architecture on the canvas, then hit{" "}
@@ -484,8 +482,8 @@ function ImportTerraformPanel({ onImportTF }) {
           onClick={onImportTF}
           className="flex-1 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-gray-200 hover:border-violet-300 hover:bg-violet-50 transition-all group cursor-pointer min-h-0"
         >
-          <div className="w-14 h-14 rounded-2xl bg-violet-100 flex items-center justify-center text-2xl mb-3 group-hover:scale-105 transition-transform shadow-sm">
-            📂
+          <div className="w-14 h-14 rounded-2xl bg-violet-100 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform shadow-sm">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
           </div>
           <p className="text-sm font-semibold text-gray-700 group-hover:text-violet-700 transition-colors">
             Click to select .tf files
@@ -535,7 +533,7 @@ function SuggestionsPanel() {
     },
     {
       href: `${GITHUB_BASE}/issues/new?labels=bug&title=%5BBug%5D%20`,
-      title: "Report a Bug 🐛",
+      title: "Report a Bug",
       desc: "Something broken? Tell us what happened",
       hoverBorder: "hover:border-red-300",
       hoverBg: "hover:bg-red-50",
@@ -544,7 +542,7 @@ function SuggestionsPanel() {
     },
     {
       href: `${GITHUB_BASE}/issues/new?labels=enhancement&title=%5BFeature%5D%20`,
-      title: "Request a Feature ✨",
+      title: "Request a Feature",
       desc: "Have an idea? We'd love to hear it",
       hoverBorder: "hover:border-emerald-300",
       hoverBg: "hover:bg-emerald-50",
@@ -557,7 +555,7 @@ function SuggestionsPanel() {
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col overflow-hidden">
       <div className="px-6 pt-5 pb-3 border-b border-gray-100 flex-shrink-0">
         <h2 className="text-base font-bold text-gray-800 flex items-center gap-2">
-          <span>💡</span> Suggestions &amp; Issues
+          Suggestions &amp; Issues
         </h2>
       </div>
 
@@ -640,7 +638,7 @@ function TemplatesGallery({ onLoadTemplate }) {
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200",
               ].join(" ")}
             >
-              {t.id === "all" ? <span>🌐</span> : <ProviderLogo provider={t.id} size={16} />}
+              {t.id !== "all" && <ProviderLogo provider={t.id} size={16} />}
               <span>{t.label}</span>
             </button>
           ))}
@@ -674,8 +672,8 @@ function TemplatesGallery({ onLoadTemplate }) {
                   {PROVIDER_LABELS[tpl.graphMeta?.provider] ?? tpl.graphMeta?.provider}
                 </span>
               </span>
-              <span>📦 {tpl.nodes.length}</span>
-              <span>🔗 {tpl.edges.length}</span>
+              <span>{tpl.nodes.length} nodes</span>
+              <span>{tpl.edges.length} edges</span>
             </div>
           </button>
         ))}

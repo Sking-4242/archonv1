@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 const PROVIDERS = ["anthropic", "openai", "gemini", "ollama", "xai"];
 
@@ -10,42 +11,42 @@ const DEFAULT_MODELS = {
   xai: "grok-3",
 };
 
-const _loadDarkMode = () => {
-  try {
-    return localStorage.getItem("archon_dark_mode") === "true";
-  } catch {
-    return false;
-  }
-};
+const useSettingsStore = create(
+  persist(
+    (set) => ({
+      provider: "anthropic",
+      models: { ...DEFAULT_MODELS },
+      apiKeys: {
+        anthropic: "",
+        openai: "",
+        gemini: "",
+        xai: "",
+      },
+      ollamaBaseUrl: "http://localhost:11434",
+      providers: PROVIDERS,
+      defaultModels: DEFAULT_MODELS,
+      darkMode: false,
 
-const useSettingsStore = create((set) => ({
-  provider: "anthropic",
-  models: { ...DEFAULT_MODELS },
-  apiKeys: {
-    anthropic: "",
-    openai: "",
-    gemini: "",
-    xai: "",
-  },
-  ollamaBaseUrl: "http://localhost:11434",
-  providers: PROVIDERS,
-  defaultModels: DEFAULT_MODELS,
-  darkMode: _loadDarkMode(),
-
-  setProvider: (provider) => set({ provider }),
-  setModel: (provider, model) =>
-    set((state) => ({ models: { ...state.models, [provider]: model } })),
-  setApiKey: (provider, key) =>
-    set((state) => ({ apiKeys: { ...state.apiKeys, [provider]: key } })),
-  setOllamaBaseUrl: (url) => set({ ollamaBaseUrl: url }),
-  toggleDarkMode: () =>
-    set((state) => {
-      const next = !state.darkMode;
-      try {
-        localStorage.setItem("archon_dark_mode", String(next));
-      } catch {}
-      return { darkMode: next };
+      setProvider: (provider) => set({ provider }),
+      setModel: (provider, model) =>
+        set((state) => ({ models: { ...state.models, [provider]: model } })),
+      setApiKey: (provider, key) =>
+        set((state) => ({ apiKeys: { ...state.apiKeys, [provider]: key } })),
+      setOllamaBaseUrl: (url) => set({ ollamaBaseUrl: url }),
+      toggleDarkMode: () =>
+        set((state) => ({ darkMode: !state.darkMode })),
     }),
-}));
+    {
+      name: "archon-settings",
+      partialize: (state) => ({
+        provider: state.provider,
+        models: state.models,
+        apiKeys: state.apiKeys,
+        ollamaBaseUrl: state.ollamaBaseUrl,
+        darkMode: state.darkMode,
+      }),
+    },
+  ),
+);
 
 export default useSettingsStore;

@@ -381,7 +381,82 @@ COMPLIANCE_MAP: dict[str, list[str]] = {
     # PCI EC2.15 — subnets should not automatically assign public IP addresses
     # HIPAA 164.312(e) — transmission security / access controls
 
+    # ── FinOps rules ──────────────────────────────────────────────────────────
+    "cloudwatch_no_log_retention": ["SOC2", "NIST"],
+    # SOC2 CC7.2 — log management and monitoring controls
+    # NIST SP 800-92 — guide to computer security log management (retention requirements)
 
+    # ── Previously unmapped security rules ────────────────────────────────────
+    "aurora_unencrypted": ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+    # Same standard set as rds_unencrypted — Aurora is a managed RDS engine
+    # CIS 2.3.1 / PCI Req 3.4 / HIPAA 164.312(a)(2)(iv) / NIST SC-28
+
+    "aurora_no_backup": ["SOC2", "PCI", "HIPAA"],
+    # SOC2 A1.2 — availability and recovery commitments
+    # PCI Req 12.10.1 — backup and recovery procedures
+    # HIPAA 164.308(a)(7)(ii) — data backup plan
+
+    "redshift_unencrypted": ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+    # CIS 2.1.1 — ensure Redshift clusters are encrypted
+    # PCI Req 3.4 — protect cardholder data at rest
+    # HIPAA 164.312(a)(2)(iv) — encryption of data at rest
+
+    "direct_internet_compute": ["CIS", "SOC2", "PCI", "NIST"],
+    # CIS 5.4 — ensure no EC2 instances are reachable directly from internet
+    # PCI Req 1.3 — prohibit direct public access between internet and cardholder data environment
+    # NIST SC-7 — boundary protection / network segmentation
+
+    "missing_iam": ["SOC2", "PCI", "HIPAA", "NIST"],
+    # SOC2 CC6.1 — logical and physical access controls
+    # PCI Req 7 — restrict access to cardholder data by business need to know
+    # HIPAA 164.312(a)(1) — access control
+    # NIST AC-3 — access enforcement
+
+    "nat_gateway_missing": ["SOC2", "NIST"],
+    # SOC2 CC6.6 — security measures against threats from outside system boundaries
+    # NIST SC-7 — boundary protection (private subnets require controlled egress)
+
+    "nat_single_az": ["SOC2"],
+    # SOC2 A1.1 — availability: capacity and performance commitments
+    # Single NAT gateway is a single point of failure for private subnet egress
+
+    "alb_single_az": ["SOC2", "PCI"],
+    # SOC2 A1.1 — availability commitments (multi-AZ required for resilience)
+    # PCI ELB.12 — application load balancers should be configured for multi-AZ
+
+    "sg_open_ftp": ["CIS", "PCI", "NIST"],
+    # CIS 5.3 — ensure no security groups allow ingress from 0.0.0.0/0 to FTP ports
+    # PCI Req 1.2.1 — restrict inbound and outbound traffic to only that required
+    # NIST SC-7 — boundary protection
+
+    "sg_open_smtp": ["CIS", "PCI"],
+    # CIS — ensure no security groups allow ingress from 0.0.0.0/0 to SMTP
+    # PCI Req 1.2.1 — restrict inbound traffic on mail relay ports
+
+    "sg_open_pop3_imap": ["CIS", "PCI"],
+    # CIS — ensure no security groups allow ingress from 0.0.0.0/0 to POP3/IMAP
+    # PCI Req 1.2.1 — restrict inbound traffic on email retrieval ports
+
+    # ── New topology compliance rules ─────────────────────────────────────────
+    "cloudtrail_not_enabled": ["CIS", "SOC2", "PCI", "HIPAA"],
+    # CIS 3.1–3.4 — ensure CloudTrail is enabled in all regions
+    # SOC2 CC7.2 — monitoring of system components
+    # PCI Req 10 — track and monitor all access to network resources
+    # HIPAA 164.312(b) — audit controls
+
+    "vpc_flow_logs_disabled": ["CIS", "SOC2", "NIST"],
+    # CIS 2.9 — ensure VPC flow logging is enabled in all VPCs
+    # SOC2 CC7.2 — monitoring controls
+    # NIST SI-4 — information system monitoring
+
+    "kms_no_cmk": ["PCI", "HIPAA"],
+    # PCI DSS Req 3.5 — protect keys used to secure cardholder data
+    # HIPAA 164.312(a)(2)(iv) — encryption and decryption
+
+    "waf_required_on_public_alb": ["PCI", "HIPAA", "SOC2"],
+    # PCI Req 6.6 — address new threats and vulnerabilities on public-facing web applications
+    # HIPAA 164.312(e)(2)(i) — encryption of data in transit / application-layer protection
+    # SOC2 CC6.6 — security measures against network threats
 }
 
 
@@ -411,4 +486,94 @@ def standards_summary(findings: list, standard: str | None = None) -> dict[str, 
                 counts[s] += 1
     if standard and standard.upper() != "ALL":
         return {standard.upper(): counts.get(standard.upper(), 0)}
+    return counts
+en finding list."""
+    counts: dict[str, int] = {sid: 0 for sid in ALL_STANDARD_IDS}
+    for f in findings:
+        stds = f.standards if hasattr(f, "standards") else f.get("standards", [])
+        for s in stds:
+            if s in counts:
+                counts[s] += 1
+    if standard and standard.upper() != "ALL":
+        return {standard.upper(): counts.get(standard.upper(), 0)}
+    return counts
+ access control
+    # NIST AC-3 — access enforcement
+
+    "nat_gateway_missing": ["SOC2", "NIST"],
+    # SOC2 CC6.6 — security measures against threats from outside system boundaries
+    # NIST SC-7 — boundary protection (private subnets require controlled egress)
+
+    "nat_single_az": ["SOC2"],
+    # SOC2 A1.1 — availability: capacity and performance commitments
+    # Single NAT gateway is a single point of failure for private subnet egress
+
+    "alb_single_az": ["SOC2", "PCI"],
+    # SOC2 A1.1 — availability commitments (multi-AZ required for resilience)
+    # PCI ELB.12 — application load balancers should be configured for multi-AZ
+
+    "sg_open_ftp": ["CIS", "PCI", "NIST"],
+    # CIS 5.3 — ensure no security groups allow ingress from 0.0.0.0/0 to FTP ports
+    # PCI Req 1.2.1 — restrict inbound and outbound traffic to only that required
+    # NIST SC-7 — boundary protection
+
+    "sg_open_smtp": ["CIS", "PCI"],
+    # CIS — ensure no security groups allow ingress from 0.0.0.0/0 to SMTP
+    # PCI Req 1.2.1 — restrict inbound traffic on mail relay ports
+
+    "sg_open_pop3_imap": ["CIS", "PCI"],
+    # CIS — ensure no security groups allow ingress from 0.0.0.0/0 to POP3/IMAP
+    # PCI Req 1.2.1 — restrict inbound traffic on email retrieval ports
+
+    # ── New topology compliance rules ─────────────────────────────────────────
+    "cloudtrail_not_enabled": ["CIS", "SOC2", "PCI", "HIPAA"],
+    # CIS 3.1-3.4 — ensure CloudTrail is enabled in all regions
+    # SOC2 CC7.2 — monitoring of system components
+    # PCI Req 10 — track and monitor all access to network resources
+    # HIPAA 164.312(b) — audit controls
+
+    "vpc_flow_logs_disabled": ["CIS", "SOC2", "NIST"],
+    # CIS 2.9 — ensure VPC flow logging is enabled in all VPCs
+    # SOC2 CC7.2 — monitoring controls
+    # NIST SI-4 — information system monitoring
+
+    "kms_no_cmk": ["PCI", "HIPAA"],
+    # PCI DSS Req 3.5 — protect keys used to secure cardholder data
+    # HIPAA 164.312(a)(2)(iv) — encryption and decryption
+
+    "waf_required_on_public_alb": ["PCI", "HIPAA", "SOC2"],
+    # PCI Req 6.6 — address new threats and vulnerabilities on public-facing web applications
+    # HIPAA 164.312(e)(2)(i) — application-layer protection
+    # SOC2 CC6.6 — security measures against network threats
+}
+
+
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+
+def get_standards_for_rule(rule_id: str) -> list[str]:
+    """Return the list of standard IDs a given rule satisfies."""
+    return COMPLIANCE_MAP.get(rule_id, [])
+
+
+def filter_findings_by_standard(findings: list, standard: str) -> list:
+    """Return only findings tagged with the given standard code.
+    If standard is 'all' or None, return all findings unchanged."""
+    if not standard or standard.upper() == "ALL":
+        return findings
+    code = standard.upper()
+    return [f for f in findings if code in (f.standards if hasattr(f, "standards") else f.get("standards", []))]
+
+
+def standards_summary(findings: list, standard: str | None = None) -> dict[str, int]:
+    """Return a count of findings per standard for the given finding list."""
+    counts: dict[str, int] = {sid: 0 for sid in ALL_STANDARD_IDS}
+    for f in findings:
+        stds = f.standards if hasattr(f, "standards") else f.get("standards", [])
+        for s in stds:
+            if s in counts:
+                counts[s] += 1
+    if standard and standard.upper() != "ALL":
+        return {standard.upper(): counts.get(standard.upper(), 0)}
+    return counts
+rd.upper(), 0)}
     return counts

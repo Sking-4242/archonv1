@@ -614,7 +614,7 @@ function CanvasInner({ onNodeSelect }) {
                   title="Grab / Pan mode (H)"
                   className={`px-2 py-1 transition-colors ${canvasMode === "grab" ? "bg-indigo-600 text-white" : "text-gray-600 hover:bg-gray-50"}`}
                 >
-                  ✋ Grab
+                  Grab
                 </button>
                 <button
                   onClick={() => setCanvasMode("select")}

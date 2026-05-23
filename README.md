@@ -2,7 +2,7 @@
 
 Multi-cloud infrastructure platform for designing, validating, discovering, and generating Terraform-ready architectures. Archon combines a visual canvas designer, a compliance-aware validation engine, a live AWS discovery tool, and a standalone CLI — all backed by an AI generation layer that supports every major LLM provider.
 
-**Version:** 0.5.0 &nbsp;|&nbsp; **License:** Apache 2.0 + Commons Clause
+**Version:** 0.8.0 &nbsp;|&nbsp; **License:** Apache 2.0 + Commons Clause
 
 ---
 
@@ -70,17 +70,23 @@ Design cloud infrastructure visually across four providers. Drag components from
 | **GCP** | 55+ services — GKE, Cloud Run, BigQuery, Pub/Sub, Vertex AI | `hashicorp/google` |
 | **On-Premises** | vSphere VMs, bare metal, NAS, load balancers, firewalls | `hashicorp/vsphere` + `null_resource` |
 
-### Validation — 49 rules
+### Validation — 85 rules
 
-The validation engine checks your architecture live as you build. Findings appear highlighted on the canvas and in the Validate tab.
+The validation engine checks your architecture live as you build. Findings appear highlighted on the canvas and in the Validate tab, grouped by severity and then by component.
 
-**Config-based (13 rules)** — checks component settings: RDS/Aurora encryption, backup retention, publicly accessible, deletion protection · EBS encryption · EC2 IMDSv2 enforcement · Lambda X-Ray tracing · DynamoDB PITR · Redshift encryption · S3 SSE and versioning · ALB access logging · S3 block public access
+Every finding includes a **suggestion** — a specific, actionable Terraform fix (e.g., "Set `encrypted = true` on `aws_db_instance`") rather than just a problem description.
 
-**Topology-based (16 rules)** — checks the graph structure: databases exposed to internet · compute directly on IGW · missing security groups · missing IAM roles · WAF absent on public ALB · orphaned nodes · ALB with no targets · missing CloudWatch · single-AZ databases · no Secrets Manager path · private compute with no NAT gateway · databases in public subnets · ALB spanning one AZ · Lambda with no dead-letter queue · EC2 previous generation type
+**Config-based** — component settings: RDS/Aurora encryption, backup retention, publicly accessible, deletion protection · EBS encryption · EC2 IMDSv2 enforcement · Lambda X-Ray tracing · DynamoDB PITR · Redshift encryption · S3 SSE and versioning · ALB access logging · S3 block public access
 
-**SG port inspection (10 rules)** — checks security group inbound rules: all-traffic open · database ports open to internet · SSH/RDP from 0.0.0.0/0 · telnet · FTP · SMTP · POP3/IMAP · wide ephemeral ranges · HTTP without HTTPS
+**Topology-based** — graph structure: databases exposed to internet · compute directly on IGW · missing security groups · missing IAM roles · WAF absent on public ALB · orphaned nodes · ALB with no targets · missing CloudWatch · single-AZ databases · no Secrets Manager path · private compute with no NAT gateway · databases in public subnets · ALB spanning one AZ · Lambda with no dead-letter queue · EC2 previous generation type
 
-**Compliance-specific (4 rules)** — additional checks required by standards: CloudTrail not enabled · VPC flow logs disabled · no customer-managed KMS key on data stores · WAF required on public ALB
+**SG port inspection** — security group inbound rules: all-traffic open · database ports open to internet · SSH/RDP from 0.0.0.0/0 · telnet · FTP · SMTP · POP3/IMAP · wide ephemeral ranges · HTTP without HTTPS
+
+**Compliance-specific** — additional checks required by standards: CloudTrail not enabled · VPC flow logs disabled · no customer-managed KMS key on data stores · WAF required on public ALB
+
+**FinOps (14 rules)** — cost-optimization checks: EBS gp2→gp3 upgrade · RDS gp2/io1 storage upgrade · S3 Intelligent-Tiering and lifecycle · Lambda ARM64 migration · Lambda memory right-sizing · ECS Fargate Spot · DynamoDB provisioned capacity · Aurora Graviton · ElastiCache previous-gen nodes · CloudWatch log retention · NAT Gateway per-AZ · stale EBS snapshots · RDS Multi-AZ cost review
+
+**Export** — download findings as a plain-text checklist or structured JSON (includes standards mapping, suggested action, and component grouping).
 
 ### Compliance standards
 
@@ -138,7 +144,7 @@ pip install -e ./archon-cli
 ### Commands
 
 ```bash
-# Validate a terraform plan (49 rules — exits 1 on critical findings)
+# Validate a terraform plan (85 rules — exits 1 on critical findings)
 archon-cli validate plan.json
 
 # Filter findings by compliance standard
@@ -170,10 +176,15 @@ archon-cli discover -r us-east-1 --format archon -o discovery.json
 # Blocks the pipeline on critical findings
 archon-cli validate plan.json
 
+# GitHub Actions annotations (inline PR comments)
+archon-cli validate plan.json --format github
+
 # Store artifacts for review in Archon Pro
 archon-cli validate plan.json --format archon -o findings.json
 archon-cli cost     plan.json --format archon -o cost.json
 ```
+
+See `GITOPS_GUIDE.md` for ready-to-paste GitHub Actions workflows and a pre-commit hook script.
 
 ---
 
@@ -243,7 +254,7 @@ archonv1/
 │
 ├── archon-cli/                Standalone Python CLI
 │   └── archon_cli/
-│       ├── validate.py        49-rule validation engine
+│       ├── validate.py        85-rule validation engine
 │       ├── cost.py            TF plan cost delta calculator
 │       ├── discover.py        Live AWS discovery (30 service types)
 │       ├── formatters.py      table / json / archon output formats
@@ -254,6 +265,7 @@ archonv1/
 ├── docker-compose.yml
 ├── .env.example
 ├── DISCOVERY_GUIDE.md         Full how-to for the discovery tool
+├── GITOPS_GUIDE.md            GitHub Actions + pre-commit hook integration
 ├── ROADMAP.md
 └── test-tf/                   Sample Terraform files for import testing
 ```

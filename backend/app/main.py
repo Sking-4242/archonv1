@@ -1,6 +1,9 @@
+import logging
 import os
 
 from fastapi import FastAPI
+
+logging.basicConfig(level=logging.WARNING)
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
@@ -11,6 +14,7 @@ from app.routers import estimate as estimate_router
 from app.routers import generate as generate_router
 from app.routers import import_tf as import_tf_router
 from app.routers import import_plan as import_plan_router
+from app.routers import design as design_router
 from app.routers.academy import auth as academy_auth_router
 from app.routers.academy import assignments as academy_assignments_router
 from app.routers.academy import lessons as academy_lessons_router
@@ -42,6 +46,7 @@ app.include_router(estimate_router.router)
 app.include_router(chat_router.router)
 app.include_router(import_tf_router.router)
 app.include_router(import_plan_router.router)
+app.include_router(design_router.router)
 app.include_router(academy_auth_router.router)
 app.include_router(academy_assignments_router.router)
 app.include_router(academy_submissions_router.router)

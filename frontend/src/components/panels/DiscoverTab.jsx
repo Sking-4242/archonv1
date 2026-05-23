@@ -122,7 +122,7 @@ function ServiceGroup({ service, nodes, addedIds, onAdd, onAddAll }) {
 function EmptyState({ onOpenImport }) {
   return (
     <div className="flex flex-col items-center justify-center h-full px-4 py-8 text-center gap-4">
-      <div className="text-4xl">🔍</div>
+      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
       <div>
         <p className="text-sm font-semibold text-gray-700 mb-1">No discovery report loaded</p>
         <p className="text-xs text-gray-500 mb-4">

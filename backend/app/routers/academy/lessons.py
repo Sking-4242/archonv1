@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy import exc as sa_exc
 from sqlalchemy.orm import Session
@@ -19,8 +19,8 @@ class LessonIn(BaseModel):
     module_id: int
     title: str
     content: str = ""
-    lesson_type: str = "content"          # "content" | "canvas"
-    canvas_template: Optional[Any] = None  # JSON { nodes, edges, graphMeta } or null
+    lesson_type: str = "content"
+    canvas_template: Optional[Any] = None
     estimated_minutes: int = 10
     order_index: int = 0
 
@@ -41,7 +41,6 @@ class LessonOut(BaseModel):
 
 
 class LessonListItem(BaseModel):
-    """Lighter shape for list views — omits full content and template."""
     id: int
     module_id: int
     module_title: str
@@ -58,6 +57,7 @@ class LessonListItem(BaseModel):
 
 @router.get("")
 def list_lessons(
+    course: Optional[str] = Query(None, description="Filter by course: aws | azure | gcp"),
     current_user: User = Depends(require_any_role),
     db: Session = Depends(get_db),
 ):
@@ -65,6 +65,8 @@ def list_lessons(
     query = db.query(Lesson).join(Module, Lesson.module_id == Module.id)
     if current_user.role == "student":
         query = query.filter(Module.is_published.is_(True))
+    if course:
+        query = query.filter(Module.course == course)
     lessons = query.order_by(Module.order_index, Lesson.order_index).all()
 
     lesson_ids = [l.id for l in lessons]

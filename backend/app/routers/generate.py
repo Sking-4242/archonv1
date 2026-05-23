@@ -1,6 +1,10 @@
+import logging
 import time
+import traceback
 
 from fastapi import APIRouter, HTTPException, Request
+
+logger = logging.getLogger(__name__)
 
 from app.models.generate import GenerateRequest, GenerateResponse
 from app.services.llm.factory import get_provider
@@ -67,24 +71,22 @@ async def generate(request: Request, body: GenerateRequest):
         raw = _call_with_retry(provider, system_prompt, user_prompt)
     except RuntimeError as exc:
         msg = str(exc)
+        logger.error("Generate RuntimeError: %s\n%s", msg, traceback.format_exc())
         if "not reachable" in msg:
             raise HTTPException(status_code=503, detail=msg)
-        raise HTTPException(
-            status_code=500, detail="Generation failed. Please try again."
-        )
+        raise HTTPException(status_code=500, detail=f"Generation failed: {msg}")
     except Exception as exc:
-        exc_str = str(exc).lower()
+        msg = str(exc)
+        logger.error("Generate Exception [%s]: %s\n%s", type(exc).__name__, msg, traceback.format_exc())
         if any(
-            k in exc_str
+            k in msg.lower()
             for k in ("401", "unauthorized", "invalid api key", "authentication")
         ):
             raise HTTPException(
                 status_code=401,
                 detail="Invalid API key. Please check your provider settings.",
             )
-        raise HTTPException(
-            status_code=500, detail="Generation failed. Please try again."
-        )
+        raise HTTPException(status_code=500, detail=f"Generation failed: {msg}")
 
     hcl = strip_fences(raw)
     errors = validate_hcl(hcl)

@@ -88,6 +88,7 @@ class Module(Base):
     __tablename__ = "modules"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    course: Mapped[str] = mapped_column(String(20), default="aws", index=True)
     title: Mapped[str] = mapped_column(String(300))
     description: Mapped[str] = mapped_column(Text, default="")
     order_index: Mapped[int] = mapped_column(Integer, default=0)

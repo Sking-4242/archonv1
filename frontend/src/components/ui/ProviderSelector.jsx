@@ -2,10 +2,10 @@ import useProviderStore from "../../store/providerStore";
 import useGraphStore from "../../store/graphStore";
 
 const PROVIDERS = [
-  { id: "aws", label: "AWS", icon: "☁️" },
-  { id: "azure", label: "Azure", icon: "🔷" },
-  { id: "gcp", label: "GCP", icon: "🟡" },
-  { id: "onprem", label: "On-Prem", icon: "🖥️" },
+  { id: "aws",    label: "AWS"     },
+  { id: "azure",  label: "Azure"   },
+  { id: "gcp",    label: "GCP"     },
+  { id: "onprem", label: "On-Prem" },
 ];
 
 export default function ProviderSelector() {
@@ -43,7 +43,6 @@ export default function ProviderSelector() {
                 : "bg-gray-800 text-gray-300 hover:bg-gray-700",
             ].join(" ")}
           >
-            <span>{p.icon}</span>
             <span>{p.label}</span>
           </button>
         ))}

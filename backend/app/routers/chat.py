@@ -2,10 +2,14 @@
 Chat endpoint — conversational AI assistance about the current architecture.
 """
 
+import logging
 import time
+import traceback
 
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
 
 from app.models.graph import Graph
 from app.services.llm.factory import get_provider
@@ -90,12 +94,15 @@ def chat(body: ChatRequest) -> ChatResponse:
         reply = _call_with_retry(provider, system_prompt, user_prompt)
     except RuntimeError as exc:
         msg = str(exc)
+        logger.error("Chat RuntimeError: %s\n%s", msg, traceback.format_exc())
         if "not reachable" in msg:
             raise HTTPException(status_code=503, detail=msg)
-        raise HTTPException(status_code=500, detail="Chat failed. Please try again.")
+        raise HTTPException(status_code=500, detail=f"Chat failed: {msg}")
     except Exception as exc:
-        if any(k in str(exc).lower() for k in _AUTH_KEYS):
+        msg = str(exc)
+        logger.error("Chat Exception [%s]: %s\n%s", type(exc).__name__, msg, traceback.format_exc())
+        if any(k in msg.lower() for k in _AUTH_KEYS):
             raise HTTPException(status_code=401, detail="Invalid API key.")
-        raise HTTPException(status_code=500, detail="Chat failed. Please try again.")
+        raise HTTPException(status_code=500, detail=f"Chat failed: {msg}")
 
     return ChatResponse(reply=reply.strip())

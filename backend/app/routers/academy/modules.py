@@ -1,6 +1,7 @@
 from datetime import datetime
+from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
@@ -115,12 +116,15 @@ def _build_module_out(module: Module, completed: set[int]) -> ModuleOut:
 
 @router.get("")
 def list_modules(
+    course: Optional[str] = Query(None, description="Filter by course: aws | azure | gcp"),
     current_user: User = Depends(require_any_role),
     db: Session = Depends(get_db),
 ):
     query = db.query(Module).order_by(Module.order_index)
     if current_user.role == "student":
         query = query.filter(Module.is_published.is_(True))
+    if course:
+        query = query.filter(Module.course == course)
     modules = query.all()
 
     all_lesson_ids = [l.id for m in modules for l in m.lessons]

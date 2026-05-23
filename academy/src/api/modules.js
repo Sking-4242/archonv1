@@ -1,7 +1,8 @@
 import { api } from "./client";
 
-export async function listModules() {
-  return api.get("/academy/modules");
+export async function listModules(course) {
+  const qs = course ? `?course=${course}` : "";
+  return api.get(`/academy/modules${qs}`);
 }
 
 export async function getModule(id) {

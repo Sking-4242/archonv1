@@ -30,6 +30,17 @@ async function request(method, path, body, token) {
     throw new Error("Cannot reach the server. Make sure the backend is running.");
   }
 
+  if (res.status === 401) {
+    // Token is missing, expired, or references a deleted user.
+    // Clear stored auth and redirect to login so the user can re-authenticate.
+    try {
+      localStorage.removeItem("archon-academy-auth");
+    } catch {}
+    window.location.href = "/login";
+    // Throw so callers don't try to parse a non-existent body.
+    throw new Error("Session expired. Please log in again.");
+  }
+
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }));
     throw new Error(err.detail || "Request failed");

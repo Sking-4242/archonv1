@@ -94,7 +94,7 @@ export default function SettingsModal({ onClose }) {
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
               />
               <p className="mt-1 text-xs text-gray-400">
-                Keys are sent to the backend only — never stored in the browser.
+                Saved locally in your browser. Never sent to any third party.
               </p>
             </div>
           )}

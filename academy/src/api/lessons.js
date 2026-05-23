@@ -1,7 +1,8 @@
 import { api } from "./client";
 
-export async function listLessons() {
-  return api.get("/academy/lessons");
+export async function listLessons(course) {
+  const qs = course ? `?course=${course}` : "";
+  return api.get(`/academy/lessons${qs}`);
 }
 
 export async function getLesson(id) {

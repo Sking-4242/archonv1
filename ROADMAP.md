@@ -8,25 +8,48 @@
 
 ---
 
-## Current State — v0.3.0
+## Current State — v0.8.0
 
-Archon is a working visual cloud infrastructure design tool with:
+Archon is a full-lifecycle visual infrastructure IDE. Every major workflow described in the original v0.3.0 roadmap has shipped.
 
-- **Multi-cloud canvas** — AWS (86 types), Azure (68), GCP (61), On-Prem (45) = 260+ component types
-- **IaC generation** — provider-aware Terraform output (AWS/Azure/GCP) and infra scripts (On-Prem) via 5 LLM providers
-- **Security validation** — 9-rule engine with live canvas highlights (critical/warning/info)
-- **Cost estimation** — live pricing (AWS Pricing API, Azure Retail API, GCP Billing API) with 1-hour TTL cache and static fallback
-- **AI features** — architecture review on generate, HCL security review, conversational chat panel, AI canvas builder
-- **Save/load** — JSON round-trip (lossless), localStorage library, template gallery (5 templates)
-- **Landing page** — 4-quadrant home screen with saved architectures, templates, provider selector
+**Canvas + generation**
+- **Multi-cloud canvas** — AWS (130+ types), Azure (68), GCP (61), On-Prem (45) = 300+ component types
 - **6 edge types** — Network, Data Flow, Dependency, Streaming, Batch, Event
+- **IaC generation** — provider-aware Terraform (AWS/Azure/GCP) and infra scripts (On-Prem) via 5 LLM providers
+- **AI features** — architecture review on generate, HCL security review, conversational chat panel, AI canvas builder
+- **60 templates** — 15 per provider, accessible from canvas and landing page
+- **Save/load** — JSON round-trip, localStorage library, architecture name editing, undo/redo, copy/paste
+
+**Import**
+- **Terraform import** — parse `.tf` files via `python-hcl2`; map to canvas nodes; infer edges from resource references; multi-file, data sources, modules, `count`/`for_each` labels
+- **Terraform Plan Visualization** — load `terraform show -json` output; overlay create/modify/destroy rings on canvas nodes; change diff panel
+
+**Validation**
+- **85-rule engine** — critical/warning/info severity; findings grouped by component; canvas highlights jump to affected node
+- **Compliance mapping** — SOC2, PCI, HIPAA, CIS, NIST per finding; standard filter in ValidateTab
+- **FinOps rules** — 14 cost-optimization checks (storage upgrade, compute right-sizing, prev-gen detection, log retention)
+- **Suggestions** — every rule carries a `suggestion` field with specific Terraform fix guidance
+- **Export** — findings as JSON or plain-text checklist
+
+**CLI (`archon-cli`)**
+- `archon validate` — Python port of all 85 rules; `--standard` flag; `--format github` for CI annotations
+- `archon cost` — TF plan cost delta calculator with pricing DB
+- `archon discover` — live AWS discovery across 30 service types; outputs Archon Graph JSON
+- Compliance badges in table output; pre-commit hook; GitHub Actions workflow templates
+- Installable via `pip install -e .`
+
+**Discovery UI**
+- DiscoverTab in sidebar — import archon-cli discover output; browse resources by service; load selected resources to canvas
+
+**Cost estimation**
+- Live pricing (AWS Pricing API, Azure Retail API, GCP Billing API) with 1-hour TTL cache and static fallback
+- LIVE/STATIC badge in EstimatePanel; amber banner on fallback
 
 What Archon cannot do yet:
 
-- Read existing Terraform and visualize it
-- Discover live cloud infrastructure from AWS APIs
-- Visualize what a `terraform plan` would change
 - Anything with user accounts, teams, or persistence beyond localStorage
+- Azure and GCP live discovery (AWS only)
+- Real-time canvas ↔ HCL AST sync
 
 ---
 
@@ -266,26 +289,26 @@ to the library.
 
 ---
 
-### v1.0.0 — Stabilization and First Public Push
+### v1.0.0 — Stabilization and First Public Push 🔄
 
-By the time v0.7.0 ships, Archon will have four distinct high-value workflows:
+All five core workflows are now in the product:
 
 1. **Design** — greenfield canvas → IaC generation
 2. **Import** — existing Terraform → editable canvas → updated IaC
-3. **Audit** — import or design → deep validation → findings report
-4. **Plan diff** — `terraform plan` output → visual blast radius
-5. **Discovery** — live AWS account → canvas → validate → export
+3. **Audit** — 85-rule validation engine → compliance-mapped findings report with fix suggestions → JSON/text export
+4. **Plan diff** — `terraform plan -json` output → visual blast radius with per-node change rings
+5. **Discovery** — `archon discover` → live AWS account → canvas → validate → export
 
-v1.0.0 is a stabilization milestone, not a feature release:
+v1.0.0 is a stabilization milestone, not a feature release. The work items are:
 
-- Polish rough edges identified during v0.4.0–v0.7.0
-- Update README and reference docs to reflect full capability
-- Write a proper demo GIF for the README covering all five workflows
-- Publish a Show HN post — this is the right moment, not earlier
-- Evaluate user feedback to determine what v1.x focuses on
+- ✅ Update ROADMAP.md to reflect completed phases
+- Update README to reflect full v0.8.0 capability and all five workflows
+- Write CONTRIBUTING.md — dev environment, code standards, PR process
+- Write a Show HN post draft
+- Write a demo GIF script (30-second recording covering the full workflow)
+- GitHub repository polish: description, topics, CONTRIBUTING.md, issue templates
 
 The v1.0.0 release is the first appropriate moment for a genuine public launch.
-Before then, the product is still being validated.
 
 ---
 
@@ -398,15 +421,16 @@ The product is not ready to be the top result for anything yet.
 
 ## Version Summary
 
-| Version | Focus | Milestone |
+| Version | Focus | Status |
 |---|---|---|
 | 0.3.0 | Multi-cloud, live pricing, landing page | ✅ Complete |
-| 0.4.0 | Terraform Import | Open a real .tf → edit on canvas → regenerate |
-| 0.5.0 | Validation Depth + fix suggestions | Audit report worth sharing with a client |
-| 0.6.0 | Terraform Plan Visualization | Paste plan JSON → visual blast radius |
-| 0.7.0 | AWS Discovery MVP | Live AWS account → editable canvas |
-| 1.0.0 | Stabilization + public launch | Show HN, README polish, full demo GIF |
+| 0.4.0 | Terraform Import | ✅ Complete |
+| 0.5.0 | Validation Depth + fix suggestions + compliance | ✅ Complete |
+| 0.6.0 | Terraform Plan Visualization | ✅ Complete |
+| 0.7.0 | AWS Discovery MVP + archon-cli | ✅ Complete |
+| 0.8.0 | FinOps rules + suggestion field + GitOps integration | ✅ Complete |
+| 1.0.0 | Stabilization + public launch | 🔄 In progress |
 
 ---
 
-*Last updated: May 2026 · Archon v0.3.0*
+*Last updated: May 2026 · Archon v0.8.0*

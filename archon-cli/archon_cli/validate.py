@@ -236,6 +236,7 @@ class Finding:
     title: str
     message: str
     fix: str
+    suggestion: str = ""
     can_acknowledge: bool = False
     sg_id: str | None = None
     standards: list[str] = field(default_factory=list)
@@ -251,6 +252,7 @@ class Finding:
             "title": self.title,
             "message": self.message,
             "fix": self.fix,
+            "suggestion": self.suggestion,
             "canAcknowledge": self.can_acknowledge,
             "sgId": self.sg_id,
             "standards": self.standards,
@@ -867,6 +869,202 @@ def _config_findings(nodes: list[Node]) -> list[Finding]:
                     fix="Disable Auto-assign Public IP unless this subnet is intentionally a public DMZ.",
                 ))
 
+
+        # FinOps — EBS gp2 upgrade
+        if n.type == "ebs":
+            vtype = cfg.get("volume_type", "gp2")
+            if vtype == "gp2":
+                findings.append(Finding(
+                    id=f"ebs_gp2_upgrade::{n.id}",
+                    rule_id="ebs_gp2_upgrade", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="EBS volume is gp2 — upgrade to gp3",
+                    message=f"{label} uses gp2 storage. gp3 provides the same baseline performance at 20% lower cost.",
+                    fix="Change Volume Type to gp3 in the component config.",
+                    suggestion='Set `volume_type = "gp3"` on `aws_ebs_volume`. gp3 delivers 3000 IOPS and 125 MiBps baseline at 20% less than gp2 with no performance trade-off.',
+                ))
+
+        # FinOps — RDS/Aurora gp2 storage upgrade
+        if n.type in ("rds", "aurora"):
+            stype = cfg.get("storage_type", "gp2")
+            if stype == "gp2":
+                findings.append(Finding(
+                    id=f"rds_gp2_storage::{n.id}",
+                    rule_id="rds_gp2_storage", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="RDS uses gp2 storage — upgrade to gp3",
+                    message=f"{label} uses gp2 storage. gp3 provides the same baseline IOPS at 20% lower cost.",
+                    fix="Change Storage Type to gp3 in the component config.",
+                    suggestion='Set `storage_type = "gp3"` on `aws_db_instance`. gp3 delivers 3000 IOPS baseline; add `iops` if you need more than 3000 (up to 16,000 on gp3).',
+                ))
+            elif stype == "io1":
+                findings.append(Finding(
+                    id=f"rds_io1_consider_gp3::{n.id}",
+                    rule_id="rds_io1_consider_gp3", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="RDS io1 storage — evaluate gp3 at this IOPS range",
+                    message=f"{label} uses io1 storage. gp3 supports up to 16,000 IOPS at significantly lower cost per IOPS.",
+                    fix="Evaluate switching to gp3 if peak IOPS is under 16,000. Set iops explicitly on gp3.",
+                    suggestion='Check CloudWatch `ReadIOPS`/`WriteIOPS`. If peak is under 16,000, change `storage_type = "gp3"` and set `iops` explicitly — gp3 at 16,000 IOPS costs far less than io1.',
+                ))
+
+        # FinOps — RDS storage autoscaling
+        if n.type == "rds":
+            max_storage = cfg.get("max_allocated_storage")
+            if not max_storage or int(max_storage) == 0:
+                findings.append(Finding(
+                    id=f"rds_no_storage_autoscaling::{n.id}",
+                    rule_id="rds_no_storage_autoscaling", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="RDS storage autoscaling not configured",
+                    message=f"{label} has no max_allocated_storage set. Storage must be manually resized.",
+                    fix="Set Max Allocated Storage to 2–3x the initial allocation in the component config.",
+                    suggestion='Set `max_allocated_storage` to 2–3x `allocated_storage` on `aws_db_instance`. RDS autoscales within this limit with zero downtime.',
+                ))
+
+        # FinOps — RDS performance insights
+        if n.type == "rds":
+            if not cfg.get("performance_insights_enabled"):
+                findings.append(Finding(
+                    id=f"rds_no_perf_insights::{n.id}",
+                    rule_id="rds_no_perf_insights", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="RDS Performance Insights disabled",
+                    message=f"{label} has Performance Insights disabled. Without it you cannot identify slow queries or right-size the instance.",
+                    fix="Enable Performance Insights in the component config.",
+                    suggestion='Set `performance_insights_enabled = true` on `aws_db_instance`. The free tier retains 7 days of data. Required for any right-sizing exercise.',
+                ))
+
+        # FinOps — S3 versioning without lifecycle
+        if n.type == "s3":
+            if cfg.get("versioning") and not cfg.get("lifecycle_rule"):
+                findings.append(Finding(
+                    id=f"s3_versioning_no_lifecycle::{n.id}",
+                    rule_id="s3_versioning_no_lifecycle", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="S3 versioning enabled with no lifecycle policy",
+                    message=f"{label} has versioning enabled but no lifecycle policy. Non-current versions accumulate indefinitely.",
+                    fix="Add a lifecycle rule to expire non-current versions after 30–90 days.",
+                    suggestion='Add `aws_s3_bucket_lifecycle_configuration` with `noncurrent_version_expiration { noncurrent_days = 30 }`. Consider transitioning to Glacier Instant Retrieval after 7 days.',
+                ))
+
+        # FinOps — Lambda arm64
+        if n.type == "lambda":
+            arch = cfg.get("architecture", "x86_64")
+            if not arch or arch == "x86_64":
+                findings.append(Finding(
+                    id=f"lambda_not_arm64::{n.id}",
+                    rule_id="lambda_not_arm64", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="Lambda using x86_64 — Graviton2 (arm64) is cheaper",
+                    message=f"{label} uses x86_64. arm64 (Graviton2) is 20% cheaper and typically 20% faster.",
+                    fix="Set Architecture to arm64 in the component config.",
+                    suggestion='Set `architectures = ["arm64"]` on `aws_lambda_function`. Test with your runtime — Python, Node.js, Java, and Go support arm64 natively.',
+                ))
+
+        # FinOps — Lambda high timeout
+        if n.type == "lambda":
+            timeout = cfg.get("timeout", 0)
+            if int(timeout) >= 900:
+                findings.append(Finding(
+                    id=f"lambda_high_timeout::{n.id}",
+                    rule_id="lambda_high_timeout", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="Lambda timeout set to maximum (900s)",
+                    message=f"{label} has a 900-second timeout. Errors will silently retry for 15 minutes, accumulating compute charges.",
+                    fix="Set timeout to the actual expected max execution time plus a small buffer.",
+                    suggestion='Set `timeout` to the p99 execution time + 20%. Use X-Ray or CloudWatch Logs Insights to measure actual duration before setting a tight timeout.',
+                ))
+
+        # FinOps — Lambda default memory
+        if n.type == "lambda":
+            mem = cfg.get("memory_size", 128)
+            if not mem or int(mem) == 128:
+                findings.append(Finding(
+                    id=f"lambda_default_memory::{n.id}",
+                    rule_id="lambda_default_memory", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="Lambda at default 128 MB memory",
+                    message=f"{label} uses the default 128 MB memory allocation. Increasing memory often reduces duration enough to lower total cost.",
+                    fix="Use AWS Lambda Power Tuning to find the optimal memory/cost balance.",
+                    suggestion='Run AWS Lambda Power Tuning (github.com/alexcasalboni/aws-lambda-power-tuning). Most functions are cheapest at 512 MB–1 GB, not 128 MB.',
+                ))
+
+        # FinOps — ECS Fargate Spot
+        if n.type == "ecs_fargate":
+            launch = cfg.get("launch_type", "FARGATE")
+            if launch != "FARGATE_SPOT":
+                findings.append(Finding(
+                    id=f"ecs_no_fargate_spot::{n.id}",
+                    rule_id="ecs_no_fargate_spot", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="ECS Fargate not using Spot capacity",
+                    message=f"{label} uses on-demand Fargate. Fargate Spot can reduce compute cost by 70% for fault-tolerant workloads.",
+                    fix="Use a capacity provider strategy with FARGATE_SPOT for non-critical tasks.",
+                    suggestion='Add `capacity_provider_strategy` with FARGATE_SPOT (weight=4) and FARGATE (weight=1) fallback on `aws_ecs_service`. Ensure tasks handle SIGTERM for graceful Spot interruption.',
+                ))
+
+        # FinOps — DynamoDB high provisioned capacity
+        if n.type == "dynamodb":
+            billing = cfg.get("billing_mode", "PAY_PER_REQUEST")
+            if billing == "PROVISIONED":
+                rcu = int(cfg.get("read_capacity", 0))
+                wcu = int(cfg.get("write_capacity", 0))
+                if rcu > 100 or wcu > 100:
+                    findings.append(Finding(
+                        id=f"dynamodb_high_provisioned::{n.id}",
+                        rule_id="dynamodb_high_provisioned", node_id=n.id,
+                        node_label=label, node_type=n.type, level="warning",
+                        title="DynamoDB PROVISIONED with high static capacity",
+                        message=f"{label} has PROVISIONED billing with {rcu} RCU / {wcu} WCU. Static provisioning at this level is likely over-allocated.",
+                        fix="Switch to PAY_PER_REQUEST billing or enable DynamoDB Auto Scaling.",
+                        suggestion='Either set `billing_mode = "PAY_PER_REQUEST"` or add `aws_appautoscaling_target` + `aws_appautoscaling_policy` for both read and write capacity.',
+                    ))
+
+        # FinOps — Aurora non-Graviton instance
+        if n.type == "aurora":
+            cls = cfg.get("instance_class", "").lower()
+            import re as _re
+            if cls and "g." not in cls and not _re.search(r"\.(t4g|m6g|m7g|r6g|r7g|r8g|x2g)", cls):
+                findings.append(Finding(
+                    id=f"aurora_not_graviton::{n.id}",
+                    rule_id="aurora_not_graviton", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="Aurora instance not using Graviton2/3",
+                    message=f"{label} uses instance class '{cls}'. Graviton2/3 instances (r6g, r7g, m6g) are 10–20% cheaper.",
+                    fix="Switch to a Graviton2 instance class (e.g. db.r6g.large instead of db.r5.large).",
+                    suggestion='Change `instance_class` to the Graviton2 equivalent: r5→r6g, r6i→r7g, m5→m6g, t3→t4g. Aurora MySQL 3.x and Aurora PostgreSQL 13+ support Graviton natively.',
+                ))
+
+        # FinOps — ElastiCache previous-gen node
+        if n.type == "elasticache":
+            import re as _re
+            node_type = cfg.get("node_type", "")
+            if _re.match(r"^cache\.(t2|m3|m2|r3|r4|c1)\.", node_type, _re.IGNORECASE):
+                findings.append(Finding(
+                    id=f"elasticache_prev_gen_node::{n.id}",
+                    rule_id="elasticache_prev_gen_node", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="ElastiCache previous-generation node type",
+                    message=f"{label} uses node type '{node_type}'. Current-generation equivalents offer better price-performance.",
+                    fix="Upgrade to a current-generation node type: t2→t4g, r3/r4→r6g, m3→m6g.",
+                    suggestion='Update `node_type`: cache.t2→cache.t4g (40% cheaper), cache.r3/r4→cache.r6g, cache.m3→cache.m6g. Requires a maintenance window cluster replacement.',
+                ))
+
+        # FinOps — CloudWatch no log retention
+        if n.type == "cloudwatch":
+            retention = cfg.get("retention_in_days", 0)
+            if not retention or int(retention) == 0:
+                findings.append(Finding(
+                    id=f"cloudwatch_no_log_retention::{n.id}",
+                    rule_id="cloudwatch_no_log_retention", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="CloudWatch log group has no retention policy",
+                    message=f"{label} has no log retention configured. Logs are kept indefinitely and cost accumulates without bound.",
+                    fix="Set a retention period (30–365 days) in the component config.",
+                    suggestion='Set `retention_in_days` on `aws_cloudwatch_log_group`. Common: 30 days app logs, 90 days audit, 365 days compliance. 1 GB/day at 365-day retention = $11/month vs $0.90/month at 30 days.',
+                ))
+
     return findings
 
 
@@ -962,6 +1160,33 @@ def _topology_findings(nodes: list[Node], edges: list[Edge]) -> list[Finding]:
                     title="Load balancer has no targets",
                     message=f"{label} has no compute targets. Connect to EC2, Lambda, or ECS.",
                     fix="Draw an edge from this load balancer to a compute component.",
+                ))
+
+        # alb_single_az
+        if n.type in ("alb", "nlb"):
+            subnet_neighbors = [
+                nd for nd in nodes
+                if nd.type == "subnet" and (
+                    _direct_edge(n.id, nd.id, edges) or _direct_edge(nd.id, n.id, edges)
+                    or nd.id == n.parent_id
+                )
+            ]
+            if len(subnet_neighbors) < 2:
+                findings.append(Finding(
+                    id=f"alb_single_az::{n.id}",
+                    rule_id="alb_single_az", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="Load balancer spans only one subnet",
+                    message=(
+                        f"{label} appears to span only one subnet. "
+                        "ALBs require at least two subnets in different AZs."
+                    ),
+                    fix="Connect this load balancer to subnets in at least two Availability Zones.",
+                    suggestion=(
+                        "Add subnet IDs from at least two Availability Zones to "
+                        "`subnets` on `aws_lb`. AWS requires multi-AZ for ALB "
+                        "and will reject single-AZ configurations at apply time."
+                    ),
                 ))
 
         # missing_cloudwatch
@@ -1673,6 +1898,37 @@ def validate_plan_json(plan: dict) -> list[Finding]:
     Parse a TF plan JSON dict and return all validation findings.
 
     This is the main entry point used by the CLI validate command.
+    """
+    nodes, edges, sgs, iam_roles = parse_plan_json(plan)
+    return run_validation(nodes, edges, sgs, iam_roles)
+ full validation pipeline against a pre-parsed graph.
+    Accepts the same four arguments produced by parse_plan_json().
+    """
+    nodes, edges, sgs, iam_roles = parse_plan_json(plan)
+    return run_validation(nodes, edges, sgs, iam_roles)
+ full validation pipeline against a pre-parsed graph.
+    Accepts the same four arguments produced by parse_plan_json().
+    """
+    nodes, edges, sgs, iam_roles = parse_plan_json(plan)
+    return run_validation(nodes, edges, sgs, iam_roles)
+pology_findings(nodes, edges))
+    findings.extend(_sg_findings(security_groups))
+    findings.extend(_iam_findings(iam_roles))
+
+    for f in findings:
+        f.standards = get_standards_for_rule(f.rule_id)
+
+    severity_order = {"critical": 0, "warning": 1, "info": 2}
+    findings.sort(key=lambda f: severity_order.get(f.level, 3))
+    return findings
+
+
+def validate_plan_json(plan: dict) -> list[Finding]:
+    """Run the full validation pipeline against a terraform plan JSON dict."""
+    nodes, edges, sgs, iam_roles = parse_plan_json(plan)
+    return run_validation(nodes, edges, sgs, iam_roles)
+ findings.
+    Equivalent to calling parse_plan_json() then run_validation().
     """
     nodes, edges, sgs, iam_roles = parse_plan_json(plan)
     return run_validation(nodes, edges, sgs, iam_roles)

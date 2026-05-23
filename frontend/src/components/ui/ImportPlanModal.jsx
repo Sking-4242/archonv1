@@ -176,7 +176,7 @@ export default function ImportPlanModal({ onClose, onApply, apiUrl }) {
             />
             {file ? (
               <div className="flex flex-col items-center gap-1">
-                <span className="text-2xl">✅</span>
+                <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center mb-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
                 <p className="text-sm font-semibold text-green-700">{file.name}</p>
                 <p className="text-xs text-green-600">
                   {(file.size / 1024).toFixed(1)} KB — click to replace
@@ -184,7 +184,7 @@ export default function ImportPlanModal({ onClose, onApply, apiUrl }) {
               </div>
             ) : (
               <div className="flex flex-col items-center gap-1">
-                <span className="text-3xl text-gray-300">📄</span>
+                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mb-1"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
                 <p className="text-sm text-gray-500">
                   Drop your plan JSON here, or <span className="text-indigo-600 font-medium">browse</span>
                 </p>

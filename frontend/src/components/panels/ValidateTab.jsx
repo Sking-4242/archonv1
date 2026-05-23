@@ -7,7 +7,6 @@ import StandardSelector from "../ui/StandardSelector";
 const SEVERITY = {
   critical: {
     label: "Critical",
-    icon: "🔴",
     badge: "bg-red-100 text-red-700 border border-red-200",
     row: "border-l-4 border-red-500 bg-red-50",
     rowHover: "hover:bg-red-100",
@@ -15,7 +14,6 @@ const SEVERITY = {
   },
   warning: {
     label: "Warning",
-    icon: "🟡",
     badge: "bg-amber-100 text-amber-700 border border-amber-200",
     row: "border-l-4 border-amber-400 bg-amber-50",
     rowHover: "hover:bg-amber-100",
@@ -23,7 +21,6 @@ const SEVERITY = {
   },
   info: {
     label: "Info",
-    icon: "🔵",
     badge: "bg-blue-100 text-blue-700 border border-blue-200",
     row: "border-l-4 border-blue-400 bg-blue-50",
     rowHover: "hover:bg-blue-100",
@@ -36,9 +33,10 @@ function SeverityPill({ level, count }) {
   if (!count) return null;
   return (
     <span
-      className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full font-medium ${cfg.badge}`}
+      className={`inline-flex items-center gap-1.5 text-xs px-2 py-0.5 rounded-full font-medium ${cfg.badge}`}
     >
-      {cfg.icon} {cfg.label}: {count}
+      <span className={`w-2 h-2 rounded-full ${cfg.dot} inline-block`} />
+      {cfg.label}: {count}
     </span>
   );
 }
@@ -84,13 +82,14 @@ function DismissFlow({ findingId, onDone }) {
   );
 }
 
-function FindingRow({ f, onSelectNode, isAcknowledged }) {
+function FindingRow({ f, onSelectNode, isAcknowledged, hideLabel }) {
   const [expanded, setExpanded] = useState(false);
   const [dismissing, setDismissing] = useState(false);
   const setSelectedNodeId = useGraphStore((s) => s.setSelectedNodeId);
   const unacknowledge = useValidationStore((s) => s.unacknowledge);
 
   const cfg = SEVERITY[f.level];
+  const detail = f.suggestion || f.fix;
 
   const handleClick = () => {
     setSelectedNodeId(f.nodeId);
@@ -102,7 +101,9 @@ function FindingRow({ f, onSelectNode, isAcknowledged }) {
       <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100 text-xs">
         <div className="flex-1 min-w-0">
           <span className="text-gray-400 line-through truncate">{f.title}</span>
-          <span className="ml-2 text-gray-400 font-mono">· {f.nodeLabel}</span>
+          {!hideLabel && (
+            <span className="ml-2 text-gray-400 font-mono">· {f.nodeLabel}</span>
+          )}
         </div>
         <button
           className="ml-2 shrink-0 text-blue-500 hover:underline"
@@ -128,9 +129,6 @@ function FindingRow({ f, onSelectNode, isAcknowledged }) {
             <p className="text-xs text-gray-500 mt-0.5 leading-snug">
               {f.message}
             </p>
-            <p className="text-xs text-gray-400 mt-0.5 font-mono truncate">
-              {f.nodeLabel}
-            </p>
             {(f.standards ?? []).length > 0 && (
               <div className="flex flex-wrap gap-0.5 mt-1">
                 {(f.standards ?? []).map((s) => (
@@ -145,16 +143,16 @@ function FindingRow({ f, onSelectNode, isAcknowledged }) {
             )}
           </div>
           <div className="flex items-center gap-1 shrink-0 mt-0.5">
-            {f.fix && (
+            {detail && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setExpanded((v) => !v);
                 }}
                 className="text-xs px-1.5 py-0.5 rounded bg-white border border-gray-200 text-gray-500 hover:border-gray-400 hover:text-gray-700"
-                title="Show fix suggestion"
+                title="Show suggested action"
               >
-                {expanded ? "▲ fix" : "▼ fix"}
+                {expanded ? "▲ how" : "▼ how"}
               </button>
             )}
             {f.canAcknowledge && !dismissing && (
@@ -172,10 +170,9 @@ function FindingRow({ f, onSelectNode, isAcknowledged }) {
             <span className="text-gray-300 text-xs">→</span>
           </div>
         </div>
-        {expanded && f.fix && (
-          <div className="mt-2 rounded bg-white border border-gray-200 px-2 py-1.5 text-xs text-gray-600 leading-snug">
-            <span className="font-semibold text-gray-700">Fix: </span>
-            {f.fix}
+        {expanded && detail && (
+          <div className="mt-2 rounded bg-white border border-gray-200 px-3 py-2 text-xs text-gray-700 leading-relaxed font-mono whitespace-pre-wrap">
+            {detail}
           </div>
         )}
       </button>
@@ -188,7 +185,7 @@ function FindingRow({ f, onSelectNode, isAcknowledged }) {
   );
 }
 
-function exportFindings(findings, archName) {
+function exportFindingsTxt(findings, archName) {
   const LEVEL_LABEL = { critical: "CRITICAL", warning: "WARNING", info: "INFO" };
   const lines = [
     `Archon Validation Report — ${archName ?? "Architecture"}`,
@@ -200,19 +197,60 @@ function exportFindings(findings, archName) {
     const group = findings.filter((f) => f.level === level);
     if (!group.length) continue;
     lines.push(`── ${LEVEL_LABEL[level]} (${group.length}) ─────────────────────────`);
+    // sub-group by component
+    const byComponent = {};
     for (const f of group) {
-      lines.push(`[${LEVEL_LABEL[level]}] ${f.title}`);
-      lines.push(`  Component : ${f.nodeLabel}`);
-      lines.push(`  Issue     : ${f.message}`);
-      if (f.fix) lines.push(`  Fix       : ${f.fix}`);
-      lines.push("");
+      if (!byComponent[f.nodeLabel]) byComponent[f.nodeLabel] = [];
+      byComponent[f.nodeLabel].push(f);
+    }
+    for (const [component, cFindings] of Object.entries(byComponent)) {
+      lines.push(`  ${component}`);
+      for (const f of cFindings) {
+        lines.push(`    [${LEVEL_LABEL[level]}] ${f.title}`);
+        lines.push(`      Issue  : ${f.message}`);
+        const action = f.suggestion || f.fix;
+        if (action) lines.push(`      Action : ${action}`);
+        lines.push("");
+      }
     }
   }
+  const slug = (archName ?? "architecture").replace(/\s+/g, "_");
   const blob = new Blob([lines.join("\n")], { type: "text/plain" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = `${(archName ?? "architecture").replace(/\s+/g, "_")}_findings.txt`;
+  a.download = `${slug}_findings.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportFindingsJson(findings, archName) {
+  const payload = {
+    architecture: archName ?? "Architecture",
+    generated: new Date().toISOString(),
+    summary: {
+      total: findings.length,
+      critical: findings.filter((f) => f.level === "critical").length,
+      warning:  findings.filter((f) => f.level === "warning").length,
+      info:     findings.filter((f) => f.level === "info").length,
+    },
+    findings: findings.map((f) => ({
+      id:        f.ruleId,
+      level:     f.level,
+      title:     f.title,
+      component: f.nodeLabel,
+      nodeType:  f.nodeType,
+      issue:     f.message,
+      action:    f.suggestion || f.fix || "",
+      standards: f.standards ?? [],
+    })),
+  };
+  const slug = (archName ?? "architecture").replace(/\s+/g, "_");
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${slug}_findings.json`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -310,7 +348,7 @@ function PlanModeView({ planSummary, archName, onClearPlan }) {
       <div className="flex-1 overflow-y-auto">
         {changes.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12 gap-3">
-            <div className="text-4xl">✅</div>
+            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
             <p className="text-sm font-semibold text-gray-700">No changes planned</p>
             <p className="text-xs text-gray-400">All resources are up to date.</p>
           </div>
@@ -395,14 +433,23 @@ export default function ValidateTab({ onSelectNode }) {
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
             Validation · {active.length} finding{active.length !== 1 ? "s" : ""}
           </p>
-          {findings.length > 0 && (
-            <button
-              onClick={() => exportFindings(active, archName)}
-              className="text-xs px-2 py-0.5 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
-              title="Export findings as text"
-            >
-              ↓ Export
-            </button>
+          {active.length > 0 && (
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => exportFindingsTxt(active, archName)}
+                className="text-xs px-2 py-0.5 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
+                title="Export findings as plain text"
+              >
+                ↓ txt
+              </button>
+              <button
+                onClick={() => exportFindingsJson(active, archName)}
+                className="text-xs px-2 py-0.5 rounded border border-gray-200 text-gray-500 hover:bg-gray-50 transition-colors"
+                title="Export findings as JSON"
+              >
+                ↓ json
+              </button>
+            </div>
           )}
         </div>
         <div className="flex flex-wrap gap-1.5">
@@ -417,7 +464,7 @@ export default function ValidateTab({ onSelectNode }) {
       <div className="flex-1 overflow-y-auto">
         {active.length === 0 && dismissed.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12 gap-3">
-            <div className="text-4xl">✅</div>
+            <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
             <p className="text-sm font-semibold text-gray-700">No issues found</p>
             <p className="text-xs text-gray-400">
               Add components and connect them to see validation results.
@@ -429,6 +476,18 @@ export default function ValidateTab({ onSelectNode }) {
               const group = active.filter((f) => f.level === level);
               if (!group.length) return null;
               const cfg = SEVERITY[level];
+
+              // group by component (nodeLabel)
+              const componentOrder = [];
+              const byComponent = {};
+              for (const f of group) {
+                if (!byComponent[f.nodeLabel]) {
+                  byComponent[f.nodeLabel] = [];
+                  componentOrder.push(f.nodeLabel);
+                }
+                byComponent[f.nodeLabel].push(f);
+              }
+
               return (
                 <div key={level}>
                   <div className="sticky top-0 z-10 px-4 py-1.5 bg-gray-100 border-b border-gray-200 flex items-center gap-1.5">
@@ -437,13 +496,24 @@ export default function ValidateTab({ onSelectNode }) {
                       {cfg.label} · {group.length}
                     </span>
                   </div>
-                  {group.map((f) => (
-                    <FindingRow
-                      key={f.id}
-                      f={f}
-                      onSelectNode={onSelectNode}
-                      isAcknowledged={false}
-                    />
+                  {componentOrder.map((label) => (
+                    <div key={label}>
+                      <div className="px-4 py-1 bg-white border-b border-gray-100 flex items-center gap-1.5">
+                        <span className="text-xs font-medium text-gray-600 truncate">{label}</span>
+                        <span className="text-xs text-gray-400 shrink-0">
+                          · {byComponent[label].length}
+                        </span>
+                      </div>
+                      {byComponent[label].map((f) => (
+                        <FindingRow
+                          key={f.id}
+                          f={f}
+                          onSelectNode={onSelectNode}
+                          isAcknowledged={false}
+                          hideLabel={true}
+                        />
+                      ))}
+                    </div>
                   ))}
                 </div>
               );
@@ -462,6 +532,7 @@ export default function ValidateTab({ onSelectNode }) {
                     f={f}
                     onSelectNode={onSelectNode}
                     isAcknowledged={true}
+                    hideLabel={false}
                   />
                 ))}
               </div>

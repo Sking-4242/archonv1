@@ -837,6 +837,132 @@ def _discover_cloudfront(session, region: str, errors: list) -> list[DiscoveredR
     return resources
 
 
+def _discover_waf(session, region: str, errors: list) -> list[DiscoveredResource]:
+    """WAF v2 WebACLs scoped to REGIONAL (not CloudFront — those are global)."""
+    resources: list[DiscoveredResource] = []
+    client = session.client("wafv2", region_name=region)
+
+    def _fetch():
+        paginator = client.get_paginator("list_web_acls")
+        for page in paginator.paginate(Scope="REGIONAL"):
+            for acl in page.get("WebACLs", []):
+                resources.append(DiscoveredResource(
+                    service="WAF", resource_type="WebACL",
+                    resource_id=acl["ARN"], name=acl.get("Name", acl["Id"]),
+                    region=region, state="active",
+                    canvas_type="waf",
+                    attributes={
+                        "id": acl["Id"],
+                        "description": acl.get("Description", ""),
+                    },
+                ))
+
+    _safe(_fetch, "WAFv2:WebACLs", errors)
+    return resources
+
+
+def _discover_cloudtrail(session, region: str, errors: list) -> list[DiscoveredResource]:
+    """CloudTrail trails — use includeShadowTrails=False to get only home-region trails."""
+    resources: list[DiscoveredResource] = []
+    client = session.client("cloudtrail", region_name=region)
+
+    def _fetch():
+        resp = client.describe_trails(includeShadowTrails=False)
+        for trail in resp.get("trailList", []):
+            arn = trail.get("TrailARN", trail.get("Name", ""))
+            home_region = trail.get("HomeRegion", region)
+            resources.append(DiscoveredResource(
+                service="CloudTrail", resource_type="Trail",
+                resource_id=arn, name=trail.get("Name", arn),
+                region=home_region, state="active",
+                canvas_type="cloudtrail",
+                attributes={
+                    "s3_bucket": trail.get("S3BucketName", ""),
+                    "multi_region": trail.get("IsMultiRegionTrail", False),
+                    "log_file_validation": trail.get("LogFileValidationEnabled", False),
+                    "cloudwatch_logs_arn": trail.get("CloudWatchLogsLogGroupArn", ""),
+                    "kms_key_id": trail.get("KMSKeyId", ""),
+                },
+            ))
+
+    _safe(_fetch, "CloudTrail:Trails", errors)
+    return resources
+
+
+def _discover_api_gateway(session, region: str, errors: list) -> list[DiscoveredResource]:
+    """API Gateway REST APIs (v1) and HTTP/WebSocket APIs (v2)."""
+    resources: list[DiscoveredResource] = []
+
+    def _fetch_v1():
+        client = session.client("apigateway", region_name=region)
+        paginator = client.get_paginator("get_rest_apis")
+        for page in paginator.paginate():
+            for api in page.get("items", []):
+                api_id = api["id"]
+                arn = f"arn:aws:apigateway:{region}::/restapis/{api_id}"
+                resources.append(DiscoveredResource(
+                    service="API Gateway", resource_type="REST API",
+                    resource_id=arn, name=api.get("name", api_id),
+                    region=region, state="active",
+                    canvas_type="api_gateway",
+                    attributes={
+                        "id": api_id,
+                        "endpoint_type": api.get("endpointConfiguration", {}).get("types", []),
+                        "description": api.get("description", ""),
+                    },
+                ))
+
+    def _fetch_v2():
+        client = session.client("apigatewayv2", region_name=region)
+        paginator = client.get_paginator("get_apis")
+        for page in paginator.paginate():
+            for api in page.get("Items", []):
+                api_id = api["ApiId"]
+                arn = f"arn:aws:apigateway:{region}::/apis/{api_id}"
+                resources.append(DiscoveredResource(
+                    service="API Gateway", resource_type=api.get("ProtocolType", "HTTP") + " API",
+                    resource_id=arn, name=api.get("Name", api_id),
+                    region=region, state="active",
+                    canvas_type="api_gateway",
+                    attributes={
+                        "id": api_id,
+                        "protocol_type": api.get("ProtocolType", "HTTP"),
+                        "endpoint": api.get("ApiEndpoint", ""),
+                    },
+                ))
+
+    _safe(_fetch_v1, "APIGateway:RestAPIs", errors)
+    _safe(_fetch_v2, "APIGatewayV2:APIs", errors)
+    return resources
+
+
+def _discover_eventbridge(session, region: str, errors: list) -> list[DiscoveredResource]:
+    """EventBridge custom event buses (default bus excluded)."""
+    resources: list[DiscoveredResource] = []
+    client = session.client("events", region_name=region)
+
+    def _fetch():
+        paginator = client.get_paginator("list_event_buses")
+        for page in paginator.paginate():
+            for bus in page.get("EventBuses", []):
+                name = bus.get("Name", "")
+                if name == "default":
+                    continue
+                arn = bus.get("Arn", name)
+                resources.append(DiscoveredResource(
+                    service="EventBridge", resource_type="Event Bus",
+                    resource_id=arn, name=name,
+                    region=region, state="active",
+                    canvas_type="eventbridge",
+                    attributes={
+                        "policy": bool(bus.get("Policy")),
+                    },
+                ))
+
+    _safe(_fetch, "EventBridge:EventBuses", errors)
+    return resources
+
+
 # ─── Orchestrator ─────────────────────────────────────────────────────────────
 
 _DISCOVERERS = [
@@ -866,6 +992,165 @@ _DISCOVERERS = [
     _discover_sqs,
     _discover_cloudwatch_alarms,
     _discover_cloudfront,
+    _discover_waf,
+    _discover_cloudtrail,
+    _discover_api_gateway,
+    _discover_eventbridge,
+]
+
+
+def discover_region(region: str, profile: str | None = None) -> DiscoveryReport:
+    """
+    Discover all supported AWS resources in the given region.
+
+    Parameters
+    ----------
+    region  : AWS region name, e.g. "us-east-1"
+    profile : Optional AWS profile name (from ~/.aws/config).
+              If None, uses the default credential chain.
+
+    Returns
+    -------
+    DiscoveryReport with resources and any per-service errors.
+
+    Security note
+    -------------
+    Credentials are resolved entirely via boto3's standard chain
+    (environment variables → ~/.aws/credentials → instance metadata).
+    They are never transmitted outside this process.
+    """
+    import boto3  # deferred so the module can be imported without boto3 installed
+
+    session = boto3.Session(profile_name=profile) if profile else boto3.Session()
+    report = DiscoveryReport(region=region)
+
+    for discoverer in _DISCOVERERS:
+        try:
+            found = discoverer(session, region, report.errors)
+            report.resources.extend(found)
+        except Exception as exc:  # noqa: BLE001
+            report.errors.append(DiscoveryError(
+                service=discoverer.__name__,
+                error=str(exc),
+            ))
+
+    return report
+cloudwatch_logs_arn": trail.get("CloudWatchLogsLogGroupArn", ""),
+                    "kms_key_id": trail.get("KMSKeyId", ""),
+                },
+            ))
+
+    _safe(_fetch, "CloudTrail:Trails", errors)
+    return resources
+
+
+def _discover_api_gateway(session, region: str, errors: list) -> list[DiscoveredResource]:
+    """API Gateway REST APIs (v1) and HTTP/WebSocket APIs (v2)."""
+    resources: list[DiscoveredResource] = []
+
+    def _fetch_v1():
+        client = session.client("apigateway", region_name=region)
+        paginator = client.get_paginator("get_rest_apis")
+        for page in paginator.paginate():
+            for api in page.get("items", []):
+                api_id = api["id"]
+                arn = f"arn:aws:apigateway:{region}::/restapis/{api_id}"
+                resources.append(DiscoveredResource(
+                    service="API Gateway", resource_type="REST API",
+                    resource_id=arn, name=api.get("name", api_id),
+                    region=region, state="active",
+                    canvas_type="api_gateway",
+                    attributes={
+                        "id": api_id,
+                        "endpoint_type": api.get("endpointConfiguration", {}).get("types", []),
+                        "description": api.get("description", ""),
+                    },
+                ))
+
+    def _fetch_v2():
+        client = session.client("apigatewayv2", region_name=region)
+        paginator = client.get_paginator("get_apis")
+        for page in paginator.paginate():
+            for api in page.get("Items", []):
+                api_id = api["ApiId"]
+                arn = f"arn:aws:apigateway:{region}::/apis/{api_id}"
+                resources.append(DiscoveredResource(
+                    service="API Gateway", resource_type=api.get("ProtocolType", "HTTP") + " API",
+                    resource_id=arn, name=api.get("Name", api_id),
+                    region=region, state="active",
+                    canvas_type="api_gateway",
+                    attributes={
+                        "id": api_id,
+                        "protocol_type": api.get("ProtocolType", "HTTP"),
+                        "endpoint": api.get("ApiEndpoint", ""),
+                    },
+                ))
+
+    _safe(_fetch_v1, "APIGateway:RestAPIs", errors)
+    _safe(_fetch_v2, "APIGatewayV2:APIs", errors)
+    return resources
+
+
+def _discover_eventbridge(session, region: str, errors: list) -> list[DiscoveredResource]:
+    """EventBridge custom event buses (default bus excluded)."""
+    resources: list[DiscoveredResource] = []
+    client = session.client("events", region_name=region)
+
+    def _fetch():
+        paginator = client.get_paginator("list_event_buses")
+        for page in paginator.paginate():
+            for bus in page.get("EventBuses", []):
+                name = bus.get("Name", "")
+                if name == "default":
+                    continue
+                arn = bus.get("Arn", name)
+                resources.append(DiscoveredResource(
+                    service="EventBridge", resource_type="Event Bus",
+                    resource_id=arn, name=name,
+                    region=region, state="active",
+                    canvas_type="eventbridge",
+                    attributes={
+                        "policy": bool(bus.get("Policy")),
+                    },
+                ))
+
+    _safe(_fetch, "EventBridge:EventBuses", errors)
+    return resources
+
+
+# ─── Orchestrator ─────────────────────────────────────────────────────────────
+
+_DISCOVERERS = [
+    _discover_vpcs,
+    _discover_subnets,
+    _discover_igws,
+    _discover_nat_gateways,
+    _discover_route_tables,
+    _discover_eips,
+    _discover_security_groups,
+    _discover_ec2_instances,
+    _discover_ebs,
+    _discover_albs,
+    _discover_asg,
+    _discover_lambda,
+    _discover_ecs,
+    _discover_eks,
+    _discover_s3,
+    _discover_rds,
+    _discover_elasticache,
+    _discover_dynamodb,
+    _discover_efs,
+    _discover_kms,
+    _discover_secrets,
+    _discover_iam_roles,
+    _discover_sns,
+    _discover_sqs,
+    _discover_cloudwatch_alarms,
+    _discover_cloudfront,
+    _discover_waf,
+    _discover_cloudtrail,
+    _discover_api_gateway,
+    _discover_eventbridge,
 ]
 
 
