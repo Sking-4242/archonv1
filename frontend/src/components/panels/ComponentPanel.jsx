@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import useGraphStore from "../../store/graphStore";
 import useSecurityStore from "../../store/securityStore";
 import useIAMStore from "../../store/iamStore";
@@ -173,14 +173,19 @@ function TerraformConfigEditor({ config, structuredKeys, onChange, onDelete }) {
 }
 
 export default function ComponentPanel({ nodeId }) {
-  const node = useGraphStore((s) => s.nodes.find((n) => n.id === nodeId));
-  const updateNodeData = useGraphStore((s) => s.updateNodeData);
+  const node             = useGraphStore((s) => s.nodes.find((n) => n.id === nodeId));
+  const updateNodeData   = useGraphStore((s) => s.updateNodeData);
+  const focusConfigKey   = useGraphStore((s) => s.focusConfigKey);
+  const setFocusConfigKey= useGraphStore((s) => s.setFocusConfigKey);
   const securityGroups = useSecurityStore((s) => s.securityGroups);
   const iamRoles = useIAMStore((s) => s.iamRoles);
 
   const [label, setLabel] = useState("");
   const [instructions, setInstructions] = useState("");
   const [showAdvanced, setShowAdvanced] = useState(false);
+
+  const scrollRef = useRef(null);
+  const [highlightedKey, setHighlightedKey] = useState(null);
 
   useEffect(() => {
     if (node) {
@@ -189,6 +194,25 @@ export default function ComponentPanel({ nodeId }) {
       setShowAdvanced(false);
     }
   }, [node?.id]);
+
+  // Scroll to the config field pointed at by a finding click
+  useEffect(() => {
+    if (!focusConfigKey || !scrollRef.current) return;
+    // If field is in advanced section, expand it first
+    const allFields = COMPONENT_CONFIGS[node?.type] ?? [];
+    const isAdvanced = allFields.some((f) => f.key === focusConfigKey && f.basic !== true);
+    if (isAdvanced) setShowAdvanced(true);
+    // Give React one frame to render the field before scrolling
+    requestAnimationFrame(() => {
+      const el = scrollRef.current?.querySelector(`[data-field-key="${focusConfigKey}"]`);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+        setHighlightedKey(focusConfigKey);
+        setTimeout(() => setHighlightedKey(null), 1800);
+      }
+      setFocusConfigKey(null);
+    });
+  }, [focusConfigKey]);
 
   if (!node) return null;
 
@@ -247,7 +271,7 @@ export default function ComponentPanel({ nodeId }) {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-5">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-5">
         {/* Label */}
         <div>
           <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -273,12 +297,21 @@ export default function ComponentPanel({ nodeId }) {
             {basicFields.length > 0 && (
               <div className="space-y-3">
                 {basicFields.map((field) => (
-                  <ConfigField
+                  <div
                     key={field.key}
-                    field={field}
-                    value={config[field.key]}
-                    onChange={handleConfigChange}
-                  />
+                    data-field-key={field.key}
+                    className={`rounded transition-all duration-300 ${
+                      highlightedKey === field.key
+                        ? "ring-2 ring-yellow-400 ring-offset-1 bg-yellow-50"
+                        : ""
+                    }`}
+                  >
+                    <ConfigField
+                      field={field}
+                      value={config[field.key]}
+                      onChange={handleConfigChange}
+                    />
+                  </div>
                 ))}
               </div>
             )}
@@ -300,12 +333,21 @@ export default function ComponentPanel({ nodeId }) {
                 {showAdvanced && (
                   <div className="mt-3 space-y-3 pl-2 border-l-2 border-indigo-100">
                     {advancedFields.map((field) => (
-                      <ConfigField
+                      <div
                         key={field.key}
-                        field={field}
-                        value={config[field.key]}
-                        onChange={handleConfigChange}
-                      />
+                        data-field-key={field.key}
+                        className={`rounded transition-all duration-300 ${
+                          highlightedKey === field.key
+                            ? "ring-2 ring-yellow-400 ring-offset-1 bg-yellow-50"
+                            : ""
+                        }`}
+                      >
+                        <ConfigField
+                          field={field}
+                          value={config[field.key]}
+                          onChange={handleConfigChange}
+                        />
+                      </div>
                     ))}
                   </div>
                 )}

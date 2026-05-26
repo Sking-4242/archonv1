@@ -70,11 +70,13 @@ Design cloud infrastructure visually across four providers. Drag components from
 | **GCP** | 55+ services — GKE, Cloud Run, BigQuery, Pub/Sub, Vertex AI | `hashicorp/google` |
 | **On-Premises** | vSphere VMs, bare metal, NAS, load balancers, firewalls | `hashicorp/vsphere` + `null_resource` |
 
-### Validation — 85 rules
+### Validation — 112 rules
 
 The validation engine checks your architecture live as you build. Findings appear highlighted on the canvas and in the Validate tab, grouped by severity and then by component.
 
 Every finding includes a **suggestion** — a specific, actionable Terraform fix (e.g., "Set `encrypted = true` on `aws_db_instance`") rather than just a problem description.
+
+**Fix this** — 33 config-based findings have a one-click **Fix** button. Clicking it shows a confirmation with the exact property change (`storage_encrypted → true`), and accepting applies the edit directly to the component's config without leaving the Validate tab. Topology findings (add a node, draw an edge) are excluded from auto-fix since those require canvas changes. Clicking any finding also scrolls and highlights the relevant field in the Component Panel so you can inspect or adjust it manually.
 
 **Config-based** — component settings: RDS/Aurora encryption, backup retention, publicly accessible, deletion protection · EBS encryption · EC2 IMDSv2 enforcement · Lambda X-Ray tracing · DynamoDB PITR · Redshift encryption · S3 SSE and versioning · ALB access logging · S3 block public access
 
@@ -126,10 +128,12 @@ See `DISCOVERY_GUIDE.md` for the full walkthrough, IAM permissions, and troubles
 ### AI features
 
 - **Generate** — produce Terraform HCL from the current canvas using any supported LLM
-- **AI canvas builder** — describe an architecture in plain English; the AI builds it on the canvas
 - **Architecture review** — AI security and best-practice analysis runs on every Generate
 - **HCL validation** — syntax check followed by AI security review of the generated HCL
-- **AI chat panel** — persistent chat session with full canvas context
+- **AI chat panel** — persistent conversation anchored to the open architecture, with two modes selectable from the panel header:
+  - **Chat mode** — ask questions about the current canvas; the AI has full visibility of all nodes, edges, security groups, and IAM roles
+  - **Build mode** — describe what to add in plain English; the AI returns a structured plan (nodes, edges, connections) and an **Apply** button that merges it onto the canvas. The design prompt is canvas-aware: it knows what already exists and will only generate _new_ components, referencing existing node IDs when drawing connections. An empty canvas triggers a full design-from-scratch flow.
+  - Chat history is persisted per architecture per mode (up to 200 messages) and survives page reloads. A trash button in the panel header clears the current thread.
 
 ---
 
@@ -144,7 +148,7 @@ pip install -e ./archon-cli
 ### Commands
 
 ```bash
-# Validate a terraform plan (85 rules — exits 1 on critical findings)
+# Validate a terraform plan (89 rules — exits 1 on critical findings)
 archon-cli validate plan.json
 
 # Filter findings by compliance standard
@@ -235,9 +239,9 @@ archonv1/
 │       ├── pages/             LandingPage
 │       ├── store/             graphStore, securityStore, iamStore, validationStore,
 │       │                      discoveryStore, settingsStore, archiveStore,
-│       │                      providerStore, planStore
+│       │                      providerStore, planStore, chatStore
 │       └── utils/             componentConfig, palettes, ruleMatrix, templates,
-│                              serializer — for all 4 providers
+│                              serializer — for all 4 providers, findingFixes
 │
 ├── academy/                   Archon Academy (React)
 │
@@ -254,7 +258,7 @@ archonv1/
 │
 ├── archon-cli/                Standalone Python CLI
 │   └── archon_cli/
-│       ├── validate.py        85-rule validation engine
+│       ├── validate.py        89-rule validation engine (190 tests, all rules covered)
 │       ├── cost.py            TF plan cost delta calculator
 │       ├── discover.py        Live AWS discovery (30 service types)
 │       ├── formatters.py      table / json / archon output formats

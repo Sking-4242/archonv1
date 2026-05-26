@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import Optional
 
 from fastapi import APIRouter
 from pydantic import BaseModel
@@ -20,8 +21,8 @@ WEEKS_PER_MONTH = 730.0 / (24.0 * 7)
 
 _EXCLUDED_NOTES = {
     "aws": (
-        "Excludes: data transfer, Lambda invocations, SQS/SNS request fees, "
-        "KMS API calls, S3 request fees, and DynamoDB on-demand request costs."
+        "Usage-based costs (requests, storage, data transfer) reflect your Usage Model inputs "
+        "or schema defaults when not overridden. Tiered pricing uses first-tier rates."
     ),
     "azure": (
         "Excludes: data transfer, Azure Functions invocations, "
@@ -71,7 +72,9 @@ class EstimateResponse(BaseModel):
     live_attempted: bool = False  # True when provider has live pricing (aws/azure/gcp)
 
 
-def _static_estimate(infra_provider: str, component, region: str) -> dict | None:
+def _static_estimate(
+    infra_provider: str, component, region: str, usage: dict
+) -> dict | None:
     """Return a static-pricing dict, or None for free/unknown resources."""
     if infra_provider == "azure":
         return estimate_azure_component(component, region)
@@ -80,8 +83,8 @@ def _static_estimate(infra_provider: str, component, region: str) -> dict | None
     if infra_provider == "onprem":
         return estimate_onprem_component(component, region)
 
-    # AWS
-    result = estimate_aws(component.type, component.config or {}, region=region)
+    # AWS — pass usage params through to the pricing engine
+    result = estimate_aws(component.type, component.config or {}, region=region, usage=usage)
     if result is None:
         return None
     return {
@@ -95,14 +98,19 @@ def _static_estimate(infra_provider: str, component, region: str) -> dict | None
     }
 
 
-def _estimate_component(infra_provider: str, component, region: str) -> dict | None:
+def _estimate_component(
+    infra_provider: str, component, region: str, usage: dict = None
+) -> dict | None:
     """
     Build a cost estimate for one component.
 
     Tries the live pricing API first; falls back to static values when
     the live call returns None (no credentials, unsupported type, etc.).
+    Usage params are passed through to the static pricing engine for
+    usage-billed services. Live pricing overrides the computed cost but
+    the usage-derived description is preserved.
     """
-    base = _static_estimate(infra_provider, component, region)
+    base = _static_estimate(infra_provider, component, region, usage or {})
     if base is None:
         return None
 
@@ -120,14 +128,24 @@ def _estimate_component(infra_provider: str, component, region: str) -> dict | N
     return base
 
 
+class EstimateRequest(BaseModel):
+    graph: Graph
+    # Optional per-node usage params: { nodeId: { fieldKey: value } }
+    # When absent or a node is missing, pricing.py falls back to schema defaults.
+    usage_params: Optional[dict[str, dict]] = None
+
+
 @router.post("", response_model=EstimateResponse)
-def estimate(graph: Graph) -> EstimateResponse:
+def estimate(body: EstimateRequest) -> EstimateResponse:
+    graph = body.graph
+    usage_params = body.usage_params or {}
     infra_provider = (graph.provider or "aws").lower()
     line_items: list[LineItem] = []
     any_live = False
 
     for component in graph.components:
-        result = _estimate_component(infra_provider, component, graph.region)
+        node_usage = usage_params.get(component.id, {})
+        result = _estimate_component(infra_provider, component, graph.region, node_usage)
         if result is None:
             continue
         if result.get("live"):

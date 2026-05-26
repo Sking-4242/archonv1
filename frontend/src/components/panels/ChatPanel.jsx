@@ -52,9 +52,41 @@ function ChatBubble({ msg }) {
   );
 }
 
+// ── ThinkingBubble ─────────────────────────────────────────────────────────────
+
+function ThinkingBubble() {
+  return (
+    <div className="flex gap-2 flex-row mb-3">
+      <div className="text-xs rounded-full w-6 h-6 flex-shrink-0 flex items-center justify-center font-bold bg-gray-700 text-white">
+        A
+      </div>
+      <div className="bg-gray-100 rounded-lg px-3 py-2 flex items-center gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:0ms]" />
+        <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:150ms]" />
+        <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:300ms]" />
+      </div>
+    </div>
+  );
+}
+
+// ── ErrorBubble ────────────────────────────────────────────────────────────────
+
+function ErrorBubble({ message }) {
+  return (
+    <div className="flex gap-2 flex-row mb-3">
+      <div className="text-xs rounded-full w-6 h-6 flex-shrink-0 flex items-center justify-center font-bold bg-red-500 text-white">
+        !
+      </div>
+      <div className="max-w-[80%] rounded-lg px-3 py-2 text-xs leading-relaxed bg-red-50 text-red-700 border border-red-200">
+        {message}
+      </div>
+    </div>
+  );
+}
+
 // ── PlanCard ───────────────────────────────────────────────────────────────────
 
-function PlanCard({ plan, stage, graph, onApply }) {
+function PlanCard({ plan, stage, onApply }) {
   const [expanded, setExpanded] = useState(true);
   if (!plan) return null;
 
@@ -65,6 +97,7 @@ function PlanCard({ plan, stage, graph, onApply }) {
   }
   const orderedZones = ZONE_ORDER.filter((z) => nodesByZone[z]);
   const otherZones = Object.keys(nodesByZone).filter((z) => !ZONE_ORDER.includes(z));
+  const canApply = stage === "build" && typeof onApply === "function";
 
   return (
     <div className="mx-8 mb-3 border border-indigo-200 rounded-lg overflow-hidden bg-white shadow-sm">
@@ -99,7 +132,9 @@ function PlanCard({ plan, stage, graph, onApply }) {
 
           {/* Components grouped by zone */}
           <div>
-            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Components</p>
+            <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">
+              Components
+            </p>
             <div className="space-y-1.5">
               {[...orderedZones, ...otherZones].map((zone) => (
                 <div key={zone}>
@@ -125,39 +160,33 @@ function PlanCard({ plan, stage, graph, onApply }) {
           {/* Connections */}
           {plan.edges.length > 0 && (
             <div>
-              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">Connections</p>
-              <div className="space-y-0.5">
-                {plan.edges.map((edge) => {
-                  const src = plan.nodes.find((n) => n.id === edge.source);
-                  const tgt = plan.nodes.find((n) => n.id === edge.target);
-                  return (
-                    <div key={edge.id} className="flex items-center gap-1 text-[10px] text-gray-600 flex-wrap">
-                      <span className="font-medium">{src?.label ?? edge.source}</span>
-                      <svg className="w-3 h-3 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
-                      <span className="font-medium">{tgt?.label ?? edge.target}</span>
-                      <span className={`px-1 rounded text-[9px] font-medium ${EDGE_TYPE_COLORS[edge.type] ?? "bg-gray-100 text-gray-600"}`}>
-                        {edge.type}
-                      </span>
-                      {edge.label && <span className="text-gray-400 italic">{edge.label}</span>}
-                    </div>
-                  );
-                })}
+              <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide mb-1">
+                Connections
+              </p>
+              <div className="flex flex-wrap gap-1">
+                {plan.edges.map((edge) => (
+                  <span
+                    key={edge.id}
+                    className={`inline-flex items-center gap-1 text-[10px] rounded px-1.5 py-0.5 ${
+                      EDGE_TYPE_COLORS[edge.type] ?? "bg-gray-100 text-gray-700"
+                    }`}
+                  >
+                    <span className="font-mono opacity-60">
+                      {edge.source} → {edge.target}
+                    </span>
+                    {edge.label && <span>· {edge.label}</span>}
+                  </span>
+                ))}
               </div>
             </div>
           )}
 
-          {/* Apply button — build stage only */}
-          {stage === "build" && graph && (
+          {/* Apply button — only shown when stage === "build" */}
+          {canApply && (
             <button
               onClick={onApply}
-              className="w-full mt-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-md transition-colors flex items-center justify-center gap-1.5"
+              className="mt-1 w-full py-1.5 rounded bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-semibold transition-colors"
             >
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-              </svg>
               Apply to Canvas
             </button>
           )}
@@ -169,45 +198,27 @@ function PlanCard({ plan, stage, graph, onApply }) {
 
 // ── ConflictDialog ─────────────────────────────────────────────────────────────
 
-function ConflictDialog({ onReplace, onAdd, onCancel }) {
+function ConflictDialog({ nodeCount, onConfirm, onCancel }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-xl shadow-xl p-5 w-80 space-y-3">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
-            <svg className="w-4 h-4 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-gray-800">Canvas has existing content</p>
-            <p className="text-xs text-gray-500 mt-0.5">
-              How would you like to apply the generated design?
-            </p>
-          </div>
-        </div>
-        <div className="space-y-2 pt-1">
-          <button
-            onClick={onReplace}
-            className="w-full text-left px-3 py-2 rounded-lg border border-red-200 hover:bg-red-50 transition-colors"
-          >
-            <p className="text-xs font-semibold text-red-700">Replace canvas</p>
-            <p className="text-[10px] text-red-400 mt-0.5">Remove everything and apply the new design</p>
-          </button>
-          <button
-            onClick={onAdd}
-            className="w-full text-left px-3 py-2 rounded-lg border border-indigo-200 hover:bg-indigo-50 transition-colors"
-          >
-            <p className="text-xs font-semibold text-indigo-700">Add alongside</p>
-            <p className="text-[10px] text-indigo-400 mt-0.5">Keep existing nodes and place the new design next to them</p>
-          </button>
+      <div className="bg-white rounded-xl shadow-xl p-5 w-72 text-sm">
+        <h3 className="font-semibold text-gray-900 mb-2">Canvas is not empty</h3>
+        <p className="text-gray-600 text-xs leading-relaxed mb-4">
+          Your canvas already has {nodeCount} node{nodeCount !== 1 ? "s" : ""}. The AI
+          design will be added alongside existing components. You can undo this with Ctrl+Z.
+        </p>
+        <div className="flex gap-2 justify-end">
           <button
             onClick={onCancel}
-            className="w-full text-left px-3 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            className="px-3 py-1.5 text-xs rounded border border-gray-200 text-gray-600 hover:bg-gray-50"
           >
-            <p className="text-xs font-semibold text-gray-600">Cancel</p>
-            <p className="text-[10px] text-gray-400 mt-0.5">Do nothing, keep current canvas unchanged</p>
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-3 py-1.5 text-xs rounded bg-indigo-600 text-white hover:bg-indigo-700 font-semibold"
+          >
+            Add to Canvas
           </button>
         </div>
       </div>
@@ -215,251 +226,251 @@ function ConflictDialog({ onReplace, onAdd, onCancel }) {
   );
 }
 
-// ── Message renderer ───────────────────────────────────────────────────────────
-
-function Message({ msg, onApply }) {
-  if (msg.role === "user") return <ChatBubble msg={msg} />;
-  return (
-    <div>
-      <ChatBubble msg={msg} />
-      {msg.plan && (
-        <PlanCard
-          plan={msg.plan}
-          stage={msg.stage}
-          graph={msg.graph}
-          onApply={() => onApply(msg)}
-        />
-      )}
-    </div>
-  );
-}
-
-// ── Main panel ─────────────────────────────────────────────────────────────────
+// ── ChatPanel ──────────────────────────────────────────────────────────────────
 
 export default function ChatPanel({ onClose }) {
-  const [mode, setMode] = useState("chat"); // "chat" | "build"
+  const [mode, setMode] = useState("chat");
   const [input, setInput] = useState("");
-  const [sending, setSending] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [conflictPayload, setConflictPayload] = useState(null);
+  const [pendingBuild, setPendingBuild] = useState(null); // { nodes, edges } awaiting conflict confirm
   const scrollRef = useRef(null);
+  const inputRef = useRef(null);
 
-  // Graph store
-  const nodes = useGraphStore((s) => s.nodes);
-  const edges = useGraphStore((s) => s.edges);
-  const graphMeta = useGraphStore((s) => s.graphMeta);
-  const securityGroups = useSecurityStore((s) => s.securityGroups);
-  const iamRoles = useIAMStore((s) => s.iamRoles);
-  const applyBuild = useGraphStore((s) => s.applyBuild);
-  const loadState = useGraphStore((s) => s.loadState);
-
-  // Settings
-  const provider = useSettingsStore((s) => s.provider);
-  const apiKeys = useSettingsStore((s) => s.apiKeys);
-  const models = useSettingsStore((s) => s.models);
+  const { nodes: canvasNodes, edges: canvasEdges, graphMeta, applyBuild } = useGraphStore();
+  const sgs = useSecurityStore((s) => s.securityGroups);
+  const iamRoles = useIAMStore((s) => s.roles);
+  const provider    = useSettingsStore((s) => s.provider);
+  const apiKeys     = useSettingsStore((s) => s.apiKeys);
+  const models      = useSettingsStore((s) => s.models);
   const ollamaBaseUrl = useSettingsStore((s) => s.ollamaBaseUrl);
 
-  // Chat store — separate threads per mode
+  const { getMessages, addMessage, clearThread } = useChatStore();
   const archId = graphMeta?.id ?? "default";
-  const threadKey = `${archId}:${mode}`;
-  const thread = useChatStore((s) => s.threads[threadKey]);
-  const messages = thread?.messages ?? [];
-  const addMessages = useChatStore((s) => s.addMessages);
-  const clearThread = useChatStore((s) => s.clearThread);
+  const messages = getMessages(archId, mode);
 
-  // Scroll to bottom
+  // Auto-scroll on new messages or loading state change
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, sending]);
+  }, [messages, loading, error]);
 
-  const llmConfig = {
-    provider,
-    apiKey: apiKeys[provider] ?? null,
-    model: models[provider] ?? null,
-    baseUrl: provider === "ollama" ? ollamaBaseUrl : null,
-  };
+  // Focus input on mount and mode change
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [mode]);
 
-  const handleSend = async () => {
+  const welcomeText = mode === "chat" ? CHAT_WELCOME : BUILD_WELCOME;
+
+  // ── Apply build plan to canvas ──────────────────────────────────────────────
+
+  function handleApply(graph) {
+    if (canvasNodes.length > 0) {
+      setPendingBuild(graph);
+    } else {
+      applyBuild(graph.nodes, graph.edges);
+    }
+  }
+
+  function confirmApply() {
+    if (pendingBuild) {
+      applyBuild(pendingBuild.nodes, pendingBuild.edges);
+      setPendingBuild(null);
+    }
+  }
+
+  // ── Send message ────────────────────────────────────────────────────────────
+
+  async function handleSend() {
     const text = input.trim();
-    if (!text || sending) return;
+    if (!text || loading) return;
 
-    const userMsg = { role: "user", content: text };
-    const optimisticHistory = [...messages, userMsg];
-    addMessages(threadKey, [userMsg]);
     setInput("");
-    setSending(true);
     setError(null);
 
-    try {
-      const graph = serializeGraph(graphMeta, nodes, edges, securityGroups, iamRoles);
-      // Strip rich fields — backend only needs role + content
-      const apiHistory = optimisticHistory.map((m) => ({ role: m.role, content: m.content }));
+    const userMsg = { role: "user", content: text };
+    addMessage(archId, mode, userMsg);
+    setLoading(true);
 
+    // Build the full message history to send (all stored messages + this one)
+    const history = [...messages, userMsg].map((m) => ({
+      role: m.role,
+      content: m.content,
+    }));
+
+    const graph = serializeGraph(
+      graphMeta,
+      canvasNodes,
+      canvasEdges,
+      sgs,
+      iamRoles,
+    );
+
+    const llmOpts = {
+      provider,
+      apiKey: apiKeys[provider] ?? null,
+      model: models[provider] ?? null,
+      baseUrl: provider === "ollama" ? ollamaBaseUrl : null,
+    };
+
+    try {
       if (mode === "chat") {
-        const data = await sendChatMessage(graph, apiHistory, llmConfig);
-        addMessages(threadKey, [{ role: "assistant", content: data.reply }]);
+        const { reply } = await sendChatMessage(graph, history, llmOpts);
+        addMessage(archId, mode, { role: "assistant", content: reply });
       } else {
-        const data = await sendDesignMessage(graph, apiHistory, llmConfig);
-        addMessages(threadKey, [{
+        const data = await sendDesignMessage(graph, history, llmOpts);
+        addMessage(archId, mode, {
           role: "assistant",
           content: data.message,
-          stage: data.stage ?? null,
           plan: data.plan ?? null,
+          stage: data.stage,
           graph: data.graph ?? null,
-        }]);
+        });
       }
     } catch (err) {
-      setError(err.message);
+      const msg = err.message ?? "Something went wrong. Please try again.";
+      setError(msg.length > 200 ? msg.slice(0, 200) + "…" : msg);
     } finally {
-      setSending(false);
+      setLoading(false);
+      inputRef.current?.focus();
     }
-  };
+  }
 
-  const handleKeyDown = (e) => {
+  function handleKeyDown(e) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
-  };
+  }
 
-  const handleClear = () => {
-    clearThread(threadKey);
-    setError(null);
-  };
-
-  // Apply a build-stage graph to the canvas
-  const handleApply = (msg) => {
-    if (!msg.graph) return;
-    if (nodes.length > 0) {
-      setConflictPayload(msg.graph);
-    } else {
-      _doApply(msg.graph, "replace");
+  function handleClear() {
+    if (messages.length === 0) return;
+    if (window.confirm(`Clear this ${mode === "chat" ? "chat" : "build"} conversation?`)) {
+      clearThread(archId, mode);
+      setError(null);
     }
-  };
+  }
 
-  const _doApply = (graph, strategy) => {
-    if (strategy === "replace") {
-      loadState({ nodes: graph.nodes, edges: graph.edges, graphMeta: { ...graphMeta } });
-    } else {
-      // Offset new nodes to the right of existing content
-      const maxX = nodes.length > 0
-        ? Math.max(...nodes.map((n) => (n.position?.x ?? 0) + (n.style?.width ?? 130))) + 100
-        : 0;
-      const offsetNodes = graph.nodes.map((n) => ({
-        ...n,
-        position: { x: n.position.x + maxX, y: n.position.y },
-      }));
-      applyBuild(offsetNodes, graph.edges);
-    }
-    setConflictPayload(null);
-  };
+  // ── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <>
-      {conflictPayload && (
+      {pendingBuild && (
         <ConflictDialog
-          onReplace={() => _doApply(conflictPayload, "replace")}
-          onAdd={() => _doApply(conflictPayload, "add")}
-          onCancel={() => setConflictPayload(null)}
+          nodeCount={canvasNodes.length}
+          onConfirm={confirmApply}
+          onCancel={() => setPendingBuild(null)}
         />
       )}
 
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full bg-white">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 flex-shrink-0">
-          <div className="flex items-center gap-2">
-            {/* Chat / Build toggle */}
-            <div className="flex rounded-md border border-gray-200 overflow-hidden text-[11px]">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 flex-shrink-0">
+          {/* Mode toggle */}
+          <div className="flex bg-gray-100 rounded-md p-0.5 gap-0.5">
+            {["chat", "build"].map((m) => (
               <button
-                onClick={() => { setMode("chat"); setError(null); }}
-                className={`px-2.5 py-1 font-medium transition-colors ${
-                  mode === "chat"
-                    ? "bg-indigo-600 text-white"
-                    : "bg-white text-gray-500 hover:bg-gray-50"
+                key={m}
+                onClick={() => { setMode(m); setError(null); }}
+                className={`px-2.5 py-1 text-xs rounded font-medium transition-colors ${
+                  mode === m
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
                 }`}
               >
-                Chat
+                {m === "chat" ? "Chat" : "Build"}
               </button>
-              <button
-                onClick={() => { setMode("build"); setError(null); }}
-                className={`px-2.5 py-1 font-medium transition-colors ${
-                  mode === "build"
-                    ? "bg-indigo-600 text-white"
-                    : "bg-white text-gray-500 hover:bg-gray-50"
-                }`}
-              >
-                Build
-              </button>
-            </div>
-            <span className="text-xs text-gray-400 capitalize">{provider}</span>
-            {messages.length > 0 && (
-              <button
-                onClick={handleClear}
-                className="text-xs text-gray-400 hover:text-gray-600"
-              >
-                Clear
-              </button>
-            )}
+            ))}
           </div>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-sm leading-none px-1"
-          >
-            ✕
-          </button>
+
+          <div className="flex items-center gap-1">
+            {/* Clear button */}
+            <button
+              onClick={handleClear}
+              disabled={messages.length === 0}
+              title="Clear conversation"
+              className="p-1.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+
+            {/* Close button */}
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Message list */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3">
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-1">
+          {/* Welcome text when thread is empty */}
           {messages.length === 0 && (
-            <p className="text-xs text-gray-400 text-center mt-4">
-              {mode === "chat" ? CHAT_WELCOME : BUILD_WELCOME}
+            <p className="text-xs text-gray-400 text-center mt-4 leading-relaxed px-4">
+              {welcomeText}
             </p>
           )}
+
+          {/* Render each message (bubble + optional plan card) */}
           {messages.map((msg, i) => (
-            <Message key={i} msg={msg} onApply={handleApply} />
+            <div key={i}>
+              <ChatBubble msg={msg} />
+              {msg.plan && (
+                <PlanCard
+                  plan={msg.plan}
+                  stage={msg.stage}
+                  onApply={msg.graph ? () => handleApply(msg.graph) : undefined}
+                />
+              )}
+            </div>
           ))}
-          {sending && (
-            <div className="flex gap-2 mb-3">
-              <div className="text-xs rounded-full w-6 h-6 flex-shrink-0 flex items-center justify-center font-bold bg-gray-700 text-white">
-                A
-              </div>
-              <div className="bg-gray-100 rounded-lg px-3 py-2 text-xs text-gray-400 italic">
-                {mode === "build" ? "Designing…" : "Thinking…"}
-              </div>
-            </div>
-          )}
-          {error && (
-            <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2 mb-2">
-              {error}
-            </div>
-          )}
+
+          {/* Loading indicator */}
+          {loading && <ThinkingBubble />}
+
+          {/* Error display */}
+          {error && <ErrorBubble message={error} />}
         </div>
 
         {/* Input area */}
-        <div className="flex items-end gap-2 px-4 py-2 border-t border-gray-200 flex-shrink-0">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={
-              mode === "chat"
-                ? "Ask about your architecture… (Enter to send, Shift+Enter for newline)"
-                : "Describe what you want to build… (Enter to send)"
-            }
-            disabled={sending}
-            rows={2}
-            className="flex-1 resize-none border border-gray-200 rounded-lg px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-400 disabled:opacity-50"
-          />
-          <button
-            onClick={handleSend}
-            disabled={sending || !input.trim()}
-            className="px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex-shrink-0"
-          >
-            Send
-          </button>
+        <div className="border-t border-gray-200 px-3 py-2 flex-shrink-0">
+          <div className="flex gap-2 items-end">
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder={mode === "chat" ? "Ask about your architecture…" : "Describe what you want to build…"}
+              rows={2}
+              disabled={loading}
+              className="flex-1 resize-none text-xs border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-indigo-400 focus:border-indigo-400 disabled:opacity-50 disabled:cursor-not-allowed leading-relaxed"
+            />
+            <button
+              onClick={handleSend}
+              disabled={!input.trim() || loading}
+              className="flex-shrink-0 w-8 h-8 rounded-lg bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center transition-colors"
+            >
+              {loading ? (
+                <svg className="w-3.5 h-3.5 animate-spin" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                </svg>
+              ) : (
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+              )}
+            </button>
+          </div>
+          <p className="text-[10px] text-gray-400 mt-1">Enter to send · Shift+Enter for new line</p>
         </div>
       </div>
     </>

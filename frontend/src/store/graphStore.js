@@ -30,6 +30,7 @@ const useGraphStore = create((set, get) => ({
   edges: saved?.edges ?? [],
   graphMeta: saved?.graphMeta ?? _defaultMeta(),
   selectedNodeId: null,
+  focusConfigKey: null,
   past: [], // undo stack — each entry is { nodes, edges }
   future: [], // redo stack
   clipboard: [], // copied nodes
@@ -125,6 +126,7 @@ const useGraphStore = create((set, get) => ({
   },
 
   setSelectedNodeId: (id) => set({ selectedNodeId: id }),
+  setFocusConfigKey: (key) => set({ focusConfigKey: key }),
 
   // ── Copy / Paste ─────────────────────────────────────────────
 

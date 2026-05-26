@@ -20,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 from app.models.graph import Graph
 from app.services.design_layout import build_canvas
+from app.services.prompt_builder import build_architecture_context
 from app.services.llm.factory import get_provider
 
 router = APIRouter(prefix="/design", tags=["design"])
@@ -155,6 +156,11 @@ VALID NODE TYPES
 {valid_types}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CURRENT CANVAS STATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+{canvas_context}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 RULES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. Use ONLY node types from the catalog. If a concept has no exact type, pick
@@ -166,6 +172,10 @@ RULES
 5. Do NOT output anything outside the JSON object.
 6. Always include `plan` in every response — the user sees the component card
    at every stage.
+7. NEVER include nodes from the CURRENT CANVAS STATE in your plan — those
+   already exist. Only output NEW nodes and edges to add.
+8. When a new node must connect to an existing canvas node, reference its
+   exact id in the edge source/target.
 """
 
 
@@ -262,7 +272,23 @@ def design(body: DesignRequest) -> DesignResponse:
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
 
-    system_prompt = _SYSTEM_PROMPT.format(valid_types=_VALID_NODE_TYPES)
+    # Describe the current canvas so the AI appends rather than rebuilds
+    has_canvas = bool(body.graph and body.graph.components)
+    if has_canvas:
+        canvas_ctx = (
+            "The canvas already contains the following nodes and edges.\n"
+            "Do NOT include these in your plan — they already exist on the canvas.\n"
+            "When new nodes must connect to existing ones, use their exact IDs\n"
+            "as edge sources or targets.\n\n"
+            + build_architecture_context(body.graph)
+        )
+    else:
+        canvas_ctx = "The canvas is currently empty — design from scratch."
+
+    system_prompt = _SYSTEM_PROMPT.format(
+        valid_types=_VALID_NODE_TYPES,
+        canvas_context=canvas_ctx,
+    )
 
     conversation = "\n\n".join(
         f"{'User' if m.role == 'user' else 'Assistant'}: {m.content}"

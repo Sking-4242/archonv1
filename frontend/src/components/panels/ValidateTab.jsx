@@ -3,6 +3,7 @@ import useValidationStore from "../../store/validationStore";
 import useGraphStore from "../../store/graphStore";
 import usePlanStore from "../../store/planStore";
 import StandardSelector from "../ui/StandardSelector";
+import { RULE_TO_CONFIG_KEY, RULE_FIXES, fixPreview } from "../../utils/findingFixes";
 
 const SEVERITY = {
   critical: {
@@ -85,7 +86,10 @@ function DismissFlow({ findingId, onDone }) {
 function FindingRow({ f, onSelectNode, isAcknowledged, hideLabel }) {
   const [expanded, setExpanded] = useState(false);
   const [dismissing, setDismissing] = useState(false);
-  const setSelectedNodeId = useGraphStore((s) => s.setSelectedNodeId);
+  const setSelectedNodeId   = useGraphStore((s) => s.setSelectedNodeId);
+  const setFocusConfigKey   = useGraphStore((s) => s.setFocusConfigKey);
+  const updateNodeData      = useGraphStore((s) => s.updateNodeData);
+  const [fixing, setFixing] = useState(false);
   const unacknowledge = useValidationStore((s) => s.unacknowledge);
 
   const cfg = SEVERITY[f.level];
@@ -94,6 +98,8 @@ function FindingRow({ f, onSelectNode, isAcknowledged, hideLabel }) {
   const handleClick = () => {
     setSelectedNodeId(f.nodeId);
     onSelectNode?.(f.nodeId);
+    const configKey = RULE_TO_CONFIG_KEY[f.rule_id];
+    if (configKey) setFocusConfigKey(configKey);
   };
 
   if (isAcknowledged) {
@@ -167,6 +173,18 @@ function FindingRow({ f, onSelectNode, isAcknowledged, hideLabel }) {
                 Dismiss
               </button>
             )}
+            {RULE_FIXES[f.rule_id] && !fixing && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFixing(true);
+                }}
+                className="text-xs px-1.5 py-0.5 rounded bg-white border border-green-400 text-green-700 hover:bg-green-50 font-medium"
+                title="Auto-apply fix"
+              >
+                Fix
+              </button>
+            )}
             <span className="text-gray-300 text-xs">→</span>
           </div>
         </div>
@@ -179,6 +197,42 @@ function FindingRow({ f, onSelectNode, isAcknowledged, hideLabel }) {
       {dismissing && (
         <div className="px-4 pb-3">
           <DismissFlow findingId={f.id} onDone={() => setDismissing(false)} />
+        </div>
+      )}
+      {fixing && RULE_FIXES[f.rule_id] && (
+        <div
+          className="px-4 pb-3"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="rounded-lg bg-green-50 border border-green-200 px-3 py-2.5 text-xs space-y-2">
+            <p className="font-semibold text-green-800">Apply this fix?</p>
+            <p className="text-green-700 leading-relaxed">
+              {fixPreview(f.rule_id, f.nodeLabel)}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  const fix = RULE_FIXES[f.rule_id];
+                  const node = useGraphStore.getState().nodes.find((n) => n.id === f.nodeId);
+                  if (node) {
+                    updateNodeData(f.nodeId, {
+                      config: { ...(node.data.config ?? {}), [fix.key]: fix.value },
+                    });
+                  }
+                  setFixing(false);
+                }}
+                className="px-2.5 py-1 rounded bg-green-600 hover:bg-green-700 text-white font-semibold"
+              >
+                Apply Fix
+              </button>
+              <button
+                onClick={() => setFixing(false)}
+                className="px-2.5 py-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -465,84 +519,57 @@ export default function ValidateTab({ onSelectNode }) {
         {active.length === 0 && dismissed.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-6 py-12 gap-3">
             <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <p className="text-sm font-semibold text-gray-700">No issues found</p>
-            <p className="text-xs text-gray-400">
-              Add components and connect them to see validation results.
+            <p className="text-sm font-semibold text-gray-700">All clear!</p>
+            <p className="text-xs text-gray-400 leading-relaxed">
+              No findings for the current architecture. Add more components or
+              run validation after making changes.
             </p>
           </div>
         ) : (
           <>
-            {["critical", "warning", "info"].map((level) => {
-              const group = active.filter((f) => f.level === level);
-              if (!group.length) return null;
-              const cfg = SEVERITY[level];
-
-              // group by component (nodeLabel)
-              const componentOrder = [];
-              const byComponent = {};
-              for (const f of group) {
-                if (!byComponent[f.nodeLabel]) {
-                  byComponent[f.nodeLabel] = [];
-                  componentOrder.push(f.nodeLabel);
-                }
-                byComponent[f.nodeLabel].push(f);
-              }
-
-              return (
-                <div key={level}>
-                  <div className="sticky top-0 z-10 px-4 py-1.5 bg-gray-100 border-b border-gray-200 flex items-center gap-1.5">
-                    <span className={`w-2 h-2 rounded-full ${cfg.dot}`} />
-                    <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                      {cfg.label} · {group.length}
-                    </span>
-                  </div>
-                  {componentOrder.map((label) => (
-                    <div key={label}>
-                      <div className="px-4 py-1 bg-white border-b border-gray-100 flex items-center gap-1.5">
-                        <span className="text-xs font-medium text-gray-600 truncate">{label}</span>
-                        <span className="text-xs text-gray-400 shrink-0">
-                          · {byComponent[label].length}
-                        </span>
-                      </div>
-                      {byComponent[label].map((f) => (
-                        <FindingRow
-                          key={f.id}
-                          f={f}
-                          onSelectNode={onSelectNode}
-                          isAcknowledged={false}
-                          hideLabel={true}
-                        />
-                      ))}
-                    </div>
-                  ))}
-                </div>
-              );
-            })}
-
-            {dismissed.length > 0 && (
-              <div>
-                <div className="sticky top-0 z-10 px-4 py-1.5 bg-gray-100 border-b border-gray-200">
-                  <span className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
-                    Dismissed · {dismissed.length}
-                  </span>
-                </div>
-                {dismissed.map((f) => (
-                  <FindingRow
-                    key={f.id}
-                    f={f}
-                    onSelectNode={onSelectNode}
-                    isAcknowledged={true}
-                    hideLabel={false}
-                  />
-                ))}
-              </div>
-            )}
+            {active.map((f) => (
+              <FindingRow
+                key={f.id}
+                f={f}
+                onSelectNode={onSelectNode}
+                isAcknowledged={false}
+              />
+            ))}
           </>
         )}
-        <div className="px-4 py-4 text-xs text-gray-400 text-center">
-          Click any finding to highlight the affected node.
-        </div>
+
+        {/* Dismissed findings */}
+        {dismissed.length > 0 && (
+          <DismissedSection dismissed={dismissed} onSelectNode={onSelectNode} />
+        )}
       </div>
+    </div>
+  );
+}
+
+// ─── Dismissed findings accordion ────────────────────────────────────────────
+
+function DismissedSection({ dismissed, onSelectNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border-t border-gray-200">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between px-4 py-2.5 text-xs text-gray-400 hover:bg-gray-50 transition-colors"
+      >
+        <span>
+          {dismissed.length} dismissed finding{dismissed.length !== 1 ? "s" : ""}
+        </span>
+        <span>{open ? "▲" : "▼"}</span>
+      </button>
+      {open && dismissed.map((f) => (
+        <FindingRow
+          key={f.id}
+          f={f}
+          onSelectNode={onSelectNode}
+          isAcknowledged={true}
+        />
+      ))}
     </div>
   );
 }

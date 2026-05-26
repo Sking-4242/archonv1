@@ -3,7 +3,7 @@ import { create } from "zustand";
 const STORAGE_KEY = "archon-chat-history";
 const MAX_MESSAGES_PER_THREAD = 200;
 
-// ── Storage helpers (same pattern as graphStore) ──────────────────────────────
+// ── Storage helpers ───────────────────────────────────────────────────────────
 
 function loadFromStorage() {
   try {
@@ -26,29 +26,36 @@ function saveToStorage(threads) {
 // ── Store ─────────────────────────────────────────────────────────────────────
 // Threads are keyed by "${archId}:chat" or "${archId}:build".
 // Each thread: { messages: Message[], updatedAt: ISO string }
-// Message fields: role, content, stage?, plan?, graph?
+// Message: { role, content, plan?, stage?, graph? }
 
-const useChatStore = create((set) => ({
+const useChatStore = create((set, get) => ({
   threads: loadFromStorage(),
 
-  addMessages: (threadKey, incoming) =>
-    set((state) => {
-      const current = state.threads[threadKey]?.messages ?? [];
-      const merged = [...current, ...incoming].slice(-MAX_MESSAGES_PER_THREAD);
-      const threads = {
-        ...state.threads,
-        [threadKey]: { messages: merged, updatedAt: new Date().toISOString() },
-      };
-      saveToStorage(threads);
-      return { threads };
-    }),
+  getMessages: (archId, mode) => {
+    const key = `${archId}:${mode}`;
+    return get().threads[key]?.messages ?? [];
+  },
 
-  clearThread: (threadKey) =>
-    set((state) => {
-      const { [threadKey]: _removed, ...rest } = state.threads;
-      saveToStorage(rest);
-      return { threads: rest };
-    }),
+  addMessage: (archId, mode, message) => {
+    const key = `${archId}:${mode}`;
+    const { threads } = get();
+    const existing = threads[key] ?? { messages: [] };
+    const messages = [...existing.messages, message].slice(-MAX_MESSAGES_PER_THREAD);
+    const updated = {
+      ...threads,
+      [key]: { messages, updatedAt: new Date().toISOString() },
+    };
+    saveToStorage(updated);
+    set({ threads: updated });
+  },
+
+  clearThread: (archId, mode) => {
+    const key = `${archId}:${mode}`;
+    const { threads } = get();
+    const { [key]: _removed, ...rest } = threads;
+    saveToStorage(rest);
+    set({ threads: rest });
+  },
 }));
 
 export default useChatStore;

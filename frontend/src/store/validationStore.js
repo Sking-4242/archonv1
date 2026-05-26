@@ -116,7 +116,7 @@ const CONFIG_RULES = [
     check: (n) => !n.data?.config?.storage_encrypted,
     message: (n) => `${n.data.label} does not have storage encryption enabled.`,
     fix: "Enable Storage Encrypted in the component config panel.",
-suggestion: `Set \`storage_encrypted = true\` on \`aws_db_instance\` or \`aws_db_cluster\`. Encryption is set at creation and cannot be changed in place — snapshot and restore if the instance already exists.`,
+    suggestion: `Set \`storage_encrypted = true\` on \`aws_db_instance\` or \`aws_db_cluster\`. Encryption is set at creation and cannot be changed in place — snapshot and restore if the instance already exists.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA"]
   },
   {
@@ -131,8 +131,8 @@ suggestion: `Set \`storage_encrypted = true\` on \`aws_db_instance\` or \`aws_db
     message: (n) =>
       `${n.data.label} has backup retention set to 0. Set at least 7 days.`,
     fix: "Set Backup Retention to 7 or more days in the component config.",
-suggestion: `Set \`backup_retention_period = 7\` (minimum) on \`aws_db_instance\`. Automated backups enable point-in-time restore to any second within the retention window.`,
-    standards: ["SOC2", "PCI", "HIPAA"]
+    suggestion: `Set \`backup_retention_period = 7\` (minimum) on \`aws_db_instance\`. Automated backups enable point-in-time restore to any second within the retention window.`,
+    standards: ["SOC2", "PCI", "HIPAA", "NIST"]
   },
   {
     id: "rds_publicly_accessible",
@@ -143,7 +143,7 @@ suggestion: `Set \`backup_retention_period = 7\` (minimum) on \`aws_db_instance\
     message: (n) =>
       `${n.data.label} has Publicly Accessible enabled. RDS should never be internet-facing.`,
     fix: "Disable Publicly Accessible in the component config.",
-suggestion: `Set \`publicly_accessible = false\` on \`aws_db_instance\`. Place the instance in a private subnet and access it through an application layer or bastion host.`,
+    suggestion: `Set \`publicly_accessible = false\` on \`aws_db_instance\`. Place the instance in a private subnet and access it through an application layer or bastion host.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA"]
   },
   {
@@ -155,7 +155,7 @@ suggestion: `Set \`publicly_accessible = false\` on \`aws_db_instance\`. Place t
     message: (n) =>
       `${n.data.label} has no deletion protection. Enable it to prevent accidental drops.`,
     fix: "Enable Deletion Protection in the component config.",
-suggestion: `Set \`deletion_protection = true\` on \`aws_db_instance\` or \`aws_db_cluster\`. This prevents \`terraform destroy\` and console deletion without an explicit override.`,
+    suggestion: `Set \`deletion_protection = true\` on \`aws_db_instance\` or \`aws_db_cluster\`. This prevents \`terraform destroy\` and console deletion without an explicit override.`,
     standards: ["SOC2"]
   },
   {
@@ -166,7 +166,7 @@ suggestion: `Set \`deletion_protection = true\` on \`aws_db_instance\` or \`aws_
     check: (n) => !n.data?.config?.storage_encrypted,
     message: (n) => `${n.data.label} does not have storage encryption enabled.`,
     fix: "Enable Storage Encrypted in the component config.",
-suggestion: `Set \`storage_encrypted = true\` on \`aws_rds_cluster\`. For Aurora, encryption must be enabled at cluster creation — take a snapshot and restore into a new encrypted cluster.`,
+    suggestion: `Set \`storage_encrypted = true\` on \`aws_rds_cluster\`. For Aurora, encryption must be enabled at cluster creation — take a snapshot and restore into a new encrypted cluster.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA"]
   },
   {
@@ -181,8 +181,8 @@ suggestion: `Set \`storage_encrypted = true\` on \`aws_rds_cluster\`. For Aurora
     message: (n) =>
       `${n.data.label} has backup retention set to 0. Set at least 7 days.`,
     fix: "Set Backup Retention to 7 or more days in the component config.",
-suggestion: `Set \`backup_retention_period = 7\` on \`aws_rds_cluster\`. Aurora automated backups are continuous and billed per GB stored.`,
-    standards: ["SOC2", "PCI", "HIPAA"]
+    suggestion: `Set \`backup_retention_period = 7\` on \`aws_rds_cluster\`. Aurora automated backups are continuous and billed per GB stored.`,
+    standards: ["SOC2", "PCI", "HIPAA", "NIST"]
   },
   {
     id: "ebs_unencrypted",
@@ -193,7 +193,7 @@ suggestion: `Set \`backup_retention_period = 7\` on \`aws_rds_cluster\`. Aurora 
     message: (n) =>
       `${n.data.label} is not encrypted. Enable encryption for data at rest.`,
     fix: "Enable Encrypted in the component config.",
-suggestion: `Set \`encrypted = true\` on \`aws_ebs_volume\`. Enable account-level default EBS encryption via \`aws_ebs_encryption_by_default\` so all new volumes are encrypted automatically.`,
+    suggestion: `Set \`encrypted = true\` on \`aws_ebs_volume\`. Enable account-level default EBS encryption via \`aws_ebs_encryption_by_default\` so all new volumes are encrypted automatically.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA"]
   },
   {
@@ -208,7 +208,7 @@ suggestion: `Set \`encrypted = true\` on \`aws_ebs_volume\`. Enable account-leve
     message: (n) =>
       `${n.data.label} has X-Ray tracing set to PassThrough. Enable Active tracing for observability.`,
     fix: "Set X-Ray Tracing to Active in the component config.",
-suggestion: `Set \`tracing_config { mode = "Active" }\` on \`aws_lambda_function\`. Active tracing samples all invocations and records segments to AWS X-Ray.`,
+    suggestion: `Set \`tracing_config { mode = "Active" }\` on \`aws_lambda_function\`. Active tracing samples all invocations and records segments to AWS X-Ray.`,
   },
   {
     id: "dynamodb_no_pitr",
@@ -219,8 +219,8 @@ suggestion: `Set \`tracing_config { mode = "Active" }\` on \`aws_lambda_function
     message: (n) =>
       `${n.data.label} does not have Point-in-Time Recovery enabled.`,
     fix: "Enable Point-in-Time Recovery in the component config.",
-suggestion: `Set \`point_in_time_recovery { enabled = true }\` on \`aws_dynamodb_table\`. PITR lets you restore to any second in the last 35 days.`,
-    standards: ["SOC2", "PCI", "HIPAA"]
+    suggestion: `Set \`point_in_time_recovery { enabled = true }\` on \`aws_dynamodb_table\`. PITR lets you restore to any second in the last 35 days.`,
+    standards: ["SOC2", "PCI", "HIPAA", "NIST"]
   },
   {
     id: "redshift_unencrypted",
@@ -230,7 +230,7 @@ suggestion: `Set \`point_in_time_recovery { enabled = true }\` on \`aws_dynamodb
     check: (n) => !n.data?.config?.encrypted,
     message: (n) => `${n.data.label} is not encrypted at rest.`,
     fix: "Enable Encrypted in the component config.",
-suggestion: `Set \`encrypted = true\` on \`aws_redshift_cluster\`. Encryption uses AES-256 and can be enabled on an existing cluster without downtime.`,
+    suggestion: `Set \`encrypted = true\` on \`aws_redshift_cluster\`. Encryption uses AES-256 and can be enabled on an existing cluster without downtime.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA"]
   },
   {
@@ -245,7 +245,7 @@ suggestion: `Set \`encrypted = true\` on \`aws_redshift_cluster\`. Encryption us
     message: (n) =>
       `${n.data.label} has no server-side encryption configured.`,
     fix: "Set Server-Side Encryption to AES256 or aws:kms in the component config.",
-suggestion: `Add \`server_side_encryption_configuration { rule { apply_server_side_encryption_by_default { sse_algorithm = "aws:kms" } } }\` on \`aws_s3_bucket\` or use \`aws_s3_bucket_server_side_encryption_configuration\`.`,
+    suggestion: `Add \`server_side_encryption_configuration { rule { apply_server_side_encryption_by_default { sse_algorithm = "aws:kms" } } }\` on \`aws_s3_bucket\` or use \`aws_s3_bucket_server_side_encryption_configuration\`.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA"]
   },
   {
@@ -257,8 +257,8 @@ suggestion: `Add \`server_side_encryption_configuration { rule { apply_server_si
     message: (n) =>
       `${n.data.label} does not have versioning enabled. Enable it to protect against accidental deletes.`,
     fix: "Enable Versioning in the component config.",
-suggestion: `Add \`versioning { enabled = true }\` on \`aws_s3_bucket\` or use \`aws_s3_bucket_versioning\`. Required for S3 Object Lock and recommended before enabling lifecycle rules.`,
-    standards: ["SOC2", "PCI", "HIPAA"]
+    suggestion: `Add \`versioning { enabled = true }\` on \`aws_s3_bucket\` or use \`aws_s3_bucket_versioning\`. Required for S3 Object Lock and recommended before enabling lifecycle rules.`,
+    standards: ["SOC2", "PCI", "HIPAA", "NIST"]
   },
   {
     id: "ec2_imdsv2_optional",
@@ -272,7 +272,7 @@ suggestion: `Add \`versioning { enabled = true }\` on \`aws_s3_bucket\` or use \
     message: (n) =>
       `${n.data.label} does not enforce IMDSv2. Set metadata tokens to required to prevent SSRF attacks.`,
     fix: "Set IMDSv2 (Metadata Tokens) to required in the component config.",
-suggestion: `Set \`metadata_options { http_tokens = "required" http_endpoint = "enabled" }\` on \`aws_instance\`. IMDSv2 uses session-oriented requests that prevent SSRF-based credential theft.`,
+    suggestion: `Set \`metadata_options { http_tokens = "required" http_endpoint = "enabled" }\` on \`aws_instance\`. IMDSv2 uses session-oriented requests that prevent SSRF-based credential theft.`,
     standards: ["CIS", "PCI", "NIST"]
   },
   // ── FinOps rules ────────────────────────────────────────────────────────────
@@ -288,7 +288,7 @@ suggestion: `Set \`metadata_options { http_tokens = "required" http_endpoint = "
     message: (n) =>
       `${n.data.label} uses instance type "${n.data.config?.instance_type}". This is a previous-generation type with worse price-performance than current equivalents.`,
     fix: "Upgrade to a current-generation equivalent: t2→t3/t4g, m4→m6i/m7g, c4→c6i/c7g, r4→r6i/r7g.",
-suggestion: `Update the \`instance_type\` value on \`aws_instance\`. t2→t3/t4g (up to 30% cheaper, better baseline CPU), m4→m6i/m7g, c4→c6i/c7g, r4→r6i/r7g. Check for reservation commitments before changing.`,
+    suggestion: `Update the \`instance_type\` value on \`aws_instance\`. t2→t3/t4g (up to 30% cheaper, better baseline CPU), m4→m6i/m7g, c4→c6i/c7g, r4→r6i/r7g. Check for reservation commitments before changing.`,
   },
   {
     id: "rds_no_reserved",
@@ -299,7 +299,7 @@ suggestion: `Update the \`instance_type\` value on \`aws_instance\`. t2→t3/t4g
     message: (n) =>
       `${n.data.label} is not marked as a reserved instance. Reserved instances save 30–60% for production databases.`,
     fix: "Enable Reserved Instance in the component config to document the intent, then purchase an RI in the AWS Console.",
-suggestion: `Purchase an RDS Reserved Instance in the AWS Console for 1- or 3-year terms. For Terraform state tracking, add a \`reserved_instance = true\` annotation in the config panel.`,
+    suggestion: `Purchase an RDS Reserved Instance in the AWS Console for 1- or 3-year terms. For Terraform state tracking, add a \`reserved_instance = true\` annotation in the config panel.`,
   },
   // ── FinOps — Storage ─────────────────────────────────────────────────────────
   {
@@ -502,8 +502,8 @@ suggestion: `Purchase an RDS Reserved Instance in the AWS Console for 1- or 3-ye
     message: (n) =>
       `${n.data.label} does not have access logging enabled. Access logs are required for auditing and incident response.`,
     fix: "Enable Access Logs in the component config and specify an S3 bucket to receive them.",
-suggestion: `Add \`access_logs { bucket = aws_s3_bucket.alb_logs.id enabled = true }\` on \`aws_lb\`. Create a dedicated S3 bucket and grant the ELB service account write permission via bucket policy.`,
-    standards: ["CIS", "SOC2", "PCI"]
+    suggestion: `Add \`access_logs { bucket = aws_s3_bucket.alb_logs.id enabled = true }\` on \`aws_lb\`. Create a dedicated S3 bucket and grant the ELB service account write permission via bucket policy.`,
+    standards: ["CIS", "SOC2", "PCI", "NIST"]
   },
   {
     id: "s3_no_block_public_access",
@@ -514,7 +514,7 @@ suggestion: `Add \`access_logs { bucket = aws_s3_bucket.alb_logs.id enabled = tr
     message: (n) =>
       `${n.data.label} does not have Block Public Access enabled. Without it, a misconfigured bucket policy or ACL could expose data publicly.`,
     fix: "Enable Block Public Access in the component config. Disable only on buckets intentionally serving public content.",
-suggestion: `Add \`aws_s3_bucket_public_access_block\` with all four \`block_*\` attributes set to \`true\`. Only disable selectively for buckets serving public static content.`,
+    suggestion: `Add \`aws_s3_bucket_public_access_block\` with all four \`block_*\` attributes set to \`true\`. Only disable selectively for buckets serving public static content.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA"]
   },
 
@@ -527,7 +527,7 @@ suggestion: `Add \`aws_s3_bucket_public_access_block\` with all four \`block_*\`
     check: (n) => !n.data?.config?.at_rest_encryption_enabled,
     message: (n) => `${n.data?.label || n.id} does not have at-rest encryption enabled.`,
     fix: "Enable At-Rest Encryption in the component config.",
-suggestion: `Set \`at_rest_encryption_enabled = true\` on \`aws_elasticache_replication_group\`. Must be set at creation — spin up a new cluster and migrate if already running.`,
+    suggestion: `Set \`at_rest_encryption_enabled = true\` on \`aws_elasticache_replication_group\`. Must be set at creation — spin up a new cluster and migrate if already running.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
     canAcknowledge: false,
   },
@@ -539,7 +539,7 @@ suggestion: `Set \`at_rest_encryption_enabled = true\` on \`aws_elasticache_repl
     check: (n) => (n.data?.config?.transit_encryption_mode || "preferred") === "disabled",
     message: (n) => `${n.data?.label || n.id} has In-Transit Encryption set to disabled.`,
     fix: "Set In-Transit Encryption to required in the component config.",
-suggestion: `Set \`transit_encryption_mode = "required"\` on \`aws_elasticache_replication_group\`. When transit encryption is enabled, clients must connect via TLS and an auth token is required.`,
+    suggestion: `Set \`transit_encryption_mode = "required"\` on \`aws_elasticache_replication_group\`. When transit encryption is enabled, clients must connect via TLS and an auth token is required.`,
     standards: ["PCI", "HIPAA", "NIST"],
     canAcknowledge: false,
   },
@@ -551,7 +551,7 @@ suggestion: `Set \`transit_encryption_mode = "required"\` on \`aws_elasticache_r
     check: (n) => (n.data?.config?.engine || "redis") === "redis" && !n.data?.config?.auth_token,
     message: (n) => `${n.data?.label || n.id} (Redis) has no AUTH token configured.`,
     fix: "Set an AUTH Token in the component config to require password authentication.",
-suggestion: `Set \`auth_token = var.elasticache_auth_token\` on \`aws_elasticache_replication_group\`. Store the token in AWS Secrets Manager and reference it via data source.`,
+    suggestion: `Set \`auth_token = var.elasticache_auth_token\` on \`aws_elasticache_replication_group\`. Store the token in AWS Secrets Manager and reference it via data source.`,
     standards: ["PCI"],
     canAcknowledge: true,
   },
@@ -563,7 +563,7 @@ suggestion: `Set \`auth_token = var.elasticache_auth_token\` on \`aws_elasticach
     check: (n) => (Number(n.data?.config?.snapshot_retention_limit) || 0) < 1,
     message: (n) => `${n.data?.label || n.id} has snapshot retention set to 0. No backups will be created.`,
     fix: "Set Snapshot Retention to 1 or more days in the component config.",
-suggestion: `Set \`snapshot_retention_limit = 1\` (minimum) on \`aws_elasticache_replication_group\`. For production, 7+ days is recommended. Snapshots are stored in S3.`,
+    suggestion: `Set \`snapshot_retention_limit = 1\` (minimum) on \`aws_elasticache_replication_group\`. For production, 7+ days is recommended. Snapshots are stored in S3.`,
     standards: ["SOC2", "HIPAA", "NIST"],
     canAcknowledge: true,
   },
@@ -576,7 +576,7 @@ suggestion: `Set \`snapshot_retention_limit = 1\` (minimum) on \`aws_elasticache
     check: (n) => !n.data?.config?.sqs_managed_sse_enabled && !n.data?.config?.kms_master_key_id,
     message: (n) => `${n.data?.label || n.id} has no server-side encryption configured.`,
     fix: "Enable SQS-Managed SSE or set a KMS Key ID in the component config.",
-suggestion: `Set \`sqs_managed_sse_enabled = true\` on \`aws_sqs_queue\` for free SSE-SQS, or set \`kms_master_key_id = aws_kms_key.sqs.arn\` for customer-managed key control.`,
+    suggestion: `Set \`sqs_managed_sse_enabled = true\` on \`aws_sqs_queue\` for free SSE-SQS, or set \`kms_master_key_id = aws_kms_key.sqs.arn\` for customer-managed key control.`,
     standards: ["CIS", "HIPAA"],
     canAcknowledge: true,
   },
@@ -588,7 +588,7 @@ suggestion: `Set \`sqs_managed_sse_enabled = true\` on \`aws_sqs_queue\` for fre
     check: (n) => (Number(n.data?.config?.redrive_max_receive_count) || 0) < 1,
     message: (n) => `${n.data?.label || n.id} has no dead-letter queue configured. Failed messages will be lost.`,
     fix: "Set Dead Letter Max Receive Count > 0 and configure a DLQ target.",
-suggestion: `Create an \`aws_sqs_queue\` for dead-letter messages. Set \`redrive_policy = jsonencode({ deadLetterTargetArn = aws_sqs_queue.dlq.arn maxReceiveCount = 3 })\` on the source queue.`,
+    suggestion: `Create an \`aws_sqs_queue\` for dead-letter messages. Set \`redrive_policy = jsonencode({ deadLetterTargetArn = aws_sqs_queue.dlq.arn maxReceiveCount = 3 })\` on the source queue.`,
     standards: ["SOC2", "NIST"],
     canAcknowledge: true,
   },
@@ -601,7 +601,7 @@ suggestion: `Create an \`aws_sqs_queue\` for dead-letter messages. Set \`redrive
     check: (n) => !n.data?.config?.kms_master_key_id,
     message: (n) => `${n.data?.label || n.id} has no KMS key configured for at-rest encryption.`,
     fix: "Set a KMS Key ID in the component config.",
-suggestion: `Set \`kms_master_key_id = aws_kms_key.sns.arn\` on \`aws_sns_topic\`. Use the managed \`alias/aws/sns\` key for zero-config encryption.`,
+    suggestion: `Set \`kms_master_key_id = aws_kms_key.sns.arn\` on \`aws_sns_topic\`. Use the managed \`alias/aws/sns\` key for zero-config encryption.`,
     standards: ["CIS", "HIPAA"],
     canAcknowledge: true,
   },
@@ -614,7 +614,7 @@ suggestion: `Set \`kms_master_key_id = aws_kms_key.sns.arn\` on \`aws_sns_topic\
     check: (n) => (n.data?.config?.viewer_protocol_policy || "redirect-to-https") === "allow-all",
     message: (n) => `${n.data?.label || n.id} Viewer Protocol Policy is set to allow-all, permitting plaintext HTTP.`,
     fix: "Set Viewer Protocol Policy to redirect-to-https or https-only.",
-suggestion: `Set \`viewer_protocol_policy = "redirect-to-https"\` on \`aws_cloudfront_distribution\` default_cache_behavior and all ordered_cache_behaviors. Pair with an ACM certificate in \`us-east-1\`.`,
+    suggestion: `Set \`viewer_protocol_policy = "redirect-to-https"\` on \`aws_cloudfront_distribution\` default_cache_behavior and all ordered_cache_behaviors. Pair with an ACM certificate in \`us-east-1\`.`,
     standards: ["PCI"],
     canAcknowledge: false,
   },
@@ -631,7 +631,7 @@ suggestion: `Set \`viewer_protocol_policy = "redirect-to-https"\` on \`aws_cloud
     },
     message: (n) => `${n.data?.label || n.id} has a public API endpoint accessible from 0.0.0.0/0.`,
     fix: "Restrict Public Access CIDRs to known IP ranges, or disable public endpoint access.",
-suggestion: `Set \`endpoint_public_access = false\` in the \`vpc_config\` block of \`aws_eks_cluster\`, or restrict \`public_access_cidrs\` to your office/VPN CIDR. Access the API server through a bastion or VPN.`,
+    suggestion: `Set \`endpoint_public_access = false\` in the \`vpc_config\` block of \`aws_eks_cluster\`, or restrict \`public_access_cidrs\` to your office/VPN CIDR. Access the API server through a bastion or VPN.`,
     standards: ["PCI", "NIST"],
     canAcknowledge: false,
   },
@@ -643,7 +643,7 @@ suggestion: `Set \`endpoint_public_access = false\` in the \`vpc_config\` block 
     check: (n) => !n.data?.config?.enabled_cluster_log_types && !n.data?.config?.cluster_log_types,
     message: (n) => `${n.data?.label || n.id} has no control plane log types enabled.`,
     fix: "Set Enabled Log Types to api,audit,authenticator in the component config.",
-suggestion: `Set \`enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]\` on \`aws_eks_cluster\`. Logs are streamed to CloudWatch Logs.`,
+    suggestion: `Set \`enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]\` on \`aws_eks_cluster\`. Logs are streamed to CloudWatch Logs.`,
     standards: ["PCI", "NIST"],
     canAcknowledge: true,
   },
@@ -656,8 +656,8 @@ suggestion: `Set \`enabled_cluster_log_types = ["api", "audit", "authenticator",
     check: (n) => n.data?.config?.enable_key_rotation === false,
     message: (n) => `${n.data?.label || n.id} does not have automatic key rotation enabled.`,
     fix: "Enable Key Rotation in the component config.",
-suggestion: `Set \`enable_key_rotation = true\` on \`aws_kms_key\`. AWS rotates the backing key material annually. The key ID and ARN remain the same — no re-encryption of data is needed.`,
-    standards: ["CIS", "PCI"],
+    suggestion: `Set \`enable_key_rotation = true\` on \`aws_kms_key\`. AWS rotates the backing key material annually. The key ID and ARN remain the same — no re-encryption of data is needed.`,
+    standards: ["CIS", "PCI", "NIST"],
     canAcknowledge: true,
   },
   // ── CloudTrail rules ──────────────────────────────────────────────────────
@@ -669,8 +669,8 @@ suggestion: `Set \`enable_key_rotation = true\` on \`aws_kms_key\`. AWS rotates 
     check: (n) => !n.data?.config?.kms_key_id && !n.data?.config?.kms_key_arn,
     message: (n) => `${n.data?.label || n.id} does not have a KMS key configured for log encryption.`,
     fix: "Set kms_key_id to the ARN of a KMS key in the Terraform resource.",
-suggestion: `Set \`kms_key_id = aws_kms_key.cloudtrail.arn\` on \`aws_cloudtrail\`. Create a KMS key with a key policy allowing CloudTrail to use it for encryption.`,
-    standards: ["CIS", "PCI", "HIPAA"],
+    suggestion: `Set \`kms_key_id = aws_kms_key.cloudtrail.arn\` on \`aws_cloudtrail\`. Create a KMS key with a key policy allowing CloudTrail to use it for encryption.`,
+    standards: ["CIS", "PCI", "HIPAA", "NIST"],
     canAcknowledge: true,
   },
   // ── Lambda rules ──────────────────────────────────────────────────────────
@@ -685,7 +685,7 @@ suggestion: `Set \`kms_key_id = aws_kms_key.cloudtrail.arn\` on \`aws_cloudtrail
     },
     message: (n) => `${n.data?.label || n.id} has a function URL with authorization_type NONE.`,
     fix: "Set authorization_type to AWS_IAM on the aws_lambda_function_url resource.",
-suggestion: `Set \`authorization_type = "AWS_IAM"\` on \`aws_lambda_function_url\`. Grant invoke permission with \`aws_lambda_permission\` using principal-specific conditions rather than open access.`,
+    suggestion: `Set \`authorization_type = "AWS_IAM"\` on \`aws_lambda_function_url\`. Grant invoke permission with \`aws_lambda_permission\` using principal-specific conditions rather than open access.`,
     standards: ["PCI", "HIPAA"],
     canAcknowledge: false,
   },
@@ -697,7 +697,7 @@ suggestion: `Set \`authorization_type = "AWS_IAM"\` on \`aws_lambda_function_url
     check: (n) => !n.data?.config?.vpc_id && !n.data?.config?.subnet_ids && !n.data?.config?.vpc_subnet_ids,
     message: (n) => `${n.data?.label || n.id} is not configured in a VPC.`,
     fix: "Add a vpc_config block referencing your VPC subnets and security groups.",
-suggestion: `Add \`vpc_config { subnet_ids = [...] security_group_ids = [...] }\` on \`aws_lambda_function\`. Ensure the Lambda execution role has \`ec2:CreateNetworkInterface\` permissions.`,
+    suggestion: `Add \`vpc_config { subnet_ids = [...] security_group_ids = [...] }\` on \`aws_lambda_function\`. Ensure the Lambda execution role has \`ec2:CreateNetworkInterface\` permissions.`,
     standards: ["PCI"],
     canAcknowledge: true,
   },
@@ -710,7 +710,7 @@ suggestion: `Add \`vpc_config { subnet_ids = [...] security_group_ids = [...] }\
     check: (n) => n.data?.config?.encrypted === false,
     message: (n) => `${n.data?.label || n.id} does not have encryption at rest enabled.`,
     fix: "Enable Encrypted in the component config.",
-suggestion: `Set \`encrypted = true\` and optionally \`kms_key_id = aws_kms_key.efs.arn\` on \`aws_efs_file_system\`. EFS encryption is set at creation and cannot be changed — create a new encrypted filesystem and migrate data.`,
+    suggestion: `Set \`encrypted = true\` and optionally \`kms_key_id = aws_kms_key.efs.arn\` on \`aws_efs_file_system\`. EFS encryption is set at creation and cannot be changed — create a new encrypted filesystem and migrate data.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
     canAcknowledge: false,
   },
@@ -723,8 +723,8 @@ suggestion: `Set \`encrypted = true\` and optionally \`kms_key_id = aws_kms_key.
     check: (n) => !n.data?.config?.require_ssl && !n.data?.config?.require_ssl_parameter,
     message: (n) => `${n.data?.label || n.id} does not enforce TLS for client connections.`,
     fix: "Set require_ssl = true in the Redshift parameter group.",
-suggestion: `Create an \`aws_redshift_parameter_group\` with a parameter \`require_ssl = true\`. Reference it in your \`aws_redshift_cluster\` via \`cluster_parameter_group_name\`.`,
-    standards: ["PCI"],
+    suggestion: `Create an \`aws_redshift_parameter_group\` with a parameter \`require_ssl = true\`. Reference it in your \`aws_redshift_cluster\` via \`cluster_parameter_group_name\`.`,
+    standards: ["CIS", "PCI", "NIST"],
     canAcknowledge: false,
   },
   // ── RDS logging rules ─────────────────────────────────────────────────────
@@ -741,8 +741,8 @@ suggestion: `Create an \`aws_redshift_parameter_group\` with a parameter \`requi
     },
     message: (n) => `${n.data?.label || n.id} has no CloudWatch log exports enabled.`,
     fix: "Set enabled_cloudwatch_logs_exports to include error, general, and slowquery.",
-suggestion: `Set \`enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]\` on \`aws_db_instance\` (MySQL/MariaDB) or \`["postgresql", "upgrade"]\` for PostgreSQL. Logs appear in CloudWatch Log Groups.`,
-    standards: ["PCI", "HIPAA"],
+    suggestion: `Set \`enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]\` on \`aws_db_instance\` (MySQL/MariaDB) or \`["postgresql", "upgrade"]\` for PostgreSQL. Logs appear in CloudWatch Log Groups.`,
+    standards: ["CIS", "PCI", "HIPAA", "NIST"],
     canAcknowledge: true,
   },
   // ── Secrets Manager rules ─────────────────────────────────────────────────
@@ -754,8 +754,8 @@ suggestion: `Set \`enabled_cloudwatch_logs_exports = ["error", "general", "slowq
     check: (n) => !n.data?.config?.rotation_enabled,
     message: (n) => `${n.data?.label || n.id} does not have automatic rotation enabled.`,
     fix: "Enable Rotation and configure a rotation Lambda in the component config.",
-suggestion: `Set \`rotation_rules { automatically_after_days = 30 }\` and \`rotation_lambda_arn = aws_lambda_function.rotator.arn\` on \`aws_secretsmanager_secret\`. AWS provides rotation Lambda blueprints for RDS, Redshift, and DocumentDB.`,
-    standards: ["PCI", "HIPAA"],
+    suggestion: `Set \`rotation_rules { automatically_after_days = 30 }\` and \`rotation_lambda_arn = aws_lambda_function.rotator.arn\` on \`aws_secretsmanager_secret\`. AWS provides rotation Lambda blueprints for RDS, Redshift, and DocumentDB.`,
+    standards: ["PCI", "HIPAA", "NIST"],
     canAcknowledge: true,
   },
   // ── S3 SSL policy ─────────────────────────────────────────────────────────
@@ -767,7 +767,7 @@ suggestion: `Set \`rotation_rules { automatically_after_days = 30 }\` and \`rota
     check: (n) => !n.data?.config?.block_public_policy,
     message: (n) => `${n.data?.label || n.id} has Block Public Policy disabled. An aws:SecureTransport deny policy is recommended.`,
     fix: "Enable Block Public Policy and add a bucket policy denying requests where aws:SecureTransport is false.",
-suggestion: `Add an \`aws_s3_bucket_policy\` with a Deny statement on \`s3:*\` when \`aws:SecureTransport = false\`. This forces all S3 API calls over TLS and rejects unsigned requests.`,
+    suggestion: `Add an \`aws_s3_bucket_policy\` with a Deny statement on \`s3:*\` when \`aws:SecureTransport = false\`. This forces all S3 API calls over TLS and rejects unsigned requests.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA"],
     canAcknowledge: true,
   },
@@ -780,7 +780,7 @@ suggestion: `Add an \`aws_s3_bucket_policy\` with a Deny statement on \`s3:*\` w
     check: (n) => !!n.data?.config?.map_public_ip_on_launch,
     message: (n) => `${n.data?.label || n.id} has map_public_ip_on_launch enabled. Instances receive public IPs automatically.`,
     fix: "Disable Auto-assign Public IP unless this subnet is intentionally a public DMZ.",
-suggestion: `Set \`map_public_ip_on_launch = false\` on \`aws_subnet\`. Instances that need public IPs in this subnet should use Elastic IPs (\`aws_eip\`) assigned explicitly rather than auto-assigned.`,
+    suggestion: `Set \`map_public_ip_on_launch = false\` on \`aws_subnet\`. Instances that need public IPs in this subnet should use Elastic IPs (\`aws_eip\`) assigned explicitly rather than auto-assigned.`,
     standards: ["PCI", "HIPAA"],
     canAcknowledge: true,
   },
@@ -812,7 +812,7 @@ suggestion: `Set \`map_public_ip_on_launch = false\` on \`aws_subnet\`. Instance
       `${n.data?.label || n.id} has auto minor version upgrades disabled. Minor patches include security fixes.`,
     fix: "Enable Auto Minor Version Upgrade in the component config.",
     suggestion: `Set \`auto_minor_version_upgrade = true\` on \`aws_db_instance\` or \`aws_rds_cluster\`. Use \`maintenance_window = "sun:05:00-sun:06:00"\` to control when the upgrade is applied. Minor upgrades include CVE patches — disabling them creates a manual patching burden.`,
-    standards: ["CIS", "PCI"],
+    standards: ["CIS", "PCI", "NIST"],
     canAcknowledge: true,
   },
 
@@ -912,6 +912,91 @@ suggestion: `Set \`map_public_ip_on_launch = false\` on \`aws_subnet\`. Instance
   },
 
 
+  // ── NIST SP 800-53 Rev 5 — Additional rules ─────────────────────────────────
+
+  // NIST AU-2 / AU-3 — S3 bucket server access logging disabled
+  {
+    id: "nist_s3_access_logging",
+    level: "warning",
+    title: "S3 bucket server access logging disabled",
+    applies: (n) => n.type === "s3",
+    check: (n) =>
+      !n.data?.config?.access_logging_enabled &&
+      !n.data?.config?.logging,
+    message: (n) =>
+      `${n.data?.label || n.id} does not have server access logging enabled. S3 API requests are not being audited.`,
+    fix: "Enable server access logging in the component config and specify a target bucket.",
+    suggestion: `Add \`aws_s3_bucket_logging\` with \`target_bucket\` pointing to a dedicated logs bucket. NIST AU-2 requires auditing of read/write access to system objects. S3 access logs capture requester, operation, response code, and bytes transferred.`,
+    standards: ["NIST", "SOC2"],
+    canAcknowledge: true,
+  },
+
+  // NIST IA-2 / IA-5 — RDS IAM database authentication not enabled
+  {
+    id: "nist_rds_iam_auth",
+    level: "info",
+    title: "RDS IAM database authentication not enabled",
+    applies: (n) => ["rds", "aurora"].includes(n.type),
+    check: (n) => !n.data?.config?.iam_database_authentication_enabled,
+    message: (n) =>
+      `${n.data?.label || n.id} does not have IAM database authentication enabled. Password-based access is the only authentication method.`,
+    fix: "Enable IAM Database Authentication in the component config.",
+    suggestion: `Set \`iam_database_authentication_enabled = true\` on \`aws_db_instance\` or \`aws_rds_cluster\`. Applications authenticate with a short-lived IAM token (15-minute TTL) instead of a long-lived password. Requires the IAM user/role to have \`rds-db:connect\` permission on the specific database resource ARN.`,
+    standards: ["NIST"],
+    canAcknowledge: true,
+  },
+
+  // NIST SC-28 — Lambda env vars not encrypted with KMS
+  {
+    id: "nist_lambda_env_encryption",
+    level: "warning",
+    title: "Lambda environment variables not encrypted with KMS",
+    applies: (n) => n.type === "lambda",
+    check: (n) =>
+      n.data?.config?.environment_variables &&
+      !n.data?.config?.kms_key_arn,
+    message: (n) =>
+      `${n.data?.label || n.id} has environment variables but no KMS key for encryption at rest.`,
+    fix: "Set a KMS Key ARN in the component config to encrypt Lambda environment variables.",
+    suggestion: `Set \`kms_key_arn = aws_kms_key.lambda.arn\` on \`aws_lambda_function\`. Without a CMK, Lambda uses AWS-managed SSE-S3 encryption for env vars — sufficient for most cases. A CMK is required when env vars contain credentials or PII and you need key rotation control and CloudTrail visibility on decrypt operations.`,
+    standards: ["NIST", "PCI", "HIPAA"],
+    canAcknowledge: true,
+  },
+
+  // NIST SI-4 — EC2 detailed monitoring disabled
+  {
+    id: "nist_ec2_detailed_monitoring",
+    level: "info",
+    title: "EC2 detailed monitoring disabled",
+    applies: (n) => n.type === "ec2",
+    check: (n) => !n.data?.config?.monitoring,
+    message: (n) =>
+      `${n.data?.label || n.id} has detailed CloudWatch monitoring disabled. Metrics are sampled every 5 minutes instead of every 1 minute.`,
+    fix: "Enable Monitoring (Detailed) in the component config.",
+    suggestion: `Set \`monitoring = true\` on \`aws_instance\`. Detailed monitoring provides 1-minute metric granularity (vs 5-minute basic). Required for Auto Scaling policies that need fast response. NIST SI-4 requires monitoring at a level sufficient to detect attacks — 5-minute gaps can miss short burst events.`,
+    standards: ["NIST"],
+    canAcknowledge: true,
+  },
+
+  // NIST SC-8 / IA-5 — RDS without SSL/TLS enforcement via parameter group
+  {
+    id: "nist_rds_no_ssl",
+    level: "warning",
+    title: "RDS instance does not enforce SSL connections",
+    applies: (n) => n.type === "rds",
+    check: (n) =>
+      !n.data?.config?.require_ssl &&
+      !n.data?.config?.ssl_enforcement &&
+      !n.data?.config?.parameter_group_name,
+    message: (n) =>
+      `${n.data?.label || n.id} has no SSL enforcement configured. Database connections may be unencrypted in transit.`,
+    fix: "Create an RDS parameter group with rds.force_ssl=1 (PostgreSQL) or require_secure_transport=ON (MySQL).",
+    suggestion: `Create \`aws_db_parameter_group\` with \`rds.force_ssl = 1\` (PostgreSQL) or \`require_secure_transport = ON\` (MySQL). Reference it via \`parameter_group_name\` on \`aws_db_instance\`. Without this, clients can connect unencrypted even if the application happens to use SSL.`,
+    standards: ["NIST", "PCI", "HIPAA"],
+    canAcknowledge: true,
+  },
+
+
 ];
 
 // ─── Topology-based rules ─────────────────────────────────────────────────────
@@ -929,7 +1014,7 @@ const TOPOLOGY_RULES = [
     message: (n) =>
       `${n.data.label} is directly connected to an Internet Gateway. Databases must never be publicly accessible.`,
     fix: "Remove the direct IGW connection. Place the database in a private subnet accessed only through compute.",
-suggestion: `Remove the direct edge between the database and the Internet Gateway. Route traffic through a compute tier (EC2, ECS, Lambda) in the same VPC. Add a security group allowing only that compute tier's SG as source.`,
+    suggestion: `Remove the direct edge between the database and the Internet Gateway. Route traffic through a compute tier (EC2, ECS, Lambda) in the same VPC. Add a security group allowing only that compute tier's SG as source.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"]
   },
   {
@@ -944,7 +1029,7 @@ suggestion: `Remove the direct edge between the database and the Internet Gatewa
     message: (n) =>
       `${n.data.label} is directly connected to an Internet Gateway. Place compute behind an ALB.`,
     fix: "Add an ALB between the Internet Gateway and this compute resource.",
-suggestion: `Add an ALB (\`aws_lb\`) between the Internet Gateway and this compute resource. The ALB handles TLS termination, health checks, and gives you a stable DNS endpoint.`,
+    suggestion: `Add an ALB (\`aws_lb\`) between the Internet Gateway and this compute resource. The ALB handles TLS termination, health checks, and gives you a stable DNS endpoint.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA"]
   },
   {
@@ -957,7 +1042,7 @@ suggestion: `Add an ALB (\`aws_lb\`) between the Internet Gateway and this compu
     message: (n) =>
       `${n.data.label} has no security group. Define explicit ingress/egress rules.`,
     fix: "Open the Security tab and create or assign a security group to this component.",
-suggestion: `Add an \`aws_security_group\` resource and reference it in the \`vpc_security_group_ids\` (EC2/RDS) or \`security_group_ids\` (Lambda/EFS) attribute. Open the Security tab to configure rules.`,
+    suggestion: `Add an \`aws_security_group\` resource and reference it in the \`vpc_security_group_ids\` (EC2/RDS) or \`security_group_ids\` (Lambda/EFS) attribute. Open the Security tab to configure rules.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"]
   },
   {
@@ -1130,7 +1215,7 @@ suggestion: `Add an \`aws_security_group\` resource and reference it in the \`vp
     message: (n) =>
       `${n.data.label} appears to span only one subnet. ALBs require at least two subnets in different AZs.`,
     fix: "Connect this load balancer to subnets in at least two Availability Zones.",
-suggestion: `Add subnet IDs from at least two Availability Zones to \`subnets\` on \`aws_lb\`. AWS requires multi-AZ for ALB and will reject single-AZ configurations at apply time.`,
+    suggestion: `Add subnet IDs from at least two Availability Zones to \`subnets\` on \`aws_lb\`. AWS requires multi-AZ for ALB and will reject single-AZ configurations at apply time.`,
     standards: ["SOC2"]
   },
   {
@@ -1143,7 +1228,7 @@ suggestion: `Add subnet IDs from at least two Availability Zones to \`subnets\` 
     message: (n) =>
       `${n.data.label} has no dead-letter queue. Failed async invocations will be silently dropped.`,
     fix: "Add an SQS queue or SNS topic and connect it to this Lambda as a DLQ.",
-suggestion: `Add \`dead_letter_config { target_arn = aws_sqs_queue.dlq.arn }\` on \`aws_lambda_function\`. Asynchronous invocation failures (EventBridge, S3 events) are sent to the DLQ for inspection.`,
+    suggestion: `Add \`dead_letter_config { target_arn = aws_sqs_queue.dlq.arn }\` on \`aws_lambda_function\`. Asynchronous invocation failures (EventBridge, S3 events) are sent to the DLQ for inspection.`,
     standards: ["SOC2"]
   },
   {
@@ -1168,7 +1253,7 @@ suggestion: `Add \`dead_letter_config { target_arn = aws_sqs_queue.dlq.arn }\` o
         })()
       }. If its AZ goes down, all private subnet egress fails.`,
     fix: "Add a second NAT Gateway in a different Availability Zone and update each private subnet's route table.",
-suggestion: `Deploy an \`aws_nat_gateway\` in each Availability Zone that contains private subnets. Update the route table for each AZ's private subnets to use its local NAT Gateway.`,
+    suggestion: `Deploy an \`aws_nat_gateway\` in each Availability Zone that contains private subnets. Update the route table for each AZ's private subnets to use its local NAT Gateway.`,
     standards: ["SOC2"]
   },
 
@@ -1189,7 +1274,7 @@ suggestion: `Deploy an \`aws_nat_gateway\` in each Availability Zone that contai
     },
     message: (n) => `${n.data?.label || n.id}: No WAF WebACL associated. Application-layer attacks are unmitigated.`,
     fix: "Add a WAF component and connect it to the CloudFront distribution.",
-suggestion: `Create an \`aws_wafv2_web_acl\` (scope = CLOUDFRONT, region = us-east-1) and set \`web_acl_id = aws_wafv2_web_acl.main.arn\` on \`aws_cloudfront_distribution\`. Add managed rule groups for common threats.`,
+    suggestion: `Create an \`aws_wafv2_web_acl\` (scope = CLOUDFRONT, region = us-east-1) and set \`web_acl_id = aws_wafv2_web_acl.main.arn\` on \`aws_cloudfront_distribution\`. Add managed rule groups for common threats.`,
     standards: ["PCI", "NIST"],
     canAcknowledge: true,
   },
@@ -1201,7 +1286,7 @@ suggestion: `Create an \`aws_wafv2_web_acl\` (scope = CLOUDFRONT, region = us-ea
     check: (n) => !n.data?.config?.logging_config && !n.data?.config?.logging,
     message: (n) => `${n.data?.label || n.id}: CloudFront access logs are not enabled. Required by PCI DSS 10.2.`,
     fix: "Add a logging_config block pointing to an S3 bucket for access log storage.",
-suggestion: `Add \`logging_config { bucket = aws_s3_bucket.cf_logs.bucket_domain_name include_cookies = false }\` on \`aws_cloudfront_distribution\`. Create a dedicated S3 bucket with ACL \`log-delivery-write\`.`,
+    suggestion: `Add \`logging_config { bucket = aws_s3_bucket.cf_logs.bucket_domain_name include_cookies = false }\` on \`aws_cloudfront_distribution\`. Create a dedicated S3 bucket with ACL \`log-delivery-write\`.`,
     standards: ["PCI", "SOC2", "NIST"],
     canAcknowledge: true,
   },
@@ -1217,7 +1302,7 @@ suggestion: `Add \`logging_config { bucket = aws_s3_bucket.cf_logs.bucket_domain
       !n.data?.config?.certificate_arn,
     message: (n) => `${n.data?.label || n.id} is internet-facing. Verify HTTP listeners redirect to HTTPS (PCI ELB.1).`,
     fix: "Add an aws_lb_listener with action type redirect pointing to HTTPS port 443.",
-suggestion: `Add an \`aws_lb_listener\` on port 80 with \`default_action { type = "redirect" redirect { port = "443" protocol = "HTTPS" status_code = "HTTP_301" } }\`. Add a separate HTTPS listener with an ACM certificate.`,
+    suggestion: `Add an \`aws_lb_listener\` on port 80 with \`default_action { type = "redirect" redirect { port = "443" protocol = "HTTPS" status_code = "HTTP_301" } }\`. Add a separate HTTPS listener with an ACM certificate.`,
     standards: ["PCI", "HIPAA"],
     canAcknowledge: true,
   },
@@ -1233,7 +1318,7 @@ suggestion: `Add an \`aws_lb_listener\` on port 80 with \`default_action { type 
     },
     message: (n) => `Security group "${n.data?.label || n.id}" is named "default". The default VPC SG should have no inbound rules (CIS 5.2).`,
     fix: "Remove all inbound rules from the default security group. Use purpose-built security groups instead.",
-suggestion: `Remove all inbound and outbound rules from the default security group. Add \`aws_default_security_group\` with empty ingress/egress blocks to manage it via Terraform and prevent drift.`,
+    suggestion: `Remove all inbound and outbound rules from the default security group. Add \`aws_default_security_group\` with empty ingress/egress blocks to manage it via Terraform and prevent drift.`,
     standards: ["CIS", "PCI"],
     canAcknowledge: true,
   },
@@ -1421,6 +1506,106 @@ suggestion: `Remove all inbound and outbound rules from the default security gro
   },
 
 
+  // ── NIST SP 800-53 Rev 5 — Additional topology rules ────────────────────────
+
+  // NIST CP-9 — No AWS Backup plan for critical data stores
+  {
+    id: "nist_backup_plan_missing",
+    level: "warning",
+    title: "No AWS Backup plan in architecture",
+    applies: (n) => ["rds", "aurora", "dynamodb", "efs", "ebs"].includes(n.type),
+    check: (n, edges, nodes) => {
+      const hasBackup = nodes.some((nd) => nd.type === "backup");
+      if (hasBackup) return false;
+      const targets = nodes.filter((nd) =>
+        ["rds", "aurora", "dynamodb", "efs", "ebs"].includes(nd.type),
+      );
+      return targets.length > 0 && targets[0].id === n.id;
+    },
+    message: () =>
+      "No AWS Backup resource found. Critical data stores have no centralized backup policy.",
+    fix: "Add an aws_backup_plan and aws_backup_selection to bring critical resources under a managed backup policy.",
+    suggestion: `Add \`aws_backup_plan\` with a \`rule\` block defining schedule, retention, and cold storage transition. Add \`aws_backup_selection\` to select resources by tag or ARN. NIST CP-9 requires system backup of user-level and system-level information. Centralized AWS Backup provides compliance reporting via AWS Backup Audit Manager.`,
+    standards: ["NIST", "SOC2"],
+    canAcknowledge: true,
+  },
+
+  // NIST MA-2 / SI-2 — EC2 instances with no Systems Manager connection
+  {
+    id: "nist_ssm_missing",
+    level: "info",
+    title: "EC2 instance has no Systems Manager connection",
+    applies: (n) => n.type === "ec2",
+    check: (n, edges, nodes) => {
+      const hasSsm = hasNeighborOfType(n.id, "systems_manager", edges, nodes);
+      return !hasSsm && !n.data?.config?.ssm_managed;
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} has no AWS Systems Manager connection. Patch compliance and session management are unavailable.`,
+    fix: "Add a Systems Manager component and connect it to this EC2 instance, or enable SSM management in the config.",
+    suggestion: `Attach the \`AmazonSSMManagedInstanceCore\` policy to the EC2 IAM role. Add a VPC endpoint for \`com.amazonaws.REGION.ssm\` if the instance is in a private subnet. Systems Manager enables patch management (Patch Manager), remote access without SSH (Session Manager), and run command — required by NIST MA-2 (controlled maintenance) and SI-2 (flaw remediation).`,
+    standards: ["NIST"],
+    canAcknowledge: true,
+  },
+
+  // NIST IR-4 / IR-5 — CloudWatch with no SNS alerting path
+  {
+    id: "nist_cloudwatch_no_alerting",
+    level: "info",
+    title: "CloudWatch has no SNS alerting path",
+    applies: (n) => n.type === "cloudwatch",
+    check: (n, edges, nodes) =>
+      !hasNeighborOfType(n.id, "sns", edges, nodes),
+    message: (n) =>
+      `${n.data?.label || n.id} is not connected to an SNS topic. CloudWatch alarms have no notification target for incident response.`,
+    fix: "Add an SNS topic and connect it to CloudWatch to enable alarm notifications.",
+    suggestion: `Create \`aws_sns_topic\` and \`aws_sns_topic_subscription\` (email/PagerDuty/Slack via Lambda). Set \`alarm_actions = [aws_sns_topic.alerts.arn]\` on \`aws_cloudwatch_metric_alarm\`. NIST IR-4 requires an incident-handling capability that includes containment — without alerting, incidents go undetected.`,
+    standards: ["NIST", "SOC2"],
+    canAcknowledge: true,
+  },
+
+  // NIST SC-5 — Internet-facing resources without Shield
+  {
+    id: "nist_shield_missing",
+    level: "info",
+    title: "No AWS Shield protection on internet-facing resources",
+    applies: (n) => ["cloudfront", "alb", "route53"].includes(n.type),
+    check: (n, edges, nodes) => {
+      const igwIds = nodes.filter((nd) => IGW_TYPES.has(nd.type)).map((nd) => nd.id);
+      const isPublic =
+        n.type === "cloudfront" ||
+        n.type === "route53" ||
+        igwIds.some((id) => directEdge(id, n.id, edges));
+      if (!isPublic) return false;
+      return !nodes.some((nd) => nd.type === "shield");
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} is internet-facing but no AWS Shield resource is in the architecture.`,
+    fix: "Add an aws_shield_protection resource for internet-facing endpoints.",
+    suggestion: `Add \`aws_shield_protection\` with \`resource_arn\` pointing to the ALB or CloudFront distribution ARN. Shield Standard is free and automatic. Shield Advanced ($3,000/month) adds 24/7 DRT access, cost protection, and advanced detection. NIST SC-5 requires protection against denial-of-service attacks for availability-critical systems.`,
+    standards: ["NIST"],
+    canAcknowledge: true,
+  },
+
+  // NIST SI-4 — Compute without distributed tracing (X-Ray)
+  {
+    id: "nist_xray_missing",
+    level: "info",
+    title: "Compute service not connected to X-Ray tracing",
+    applies: (n) => ["lambda", "ecs_fargate", "eks", "api_gateway"].includes(n.type),
+    check: (n, edges, nodes) =>
+      !hasNeighborOfType(n.id, "xray", edges, nodes) &&
+      !(n.data?.config?.tracing_mode === "Active") &&
+      !(n.data?.config?.xray_enabled),
+    message: (n) =>
+      `${n.data?.label || n.id} has no X-Ray tracing configured. Distributed request flows are not observable.`,
+    fix: "Add an X-Ray component and connect it, or enable active tracing in the component config.",
+    suggestion: `For Lambda: set \`tracing_config { mode = "Active" }\`. For ECS: add the X-Ray daemon as a sidecar container. For API Gateway: set \`xray_tracing_enabled = true\` on \`aws_api_gateway_stage\`. NIST SI-4 requires monitoring of information systems to detect attacks — distributed tracing enables detection of anomalous latency and error injection patterns across microservices.`,
+    standards: ["NIST"],
+    canAcknowledge: true,
+  },
+
+
 ];
 
 // ─── SG port inspection rules ─────────────────────────────────────────────────
@@ -1437,7 +1622,7 @@ const SG_RULES = [
     message: (sg) =>
       `Security group "${sg.name}" allows all traffic (protocol -1) from 0.0.0.0/0.`,
     fix: "Remove the all-traffic inbound rule and replace with specific port allowances.",
-suggestion: `Replace the \`0-65535\` port range rule with specific port allowances. Use \`aws_security_group_rule\` resources for each protocol/port required by the application.`,
+    suggestion: `Replace the \`0-65535\` port range rule with specific port allowances. Use \`aws_security_group_rule\` resources for each protocol/port required by the application.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"]
   },
   {
@@ -1452,7 +1637,7 @@ suggestion: `Replace the \`0-65535\` port range rule with specific port allowanc
     message: (sg) =>
       `Security group "${sg.name}" allows a database port (MySQL/Postgres/Redis/etc.) from 0.0.0.0/0.`,
     fix: "Restrict database port access to specific security group sources, not public CIDRs.",
-suggestion: `Change the source from \`0.0.0.0/0\` to the security group ID of the application tier. Use \`source_security_group_id\` in \`aws_security_group_rule\` instead of a CIDR block.`,
+    suggestion: `Change the source from \`0.0.0.0/0\` to the security group ID of the application tier. Use \`source_security_group_id\` in \`aws_security_group_rule\` instead of a CIDR block.`,
     standards: ["CIS", "SOC2", "PCI", "HIPAA"]
   },
   {
@@ -1464,7 +1649,7 @@ suggestion: `Change the source from \`0.0.0.0/0\` to the security group ID of th
     message: (sg) =>
       `Security group "${sg.name}" allows SSH (port 22) from 0.0.0.0/0.`,
     fix: "Restrict SSH to specific IP ranges or use AWS Systems Manager Session Manager instead.",
-suggestion: `Restrict the SSH source to your VPN or bastion CIDR. Better: remove SSH entirely and use AWS Systems Manager Session Manager — no port 22 needed, full session audit logging.`,
+    suggestion: `Restrict the SSH source to your VPN or bastion CIDR. Better: remove SSH entirely and use AWS Systems Manager Session Manager — no port 22 needed, full session audit logging.`,
     standards: ["CIS", "PCI", "NIST"]
   },
   {
@@ -1476,7 +1661,7 @@ suggestion: `Restrict the SSH source to your VPN or bastion CIDR. Better: remove
     message: (sg) =>
       `Security group "${sg.name}" allows RDP (port 3389) from 0.0.0.0/0.`,
     fix: "Restrict RDP to specific IP ranges or use AWS Systems Manager Fleet Manager.",
-suggestion: `Restrict the RDP source CIDR to your VPN or office IP range. Consider AWS Systems Manager Fleet Manager for browser-based RDP without exposing port 3389.`,
+    suggestion: `Restrict the RDP source CIDR to your VPN or office IP range. Consider AWS Systems Manager Fleet Manager for browser-based RDP without exposing port 3389.`,
     standards: ["CIS", "PCI"]
   },
   {
@@ -1488,7 +1673,7 @@ suggestion: `Restrict the RDP source CIDR to your VPN or office IP range. Consid
     message: (sg) =>
       `Security group "${sg.name}" allows Telnet (port 23) from 0.0.0.0/0. Telnet is unencrypted.`,
     fix: "Replace Telnet with SSH. If intentional, acknowledge this warning.",
-suggestion: `Remove the Telnet rule and use SSH instead. If this is a managed device with no SSH option, restrict the source CIDR to the specific management host IP.`,
+    suggestion: `Remove the Telnet rule and use SSH instead. If this is a managed device with no SSH option, restrict the source CIDR to the specific management host IP.`,
     standards: ["PCI", "NIST"]
   },
   {
@@ -1501,7 +1686,7 @@ suggestion: `Remove the Telnet rule and use SSH instead. If this is a managed de
     message: (sg) =>
       `Security group "${sg.name}" allows FTP (port 20/21) from 0.0.0.0/0. FTP is unencrypted.`,
     fix: "Use SFTP (port 22) or AWS Transfer Family instead. If intentional, acknowledge this warning.",
-suggestion: `Replace FTP (21) with AWS Transfer Family (SFTP/FTPS) or restrict to a specific source CIDR. FTP transmits credentials in plaintext — never expose it to \`0.0.0.0/0\`.`,
+    suggestion: `Replace FTP (21) with AWS Transfer Family (SFTP/FTPS) or restrict to a specific source CIDR. FTP transmits credentials in plaintext — never expose it to \`0.0.0.0/0\`.`,
     standards: ["PCI", "NIST"]
   },
   {
@@ -1513,7 +1698,7 @@ suggestion: `Replace FTP (21) with AWS Transfer Family (SFTP/FTPS) or restrict t
     message: (sg) =>
       `Security group "${sg.name}" allows SMTP (port 25) from 0.0.0.0/0.`,
     fix: "Use Amazon SES for outbound email. If intentional for a mail server, acknowledge this warning.",
-suggestion: `Use Amazon SES for sending email. If running your own SMTP server, restrict port 25 to known relay IP ranges. ISPs and AWS block outbound port 25 by default.`,
+    suggestion: `Use Amazon SES for sending email. If running your own SMTP server, restrict port 25 to known relay IP ranges. ISPs and AWS block outbound port 25 by default.`,
     standards: ["PCI"]
   },
   {
@@ -1526,7 +1711,7 @@ suggestion: `Use Amazon SES for sending email. If running your own SMTP server, 
     message: (sg) =>
       `Security group "${sg.name}" allows POP3/IMAP (110/143/993/995) from 0.0.0.0/0.`,
     fix: "Restrict mail port access. If running a mail server, acknowledge this warning.",
-suggestion: `Restrict mail protocol ports to specific client IP ranges. For a modern setup, use Amazon WorkMail or a managed email service that handles encryption and authentication.`,
+    suggestion: `Restrict mail protocol ports to specific client IP ranges. For a modern setup, use Amazon WorkMail or a managed email service that handles encryption and authentication.`,
     standards: ["PCI"]
   },
   {
@@ -1538,7 +1723,7 @@ suggestion: `Restrict mail protocol ports to specific client IP ranges. For a mo
     message: (sg) =>
       `Security group "${sg.name}" has a wide port range open to 0.0.0.0/0. Verify this is intentional.`,
     fix: "Narrow the port range to only required ports. If intentional, acknowledge this warning.",
-suggestion: `Narrow \`from_port\`/\`to_port\` to only the specific ports your application needs. Ephemeral port ranges (1024–65535) are typically needed only on return traffic, handled by stateful SG rules automatically.`,
+    suggestion: `Narrow \`from_port\`/\`to_port\` to only the specific ports your application needs. Ephemeral port ranges (1024–65535) are typically needed only on return traffic, handled by stateful SG rules automatically.`,
     standards: ["PCI"]
   },
   {
@@ -1551,7 +1736,7 @@ suggestion: `Narrow \`from_port\`/\`to_port\` to only the specific ports your ap
     message: (sg) =>
       `Security group "${sg.name}" allows HTTP (80) from the internet but not HTTPS (443).`,
     fix: "Add an HTTPS (443) inbound rule and redirect HTTP to HTTPS at the load balancer.",
-suggestion: `Add an HTTPS (443) inbound rule alongside HTTP (80). Configure the ALB listener to redirect port 80 to 443 with an ACM-issued TLS certificate.`,
+    suggestion: `Add an HTTPS (443) inbound rule alongside HTTP (80). Configure the ALB listener to redirect port 80 to 443 with an ACM-issued TLS certificate.`,
     standards: ["PCI", "HIPAA"]
   },
   {
@@ -1577,7 +1762,7 @@ suggestion: `Add an HTTPS (443) inbound rule alongside HTTP (80). Configure the 
     message: (sg) =>
       `Security group "${sg.name}" exposes an admin or debug port to 0.0.0.0/0. These interfaces often lack production-grade authentication.`,
     fix: "Restrict admin port access to a specific IP range or VPN CIDR. If this is intentional, acknowledge the warning.",
-suggestion: `Restrict the admin port source to a VPN or bastion CIDR. If using a jump host, use \`source_security_group_id = aws_security_group.bastion.id\` as the inbound source instead of a public CIDR.`,
+    suggestion: `Restrict the admin port source to a VPN or bastion CIDR. If using a jump host, use \`source_security_group_id = aws_security_group.bastion.id\` as the inbound source instead of a public CIDR.`,
     standards: ["CIS", "SOC2", "PCI", "NIST"]
   },
 ];
@@ -1630,7 +1815,7 @@ const IAM_RULES = [
     check: (role) => _hasAdminPolicy(role.policies ?? []),
     message: (role) => `IAM role "${role.name}" has a policy allowing Action:* on Resource:*. This is equivalent to AdministratorAccess.`,
     fix: "Replace the wildcard policy with specific actions and resources. Follow the principle of least privilege.",
-suggestion: `Replace \`"Action": "*"\` with a specific list of required actions. Use IAM Access Analyzer to generate a least-privilege policy based on actual CloudTrail activity over 90 days.`,
+    suggestion: `Replace \`"Action": "*"\` with a specific list of required actions. Use IAM Access Analyzer to generate a least-privilege policy based on actual CloudTrail activity over 90 days.`,
     canAcknowledge: false,
     standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"]
   },
@@ -1641,7 +1826,7 @@ suggestion: `Replace \`"Action": "*"\` with a specific list of required actions.
     check: (role) => !_hasAdminPolicy(role.policies ?? []) && _hasWildcardOnSensitive(role.policies ?? []),
     message: (role) => `IAM role "${role.name}" allows wildcard (*) actions on a sensitive service (IAM, S3, KMS, etc.). This is overly permissive.`,
     fix: "Replace service-level wildcards (e.g. s3:*) with specific actions (e.g. s3:GetObject, s3:PutObject).",
-suggestion: `Replace \`s3:*\`, \`ec2:*\`, and similar wildcards with specific actions. Review CloudTrail logs to identify which actions are actually used. IAM Access Analyzer policy generation automates this.`,
+    suggestion: `Replace \`s3:*\`, \`ec2:*\`, and similar wildcards with specific actions. Review CloudTrail logs to identify which actions are actually used. IAM Access Analyzer policy generation automates this.`,
     canAcknowledge: false,
     standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"]
   },
@@ -1662,7 +1847,7 @@ suggestion: `Replace \`s3:*\`, \`ec2:*\`, and similar wildcards with specific ac
     },
     message: (role) => `IAM role "${role.name}" has allow statements with resource: "*" but specific actions. This grants those actions on all resources.`,
     fix: "Restrict the Resource field to specific ARNs (e.g. arn:aws:s3:::my-bucket/*).",
-suggestion: `Change \`"Resource": "*"\` to a specific ARN pattern (e.g. \`arn:aws:s3:::my-bucket/*\`). For multi-resource access, list each ARN explicitly or use wildcards with a prefix.`,
+    suggestion: `Change \`"Resource": "*"\` to a specific ARN pattern (e.g. \`arn:aws:s3:::my-bucket/*\`). For multi-resource access, list each ARN explicitly or use wildcards with a prefix.`,
     canAcknowledge: false,
     standards: ["CIS", "SOC2", "PCI", "HIPAA"]
   },
@@ -1673,7 +1858,7 @@ suggestion: `Change \`"Resource": "*"\` to a specific ARN pattern (e.g. \`arn:aw
     check: (role) => !!role.isInline,
     message: (role) => `IAM role "${role.name}" uses an inline policy. Inline policies cannot be reused or audited centrally.`,
     fix: "Convert to a standalone aws_iam_policy resource and attach via aws_iam_role_policy_attachment.",
-suggestion: `Extract the policy document into \`aws_iam_policy\` and attach it with \`aws_iam_role_policy_attachment\`. Managed policies are versioned, reusable, and visible in the IAM Console policy list.`,
+    suggestion: `Extract the policy document into \`aws_iam_policy\` and attach it with \`aws_iam_role_policy_attachment\`. Managed policies are versioned, reusable, and visible in the IAM Console policy list.`,
     canAcknowledge: true,
     standards: ["SOC2", "NIST"]
   },
