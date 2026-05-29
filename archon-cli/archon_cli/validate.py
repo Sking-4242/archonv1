@@ -1065,6 +1065,639 @@ def _config_findings(nodes: list[Node]) -> list[Finding]:
                     suggestion='Set `retention_in_days` on `aws_cloudwatch_log_group`. Common: 30 days app logs, 90 days audit, 365 days compliance. 1 GB/day at 365-day retention = $11/month vs $0.90/month at 30 days.',
                 ))
 
+
+        # Lambda: deprecated runtime
+        if n.type == "lambda":
+            deprecated_runtimes = {
+                "nodejs", "nodejs4.3", "nodejs6.10", "nodejs8.10", "nodejs10.x",
+                "nodejs12.x", "nodejs14.x", "nodejs16.x",
+                "python2.7", "python3.6", "python3.7", "python3.8",
+                "dotnetcore1.0", "dotnetcore2.0", "dotnetcore2.1", "dotnetcore3.1",
+                "java8", "ruby2.5", "ruby2.7", "provided",
+            }
+            runtime = cfg.get("runtime", "")
+            if runtime and runtime in deprecated_runtimes:
+                findings.append(Finding(
+                    id=f"lambda_deprecated_runtime::{n.id}",
+                    rule_id="lambda_deprecated_runtime", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="Lambda function uses a deprecated runtime",
+                    message=f'{label} uses runtime "{runtime}", which is deprecated or end-of-life.',
+                    fix="Update the runtime to a supported version (e.g. python3.12, nodejs22.x, java21).",
+                    suggestion='Update `runtime` to a currently supported value: `python3.12`, `nodejs22.x`, `java21`, `dotnet8`, or `provided.al2023`.',
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+            if (cfg.get("reserved_concurrent_executions") is None or
+                    cfg.get("reserved_concurrent_executions") == ""):
+                findings.append(Finding(
+                    id=f"lambda_no_reserved_concurrency::{n.id}",
+                    rule_id="lambda_no_reserved_concurrency", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="Lambda function has no reserved concurrency limit",
+                    message=f"{label} has no reserved concurrency. A traffic spike can exhaust the account concurrency pool.",
+                    fix="Set Reserved Concurrency in the component config to cap parallel executions.",
+                    suggestion='Set `reserved_concurrent_executions` on `aws_lambda_function` to cap runaway invocations.',
+                    can_acknowledge=True,
+                    standards=["NIST"],
+                ))
+
+        # EC2: no IAM instance profile
+        if n.type == "ec2":
+            if not cfg.get("iam_instance_profile") and not n.iam_role_id:
+                findings.append(Finding(
+                    id=f"ec2_no_iam_profile::{n.id}",
+                    rule_id="ec2_no_iam_profile", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="EC2 instance has no IAM instance profile",
+                    message=f"{label} has no IAM instance profile. Applications must use hard-coded credentials for AWS API access.",
+                    fix="Attach an IAM Role to this EC2 instance.",
+                    suggestion='Create `aws_iam_instance_profile` referencing an `aws_iam_role` and set `iam_instance_profile` on `aws_instance`.',
+                    standards=["CIS", "SOC2", "NIST"],
+                ))
+
+        # ECS: privileged container, no readonly root filesystem
+        if n.type == "ecs_fargate":
+            if cfg.get("privileged"):
+                findings.append(Finding(
+                    id=f"ecs_privileged_container::{n.id}",
+                    rule_id="ecs_privileged_container", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="ECS task definition allows privileged container execution",
+                    message=f"{label} has privileged mode enabled. A container escape grants full host root access.",
+                    fix="Disable privileged mode in the ECS task definition.",
+                    suggestion='Remove `privileged = true`. Use `linuxParameters.capabilities.add` for specific capabilities only. Privileged mode is incompatible with Fargate.',
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+            if not cfg.get("readonly_root_filesystem"):
+                findings.append(Finding(
+                    id=f"ecs_no_readonly_root_fs::{n.id}",
+                    rule_id="ecs_no_readonly_root_fs", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="ECS container does not use a read-only root filesystem",
+                    message=f"{label} has a writable root filesystem. Malicious code can modify system binaries.",
+                    fix="Enable readonlyRootFilesystem in the container definition.",
+                    suggestion='Set `readonly_root_filesystem = true` in the container definition. Mount writable paths via `mountPoints`.',
+                    can_acknowledge=True,
+                    standards=["CIS", "SOC2", "NIST"],
+                ))
+
+        # EKS: secrets not encrypted, old version
+        if n.type == "eks":
+            if not cfg.get("encryption_config") and not cfg.get("secrets_encryption_key"):
+                findings.append(Finding(
+                    id=f"eks_secrets_not_encrypted::{n.id}",
+                    rule_id="eks_secrets_not_encrypted", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="EKS cluster does not encrypt Kubernetes Secrets with KMS",
+                    message=f"{label} has no KMS encryption_config for secrets. etcd secrets are stored without envelope encryption.",
+                    fix="Configure an encryption_config block with a KMS key ARN for secrets.",
+                    suggestion='Add `encryption_config { resources = ["secrets"] provider { key_arn = aws_kms_key.eks.arn } }` to `aws_eks_cluster`.',
+                    standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+            import re as _re2
+            ver_str = str(cfg.get("kubernetes_version", cfg.get("version", "0")))
+            m = _re2.match(r"(\d+\.\d+)", ver_str)
+            if m:
+                ver = float(m.group(1))
+                if 0 < ver < 1.29:
+                    findings.append(Finding(
+                        id=f"eks_old_version::{n.id}",
+                        rule_id="eks_old_version", node_id=n.id,
+                        node_label=label, node_type=n.type, level="warning",
+                        title="EKS cluster is running an outdated Kubernetes version",
+                        message=f"{label} specifies Kubernetes {ver_str}, which is approaching or past end-of-support.",
+                        fix="Upgrade the EKS cluster to Kubernetes 1.29 or later.",
+                        suggestion='Set `version = "1.30"` on `aws_eks_cluster`.',
+                        can_acknowledge=True,
+                        standards=["CIS", "SOC2", "NIST"],
+                    ))
+
+        # OpenSearch: public endpoint, no encryption at rest, no node-to-node
+        if n.type == "opensearch":
+            if not cfg.get("vpc_options") and not cfg.get("vpc_id"):
+                findings.append(Finding(
+                    id=f"opensearch_public_endpoint::{n.id}",
+                    rule_id="opensearch_public_endpoint", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="OpenSearch domain has a public endpoint",
+                    message=f"{label} is not deployed in a VPC. The endpoint is reachable from the internet.",
+                    fix="Configure vpc_options with subnet_ids and security_group_ids.",
+                    suggestion='Add a `vpc_options` block to `aws_opensearch_domain`. VPC deployment eliminates the public endpoint entirely.',
+                    standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+            if not cfg.get("encrypt_at_rest"):
+                findings.append(Finding(
+                    id=f"opensearch_no_encryption_at_rest::{n.id}",
+                    rule_id="opensearch_no_encryption_at_rest", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="OpenSearch domain is not encrypted at rest",
+                    message=f"{label} does not have encryption at rest enabled.",
+                    fix="Enable Encrypt at Rest in the OpenSearch domain config.",
+                    suggestion='Set `encrypt_at_rest { enabled = true }` on `aws_opensearch_domain`.',
+                    standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+            if not cfg.get("node_to_node_encryption"):
+                findings.append(Finding(
+                    id=f"opensearch_no_node_to_node::{n.id}",
+                    rule_id="opensearch_no_node_to_node", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="OpenSearch domain does not encrypt node-to-node traffic",
+                    message=f"{label} has node-to-node encryption disabled.",
+                    fix="Enable Node-to-Node Encryption in the OpenSearch domain config.",
+                    suggestion='Set `node_to_node_encryption { enabled = true }` on `aws_opensearch_domain`.',
+                    standards=["SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+
+        # Cognito: no MFA, weak password, no advanced security
+        if n.type == "cognito":
+            mfa = cfg.get("mfa_configuration", "")
+            if not mfa or mfa.upper() == "OFF":
+                findings.append(Finding(
+                    id=f"cognito_no_mfa::{n.id}",
+                    rule_id="cognito_no_mfa", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="Cognito user pool does not require MFA",
+                    message=f"{label} has MFA set to OFF. Accounts are protected by password only.",
+                    fix="Set MFA Configuration to OPTIONAL or ON.",
+                    suggestion='Set `mfa_configuration = "ON"` and `software_token_mfa_configuration { enabled = true }`.',
+                    standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+            pw = cfg.get("password_policy") or {}
+            min_len = int(pw.get("minimum_length", pw.get("min_length", 0)) or 0)
+            if not pw or min_len < 12 or not pw.get("require_uppercase") or not pw.get("require_numbers"):
+                findings.append(Finding(
+                    id=f"cognito_weak_password_policy::{n.id}",
+                    rule_id="cognito_weak_password_policy", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="Cognito user pool has no or weak password policy",
+                    message=f"{label} has an insufficient password policy (minimum < 12 chars or missing complexity requirements).",
+                    fix="Configure password_policy with minimum 12 chars, uppercase, lowercase, numbers, and symbols.",
+                    suggestion='Set `minimum_length = 12`, `require_uppercase = true`, `require_lowercase = true`, `require_numbers = true`, `require_symbols = true`.',
+                    can_acknowledge=True,
+                    standards=["CIS", "SOC2", "NIST"],
+                ))
+            add_ons = cfg.get("user_pool_add_ons") or {}
+            mode = add_ons.get("advanced_security_mode", cfg.get("advanced_security_mode", ""))
+            if mode not in ("ENFORCED", "AUDIT"):
+                findings.append(Finding(
+                    id=f"cognito_advanced_security_off::{n.id}",
+                    rule_id="cognito_advanced_security_off", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="Cognito advanced security (adaptive authentication) is disabled",
+                    message=f"{label} does not have advanced security mode enabled.",
+                    fix="Enable User Pool Add-Ons > Advanced Security Mode = ENFORCED.",
+                    suggestion='Add `user_pool_add_ons { advanced_security_mode = "ENFORCED" }`.',
+                    can_acknowledge=True,
+                    standards=["SOC2", "NIST"],
+                ))
+
+        # API Gateway: no auth, no access logging
+        if n.type == "api_gateway":
+            auth = (cfg.get("authorization_type") or cfg.get("authorizer_type") or
+                    cfg.get("default_authorizer") or "")
+            if not auth or auth.upper() == "NONE":
+                findings.append(Finding(
+                    id=f"apigw_no_auth::{n.id}",
+                    rule_id="apigw_no_auth", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="API Gateway endpoint has no authorization configured",
+                    message=f"{label} has no authorization type configured. The API is publicly accessible.",
+                    fix="Configure a JWT, Lambda, IAM, or Cognito authorizer.",
+                    suggestion='Set `authorization_type` on API methods: "JWT", "AWS_IAM", or "CUSTOM".',
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+            if (not cfg.get("access_log_destination_arn") and
+                    not cfg.get("access_log_settings") and
+                    not cfg.get("logging_level")):
+                findings.append(Finding(
+                    id=f"apigw_no_access_logging::{n.id}",
+                    rule_id="apigw_no_access_logging", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="API Gateway stage has no access logging configured",
+                    message=f"{label} has no access logging. API requests and errors are not captured.",
+                    fix="Set an Access Log Destination ARN (CloudWatch log group) in the stage config.",
+                    suggestion='Set `access_log_settings { destination_arn = aws_cloudwatch_log_group.<name>.arn }`.',
+                    standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+
+        # Kinesis: no server-side encryption
+        if n.type == "kinesis":
+            enc_type = cfg.get("encryption_type", "")
+            if not enc_type or enc_type.upper() == "NONE":
+                findings.append(Finding(
+                    id=f"kinesis_no_encryption::{n.id}",
+                    rule_id="kinesis_no_encryption", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="Kinesis stream is not encrypted at rest",
+                    message=f"{label} has no server-side encryption. Data records are stored unencrypted.",
+                    fix="Enable server-side encryption on the Kinesis stream using KMS.",
+                    suggestion='Add `server_side_encryption { enabled = true key_id = "alias/aws/kinesis" }` to `aws_kinesis_stream`.',
+                    standards=["SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+
+        # MSK: plaintext allowed
+        if n.type == "msk":
+            enc_info = cfg.get("encryption_info") or {}
+            in_transit = enc_info.get("encryption_in_transit") or {}
+            client_broker = in_transit.get("client_broker", cfg.get("client_broker", ""))
+            if not client_broker or client_broker.upper() in ("PLAINTEXT", "TLS_PLAINTEXT"):
+                findings.append(Finding(
+                    id=f"msk_plaintext_allowed::{n.id}",
+                    rule_id="msk_plaintext_allowed", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="MSK cluster allows unencrypted (plaintext) client connections",
+                    message=f"{label} allows plaintext connections. Kafka traffic can be intercepted.",
+                    fix="Set client_broker to TLS in the MSK encryption configuration.",
+                    suggestion='Set `encryption_info { encryption_in_transit { client_broker = "TLS" in_cluster = true } }`.',
+                    standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+
+        # ECR: mutable tags, no scan on push
+        if n.type == "ecr":
+            if cfg.get("image_tag_mutability", "MUTABLE").upper() == "MUTABLE":
+                findings.append(Finding(
+                    id=f"ecr_image_tag_mutable::{n.id}",
+                    rule_id="ecr_image_tag_mutable", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="ECR repository allows mutable image tags",
+                    message=f"{label} has mutable image tags. Tagged images can be overwritten with malicious payloads.",
+                    fix='Set Image Tag Mutability to IMMUTABLE.',
+                    suggestion='Set `image_tag_mutability = "IMMUTABLE"` on `aws_ecr_repository`.',
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+            scan_cfg = cfg.get("image_scanning_configuration") or {}
+            if not scan_cfg.get("scan_on_push") and not cfg.get("scan_on_push"):
+                findings.append(Finding(
+                    id=f"ecr_no_scan_on_push::{n.id}",
+                    rule_id="ecr_no_scan_on_push", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="ECR repository does not scan images on push",
+                    message=f"{label} does not scan container images for vulnerabilities on push.",
+                    fix="Enable Scan on Push in the ECR repository config.",
+                    suggestion='Set `image_scanning_configuration { scan_on_push = true }`.',
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+
+        # Step Functions: no logging, no X-Ray
+        if n.type == "step_functions":
+            if not cfg.get("logging_configuration") and not cfg.get("log_destination"):
+                findings.append(Finding(
+                    id=f"sfn_no_logging::{n.id}",
+                    rule_id="sfn_no_logging", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="Step Functions state machine has no CloudWatch logging",
+                    message=f"{label} has no logging configuration. Execution failures and audit trails are invisible.",
+                    fix="Configure a logging_configuration block with a CloudWatch log group destination.",
+                    suggestion='Add `logging_configuration { log_destination = "${aws_cloudwatch_log_group.<name>.arn}:*" level = "ERROR" include_execution_data = true }`.',
+                    standards=["SOC2", "NIST"],
+                ))
+            tracing = cfg.get("tracing_configuration") or {}
+            if not tracing.get("enabled") and not cfg.get("xray_enabled"):
+                findings.append(Finding(
+                    id=f"sfn_no_xray::{n.id}",
+                    rule_id="sfn_no_xray", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="Step Functions state machine does not have X-Ray tracing enabled",
+                    message=f"{label} has X-Ray tracing disabled.",
+                    fix="Enable X-Ray tracing in the state machine config.",
+                    suggestion='Set `tracing_configuration { enabled = true }` on `aws_sfn_state_machine`.',
+                    can_acknowledge=True,
+                    standards=["NIST"],
+                ))
+
+        # ALB/NLB: deletion protection
+        if n.type in ("alb", "nlb"):
+            if not cfg.get("enable_deletion_protection"):
+                findings.append(Finding(
+                    id=f"alb_deletion_protection::{n.id}",
+                    rule_id="alb_deletion_protection", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="Load balancer has deletion protection disabled",
+                    message=f"{label} has deletion protection disabled. It can be deleted accidentally via Terraform or the console.",
+                    fix="Enable Deletion Protection in the load balancer config.",
+                    suggestion='Set `enable_deletion_protection = true` on `aws_lb`.',
+                    can_acknowledge=True,
+                    standards=["SOC2", "NIST"],
+                ))
+
+        # CloudFront: outdated TLS version
+        if n.type == "cloudfront":
+            import re as _re3
+            cert_cfg = cfg.get("viewer_certificate") or {}
+            protocol = cert_cfg.get("minimum_protocol_version", cfg.get("minimum_protocol_version", ""))
+            insecure = ("SSLv3", "TLSv1", "TLSv1_2016", "TLSv1.1_2016")
+            if not protocol or any(p in protocol for p in insecure):
+                findings.append(Finding(
+                    id=f"cloudfront_min_tls_version::{n.id}",
+                    rule_id="cloudfront_min_tls_version", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="CloudFront distribution allows TLS versions older than 1.2",
+                    message=f"{label} allows TLS 1.0 or 1.1 connections (POODLE, BEAST vulnerabilities).",
+                    fix='Set Minimum Protocol Version to TLSv1.2_2021.',
+                    suggestion='Set `viewer_certificate { minimum_protocol_version = "TLSv1.2_2021" ssl_support_method = "sni-only" }`.',
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+
+        # Secrets Manager: no CMK
+        if n.type == "secretsmanager":
+            if not cfg.get("kms_key_id"):
+                findings.append(Finding(
+                    id=f"secretsmanager_no_kms_cmk::{n.id}",
+                    rule_id="secretsmanager_no_kms_cmk", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="Secrets Manager secret uses the default AWS-managed KMS key",
+                    message=f"{label} does not use a CMK. You cannot audit, rotate, or disable the key independently.",
+                    fix="Add a custom KMS Key ID to the Secrets Manager secret config.",
+                    suggestion='Set `kms_key_id = aws_kms_key.<name>.arn` on `aws_secretsmanager_secret`.',
+                    can_acknowledge=True,
+                    standards=["SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+
+        # DynamoDB: no CMK
+        if n.type == "dynamodb":
+            sse = cfg.get("server_side_encryption") or {}
+            enabled = str(sse.get("enabled", "")).lower() in ("true", "1")
+            has_cmk = bool(sse.get("kms_key_arn") or cfg.get("kms_key_arn"))
+            if not enabled or not has_cmk:
+                findings.append(Finding(
+                    id=f"dynamodb_no_cmk::{n.id}",
+                    rule_id="dynamodb_no_cmk", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="DynamoDB table is not encrypted with a customer-managed KMS key",
+                    message=f"{label} uses the default AWS-owned key. You have no control over key rotation or audit trail.",
+                    fix="Enable server-side encryption with a CMK by setting kms_key_arn.",
+                    suggestion='Set `server_side_encryption { enabled = true kms_key_arn = aws_kms_key.<name>.arn }`.',
+                    can_acknowledge=True,
+                    standards=["SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+    # cis_cloudtrail_log_validation
+    for n in nodes:
+        if n.type == "cloudtrail":
+            label = n.label
+            cfg = n.config
+            if not cfg.get("enable_log_file_validation", True) is True and str(cfg.get("enable_log_file_validation", "true")).lower() != "true":
+                findings.append(Finding(
+                    id=f"cis_cloudtrail_log_validation::{n.id}",
+                    rule_id="cis_cloudtrail_log_validation", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="CloudTrail log file validation is disabled",
+                    message=f"{label} does not have log file validation enabled. Logs could be tampered without detection.",
+                    fix="Enable log file validation by setting enable_log_file_validation = true.",
+                    suggestion='Set `enable_log_file_validation = true` on `aws_cloudtrail`.',
+                    can_acknowledge=False,
+                    standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+
+    # cis_cloudtrail_multi_region
+    for n in nodes:
+        if n.type == "cloudtrail":
+            label = n.label
+            cfg = n.config
+            if not cfg.get("is_multi_region_trail", True) is True and str(cfg.get("is_multi_region_trail", "true")).lower() != "true":
+                findings.append(Finding(
+                    id=f"cis_cloudtrail_multi_region::{n.id}",
+                    rule_id="cis_cloudtrail_multi_region", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="CloudTrail is not configured for multi-region coverage",
+                    message=f"{label} only captures events in a single region. Activity in other regions will not be audited.",
+                    fix="Enable multi-region trail by setting is_multi_region_trail = true.",
+                    suggestion='Set `is_multi_region_trail = true` on `aws_cloudtrail`.',
+                    can_acknowledge=True,
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+
+    # cis_rds_auto_minor_upgrade
+    for n in nodes:
+        if n.type in ("rds", "aurora"):
+            label = n.label
+            cfg = n.config
+            val = cfg.get("auto_minor_version_upgrade", True)
+            if str(val).lower() == "false" or val is False:
+                findings.append(Finding(
+                    id=f"cis_rds_auto_minor_upgrade::{n.id}",
+                    rule_id="cis_rds_auto_minor_upgrade", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="RDS auto minor version upgrade is disabled",
+                    message=f"{label} has auto_minor_version_upgrade = false. Security patches won't be applied automatically.",
+                    fix="Enable auto_minor_version_upgrade to receive security patches automatically.",
+                    suggestion='Set `auto_minor_version_upgrade = true` on `aws_db_instance` or `aws_rds_cluster`.',
+                    can_acknowledge=True,
+                    standards=["CIS", "SOC2", "NIST"],
+                ))
+
+    # cis_s3_mfa_delete
+    for n in nodes:
+        if n.type == "s3":
+            label = n.label
+            cfg = n.config
+            versioning = cfg.get("versioning", {})
+            if isinstance(versioning, dict):
+                enabled = versioning.get("enabled", False) or versioning.get("status", "").lower() == "enabled"
+                mfa_delete = versioning.get("mfa_delete", "")
+            else:
+                enabled = False
+                mfa_delete = ""
+            has_versioning = enabled or str(cfg.get("versioning_enabled", "")).lower() == "true"
+            has_mfa_delete = str(mfa_delete).lower() in ("enabled", "true")
+            if has_versioning and not has_mfa_delete:
+                findings.append(Finding(
+                    id=f"cis_s3_mfa_delete::{n.id}",
+                    rule_id="cis_s3_mfa_delete", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="S3 bucket versioning enabled but MFA delete is not enforced",
+                    message=f"{label} has versioning enabled without MFA delete. Object versions can be permanently deleted without MFA verification.",
+                    fix="Enable MFA delete on the versioning configuration.",
+                    suggestion='Set `versioning { enabled = true mfa_delete = "Enabled" }` on `aws_s3_bucket`.',
+                    can_acknowledge=True,
+                    standards=["CIS", "SOC2", "PCI"],
+                ))
+
+    # guardduty_detector_disabled
+    for n in nodes:
+        if n.type == "guardduty":
+            label = n.label
+            cfg = n.config
+            enabled = cfg.get("enable", True)
+            if str(enabled).lower() == "false" or enabled is False:
+                findings.append(Finding(
+                    id=f"guardduty_detector_disabled::{n.id}",
+                    rule_id="guardduty_detector_disabled", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="GuardDuty detector is disabled",
+                    message=f"{label} has enable = false. GuardDuty will not detect threats when disabled.",
+                    fix="Set enable = true on the GuardDuty detector.",
+                    suggestion='Set `enable = true` on `aws_guardduty_detector`.',
+                    can_acknowledge=False,
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+
+    # macie_disabled
+    for n in nodes:
+        if n.type == "macie":
+            label = n.label
+            cfg = n.config
+            status = cfg.get("status", "ENABLED")
+            enabled = cfg.get("enabled", True)
+            is_disabled = str(status).upper() == "PAUSED" or str(enabled).lower() == "false" or enabled is False
+            if is_disabled:
+                findings.append(Finding(
+                    id=f"macie_disabled::{n.id}",
+                    rule_id="macie_disabled", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="Amazon Macie is disabled or paused",
+                    message=f"{label} is not actively scanning for sensitive data. Set status to ENABLED.",
+                    fix="Set status = ENABLED on the Macie account.",
+                    suggestion='Set `status = "ENABLED"` on `aws_macie2_account`.',
+                    can_acknowledge=True,
+                    standards=["SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+
+    # nist_ec2_detailed_monitoring
+    for n in nodes:
+        if n.type == "ec2":
+            label = n.label
+            cfg = n.config
+            monitoring = cfg.get("monitoring", False)
+            if not monitoring or str(monitoring).lower() == "false":
+                findings.append(Finding(
+                    id=f"nist_ec2_detailed_monitoring::{n.id}",
+                    rule_id="nist_ec2_detailed_monitoring", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="EC2 instance does not have detailed monitoring enabled",
+                    message=f"{label} has monitoring = false. Detailed monitoring provides 1-minute metric resolution instead of 5-minute.",
+                    fix="Enable detailed monitoring by setting monitoring = true.",
+                    suggestion='Set `monitoring = true` on `aws_instance`.',
+                    can_acknowledge=True,
+                    standards=["NIST", "SOC2"],
+                ))
+
+    # nist_lambda_env_encryption
+    for n in nodes:
+        if n.type == "lambda":
+            label = n.label
+            cfg = n.config
+            env_vars = cfg.get("environment", {}) or cfg.get("environment_variables", {})
+            has_env = bool(env_vars)
+            kms_key = cfg.get("kms_key_arn", "") or cfg.get("environment_kms_key_arn", "")
+            if has_env and not kms_key:
+                findings.append(Finding(
+                    id=f"nist_lambda_env_encryption::{n.id}",
+                    rule_id="nist_lambda_env_encryption", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="Lambda environment variables are not encrypted with a CMK",
+                    message=f"{label} has environment variables without a KMS key. AWS encrypts them with an AWS-managed key, but you have no control over key rotation.",
+                    fix="Add a kms_key_arn to encrypt environment variables with a customer-managed key.",
+                    suggestion='Set `kms_key_arn = aws_kms_key.<name>.arn` on `aws_lambda_function`.',
+                    can_acknowledge=True,
+                    standards=["NIST", "SOC2", "PCI", "HIPAA"],
+                ))
+
+    # nist_rds_iam_auth
+    for n in nodes:
+        if n.type in ("rds", "aurora"):
+            label = n.label
+            cfg = n.config
+            iam_auth = cfg.get("iam_database_authentication_enabled", False)
+            if not iam_auth or str(iam_auth).lower() == "false":
+                findings.append(Finding(
+                    id=f"nist_rds_iam_auth::{n.id}",
+                    rule_id="nist_rds_iam_auth", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="RDS IAM database authentication is not enabled",
+                    message=f"{label} does not use IAM authentication. Password-based access lacks the auditability and rotation controls of IAM auth.",
+                    fix="Enable IAM database authentication.",
+                    suggestion='Set `iam_database_authentication_enabled = true` on `aws_db_instance`.',
+                    can_acknowledge=True,
+                    standards=["NIST", "SOC2", "CIS"],
+                ))
+
+    # nist_rds_no_ssl
+    for n in nodes:
+        if n.type in ("rds", "aurora"):
+            label = n.label
+            cfg = n.config
+            require_ssl = cfg.get("require_ssl", False)
+            ssl_enforcement = cfg.get("ssl_enforcement_enabled", False)
+            param_group = cfg.get("parameter_group_name", "")
+            has_ssl = (
+                (str(require_ssl).lower() not in ("false", "")) or
+                (str(ssl_enforcement).lower() == "true") or
+                bool(param_group)
+            )
+            if not require_ssl and not ssl_enforcement and not param_group:
+                findings.append(Finding(
+                    id=f"nist_rds_no_ssl::{n.id}",
+                    rule_id="nist_rds_no_ssl", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="RDS instance does not enforce SSL connections",
+                    message=f"{label} does not have SSL enforcement configured. Database connections may be transmitted unencrypted.",
+                    fix="Set require_ssl or attach a parameter group that enforces SSL.",
+                    suggestion='Set `require_ssl = true` or reference a parameter group with `rds.force_ssl = 1`.',
+                    can_acknowledge=True,
+                    standards=["NIST", "SOC2", "PCI", "HIPAA"],
+                ))
+
+    # nist_s3_access_logging
+    for n in nodes:
+        if n.type == "s3":
+            label = n.label
+            cfg = n.config
+            logging_cfg = cfg.get("logging", {})
+            access_logging = cfg.get("access_logging_enabled", False)
+            has_logging = bool(logging_cfg) or bool(access_logging) or str(access_logging).lower() == "true"
+            if not has_logging:
+                findings.append(Finding(
+                    id=f"nist_s3_access_logging::{n.id}",
+                    rule_id="nist_s3_access_logging", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="S3 bucket does not have server access logging enabled",
+                    message=f"{label} has no access logging configured. Without logs you cannot audit who accessed or modified objects.",
+                    fix="Enable server access logging on the bucket.",
+                    suggestion='Add `logging { target_bucket = aws_s3_bucket.<logs>.id target_prefix = "access-logs/" }` on `aws_s3_bucket`.',
+                    can_acknowledge=True,
+                    standards=["NIST", "SOC2", "CIS", "PCI"],
+                ))
+
+    # s3_public_acl
+    for n in nodes:
+        if n.type == "s3":
+            label = n.label
+            cfg = n.config
+            acl = cfg.get("acl", "")
+            if acl in ("public-read", "public-read-write"):
+                findings.append(Finding(
+                    id=f"s3_public_acl::{n.id}",
+                    rule_id="s3_public_acl", node_id=n.id,
+                    node_label=label, node_type=n.type, level="critical",
+                    title="S3 bucket has a public ACL",
+                    message=f'{label} has acl = "{acl}". The bucket and its objects are publicly readable.',
+                    fix="Remove the public ACL and restrict access via bucket policy or Origin Access Control.",
+                    suggestion='Set `acl = "private"` and add `aws_s3_bucket_public_access_block` with all four block flags enabled.',
+                    can_acknowledge=False,
+                    standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+
+    # waf_no_logging
+    for n in nodes:
+        if n.type == "waf":
+            label = n.label
+            cfg = n.config
+            logging_config = cfg.get("logging_configuration", {})
+            log_destinations = cfg.get("log_destination_configs", [])
+            has_logging = bool(logging_config) or bool(log_destinations)
+            if not has_logging:
+                findings.append(Finding(
+                    id=f"waf_no_logging::{n.id}",
+                    rule_id="waf_no_logging", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="WAF does not have logging configured",
+                    message=f"{label} has no logging configuration. WAF block/allow decisions are not captured for audit or analysis.",
+                    fix="Add a logging_configuration block pointing to a Kinesis Firehose or S3 bucket.",
+                    suggestion='Add `logging_configuration { log_destination_configs = [aws_kinesis_firehose_delivery_stream.<name>.arn] }` on `aws_wafv2_web_acl`.',
+                    can_acknowledge=True,
+                    standards=["SOC2", "PCI", "NIST"],
+                ))
+
     return findings
 
 
@@ -1357,6 +1990,304 @@ def _topology_findings(nodes: list[Node], edges: list[Edge]) -> list[Finding]:
                         fix="Add an aws_lb_listener with action type redirect pointing to HTTPS port 443.",
                     ))
 
+
+        # API Gateway: no WAF in architecture
+        if n.type == "api_gateway":
+            has_waf = any(nd.type == "waf" for nd in nodes)
+            if not has_waf and not _has_neighbor_of_type(n.id, "waf", edges, nodes):
+                findings.append(Finding(
+                    id=f"apigw_missing_waf::{n.id}",
+                    rule_id="apigw_missing_waf", node_id=n.id,
+                    node_label=n.label, node_type=n.type, level="warning",
+                    title="Public API Gateway has no WAF associated in the architecture",
+                    message=f"{n.label} is not associated with a WAF. The API endpoint is exposed to SQL injection, XSS, and HTTP flood without Layer 7 inspection.",
+                    fix="Add a WAF component to the architecture and connect it to the API Gateway.",
+                    suggestion='Create `aws_wafv2_web_acl` with `scope = "REGIONAL"` and associate via `aws_wafv2_web_acl_association` targeting the API Gateway stage ARN.',
+                    can_acknowledge=True,
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+
+        # ALB: no ACM certificate in architecture
+        if n.type == "alb":
+            has_acm = any(nd.type == "acm" for nd in nodes)
+            if not has_acm and not _has_neighbor_of_type(n.id, "acm", edges, nodes):
+                findings.append(Finding(
+                    id=f"missing_acm_on_alb::{n.id}",
+                    rule_id="missing_acm_on_alb", node_id=n.id,
+                    node_label=n.label, node_type=n.type, level="warning",
+                    title="Application Load Balancer has no ACM certificate in the architecture",
+                    message=f"{n.label} has no ACM certificate. Without TLS, the ALB cannot serve HTTPS traffic.",
+                    fix="Add an ACM certificate component and connect it to the ALB.",
+                    suggestion='Create `aws_acm_certificate` with `validation_method = "DNS"` and reference the ARN in `aws_lb_listener` HTTPS forward action.',
+                    can_acknowledge=True,
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+
+        # Data stores: no KMS key anywhere in architecture
+        if n.type in ("rds", "aurora", "dynamodb", "s3", "redshift",
+                      "documentdb", "opensearch", "elasticache"):
+            has_data_store = any(
+                nd.type in ("rds", "aurora", "dynamodb", "s3", "redshift",
+                            "documentdb", "opensearch", "elasticache")
+                for nd in nodes
+            )
+            has_kms = any(nd.type == "kms_key" for nd in nodes)
+            if has_data_store and not has_kms:
+                findings.append(Finding(
+                    id=f"sensitive_data_no_kms::{n.id}",
+                    rule_id="sensitive_data_no_kms", node_id=n.id,
+                    node_label=n.label, node_type=n.type, level="warning",
+                    title="Architecture contains data stores but no KMS key resource",
+                    message=f"{n.label} and other data stores have no KMS key. Encryption uses AWS-managed keys with no audit trail or revocation capability.",
+                    fix="Add a KMS Key component and reference it from data store encryption configs.",
+                    suggestion='Add `aws_kms_key` with `enable_key_rotation = true`. Reference CMK ARNs in each data store encryption config.',
+                    can_acknowledge=True,
+                    standards=["SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+
+        # Lambda: no IAM execution role connected
+        if n.type == "lambda":
+            if not n.iam_role_id and not _has_neighbor_of_type(n.id, "iam_role", edges, nodes):
+                findings.append(Finding(
+                    id=f"lambda_no_execution_role::{n.id}",
+                    rule_id="lambda_no_execution_role", node_id=n.id,
+                    node_label=n.label, node_type=n.type, level="critical",
+                    title="Lambda function has no IAM execution role connected",
+                    message=f"{n.label} has no IAM execution role. Lambda cannot write CloudWatch logs or call any AWS service.",
+                    fix="Attach an IAM Role with AWSLambdaBasicExecutionRole to this Lambda function.",
+                    suggestion='Create `aws_iam_role` with trust policy for `lambda.amazonaws.com` and attach `AWSLambdaBasicExecutionRole`. Set `role = aws_iam_role.<name>.arn` on `aws_lambda_function`.',
+                    standards=["CIS", "SOC2", "NIST"],
+                ))
+
+        # ECS: no IAM execution role connected
+        if n.type == "ecs_fargate":
+            if not n.iam_role_id and not _has_neighbor_of_type(n.id, "iam_role", edges, nodes):
+                findings.append(Finding(
+                    id=f"ecs_no_execution_role::{n.id}",
+                    rule_id="ecs_no_execution_role", node_id=n.id,
+                    node_label=n.label, node_type=n.type, level="critical",
+                    title="ECS Fargate task has no IAM execution role connected",
+                    message=f"{n.label} has no IAM execution role. ECS Fargate cannot pull images from ECR or write CloudWatch logs without it.",
+                    fix="Attach an IAM Role with AmazonECSTaskExecutionRolePolicy.",
+                    suggestion='Create `aws_iam_role` with trust policy for `ecs-tasks.amazonaws.com`. Attach `AmazonECSTaskExecutionRolePolicy`. Set `execution_role_arn` on `aws_ecs_task_definition`.',
+                    standards=["CIS", "SOC2", "NIST"],
+                ))
+
+        # RDS: single-AZ with no backup plan
+        if n.type == "rds":
+            cfg = n.config
+            no_multi_az = not cfg.get("multi_az") and str(cfg.get("multi_az", "")).lower() != "true"
+            retention = int(cfg.get("backup_retention_period", 0) or 0)
+            no_backup_plan = not _has_neighbor_of_type(n.id, "backup", edges, nodes)
+            if no_multi_az and (retention < 7) and no_backup_plan:
+                findings.append(Finding(
+                    id=f"rds_single_az_no_backup::{n.id}",
+                    rule_id="rds_single_az_no_backup", node_id=n.id,
+                    node_label=n.label, node_type=n.type, level="warning",
+                    title="RDS instance is single-AZ with no connection to a backup plan",
+                    message=f"{n.label} is single-AZ with backup_retention_period < 7 days. An AZ failure causes extended downtime with limited recovery options.",
+                    fix="Enable Multi-AZ and set backup_retention_period >= 7.",
+                    suggestion='Set `multi_az = true` and `backup_retention_period = 7` on `aws_db_instance`. Add `aws_backup_plan` for longer-term retention.',
+                    can_acknowledge=True,
+                    standards=["SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+    # cis_config_missing
+    _config_trigger_types = {"vpc", "ec2", "rds", "s3", "lambda"}
+    _has_config_service = any(n.type == "config" for n in nodes)
+    _has_config_trigger = any(n.type in _config_trigger_types for n in nodes)
+    if _has_config_trigger and not _has_config_service:
+        _trigger_node = next(n for n in nodes if n.type in _config_trigger_types)
+        findings.append(Finding(
+            id=f"cis_config_missing::{_trigger_node.id}",
+            rule_id="cis_config_missing", node_id=_trigger_node.id,
+            node_label=_trigger_node.label, node_type=_trigger_node.type, level="warning",
+            title="AWS Config service is not present in the architecture",
+            message="No AWS Config recorder is included. Without Config you cannot track resource changes, enforce compliance rules, or audit configuration drift.",
+            fix="Add an AWS Config node to the architecture.",
+            suggestion='Add `aws_config_configuration_recorder` and `aws_config_delivery_channel` to record all resource changes.',
+            can_acknowledge=True,
+            standards=["CIS", "SOC2", "PCI", "NIST"],
+        ))
+
+    # guardduty_missing
+    _guardduty_trigger_types = {"vpc", "ec2", "rds", "s3"}
+    _has_guardduty = any(n.type == "guardduty" for n in nodes)
+    _has_guardduty_trigger = any(n.type in _guardduty_trigger_types for n in nodes)
+    if _has_guardduty_trigger and not _has_guardduty:
+        _gd_trigger = next(n for n in nodes if n.type in _guardduty_trigger_types)
+        findings.append(Finding(
+            id=f"guardduty_missing::{_gd_trigger.id}",
+            rule_id="guardduty_missing", node_id=_gd_trigger.id,
+            node_label=_gd_trigger.label, node_type=_gd_trigger.type, level="warning",
+            title="Amazon GuardDuty is not present in the architecture",
+            message="No GuardDuty detector is included. GuardDuty provides threat detection for AWS accounts and workloads.",
+            fix="Add a GuardDuty node to the architecture.",
+            suggestion='Add `aws_guardduty_detector` with `enable = true`.',
+            can_acknowledge=True,
+            standards=["CIS", "SOC2", "PCI", "NIST"],
+        ))
+
+    # nist_backup_plan_missing
+    _backup_trigger_types = {"rds", "aurora", "dynamodb", "efs", "ebs"}
+    _has_backup = any(n.type == "backup" for n in nodes)
+    _has_backup_trigger = any(n.type in _backup_trigger_types for n in nodes)
+    if _has_backup_trigger and not _has_backup:
+        _backup_trigger = next(n for n in nodes if n.type in _backup_trigger_types)
+        findings.append(Finding(
+            id=f"nist_backup_plan_missing::{_backup_trigger.id}",
+            rule_id="nist_backup_plan_missing", node_id=_backup_trigger.id,
+            node_label=_backup_trigger.label, node_type=_backup_trigger.type, level="warning",
+            title="No AWS Backup plan is present in the architecture",
+            message="Stateful resources are present but no AWS Backup plan is defined. Without a backup plan, data recovery after an incident is not guaranteed.",
+            fix="Add an AWS Backup plan to the architecture and connect it to stateful resources.",
+            suggestion='Add `aws_backup_plan` with a `rule` block and `aws_backup_selection` targeting stateful resources.',
+            can_acknowledge=True,
+            standards=["NIST", "SOC2", "PCI", "HIPAA"],
+        ))
+
+    # nist_cloudwatch_no_alerting
+    for n in nodes:
+        if n.type == "cloudwatch":
+            label = n.label
+            if not _has_neighbor_of_type(n.id, "sns", edges, nodes):
+                findings.append(Finding(
+                    id=f"nist_cloudwatch_no_alerting::{n.id}",
+                    rule_id="nist_cloudwatch_no_alerting", node_id=n.id,
+                    node_label=label, node_type=n.type, level="warning",
+                    title="CloudWatch is not connected to an SNS topic for alerting",
+                    message=f"{label} has no connection to an SNS topic. CloudWatch alarms will trigger but no notifications will be sent.",
+                    fix="Connect CloudWatch to an SNS topic to enable alarm notifications.",
+                    suggestion='Add an `aws_sns_topic` and reference it in `aws_cloudwatch_metric_alarm` alarm_actions.',
+                    can_acknowledge=True,
+                    standards=["NIST", "SOC2", "CIS"],
+                ))
+
+    # nist_shield_missing
+    _shield_trigger_types = {"cloudfront", "alb", "route53"}
+    _has_shield = any(n.type == "shield" for n in nodes)
+    _has_shield_trigger = any(n.type in _shield_trigger_types for n in nodes)
+    if _has_shield_trigger and not _has_shield:
+        _shield_trigger = next(n for n in nodes if n.type in _shield_trigger_types)
+        findings.append(Finding(
+            id=f"nist_shield_missing::{_shield_trigger.id}",
+            rule_id="nist_shield_missing", node_id=_shield_trigger.id,
+            node_label=_shield_trigger.label, node_type=_shield_trigger.type, level="info",
+            title="AWS Shield is not present for internet-facing resources",
+            message="Internet-facing resources (CloudFront, ALB, Route53) are present but no AWS Shield protection is defined. DDoS attacks may degrade availability.",
+            fix="Add AWS Shield (Standard is automatic; add Shield Advanced for SLA-backed protection).",
+            suggestion='Add `aws_shield_protection` referencing the CloudFront distribution or ALB ARN.',
+            can_acknowledge=True,
+            standards=["NIST", "SOC2"],
+        ))
+
+    # nist_ssm_missing
+    for n in nodes:
+        if n.type == "ec2":
+            label = n.label
+            cfg = n.config
+            has_ssm = _has_neighbor_of_type(n.id, "systems_manager", edges, nodes)
+            ssm_managed = cfg.get("ssm_managed", False)
+            if not has_ssm and not ssm_managed:
+                findings.append(Finding(
+                    id=f"nist_ssm_missing::{n.id}",
+                    rule_id="nist_ssm_missing", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="EC2 instance is not connected to Systems Manager",
+                    message=f"{label} has no Systems Manager connection. Without SSM you must open SSH ports for management, increasing attack surface.",
+                    fix="Connect the EC2 instance to a Systems Manager node and attach the AmazonSSMManagedInstanceCore policy.",
+                    suggestion='Add `aws_ssm_association` or attach `AmazonSSMManagedInstanceCore` policy to the instance role. Remove SSH ingress rules.',
+                    can_acknowledge=True,
+                    standards=["NIST", "SOC2", "CIS"],
+                ))
+
+    # nist_xray_missing
+    _xray_trigger_types = {"lambda", "ecs_fargate", "eks", "api_gateway"}
+    for n in nodes:
+        if n.type in _xray_trigger_types:
+            label = n.label
+            cfg = n.config
+            has_xray = _has_neighbor_of_type(n.id, "xray", edges, nodes)
+            tracing_mode = cfg.get("tracing_mode", "") or cfg.get("tracing", {}).get("mode", "")
+            has_tracing = bool(has_xray) or str(tracing_mode).lower() == "active"
+            if not has_tracing:
+                findings.append(Finding(
+                    id=f"nist_xray_missing::{n.id}",
+                    rule_id="nist_xray_missing", node_id=n.id,
+                    node_label=label, node_type=n.type, level="info",
+                    title="Service does not have AWS X-Ray tracing enabled",
+                    message=f"{label} has no X-Ray tracing configured. Without distributed tracing, performance issues and errors are difficult to diagnose.",
+                    fix="Enable X-Ray active tracing or connect an X-Ray node.",
+                    suggestion='Set `tracing_config { mode = "Active" }` on Lambda or enable X-Ray on ECS/API Gateway.',
+                    can_acknowledge=True,
+                    standards=["NIST", "SOC2"],
+                ))
+
+    # pci_inspector_missing
+    _inspector_trigger_types = {"ec2", "ecs_fargate", "eks", "lambda"}
+    _has_inspector = any(n.type == "inspector" for n in nodes)
+    _has_inspector_trigger = any(n.type in _inspector_trigger_types for n in nodes)
+    if _has_inspector_trigger and not _has_inspector:
+        _inspector_trigger = next(n for n in nodes if n.type in _inspector_trigger_types)
+        findings.append(Finding(
+            id=f"pci_inspector_missing::{_inspector_trigger.id}",
+            rule_id="pci_inspector_missing", node_id=_inspector_trigger.id,
+            node_label=_inspector_trigger.label, node_type=_inspector_trigger.type, level="info",
+            title="Amazon Inspector is not present in the architecture",
+            message="Compute resources are present but no Amazon Inspector is defined. Without Inspector, container images and EC2 instances are not scanned for vulnerabilities.",
+            fix="Add Amazon Inspector to continuously scan EC2 instances and container images.",
+            suggestion='Enable `aws_inspector2_enabler` for EC2 and ECR resource types.',
+            can_acknowledge=True,
+            standards=["PCI", "SOC2", "NIST"],
+        ))
+
+    # security_hub_missing
+    _sec_hub_trigger_types = {"vpc", "ec2", "rds", "s3", "lambda"}
+    _has_security_hub = any(n.type == "security_hub" for n in nodes)
+    _has_sec_hub_trigger = any(n.type in _sec_hub_trigger_types for n in nodes)
+    if _has_sec_hub_trigger and not _has_security_hub:
+        _sec_hub_trigger = next(n for n in nodes if n.type in _sec_hub_trigger_types)
+        findings.append(Finding(
+            id=f"security_hub_missing::{_sec_hub_trigger.id}",
+            rule_id="security_hub_missing", node_id=_sec_hub_trigger.id,
+            node_label=_sec_hub_trigger.label, node_type=_sec_hub_trigger.type, level="info",
+            title="AWS Security Hub is not present in the architecture",
+            message="No Security Hub is included. Security Hub aggregates findings from GuardDuty, Inspector, Macie, and other services into a single security posture view.",
+            fix="Add AWS Security Hub to the architecture.",
+            suggestion='Add `aws_securityhub_account` and enable relevant standards (AWS Foundational, CIS, PCI).',
+            can_acknowledge=True,
+            standards=["SOC2", "PCI", "NIST"],
+        ))
+
+    # cis_cloudtrail_bucket_logging
+    for n in nodes:
+        if n.type == "cloudtrail":
+            label = n.label
+            # Find S3 neighbors
+            s3_neighbors = [
+                node_map[eid]
+                for e in edges
+                for eid in ([e.source, e.target] if e.source == n.id or e.target == n.id else [])
+                if eid in node_map and node_map[eid].type == "s3"
+            ]
+            for s3n in s3_neighbors:
+                s3_cfg = s3n.config
+                logging_cfg = s3_cfg.get("logging", {})
+                access_logging = s3_cfg.get("access_logging_enabled", False)
+                has_logging = bool(logging_cfg) or bool(access_logging) or str(access_logging).lower() == "true"
+                if not has_logging:
+                    findings.append(Finding(
+                        id=f"cis_cloudtrail_bucket_logging::{n.id}",
+                        rule_id="cis_cloudtrail_bucket_logging", node_id=n.id,
+                        node_label=label, node_type=n.type, level="warning",
+                        title="CloudTrail S3 bucket does not have access logging enabled",
+                        message=f"{label} stores logs in an S3 bucket without access logging. Access to the audit trail itself is not audited.",
+                        fix="Enable access logging on the S3 bucket used by CloudTrail.",
+                        suggestion='Add `logging { target_bucket = aws_s3_bucket.<access_logs>.id }` to the CloudTrail S3 bucket.',
+                        can_acknowledge=True,
+                        standards=["CIS", "SOC2", "PCI", "NIST"],
+                    ))
+                    break
+
     return findings
 
 
@@ -1499,6 +2430,94 @@ def _sg_findings(sgs: list[SecurityGroup]) -> list[Finding]:
                 ),
                 fix="Remove all inbound and outbound rules from the default security group. Use purpose-built SGs instead.",
             ))
+
+        if _sg_allows_port_from_public(sg, 6379):
+            findings.append(Finding(
+                id=f"sg_open_redis::{sg.id}",
+                rule_id="sg_open_redis", node_id=sg.id,
+                node_label=sg.name, node_type="security_group", level="critical",
+                title="Redis port (6379) open to internet",
+                message=f'Security group "{sg.name}" exposes Redis port 6379 to 0.0.0.0/0. Redis has no authentication by default — any internet actor can read, write, or delete all cache data.',
+                fix="Restrict port 6379 to the application security group only.",
+                suggestion='Replace `cidr_blocks = ["0.0.0.0/0"]` with `source_security_group_id`. Enable Redis AUTH and `transit_encryption_enabled = true` on the ElastiCache replication group.',
+                can_acknowledge=False, sg_id=sg.id,
+                standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+            ))
+
+        if _sg_allows_port_from_public(sg, 11211):
+            findings.append(Finding(
+                id=f"sg_open_memcached::{sg.id}",
+                rule_id="sg_open_memcached", node_id=sg.id,
+                node_label=sg.name, node_type="security_group", level="critical",
+                title="Memcached port (11211) open to internet",
+                message=f'Security group "{sg.name}" exposes Memcached port 11211 to 0.0.0.0/0. Memcached has no auth or encryption and enables DDoS amplification (~50,000x factor).',
+                fix="Remove the 0.0.0.0/0 inbound rule on port 11211 immediately.",
+                suggestion='Restrict Memcached to `source_security_group_id` of the app tier. Memcached has no native auth — never expose externally.',
+                can_acknowledge=False, sg_id=sg.id,
+                standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+            ))
+
+        if (_sg_allows_port_from_public(sg, 9200) or
+                _sg_allows_port_from_public(sg, 9300) or
+                _sg_allows_port_from_public(sg, 5601)):
+            findings.append(Finding(
+                id=f"sg_open_elasticsearch::{sg.id}",
+                rule_id="sg_open_elasticsearch", node_id=sg.id,
+                node_label=sg.name, node_type="security_group", level="critical",
+                title="Elasticsearch/OpenSearch port (9200/9300/5601) open to internet",
+                message=f'Security group "{sg.name}" exposes Elasticsearch or Kibana ports to 0.0.0.0/0. Unauthenticated clusters expose entire indices for download in seconds.',
+                fix="Remove 0.0.0.0/0 inbound rules on ports 9200, 9300, and 5601.",
+                suggestion='Restrict to internal security group references. Deploy OpenSearch inside a VPC with fine-grained access control enabled.',
+                can_acknowledge=False, sg_id=sg.id,
+                standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+            ))
+
+        if (_sg_allows_port_from_public(sg, 27017) or
+                _sg_allows_port_from_public(sg, 27018) or
+                _sg_allows_port_from_public(sg, 27019)):
+            findings.append(Finding(
+                id=f"sg_open_mongodb::{sg.id}",
+                rule_id="sg_open_mongodb", node_id=sg.id,
+                node_label=sg.name, node_type="security_group", level="critical",
+                title="MongoDB port (27017) open to internet",
+                message=f'Security group "{sg.name}" exposes MongoDB ports to 0.0.0.0/0. Automated scanners exfiltrate exposed MongoDB databases within minutes.',
+                fix="Remove 0.0.0.0/0 inbound rules on MongoDB ports immediately.",
+                suggestion='Restrict to `source_security_group_id` of the app tier. Enable auth (`--auth`), TLS, and bindIp restriction.',
+                can_acknowledge=False, sg_id=sg.id,
+                standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+            ))
+
+        if (_sg_allows_port_from_public(sg, 9092) or
+                _sg_allows_port_from_public(sg, 9093) or
+                _sg_allows_port_from_public(sg, 9094)):
+            findings.append(Finding(
+                id=f"sg_open_kafka::{sg.id}",
+                rule_id="sg_open_kafka", node_id=sg.id,
+                node_label=sg.name, node_type="security_group", level="critical",
+                title="Kafka broker port (9092/9093/9094) open to internet",
+                message=f'Security group "{sg.name}" exposes Kafka broker ports to 0.0.0.0/0. Unauthenticated brokers allow anyone to produce or consume messages from any topic.',
+                fix="Restrict Kafka ports to producer/consumer security groups only.",
+                suggestion='Use `source_security_group_id` for producer and consumer tiers. Enable SASL/SCRAM auth and set `client_broker = "TLS"` on MSK.',
+                can_acknowledge=False, sg_id=sg.id,
+                standards=["CIS", "SOC2", "PCI", "NIST"],
+            ))
+
+        icmp_open = any(
+            r.protocol == "icmp" and _is_public_cidr(r.source)
+            for r in (sg.inbound or [])
+        )
+        if icmp_open:
+            findings.append(Finding(
+                id=f"sg_icmp_unrestricted::{sg.id}",
+                rule_id="sg_icmp_unrestricted", node_id=sg.id,
+                node_label=sg.name, node_type="security_group", level="info",
+                title="ICMP traffic unrestricted from internet",
+                message=f'Security group "{sg.name}" allows unrestricted ICMP from 0.0.0.0/0. Enables ping sweeps, network topology mapping, and ICMP data exfiltration tunnels.',
+                fix="Restrict ICMP to specific trusted CIDRs or block entirely from public sources.",
+                suggestion='Remove unrestricted ICMP ingress. Use AWS Reachability Analyzer for connectivity testing instead of relying on public ping.',
+                can_acknowledge=True, sg_id=sg.id,
+                standards=["CIS", "SOC2", "NIST"],
+            ))
     return findings
 
 
@@ -1559,6 +2578,109 @@ def _iam_findings(iam_roles: list[IAMRole]) -> list[Finding]:
                 ),
                 fix="Convert this to a standalone aws_iam_policy resource and attach via aws_iam_role_policy_attachment.",
             ))
+
+        # Cross-account role with no ExternalId condition
+        has_cross_account_assume = False
+        has_external_id = False
+        for stmt in role.policies:
+            actions = stmt.actions if isinstance(stmt.actions, list) else [str(stmt.actions or "")]
+            resources = stmt.resources if isinstance(stmt.resources, list) else [str(stmt.resources or "")]
+            is_trust = any(a.strip() == "sts:AssumeRole" for a in actions)
+            is_cross_account = any(
+                bool(__import__('re').match(r'arn:aws:iam::\d{12}', r)) and ":root" not in r
+                for r in resources
+            )
+            if is_trust and is_cross_account:
+                has_cross_account_assume = True
+                # Check for ExternalId condition (stored as condition dict on statement)
+                cond = getattr(stmt, "condition", {}) or {}
+                if (cond.get("StringEquals", {}).get("sts:ExternalId") or
+                        cond.get("StringLike", {}).get("sts:ExternalId")):
+                    has_external_id = True
+        if has_cross_account_assume and not has_external_id:
+            findings.append(Finding(
+                id=f"iam_cross_account_no_external_id::{role.id}",
+                rule_id="iam_cross_account_no_external_id", node_id=role.id,
+                node_label=role.name, node_type="iam_role", level="critical",
+                title="Cross-account IAM role has no ExternalId condition",
+                message=f'IAM role "{role.name}" allows cross-account sts:AssumeRole without a sts:ExternalId condition. Any AWS account that knows the role ARN can assume it (confused deputy attack).',
+                fix='Add a Condition block requiring sts:ExternalId to the cross-account trust policy.',
+                suggestion='Add `"Condition": { "StringEquals": { "sts:ExternalId": "<unique-secret>" } }` to the trust policy. ExternalId prevents confused deputy attacks.',
+                can_acknowledge=False,
+                standards=["CIS", "SOC2", "PCI", "NIST"],
+            ))
+
+        # iam:PassRole on resource: *
+        for stmt in role.policies:
+            if stmt.effect.lower() != "allow":
+                continue
+            actions = stmt.actions if isinstance(stmt.actions, list) else [str(stmt.actions or "")]
+            resources = stmt.resources if isinstance(stmt.resources, list) else [str(stmt.resources or "")]
+            has_pass_role = any(a.strip() in ("iam:PassRole", "*") for a in actions)
+            all_resources = any(r.strip() == "*" for r in resources)
+            if has_pass_role and all_resources:
+                findings.append(Finding(
+                    id=f"iam_pass_role_unrestricted::{role.id}",
+                    rule_id="iam_pass_role_unrestricted", node_id=role.id,
+                    node_label=role.name, node_type="iam_role", level="critical",
+                    title="IAM role grants iam:PassRole on all resources",
+                    message=f'IAM role "{role.name}" can pass any IAM role to any AWS service — a classic privilege escalation path to Administrator.',
+                    fix='Restrict iam:PassRole Resource to specific role ARN patterns.',
+                    suggestion='Change Resource from `"*"` to `"arn:aws:iam::ACCOUNT_ID:role/allowed-prefix-*"`. iam:PassRole on * is a top IAM privilege escalation technique.',
+                    can_acknowledge=False,
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+                break
+
+        # Trust policy allows all AWS services (*.amazonaws.com)
+        for stmt in role.policies:
+            if stmt.effect.lower() != "allow":
+                continue
+            actions = stmt.actions if isinstance(stmt.actions, list) else [str(stmt.actions or "")]
+            resources = stmt.resources if isinstance(stmt.resources, list) else [str(stmt.resources or "")]
+            is_trust = any(a.strip() == "sts:AssumeRole" for a in actions)
+            all_services = any(r.strip() in ("*", "*.amazonaws.com") for r in resources)
+            if is_trust and all_services:
+                findings.append(Finding(
+                    id=f"iam_trust_all_services::{role.id}",
+                    rule_id="iam_trust_all_services", node_id=role.id,
+                    node_label=role.name, node_type="iam_role", level="warning",
+                    title="IAM role trust policy allows all AWS services to assume it",
+                    message=f'IAM role "{role.name}" allows *.amazonaws.com to assume it. Any AWS service in any account could assume this role.',
+                    fix='Restrict the Principal to a specific service (e.g. "lambda.amazonaws.com").',
+                    suggestion='Replace `"Service": "*.amazonaws.com"` with the specific service principal needed (e.g. `"lambda.amazonaws.com"`, `"ecs-tasks.amazonaws.com"`).',
+                    can_acknowledge=False,
+                    standards=["CIS", "SOC2", "PCI", "NIST"],
+                ))
+                break
+
+        # Human-access role without MFA condition
+        for stmt in role.policies:
+            if stmt.effect.lower() != "allow":
+                continue
+            actions = stmt.actions if isinstance(stmt.actions, list) else [str(stmt.actions or "")]
+            resources = stmt.resources if isinstance(stmt.resources, list) else [str(stmt.resources or "")]
+            is_trust = any(a.strip() == "sts:AssumeRole" for a in actions)
+            is_user_principal = any(":user/" in r or ":root" in r for r in resources)
+            cond = getattr(stmt, "condition", {}) or {}
+            has_mfa = (
+                cond.get("BoolIfExists", {}).get("aws:MultiFactorAuthPresent") == "true" or
+                cond.get("Bool", {}).get("aws:MultiFactorAuthPresent") == "true" or
+                "aws:MultiFactorAuthAge" in cond.get("NumericLessThan", {})
+            )
+            if is_trust and is_user_principal and not has_mfa:
+                findings.append(Finding(
+                    id=f"iam_no_mfa_condition::{role.id}",
+                    rule_id="iam_no_mfa_condition", node_id=role.id,
+                    node_label=role.name, node_type="iam_role", level="critical",
+                    title="IAM role with console access has no MFA required condition",
+                    message=f'IAM role "{role.name}" can be assumed by IAM users without requiring MFA. A compromised password alone is sufficient.',
+                    fix='Add a Condition block requiring aws:MultiFactorAuthPresent = true.',
+                    suggestion='Add `"Condition": { "BoolIfExists": { "aws:MultiFactorAuthPresent": "true" } }` to the trust policy.',
+                    can_acknowledge=False,
+                    standards=["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+                ))
+                break
     return findings
 
 
@@ -1881,6 +3003,10 @@ def run_validation(
     findings.extend(_sg_findings(security_groups))
     findings.extend(_iam_findings(iam_roles))
     findings.extend(_compliance_findings(nodes, edges))
+    # Azure rules
+    findings.extend(_azure_config_findings(nodes))
+    findings.extend(_azure_topology_findings(nodes, edges))
+    findings.extend(_azure_nsg_findings(security_groups))
 
     # Attach compliance standards to each finding
     for f in findings:
@@ -1901,34 +3027,644 @@ def validate_plan_json(plan: dict) -> list[Finding]:
     """
     nodes, edges, sgs, iam_roles = parse_plan_json(plan)
     return run_validation(nodes, edges, sgs, iam_roles)
- full validation pipeline against a pre-parsed graph.
-    Accepts the same four arguments produced by parse_plan_json().
-    """
-    nodes, edges, sgs, iam_roles = parse_plan_json(plan)
-    return run_validation(nodes, edges, sgs, iam_roles)
- full validation pipeline against a pre-parsed graph.
-    Accepts the same four arguments produced by parse_plan_json().
-    """
-    nodes, edges, sgs, iam_roles = parse_plan_json(plan)
-    return run_validation(nodes, edges, sgs, iam_roles)
-pology_findings(nodes, edges))
-    findings.extend(_sg_findings(security_groups))
-    findings.extend(_iam_findings(iam_roles))
 
-    for f in findings:
-        f.standards = get_standards_for_rule(f.rule_id)
 
-    severity_order = {"critical": 0, "warning": 1, "info": 2}
-    findings.sort(key=lambda f: severity_order.get(f.level, 3))
+# ─── Azure config findings ─────────────────────────────────────────────────────
+
+def _azure_config_findings(nodes: list[Node]) -> list[Finding]:
+    findings: list[Finding] = []
+    for n in nodes:
+        t = n.type
+        cfg = n.config or {}
+
+        # VM: password auth enabled
+        if t == "azure_vm" and cfg.get("disable_password_authentication") is False:
+            findings.append(Finding(
+                id=f"azure_vm_password_auth::{n.id}",
+                rule_id="azure_vm_password_auth",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="Azure VM: password authentication enabled",
+                message=f"{n.label} allows password authentication. Use SSH keys only.",
+                fix="Set disable_password_authentication = true.",
+            ))
+
+        # VM: boot diagnostics not enabled
+        if t == "azure_vm" and not cfg.get("boot_diagnostics_enabled"):
+            findings.append(Finding(
+                id=f"azure_vm_no_boot_diagnostics::{n.id}",
+                rule_id="azure_vm_no_boot_diagnostics",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="info",
+                title="Azure VM: boot diagnostics not enabled",
+                message=f"{n.label} does not have boot diagnostics enabled.",
+                fix="Add boot_diagnostics block to the VM resource.",
+            ))
+
+        # AKS: RBAC disabled
+        if t == "azure_aks" and cfg.get("role_based_access_control_enabled") is False:
+            findings.append(Finding(
+                id=f"azure_aks_rbac_disabled::{n.id}",
+                rule_id="azure_aks_rbac_disabled",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="critical",
+                title="AKS: RBAC disabled",
+                message=f"{n.label} has RBAC disabled. All users have unrestricted cluster access.",
+                fix="Set role_based_access_control_enabled = true.",
+            ))
+
+        # AKS: no private cluster
+        if t == "azure_aks" and not cfg.get("private_cluster_enabled"):
+            findings.append(Finding(
+                id=f"azure_aks_no_private_cluster::{n.id}",
+                rule_id="azure_aks_no_private_cluster",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="AKS: API server not private",
+                message=f"{n.label} has a public-facing API server endpoint.",
+                fix="Set private_cluster_enabled = true.",
+            ))
+
+        # AKS: no authorized IP ranges
+        if (t == "azure_aks"
+                and not cfg.get("private_cluster_enabled")
+                and not cfg.get("api_server_authorized_ip_ranges")):
+            findings.append(Finding(
+                id=f"azure_aks_no_authorized_ips::{n.id}",
+                rule_id="azure_aks_no_authorized_ips",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="AKS: no authorized IP ranges on API server",
+                message=f"{n.label} API server is open to all IPs with no restriction.",
+                fix="Set api_server_authorized_ip_ranges or enable private cluster.",
+            ))
+
+        # AKS: no network policy
+        if t == "azure_aks" and not cfg.get("network_policy"):
+            findings.append(Finding(
+                id=f"azure_aks_no_network_policy::{n.id}",
+                rule_id="azure_aks_no_network_policy",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="AKS: no network policy configured",
+                message=f"{n.label} has no network policy. All pods can communicate freely.",
+                fix="Set network_policy = 'azure' or 'calico' in network_profile.",
+            ))
+
+        # Azure SQL: TDE disabled
+        if t == "azure_sql" and cfg.get("transparent_data_encryption_enabled") is False:
+            findings.append(Finding(
+                id=f"azure_sql_tde_disabled::{n.id}",
+                rule_id="azure_sql_tde_disabled",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="critical",
+                title="Azure SQL: Transparent Data Encryption disabled",
+                message=f"{n.label} has Transparent Data Encryption disabled.",
+                fix="Set transparent_data_encryption_enabled = true on the database.",
+            ))
+
+        # Azure SQL: min TLS old
+        if t == "azure_sql" and cfg.get("minimum_tls_version") not in (None, "1.2"):
+            findings.append(Finding(
+                id=f"azure_sql_min_tls_old::{n.id}",
+                rule_id="azure_sql_min_tls_old",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="Azure SQL: minimum TLS version below 1.2",
+                message=f"{n.label} accepts TLS versions older than 1.2.",
+                fix="Set minimum_tls_version = '1.2' on the SQL server.",
+            ))
+
+        # Azure SQL: auditing not enabled
+        if t == "azure_sql" and not cfg.get("auditing_enabled"):
+            findings.append(Finding(
+                id=f"azure_sql_no_auditing::{n.id}",
+                rule_id="azure_sql_no_auditing",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="Azure SQL: auditing not enabled",
+                message=f"{n.label} does not have auditing enabled.",
+                fix="Generate azurerm_mssql_server_extended_auditing_policy.",
+            ))
+
+        # Storage: public blob access
+        _STORAGE_TYPES = {"azure_blob", "azure_files", "azure_datalake", "azure_table", "azure_queue"}
+        if t in _STORAGE_TYPES and cfg.get("allow_nested_items_to_be_public") is True:
+            findings.append(Finding(
+                id=f"azure_storage_public_access::{n.id}",
+                rule_id="azure_storage_public_access",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="critical",
+                title="Azure Storage: public blob access allowed",
+                message=f"{n.label} allows public blob/container access.",
+                fix="Set allow_nested_items_to_be_public = false.",
+            ))
+
+        # Storage: HTTPS not enforced
+        if t in _STORAGE_TYPES and cfg.get("enable_https_traffic_only") is False:
+            findings.append(Finding(
+                id=f"azure_storage_https_only::{n.id}",
+                rule_id="azure_storage_https_only",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="Azure Storage: HTTPS not enforced",
+                message=f"{n.label} allows unencrypted HTTP traffic.",
+                fix="Set enable_https_traffic_only = true.",
+            ))
+
+        # Storage: min TLS old
+        if t in _STORAGE_TYPES and cfg.get("min_tls_version") not in (None, "TLS1_2"):
+            findings.append(Finding(
+                id=f"azure_storage_min_tls_old::{n.id}",
+                rule_id="azure_storage_min_tls_old",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="Azure Storage: minimum TLS below 1.2",
+                message=f"{n.label} accepts TLS versions older than 1.2.",
+                fix="Set min_tls_version = 'TLS1_2' on the storage account.",
+            ))
+
+        # Key Vault: soft delete disabled
+        if (t == "azure_keyvault"
+                and (cfg.get("soft_delete_retention_days") == 0
+                     or cfg.get("soft_delete_enabled") is False)):
+            findings.append(Finding(
+                id=f"azure_keyvault_soft_delete_disabled::{n.id}",
+                rule_id="azure_keyvault_soft_delete_disabled",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="critical",
+                title="Key Vault: soft delete not enabled",
+                message=f"{n.label} does not have soft delete enabled.",
+                fix="Set soft_delete_retention_days >= 7.",
+            ))
+
+        # Key Vault: purge protection disabled
+        if t == "azure_keyvault" and cfg.get("purge_protection_enabled") is False:
+            findings.append(Finding(
+                id=f"azure_keyvault_purge_protection_disabled::{n.id}",
+                rule_id="azure_keyvault_purge_protection_disabled",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="critical",
+                title="Key Vault: purge protection not enabled",
+                message=f"{n.label} does not have purge protection enabled.",
+                fix="Set purge_protection_enabled = true.",
+            ))
+
+        # Functions: HTTPS not enforced
+        if t == "azure_functions" and cfg.get("https_only") is False:
+            findings.append(Finding(
+                id=f"azure_functions_https_only::{n.id}",
+                rule_id="azure_functions_https_only",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="Azure Functions: HTTPS not enforced",
+                message=f"{n.label} allows unencrypted HTTP traffic.",
+                fix="Set https_only = true.",
+            ))
+
+        # App Service: HTTPS not enforced
+        if t == "azure_app_service" and cfg.get("https_only") is False:
+            findings.append(Finding(
+                id=f"azure_app_service_https_only::{n.id}",
+                rule_id="azure_app_service_https_only",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="App Service: HTTPS not enforced",
+                message=f"{n.label} allows unencrypted HTTP traffic.",
+                fix="Set https_only = true.",
+            ))
+
+        # App Service: min TLS old
+        if t == "azure_app_service" and cfg.get("minimum_tls_version") not in (None, "1.2"):
+            findings.append(Finding(
+                id=f"azure_app_service_min_tls_old::{n.id}",
+                rule_id="azure_app_service_min_tls_old",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="App Service: minimum TLS below 1.2",
+                message=f"{n.label} accepts TLS versions below 1.2.",
+                fix="Set minimum_tls_version = '1.2' in site_config.",
+            ))
+
+        # Redis: non-SSL port enabled
+        if t == "azure_redis" and cfg.get("enable_non_ssl_port") is True:
+            findings.append(Finding(
+                id=f"azure_redis_non_ssl_port::{n.id}",
+                rule_id="azure_redis_non_ssl_port",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="Azure Redis: non-SSL port enabled",
+                message=f"{n.label} has the unencrypted Redis port (6379) enabled.",
+                fix="Set enable_non_ssl_port = false.",
+            ))
+
+        # Redis: min TLS old
+        if t == "azure_redis" and cfg.get("minimum_tls_version") not in (None, "1.2"):
+            findings.append(Finding(
+                id=f"azure_redis_min_tls_old::{n.id}",
+                rule_id="azure_redis_min_tls_old",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="Azure Redis: minimum TLS below 1.2",
+                message=f"{n.label} accepts TLS versions below 1.2.",
+                fix="Set minimum_tls_version = '1.2'.",
+            ))
+
+        # PostgreSQL: SSL disabled
+        if t == "azure_postgres" and cfg.get("ssl_enforcement_enabled") is False:
+            findings.append(Finding(
+                id=f"azure_postgres_ssl_disabled::{n.id}",
+                rule_id="azure_postgres_ssl_disabled",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="critical",
+                title="Azure PostgreSQL: SSL not enforced",
+                message=f"{n.label} does not enforce SSL connections.",
+                fix="Set ssl_enforcement_enabled = true.",
+            ))
+
+        # MySQL: SSL disabled
+        if t == "azure_mysql" and cfg.get("ssl_enforcement_enabled") is False:
+            findings.append(Finding(
+                id=f"azure_mysql_ssl_disabled::{n.id}",
+                rule_id="azure_mysql_ssl_disabled",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="critical",
+                title="Azure MySQL: SSL not enforced",
+                message=f"{n.label} does not enforce SSL connections.",
+                fix="Set require_secure_transport = 'ON'.",
+            ))
+
+        # ACR: admin user enabled
+        if t == "azure_acr" and cfg.get("admin_enabled") is True:
+            findings.append(Finding(
+                id=f"azure_acr_admin_enabled::{n.id}",
+                rule_id="azure_acr_admin_enabled",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="Container Registry: admin user enabled",
+                message=f"{n.label} has the admin user enabled. Use managed identity instead.",
+                fix="Set admin_enabled = false and use role assignments.",
+            ))
+
+        # App Gateway: WAF not enabled
+        if (t == "azure_agw"
+                and cfg.get("sku_name")
+                and not str(cfg["sku_name"]).startswith("WAF")):
+            findings.append(Finding(
+                id=f"azure_agw_no_waf::{n.id}",
+                rule_id="azure_agw_no_waf",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="Application Gateway: WAF not enabled",
+                message=f"{n.label} is not using the WAF_v2 SKU.",
+                fix="Set sku_name = 'WAF_v2' and enable WAF configuration.",
+            ))
+
+        # CosmosDB: no IP restriction
+        if (t == "azure_cosmosdb"
+                and not cfg.get("ip_range_filter")
+                and not cfg.get("virtual_network_rule")):
+            findings.append(Finding(
+                id=f"azure_cosmosdb_public_access::{n.id}",
+                rule_id="azure_cosmosdb_public_access",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="CosmosDB: no network access restriction",
+                message=f"{n.label} is accessible from all networks.",
+                fix="Set ip_range_filter or virtual_network_rule.",
+            ))
+
+        # VPN Gateway: Basic SKU
+        if t == "azure_vpn_gateway" and cfg.get("sku") == "Basic":
+            findings.append(Finding(
+                id=f"azure_vpn_gateway_basic_sku::{n.id}",
+                rule_id="azure_vpn_gateway_basic_sku",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="info",
+                title="VPN Gateway: Basic SKU does not support SLAs",
+                message=f"{n.label} uses the Basic SKU which lacks SLA and zone-redundancy.",
+                fix="Upgrade to VpnGw1 or higher.",
+            ))
+
     return findings
 
 
-def validate_plan_json(plan: dict) -> list[Finding]:
-    """Run the full validation pipeline against a terraform plan JSON dict."""
-    nodes, edges, sgs, iam_roles = parse_plan_json(plan)
-    return run_validation(nodes, edges, sgs, iam_roles)
- findings.
-    Equivalent to calling parse_plan_json() then run_validation().
-    """
-    nodes, edges, sgs, iam_roles = parse_plan_json(plan)
-    return run_validation(nodes, edges, sgs, iam_roles)
+# ─── Azure topology findings ───────────────────────────────────────────────────
+
+def _azure_topology_findings(nodes: list[Node], edges: list[Edge]) -> list[Finding]:
+    findings: list[Finding] = []
+    node_types = {n.type for n in nodes}
+
+    _DB_TYPES = {"azure_sql", "azure_cosmosdb", "azure_postgres", "azure_mysql",
+                 "azure_redis", "azure_servicebus", "azure_eventhub"}
+    _COMPUTE_TYPES = {"azure_aks", "azure_vm", "azure_app_service", "azure_functions"}
+
+    for n in nodes:
+        t = n.type
+
+        # No Key Vault for DB/messaging architectures
+        if t in _DB_TYPES and "azure_keyvault" not in node_types:
+            findings.append(Finding(
+                id=f"azure_no_keyvault::{n.id}",
+                rule_id="azure_no_keyvault",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="No Key Vault in architecture",
+                message="Architecture has databases/services but no Key Vault for secrets management.",
+                fix="Add azurerm_key_vault with purge_protection_enabled = true.",
+            ))
+
+        # No Log Analytics for compute types
+        if t in _COMPUTE_TYPES and "azure_log_analytics" not in node_types:
+            findings.append(Finding(
+                id=f"azure_no_log_analytics::{n.id}",
+                rule_id="azure_no_log_analytics",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="No Log Analytics workspace",
+                message=f"{n.label} has no Log Analytics workspace for centralized logging.",
+                fix="Add azurerm_log_analytics_workspace.",
+            ))
+
+        # No Monitor/App Insights
+        if t in _COMPUTE_TYPES and not node_types & {"azure_monitor", "azure_app_insights"}:
+            findings.append(Finding(
+                id=f"azure_no_monitor::{n.id}",
+                rule_id="azure_no_monitor",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="info",
+                title="No Azure Monitor or App Insights",
+                message=f"{n.label} has no observability infrastructure.",
+                fix="Add azurerm_application_insights or azurerm_monitor_metric_alert.",
+            ))
+
+        # No Backup vault
+        _STATEFUL_TYPES = {"azure_vm", "azure_sql", "azure_postgres", "azure_mysql"}
+        if t in _STATEFUL_TYPES and "azure_backup" not in node_types:
+            findings.append(Finding(
+                id=f"azure_no_backup::{n.id}",
+                rule_id="azure_no_backup",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="No backup vault for stateful resources",
+                message=f"{n.label} has no Azure Backup vault configured.",
+                fix="Add azurerm_recovery_services_vault.",
+            ))
+
+        # AKS without Container Registry
+        if t == "azure_aks" and "azure_acr" not in node_types:
+            findings.append(Finding(
+                id=f"azure_aks_no_acr::{n.id}",
+                rule_id="azure_aks_no_acr",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="info",
+                title="AKS without Container Registry",
+                message=f"{n.label} has no Container Registry for storing container images.",
+                fix="Add azurerm_container_registry linked to AKS.",
+            ))
+
+        # VMs without Bastion
+        if t == "azure_vm" and "azure_bastion" not in node_types:
+            findings.append(Finding(
+                id=f"azure_vm_no_bastion::{n.id}",
+                rule_id="azure_vm_no_bastion",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="VMs present without Azure Bastion",
+                message=f"{n.label} is accessible without a Bastion host.",
+                fix="Add azurerm_bastion_host in a dedicated AzureBastionSubnet.",
+            ))
+
+        # VNet without DDoS Protection
+        if t == "azure_vnet" and "azure_ddos" not in node_types:
+            findings.append(Finding(
+                id=f"azure_no_ddos_protection::{n.id}",
+                rule_id="azure_no_ddos_protection",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="info",
+                title="No DDoS Protection Plan",
+                message=f"{n.label} has no DDoS Protection Plan attached.",
+                fix="Add azurerm_network_ddos_protection_plan.",
+            ))
+
+        # VM directly internet-facing (has internet neighbor, no LB/AGW neighbor)
+        if t == "azure_vm":
+            neighbor_ids = _neighbor_ids(n.id, edges)
+            neighbor_map = {x.id: x for x in nodes}
+            has_lb_or_agw = any(
+                neighbor_map.get(nid, None) and
+                neighbor_map[nid].node_type in {"azure_agw", "azure_lb", "azure_frontdoor"}
+                for nid in neighbor_ids
+            )
+            has_internet = any(
+                "internet" in (neighbor_map.get(nid, None) and
+                               neighbor_map[nid].label or "").lower()
+                for nid in neighbor_ids
+            )
+            if has_internet and not has_lb_or_agw:
+                findings.append(Finding(
+                    id=f"azure_internet_facing_vm::{n.id}",
+                    rule_id="azure_internet_facing_vm",
+                    node_id=n.id, node_label=n.label, node_type=t,
+                    level="critical",
+                    title="VM directly internet-facing",
+                    message=f"{n.label} appears to be directly internet-facing without a load balancer.",
+                    fix="Place an Application Gateway or Load Balancer in front of the VM.",
+                ))
+
+        # SQL without Private Endpoint
+        if t == "azure_sql":
+            neighbor_ids = _neighbor_ids(n.id, edges)
+            neighbor_types = {nodes_map.type for nodes_map in nodes if nodes_map.id in neighbor_ids}
+            if "azure_private_endpoint" not in neighbor_types:
+                findings.append(Finding(
+                    id=f"azure_sql_no_private_endpoint::{n.id}",
+                    rule_id="azure_sql_no_private_endpoint",
+                    node_id=n.id, node_label=n.label, node_type=t,
+                    level="warning",
+                    title="Azure SQL: no Private Endpoint",
+                    message=f"{n.label} has no Private Endpoint. Database may be publicly accessible.",
+                    fix="Add azurerm_private_endpoint with subresource 'sqlServer'.",
+                ))
+
+        # Storage without Private Endpoint
+        if t in {"azure_blob", "azure_datalake"}:
+            neighbor_ids = _neighbor_ids(n.id, edges)
+            neighbor_types = {x.type for x in nodes if x.id in neighbor_ids}
+            if "azure_private_endpoint" not in neighbor_types:
+                findings.append(Finding(
+                    id=f"azure_storage_no_private_endpoint::{n.id}",
+                    rule_id="azure_storage_no_private_endpoint",
+                    node_id=n.id, node_label=n.label, node_type=t,
+                    level="info",
+                    title="Storage: no Private Endpoint",
+                    message=f"{n.label} has no Private Endpoint. Storage is accessible over the internet.",
+                    fix="Add azurerm_private_endpoint with subresource 'blob'.",
+                ))
+
+        # APIM without WAF
+        if t == "azure_apim":
+            neighbor_ids = _neighbor_ids(n.id, edges)
+            neighbor_types = {x.type for x in nodes if x.id in neighbor_ids}
+            if not neighbor_types & {"azure_agw", "azure_waf", "azure_frontdoor"}:
+                findings.append(Finding(
+                    id=f"azure_apim_no_waf::{n.id}",
+                    rule_id="azure_apim_no_waf",
+                    node_id=n.id, node_label=n.label, node_type=t,
+                    level="warning",
+                    title="APIM: no WAF or Application Gateway in front",
+                    message=f"{n.label} has no WAF protecting the API gateway.",
+                    fix="Place azurerm_application_gateway (WAF_v2) or Azure Front Door in front of APIM.",
+                ))
+
+        # AKS without Defender
+        if t == "azure_aks" and "azure_defender" not in node_types:
+            findings.append(Finding(
+                id=f"azure_aks_no_defender::{n.id}",
+                rule_id="azure_aks_no_defender",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="warning",
+                title="AKS: Microsoft Defender for Containers not enabled",
+                message=f"{n.label} has no Microsoft Defender for Containers.",
+                fix="Add azurerm_security_center_subscription_pricing for Containers.",
+            ))
+
+        # Log Analytics without Sentinel
+        if t == "azure_log_analytics" and "azure_sentinel" not in node_types:
+            findings.append(Finding(
+                id=f"azure_no_sentinel::{n.id}",
+                rule_id="azure_no_sentinel",
+                node_id=n.id, node_label=n.label, node_type=t,
+                level="info",
+                title="No Microsoft Sentinel (SIEM)",
+                message="Log Analytics workspace present but no Sentinel SIEM enabled.",
+                fix="Add azurerm_sentinel_log_analytics_workspace_onboarding.",
+            ))
+
+    return findings
+
+
+# ─── Azure NSG findings ────────────────────────────────────────────────────────
+
+def _azure_nsg_findings(security_groups: list) -> list[Finding]:
+    findings: list[Finding] = []
+    for sg in security_groups:
+        inbound = sg.inbound if hasattr(sg, "inbound") else []
+
+        def _port_open(port: int) -> bool:
+            return any(
+                _rule_matches_port(r, port) and _is_public_cidr(r.source)
+                for r in inbound
+            )
+
+        # SSH open
+        if _port_open(22):
+            findings.append(Finding(
+                id=f"azure_nsg_ssh_open::{sg.id}",
+                rule_id="azure_nsg_ssh_open",
+                node_id=sg.id, node_label=sg.name, node_type="nsg",
+                level="critical",
+                title="NSG: SSH (22) open to internet",
+                message=f'NSG "{sg.name}" allows SSH (port 22) from the internet.',
+                fix="Restrict SSH to known IP ranges or use Azure Bastion.",
+            ))
+
+        # RDP open
+        if _port_open(3389):
+            findings.append(Finding(
+                id=f"azure_nsg_rdp_open::{sg.id}",
+                rule_id="azure_nsg_rdp_open",
+                node_id=sg.id, node_label=sg.name, node_type="nsg",
+                level="critical",
+                title="NSG: RDP (3389) open to internet",
+                message=f'NSG "{sg.name}" allows RDP (port 3389) from the internet.',
+                fix="Restrict RDP to known IP ranges or use Azure Bastion.",
+            ))
+
+        # All traffic open
+        if _sg_allows_all_from_public(sg):
+            findings.append(Finding(
+                id=f"azure_nsg_all_traffic_open::{sg.id}",
+                rule_id="azure_nsg_all_traffic_open",
+                node_id=sg.id, node_label=sg.name, node_type="nsg",
+                level="critical",
+                title="NSG: all inbound traffic allowed from internet",
+                message=f'NSG "{sg.name}" allows all inbound traffic from the internet.',
+                fix="Remove the catch-all allow-all inbound rule.",
+            ))
+
+        # SQL Server open
+        if _port_open(1433):
+            findings.append(Finding(
+                id=f"azure_nsg_sql_server_open::{sg.id}",
+                rule_id="azure_nsg_sql_server_open",
+                node_id=sg.id, node_label=sg.name, node_type="nsg",
+                level="critical",
+                title="NSG: SQL Server (1433) open to internet",
+                message=f'NSG "{sg.name}" allows SQL Server (1433) from the internet.',
+                fix="Restrict SQL Server port to the application subnet CIDR only.",
+            ))
+
+        # PostgreSQL open
+        if _port_open(5432):
+            findings.append(Finding(
+                id=f"azure_nsg_postgres_open::{sg.id}",
+                rule_id="azure_nsg_postgres_open",
+                node_id=sg.id, node_label=sg.name, node_type="nsg",
+                level="critical",
+                title="NSG: PostgreSQL (5432) open to internet",
+                message=f'NSG "{sg.name}" allows PostgreSQL (5432) from the internet.',
+                fix="Restrict PostgreSQL to the app tier subnet only.",
+            ))
+
+        # MySQL open
+        if _port_open(3306):
+            findings.append(Finding(
+                id=f"azure_nsg_mysql_open::{sg.id}",
+                rule_id="azure_nsg_mysql_open",
+                node_id=sg.id, node_label=sg.name, node_type="nsg",
+                level="critical",
+                title="NSG: MySQL (3306) open to internet",
+                message=f'NSG "{sg.name}" allows MySQL (3306) from the internet.',
+                fix="Restrict MySQL to the app tier subnet only.",
+            ))
+
+        # Redis open
+        if _port_open(6380):
+            findings.append(Finding(
+                id=f"azure_nsg_redis_open::{sg.id}",
+                rule_id="azure_nsg_redis_open",
+                node_id=sg.id, node_label=sg.name, node_type="nsg",
+                level="critical",
+                title="NSG: Redis (6380) open to internet",
+                message=f'NSG "{sg.name}" allows Redis SSL port (6380) from the internet.',
+                fix="Restrict Redis to the app tier subnet only.",
+            ))
+
+        # MongoDB open
+        if _port_open(27017):
+            findings.append(Finding(
+                id=f"azure_nsg_mongodb_open::{sg.id}",
+                rule_id="azure_nsg_mongodb_open",
+                node_id=sg.id, node_label=sg.name, node_type="nsg",
+                level="critical",
+                title="NSG: MongoDB (27017) open to internet",
+                message=f'NSG "{sg.name}" allows MongoDB (27017) from the internet.',
+                fix="Restrict MongoDB port to the application subnet.",
+            ))
+
+        # Wide port range
+
+        # Wide port range
+        if any(_is_wide_range(r) for r in inbound):
+            findings.append(Finding(
+                id=f"azure_nsg_wide_range_open::{sg.id}",
+                rule_id="azure_nsg_wide_range_open",
+                node_id=sg.id, node_label=sg.name, node_type="nsg",
+                level="warning",
+                title="NSG: wide port range open to internet",
+                message=f'NSG "{sg.name}" allows a wide port range from the internet.',
+                fix="Narrow the port range to only required ports.",
+            ))
+
+    return findings

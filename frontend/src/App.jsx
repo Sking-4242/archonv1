@@ -11,6 +11,7 @@ import DiscoverTab from "./components/panels/DiscoverTab";
 import SettingsModal from "./components/ui/SettingsModal";
 import TemplateModal from "./components/ui/TemplateModal";
 import ImportPlanModal from "./components/ui/ImportPlanModal";
+import ImportTfModal from "./components/ui/ImportTfModal";
 import ImportCLIReportModal from "./components/ui/ImportCLIReportModal";
 import LandingPage from "./components/LandingPage";
 import useGraphStore from "./store/graphStore";
@@ -38,6 +39,7 @@ export default function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [importPlanOpen, setImportPlanOpen] = useState(false);
+  const [importTfOpen, setImportTfOpen] = useState(false);
   const [importCLIOpen, setImportCLIOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [estimateOpen, setEstimateOpen] = useState(false);
@@ -60,7 +62,7 @@ export default function App() {
   const provider = useSettingsStore((s) => s.provider);
   const darkMode = useSettingsStore((s) => s.darkMode);
   const toggleDarkMode = useSettingsStore((s) => s.toggleDarkMode);
-  const updateFindings = useValidationStore((s) => s.update);
+  const updateFindings = useValidationStore((s) => s.updateFindings);
   const findings = useValidationStore((s) => s.findings);
   const infraProvider = useProviderStore((s) => s.infraProvider);
   const setInfraProvider = useProviderStore((s) => s.setInfraProvider);
@@ -164,76 +166,47 @@ export default function App() {
     input.click();
   }, [loadState, updateFindings, setInfraProvider, setSecurityGroups, setIAMRoles, securityGroups, iamRoles]);
 
-  const handleImportTF = useCallback(() => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".tf";
-    input.multiple = true;
-    input.onchange = async (e) => {
-      const files = Array.from(e.target.files);
-      if (!files.length) return;
-      const apiUrl = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
-      const formData = new FormData();
-      files.forEach((f) => formData.append("files", f));
-      try {
-        const res = await fetch(`${apiUrl}/import-tf`, {
-          method: "POST",
-          body: formData,
-        });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          alert(`Import failed: ${err.detail ?? res.statusText}`);
-          return;
-        }
-        const { graph, warnings } = await res.json();
-        const restoredNodes = (graph.components ?? []).map((c) => ({
-          id: c.id,
-          type: c.type,
-          position: c.position ?? { x: 0, y: 0 },
-          ...(c.parentId ? { parentId: c.parentId } : {}),
-          ...(c.style    ? { style:    c.style    } : {}),
-          data: {
-            label: c.label ?? c.type,
-            awsType: c.awsType ?? c.cloudType ?? c.type,
-            icon: c.icon ?? "",
-            config: c.config ?? {},
-            category: c.category ?? "",
-            security_group_ids: c.security_group_ids ?? [],
-            iam_role_id: c.iam_role_id ?? null,
-          },
-        }));
-        const restoredEdges = graph.edges ?? [];
-        loadState({
-          nodes: restoredNodes,
-          edges: restoredEdges,
-          graphMeta: {
-            id: graph.id,
-            name: graph.name,
-            provider: graph.provider ?? "aws",
-            region: graph.region ?? "us-east-1",
-          },
-        });
-        const importedSGs = graph.security_groups ?? [];
-        setSecurityGroups(importedSGs);
-        setIAMRoles(graph.iam_roles ?? []);
-        setInfraProvider(graph.provider ?? "aws");
-        const importedRoles = graph.iam_roles ?? [];
-        setIAMRoles(importedRoles);
-        updateFindings(restoredNodes, restoredEdges, importedSGs, importedRoles);
-        setShowLanding(false);
-        if (warnings.length > 0) {
-          const unique = [...new Set(warnings)];
-          alert(
-            `Import complete with ${unique.length} notice(s):\n\n` +
-            unique.join("\n")
-          );
-        }
-      } catch (err) {
-        alert(`Import error: ${err.message}`);
-      }
-    };
-    input.click();
-  }, [loadState, setSecurityGroups, setIAMRoles, setInfraProvider, updateFindings]);
+  const handleImportTF = useCallback(() => setImportTfOpen(true), []);
+
+  const handleImportTFApply = useCallback(
+    ({ graph, warnings }) => {
+      const restoredNodes = (graph.components ?? []).map((c) => ({
+        id: c.id,
+        type: c.type,
+        position: c.position ?? { x: 0, y: 0 },
+        ...(c.parentId ? { parentId: c.parentId } : {}),
+        ...(c.style    ? { style:    c.style    } : {}),
+        data: {
+          label: c.label ?? c.type,
+          awsType: c.awsType ?? c.cloudType ?? c.type,
+          icon: c.icon ?? "",
+          config: c.config ?? {},
+          category: c.category ?? "",
+          security_group_ids: c.security_group_ids ?? [],
+          iam_role_id: c.iam_role_id ?? null,
+        },
+      }));
+      const restoredEdges = graph.edges ?? [];
+      const importedSGs = graph.security_groups ?? [];
+      const importedRoles = graph.iam_roles ?? [];
+      loadState({
+        nodes: restoredNodes,
+        edges: restoredEdges,
+        graphMeta: {
+          id: graph.id,
+          name: graph.name ?? "Imported Architecture",
+          provider: graph.provider ?? "aws",
+          region: graph.region ?? "us-east-1",
+        },
+      });
+      setSecurityGroups(importedSGs);
+      setIAMRoles(importedRoles);
+      setInfraProvider(graph.provider ?? "aws");
+      updateFindings(restoredNodes, restoredEdges, importedSGs, importedRoles);
+      setShowLanding(false);
+    },
+    [loadState, setSecurityGroups, setIAMRoles, setInfraProvider, updateFindings]
+  );
 
   const handleImportPlanApply = useCallback(
     ({ graph, summary, warnings }) => {
@@ -645,6 +618,15 @@ export default function App() {
           onSelect={handleLoadTemplate}
           onClose={() => setTemplatesOpen(false)}
           provider={infraProvider}
+        />
+      )}
+
+      {/* Import Terraform .tf modal */}
+      {importTfOpen && (
+        <ImportTfModal
+          apiUrl={import.meta.env.VITE_API_URL ?? "http://localhost:8000"}
+          onApply={handleImportTFApply}
+          onClose={() => setImportTfOpen(false)}
         />
       )}
 

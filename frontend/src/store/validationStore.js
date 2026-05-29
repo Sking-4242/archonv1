@@ -997,6 +997,476 @@ const CONFIG_RULES = [
   },
 
 
+
+  // ── Lambda: deprecated/EOL runtime ──────────────────────────────────────────
+  // CIS Lambda 2.1, AWS Foundational Security Best Practices Lambda.2
+  {
+    id: "lambda_deprecated_runtime",
+    level: "critical",
+    title: "Lambda function uses a deprecated runtime",
+    applies: (n) => n.type === "lambda",
+    check: (n) => {
+      const rt = n.data?.config?.runtime || "";
+      const deprecated = [
+        "nodejs", "nodejs4.3", "nodejs6.10", "nodejs8.10", "nodejs10.x",
+        "nodejs12.x", "nodejs14.x", "nodejs16.x",
+        "python2.7", "python3.6", "python3.7", "python3.8",
+        "dotnetcore1.0", "dotnetcore2.0", "dotnetcore2.1", "dotnetcore3.1",
+        "java8", "ruby2.5", "ruby2.7",
+        "provided",
+      ];
+      return rt.length > 0 && deprecated.includes(rt);
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} uses runtime "${n.data?.config?.runtime}", which is deprecated or end-of-life. AWS will block invocations after the retirement date.`,
+    fix: "Update the runtime to a supported version (e.g. python3.12, nodejs22.x, java21).",
+    suggestion: `Update \`runtime\` to a currently supported value: \`python3.12\`, \`nodejs22.x\`, \`java21\`, \`dotnet8\`, or \`provided.al2023\`. Deprecated runtimes no longer receive security patches — vulnerabilities discovered after EOL remain permanently unpatched. AWS eventually blocks new deployments and then invocations on retired runtimes.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+
+  // ── Lambda: no reserved concurrency (DoS / runaway cost risk) ──────────────
+  {
+    id: "lambda_no_reserved_concurrency",
+    level: "info",
+    title: "Lambda function has no reserved concurrency limit",
+    applies: (n) => n.type === "lambda",
+    check: (n) =>
+      n.data?.config?.reserved_concurrent_executions === undefined ||
+      n.data?.config?.reserved_concurrent_executions === null ||
+      n.data?.config?.reserved_concurrent_executions === "",
+    message: (n) =>
+      `${n.data?.label || n.id} has no reserved concurrency. A traffic spike or misconfigured event source can exhaust the account-level concurrency pool, throttling all Lambda functions.`,
+    fix: "Set Reserved Concurrency in the component config to cap this function's maximum parallel executions.",
+    suggestion: `Set \`reserved_concurrent_executions\` on \`aws_lambda_function\` to an appropriate value for your workload. This prevents a single runaway function from consuming the entire regional concurrency limit (default 1,000). Setting it to 0 effectively disables the function — useful for emergency shutoff.`,
+    canAcknowledge: true,
+    standards: ["NIST"],
+  },
+
+  // ── EC2: IMDSv2 not required ─────────────────────────────────────────────
+  // Already covered by ec2_imdsv2_optional — skip duplicate
+
+  // ── EC2: no IAM instance profile ─────────────────────────────────────────
+  // CIS EC2 1.4 — instances should use IAM roles rather than long-lived credentials
+  {
+    id: "ec2_no_iam_profile",
+    level: "warning",
+    title: "EC2 instance has no IAM instance profile",
+    applies: (n) => n.type === "ec2",
+    check: (n) =>
+      !n.data?.iam_role_id &&
+      !n.data?.config?.iam_instance_profile,
+    message: (n) =>
+      `${n.data?.label || n.id} has no IAM instance profile attached. Applications on this instance cannot assume AWS API permissions without embedding long-lived access keys.`,
+    fix: "Attach an IAM Role to this EC2 instance via the Config panel, or connect an iam_role node.",
+    suggestion: `Create \`aws_iam_instance_profile\` referencing an \`aws_iam_role\`, then set \`iam_instance_profile\` on \`aws_instance\`. Applications can then use the instance metadata service to obtain temporary credentials — no hard-coded keys needed. CIS EC2 1.4 requires all EC2 instances to use IAM roles for AWS API access.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "NIST"],
+  },
+
+  // ── ECS: privileged container ─────────────────────────────────────────────
+  // CIS ECS 5.4 — containers should not run in privileged mode
+  {
+    id: "ecs_privileged_container",
+    level: "critical",
+    title: "ECS task definition allows privileged container execution",
+    applies: (n) => n.type === "ecs_fargate",
+    check: (n) => !!n.data?.config?.privileged,
+    message: (n) =>
+      `${n.data?.label || n.id} has privileged mode enabled. A privileged container has full root access to the host kernel and devices — a container escape is a full host compromise.`,
+    fix: "Disable privileged mode in the ECS task definition config unless absolutely required.",
+    suggestion: `Remove \`privileged = true\` from the container definition in \`aws_ecs_task_definition\`. If the workload genuinely needs elevated capabilities, use \`linuxParameters.capabilities.add\` to grant only the specific Linux capabilities required (e.g. NET_ADMIN) instead of full privilege escalation. Privileged mode is incompatible with Fargate.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+
+  // ── ECS: no read-only root filesystem ────────────────────────────────────
+  {
+    id: "ecs_no_readonly_root_fs",
+    level: "warning",
+    title: "ECS container does not use a read-only root filesystem",
+    applies: (n) => n.type === "ecs_fargate",
+    check: (n) => !n.data?.config?.readonly_root_filesystem,
+    message: (n) =>
+      `${n.data?.label || n.id} has a writable root filesystem. Malicious code executing inside the container can modify system binaries and persist state.`,
+    fix: "Enable readonlyRootFilesystem in the container definition config.",
+    suggestion: `Set \`readonly_root_filesystem = true\` in the container definition of \`aws_ecs_task_definition\`. Mount writable paths explicitly via \`mountPoints\` referencing EFS, EBS, or tmpfs volumes. This prevents fileless malware and supply-chain attack payloads from writing to the container's filesystem.`,
+    canAcknowledge: true,
+    standards: ["CIS", "SOC2", "NIST"],
+  },
+
+  // ── EKS: cluster secrets not encrypted with KMS ───────────────────────────
+  // CIS EKS 5.3.1 — secrets should be encrypted with a CMK
+  {
+    id: "eks_secrets_not_encrypted",
+    level: "critical",
+    title: "EKS cluster does not encrypt Kubernetes Secrets with KMS",
+    applies: (n) => n.type === "eks",
+    check: (n) =>
+      !n.data?.config?.encryption_config &&
+      !n.data?.config?.secrets_encryption_key,
+    message: (n) =>
+      `${n.data?.label || n.id} does not encrypt Kubernetes Secrets at rest with a KMS CMK. Secrets (API keys, passwords, tokens) stored in etcd are protected only by the default AWS-managed key.`,
+    fix: "Configure an encryption_config block on the EKS cluster specifying a KMS key for secrets.",
+    suggestion: `Add an \`encryption_config\` block to \`aws_eks_cluster\`:\n\`\`\`hcl\nencryption_config {\n  resources = ["secrets"]\n  provider {\n    key_arn = aws_kms_key.eks.arn\n  }\n}\n\`\`\`\nCIS EKS 5.3.1 requires envelope encryption of etcd secrets. Without it, anyone with access to the etcd backup (or the underlying EBS snapshot) can read all cluster secrets in plaintext.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+  },
+
+  // ── EKS: outdated Kubernetes version ─────────────────────────────────────
+  {
+    id: "eks_old_version",
+    level: "warning",
+    title: "EKS cluster is running an outdated Kubernetes version",
+    applies: (n) => n.type === "eks",
+    check: (n) => {
+      const ver = parseFloat(n.data?.config?.kubernetes_version || n.data?.config?.version || "0");
+      return ver > 0 && ver < 1.29;
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} specifies Kubernetes version ${n.data?.config?.kubernetes_version || n.data?.config?.version}, which is approaching or past end-of-support. Unsupported versions no longer receive security patches.`,
+    fix: "Upgrade the EKS cluster to Kubernetes 1.29 or later.",
+    suggestion: `Set \`version = "1.30"\` (or the current latest) on \`aws_eks_cluster\`. EKS supports a version for approximately 14 months after release. Plan upgrades during that window — AWS will auto-upgrade clusters on deprecated versions with no advance notice after the support window closes.`,
+    canAcknowledge: true,
+    standards: ["CIS", "SOC2", "NIST"],
+  },
+
+  // ── OpenSearch: domain not in VPC (public endpoint) ──────────────────────
+  // AWS FSBP OpenSearch.1 — domains should be in VPC
+  {
+    id: "opensearch_public_endpoint",
+    level: "critical",
+    title: "OpenSearch domain has a public endpoint",
+    applies: (n) => n.type === "opensearch",
+    check: (n) =>
+      !n.data?.config?.vpc_options &&
+      !n.data?.config?.vpc_id &&
+      !n.data?.subnet_id,
+    message: (n) =>
+      `${n.data?.label || n.id} is not deployed in a VPC. The OpenSearch endpoint is reachable from the public internet, relying solely on access policy and auth controls.`,
+    fix: "Configure VPC options on the OpenSearch domain and place it in private subnets.",
+    suggestion: `Add a \`vpc_options\` block to \`aws_opensearch_domain\` with \`subnet_ids\` and \`security_group_ids\`. VPC deployment eliminates the public endpoint entirely — access is only possible from within the VPC or via VPN. AWS FSBP OpenSearch.1 requires VPC deployment for all domains.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+  },
+
+  // ── OpenSearch: no encryption at rest ────────────────────────────────────
+  {
+    id: "opensearch_no_encryption_at_rest",
+    level: "critical",
+    title: "OpenSearch domain is not encrypted at rest",
+    applies: (n) => n.type === "opensearch",
+    check: (n) =>
+      !n.data?.config?.encrypt_at_rest &&
+      n.data?.config?.encrypt_at_rest !== true,
+    message: (n) =>
+      `${n.data?.label || n.id} does not have encryption at rest enabled. Index data, automated snapshots, and swap files are stored unencrypted on EBS.`,
+    fix: "Enable Encrypt at Rest in the OpenSearch domain config.",
+    suggestion: `Set \`encrypt_at_rest { enabled = true }\` on \`aws_opensearch_domain\`. Optionally specify \`kms_key_id\` to use a CMK. Note: encryption at rest cannot be enabled on an existing domain without replacement — plan this at cluster creation time.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+  },
+
+  // ── OpenSearch: no node-to-node encryption ───────────────────────────────
+  {
+    id: "opensearch_no_node_to_node",
+    level: "critical",
+    title: "OpenSearch domain does not encrypt node-to-node traffic",
+    applies: (n) => n.type === "opensearch",
+    check: (n) =>
+      !n.data?.config?.node_to_node_encryption &&
+      n.data?.config?.node_to_node_encryption !== true,
+    message: (n) =>
+      `${n.data?.label || n.id} has node-to-node encryption disabled. Traffic between data nodes within the cluster is unencrypted and can be intercepted by a privileged network actor.`,
+    fix: "Enable Node-to-Node Encryption in the OpenSearch domain config.",
+    suggestion: `Set \`node_to_node_encryption { enabled = true }\` on \`aws_opensearch_domain\`. Like encryption at rest, this cannot be enabled on a running cluster without blue-green replacement. Combined with VPC deployment and encryption at rest, this satisfies HIPAA §164.312(e)(2)(ii) transmission security requirements.`,
+    canAcknowledge: false,
+    standards: ["SOC2", "PCI", "HIPAA", "NIST"],
+  },
+
+  // ── Cognito: no MFA ───────────────────────────────────────────────────────
+  // CIS Cognito 2.1 — user pools should require MFA
+  {
+    id: "cognito_no_mfa",
+    level: "critical",
+    title: "Cognito user pool does not require MFA",
+    applies: (n) => n.type === "cognito",
+    check: (n) => {
+      const mfa = n.data?.config?.mfa_configuration || "";
+      return mfa === "" || mfa === "OFF";
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} has MFA set to OFF. Accounts are protected only by password and are vulnerable to credential stuffing, phishing, and brute-force attacks.`,
+    fix: "Set MFA Configuration to OPTIONAL or ON in the Cognito user pool config.",
+    suggestion: `Set \`mfa_configuration = "ON"\` (mandatory) or \`"OPTIONAL"\` on \`aws_cognito_user_pool\`. Configure \`software_token_mfa_configuration { enabled = true }\` for TOTP-based MFA. For SMS-based MFA add \`sms_configuration\` with an SNS IAM role. PCI DSS Req 8.3 and CIS IAM 1.10 require MFA for all user accounts accessing cardholder data environments.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+  },
+
+  // ── Cognito: weak password policy ─────────────────────────────────────────
+  {
+    id: "cognito_weak_password_policy",
+    level: "warning",
+    title: "Cognito user pool has no or weak password policy",
+    applies: (n) => n.type === "cognito",
+    check: (n) => {
+      const pw = n.data?.config?.password_policy;
+      if (!pw) return true;
+      const minLen = parseInt(pw.minimum_length || pw.min_length || "0", 10);
+      return minLen < 12 ||
+        !pw.require_uppercase ||
+        !pw.require_lowercase ||
+        !pw.require_numbers;
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} has a weak or unconfigured password policy. Short or simple passwords significantly reduce brute-force resistance.`,
+    fix: "Configure a password policy requiring minimum 12 characters with upper, lower, numbers, and symbols.",
+    suggestion: `Add \`password_policy\` to \`aws_cognito_user_pool\` with \`minimum_length = 12\`, \`require_uppercase = true\`, \`require_lowercase = true\`, \`require_numbers = true\`, \`require_symbols = true\`, and \`temporary_password_validity_days = 1\`. NIST SP 800-63B recommends minimum 8 characters; most enterprise frameworks require 12+.`,
+    canAcknowledge: true,
+    standards: ["CIS", "SOC2", "NIST"],
+  },
+
+  // ── Cognito: advanced security off ────────────────────────────────────────
+  {
+    id: "cognito_advanced_security_off",
+    level: "warning",
+    title: "Cognito advanced security (adaptive authentication) is disabled",
+    applies: (n) => n.type === "cognito",
+    check: (n) => {
+      const mode = n.data?.config?.user_pool_add_ons?.advanced_security_mode ||
+        n.data?.config?.advanced_security_mode || "";
+      return mode !== "ENFORCED" && mode !== "AUDIT";
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} does not have advanced security mode enabled. Cognito will not detect compromised credentials, suspicious sign-in attempts, or account takeover patterns.`,
+    fix: "Enable User Pool Add-Ons > Advanced Security Mode = ENFORCED in the config.",
+    suggestion: `Add \`user_pool_add_ons { advanced_security_mode = "ENFORCED" }\` to \`aws_cognito_user_pool\`. This enables adaptive authentication (automatic risk scoring per sign-in), compromised credential detection, and account takeover protection. Start with \`"AUDIT"\` to observe before enforcing blocks.`,
+    canAcknowledge: true,
+    standards: ["SOC2", "NIST"],
+  },
+
+  // ── API Gateway: no authorization ─────────────────────────────────────────
+  // AWS FSBP APIGateway.1 — REST APIs should have authorization enabled
+  {
+    id: "apigw_no_auth",
+    level: "critical",
+    title: "API Gateway endpoint has no authorization configured",
+    applies: (n) => n.type === "api_gateway",
+    check: (n) => {
+      const auth = n.data?.config?.authorization_type ||
+        n.data?.config?.authorizer_type ||
+        n.data?.config?.default_authorizer || "";
+      return !auth || auth === "NONE";
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} has no authorization type configured. The API is publicly accessible without any authentication or authorization controls.`,
+    fix: "Configure an authorizer (JWT, Lambda, IAM, or Cognito) in the API Gateway config.",
+    suggestion: `Set \`authorization_type\` on your API methods: \`"JWT"\` for API Gateway v2 with Cognito or an OIDC provider, \`"AWS_IAM"\` for service-to-service auth, or \`"CUSTOM"\` for Lambda authorizers. Add \`aws_apigatewayv2_authorizer\` pointing to your Cognito user pool or Lambda function. Unauthenticated APIs are a top-10 OWASP API Security risk (API1:2023 — Broken Object Level Authorization starts with unauthenticated access).`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+
+  // ── API Gateway: no access logging ────────────────────────────────────────
+  {
+    id: "apigw_no_access_logging",
+    level: "warning",
+    title: "API Gateway stage has no access logging configured",
+    applies: (n) => n.type === "api_gateway",
+    check: (n) =>
+      !n.data?.config?.access_log_destination_arn &&
+      !n.data?.config?.access_log_settings &&
+      !n.data?.config?.logging_level,
+    message: (n) =>
+      `${n.data?.label || n.id} has no access logging configured. API requests, source IPs, and error codes are not being captured — incident investigation and compliance reporting will be impossible.`,
+    fix: "Set an Access Log Destination ARN (CloudWatch log group) in the API Gateway stage config.",
+    suggestion: `Create \`aws_cloudwatch_log_group\` and set \`access_log_settings { destination_arn = aws_cloudwatch_log_group.<name>.arn }\` on the API Gateway stage. Include \`$context.requestId\`, \`$context.sourceIp\`, \`$context.identity.userAgent\`, \`$context.requestTime\`, \`$context.status\`, and \`$context.protocol\` in the log format. PCI DSS Req 10.2 requires logging of all individual access to system components.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+  },
+
+  // ── Kinesis: no server-side encryption ────────────────────────────────────
+  {
+    id: "kinesis_no_encryption",
+    level: "warning",
+    title: "Kinesis stream is not encrypted at rest",
+    applies: (n) => n.type === "kinesis",
+    check: (n) => {
+      const enc = n.data?.config?.encryption_type || "";
+      return !enc || enc === "NONE";
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} has no server-side encryption. Data records are stored unencrypted on the stream's underlying storage.`,
+    fix: "Enable server-side encryption on the Kinesis stream using KMS.",
+    suggestion: `Add \`server_side_encryption { enabled = true key_id = "alias/aws/kinesis" }\` to \`aws_kinesis_stream\`, or specify a CMK ARN for \`key_id\`. Encryption adds no latency overhead and protects records at rest against unauthorized shard-level access. Required for PCI DSS, HIPAA, and SOC 2 Type II.`,
+    canAcknowledge: false,
+    standards: ["SOC2", "PCI", "HIPAA", "NIST"],
+  },
+
+  // ── MSK: plaintext traffic allowed ────────────────────────────────────────
+  {
+    id: "msk_plaintext_allowed",
+    level: "critical",
+    title: "MSK cluster allows unencrypted (plaintext) client connections",
+    applies: (n) => n.type === "msk",
+    check: (n) => {
+      const enc = n.data?.config?.encryption_info;
+      if (!enc) return true;
+      const clientBroker = enc.encryption_in_transit?.client_broker ||
+        n.data?.config?.client_broker || "";
+      return !clientBroker || clientBroker === "PLAINTEXT";
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} allows plaintext connections. Kafka producer and consumer traffic is transmitted unencrypted and can be intercepted by a network-level attacker.`,
+    fix: "Set client_broker to TLS in the MSK encryption configuration.",
+    suggestion: `Set \`encryption_info { encryption_in_transit { client_broker = "TLS" in_cluster = true } }\` on \`aws_msk_cluster\`. Also set \`encryption_at_rest { encryption_key_arn = aws_kms_key.<name>.arn }\`. Enforcing TLS prevents man-in-the-middle attacks on Kafka topic data in transit. PLAINTEXT should never be used in production environments.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+  },
+
+  // ── ECR: mutable image tags ────────────────────────────────────────────────
+  // AWS FSBP ECR.1 — repositories should have immutable image tags
+  {
+    id: "ecr_image_tag_mutable",
+    level: "warning",
+    title: "ECR repository allows mutable image tags",
+    applies: (n) => n.type === "ecr",
+    check: (n) => {
+      const mutability = n.data?.config?.image_tag_mutability || "";
+      return !mutability || mutability === "MUTABLE";
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} has mutable image tags. An attacker with ECR push permissions can overwrite a tagged image (e.g. :latest or :v1.0) with a malicious payload, affecting any subsequent deployment.`,
+    fix: "Set Image Tag Mutability to IMMUTABLE in the ECR repository config.",
+    suggestion: `Set \`image_tag_mutability = "IMMUTABLE"\` on \`aws_ecr_repository\`. Immutable tags prevent tag overwriting — every new image must use a new unique tag. This enables reliable image pinning in ECS/EKS task definitions and prevents supply-chain attacks via tag hijacking. Use semantic versioning or image digests (sha256:...) for reliable references.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+
+  // ── ECR: no scan on push ───────────────────────────────────────────────────
+  {
+    id: "ecr_no_scan_on_push",
+    level: "warning",
+    title: "ECR repository does not scan images on push",
+    applies: (n) => n.type === "ecr",
+    check: (n) =>
+      !n.data?.config?.image_scanning_configuration?.scan_on_push &&
+      !n.data?.config?.scan_on_push,
+    message: (n) =>
+      `${n.data?.label || n.id} does not scan container images for vulnerabilities on push. Images with known CVEs may be deployed to production without detection.`,
+    fix: "Enable Scan on Push in the ECR repository image scanning configuration.",
+    suggestion: `Set \`image_scanning_configuration { scan_on_push = true }\` on \`aws_ecr_repository\`. Basic scanning uses Clair (free). Enhanced scanning uses Amazon Inspector v2 for continuous scanning including OS and language packages. Add \`aws_inspector2_enabler\` with \`resource_types = ["ECR"]\` to activate Inspector-based scanning for deeper coverage.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+
+  // ── Step Functions: no CloudWatch logging ─────────────────────────────────
+  {
+    id: "sfn_no_logging",
+    level: "warning",
+    title: "Step Functions state machine has no CloudWatch logging",
+    applies: (n) => n.type === "step_functions",
+    check: (n) =>
+      !n.data?.config?.logging_configuration &&
+      !n.data?.config?.log_destination,
+    message: (n) =>
+      `${n.data?.label || n.id} has no logging configuration. State machine executions, input/output payloads, and error details are not being captured — workflow failures and audit trails are invisible.`,
+    fix: "Configure a logging_configuration block with a CloudWatch log group destination.",
+    suggestion: `Add \`logging_configuration { log_destination = "\${aws_cloudwatch_log_group.<name>.arn}:*" level = "ERROR" include_execution_data = true }\` to \`aws_sfn_state_machine\`. Set \`level = "ALL"\` during development, \`"ERROR"\` in production to reduce costs. SOC 2 CC7.2 requires logging of security events — failed state transitions and error states should always be captured.`,
+    canAcknowledge: false,
+    standards: ["SOC2", "NIST"],
+  },
+
+  // ── Step Functions: no X-Ray tracing ──────────────────────────────────────
+  {
+    id: "sfn_no_xray",
+    level: "info",
+    title: "Step Functions state machine does not have X-Ray tracing enabled",
+    applies: (n) => n.type === "step_functions",
+    check: (n) =>
+      !n.data?.config?.tracing_configuration?.enabled &&
+      !n.data?.config?.xray_enabled,
+    message: (n) =>
+      `${n.data?.label || n.id} has X-Ray tracing disabled. Execution latency across state transitions and downstream AWS service calls is not instrumented.`,
+    fix: "Enable X-Ray tracing in the Step Functions state machine config.",
+    suggestion: `Set \`tracing_configuration { enabled = true }\` on \`aws_sfn_state_machine\`. X-Ray generates a service map showing each state's latency contribution and captures errors with full context. Especially valuable for long-running workflows with Lambda, DynamoDB, and SQS integrations.`,
+    canAcknowledge: true,
+    standards: ["NIST"],
+  },
+
+  // ── ALB: deletion protection disabled ─────────────────────────────────────
+  {
+    id: "alb_deletion_protection",
+    level: "warning",
+    title: "Load balancer has deletion protection disabled",
+    applies: (n) => ["alb", "nlb"].includes(n.type),
+    check: (n) => !n.data?.config?.enable_deletion_protection,
+    message: (n) =>
+      `${n.data?.label || n.id} has deletion protection disabled. The load balancer can be deleted by any IAM principal with elasticloadbalancing:DeleteLoadBalancer permission — including via a misconfigured Terraform destroy or console mistake.`,
+    fix: "Enable Deletion Protection in the load balancer config.",
+    suggestion: `Set \`enable_deletion_protection = true\` on \`aws_lb\`. This adds a safeguard requiring explicit disabling before deletion — preventing accidental outages from \`terraform destroy\` or console deletions in production. Pair with IAM policies restricting \`elasticloadbalancing:ModifyLoadBalancerAttributes\` to prevent easy bypass.`,
+    canAcknowledge: true,
+    standards: ["SOC2", "NIST"],
+  },
+
+  // ── CloudFront: outdated minimum TLS version ──────────────────────────────
+  // AWS FSBP CloudFront.3 — distributions should require TLS 1.2
+  {
+    id: "cloudfront_min_tls_version",
+    level: "warning",
+    title: "CloudFront distribution allows TLS versions older than 1.2",
+    applies: (n) => n.type === "cloudfront",
+    check: (n) => {
+      const policy = n.data?.config?.minimum_protocol_version ||
+        n.data?.config?.viewer_certificate?.minimum_protocol_version || "";
+      const insecure = ["SSLv3", "TLSv1", "TLSv1_2016", "TLSv1.1_2016"];
+      return !policy || insecure.some((p) => policy.includes(p));
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} allows TLS 1.0 or 1.1 connections. These protocols have known vulnerabilities (POODLE, BEAST) and are prohibited by PCI DSS 3.2.1+.`,
+    fix: "Set Minimum Protocol Version to TLSv1.2_2021 or TLSv1.2_2019 in the CloudFront viewer certificate config.",
+    suggestion: `Set \`viewer_certificate { minimum_protocol_version = "TLSv1.2_2021" ssl_support_method = "sni-only" }\` on \`aws_cloudfront_distribution\`. \`TLSv1.2_2021\` supports TLS 1.2+ only with a strong cipher suite. \`sni-only\` avoids the dedicated IP cost. PCI DSS 4.0 Req 4.2.1 prohibits TLS 1.0 and 1.1 for transmissions of cardholder data.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+
+  // ── Secrets Manager: no CMK (using AWS-managed key) ──────────────────────
+  {
+    id: "secretsmanager_no_kms_cmk",
+    level: "warning",
+    title: "Secrets Manager secret uses the default AWS-managed KMS key",
+    applies: (n) => n.type === "secretsmanager",
+    check: (n) =>
+      !n.data?.config?.kms_key_id &&
+      !n.data?.iam_role_id,
+    message: (n) =>
+      `${n.data?.label || n.id} does not specify a custom KMS key. Secrets are encrypted with the AWS-managed key (aws/secretsmanager), which cannot be disabled, audited per-secret, or have key access policies customized.`,
+    fix: "Add a KMS Key ID (CMK) to the Secrets Manager secret config.",
+    suggestion: `Set \`kms_key_id = aws_kms_key.<name>.arn\` on \`aws_secretsmanager_secret\`. A CMK allows fine-grained CloudTrail audit of every Decrypt call, key rotation control, and key disablement as a break-glass mechanism. Required for HIPAA BAA and strongly recommended for PCI DSS cardholder data.`,
+    canAcknowledge: true,
+    standards: ["SOC2", "PCI", "HIPAA", "NIST"],
+  },
+
+  // ── DynamoDB: no CMK encryption ────────────────────────────────────────────
+  // AWS FSBP DynamoDB.3 — tables should use CMK for encryption
+  {
+    id: "dynamodb_no_cmk",
+    level: "warning",
+    title: "DynamoDB table is not encrypted with a customer-managed KMS key",
+    applies: (n) => n.type === "dynamodb",
+    check: (n) => {
+      const sse = n.data?.config?.server_side_encryption;
+      if (!sse) return true;
+      const enabled = sse.enabled === true || sse.enabled === "true";
+      const hasCmk = sse.kms_key_arn || n.data?.config?.kms_key_arn;
+      return !enabled || !hasCmk;
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} is encrypted with the default AWS-owned key (or SSE is not explicitly configured). You have no control over key rotation, audit trail per table, or key revocation.`,
+    fix: "Enable server-side encryption with a CMK by setting kms_key_arn in the config.",
+    suggestion: `Set \`server_side_encryption { enabled = true kms_key_arn = aws_kms_key.<name>.arn }\` on \`aws_dynamodb_table\`. Using a CMK adds a CloudTrail event for every table decrypt operation, enables per-table key policies, and allows key disablement as an incident response action. AWS-owned key encryption is still encrypted at rest but provides less operational control.`,
+    canAcknowledge: true,
+    standards: ["SOC2", "PCI", "HIPAA", "NIST"],
+  },
 ];
 
 // ─── Topology-based rules ─────────────────────────────────────────────────────
@@ -1606,6 +2076,115 @@ const TOPOLOGY_RULES = [
   },
 
 
+
+  // ── API Gateway: no WAF association in architecture ───────────────────────
+  {
+    id: "apigw_missing_waf",
+    level: "warning",
+    title: "Public API Gateway has no WAF associated in the architecture",
+    applies: (n) => n.type === "api_gateway",
+    check: (n, edges, nodes) =>
+      !hasNeighborOfType(n.id, "waf", edges, nodes) &&
+      !nodes.some((nd) => nd.type === "waf"),
+    message: (n) =>
+      `${n.data?.label || n.id} is not associated with a WAF (Web ACL). The API endpoint is exposed to SQL injection, XSS, HTTP flood, and bot traffic without a Layer 7 inspection layer.`,
+    fix: "Add a WAF component to the architecture and connect it to the API Gateway.",
+    suggestion: `Create \`aws_wafv2_web_acl\` with \`scope = "REGIONAL"\` and at least the AWS managed rule groups: \`AWSManagedRulesCommonRuleSet\` and \`AWSManagedRulesKnownBadInputsRuleSet\`. Associate it via \`aws_wafv2_web_acl_association\` targeting the API Gateway stage ARN. OWASP API Security Top 10 — API4:2023 (Unrestricted Resource Consumption) and API7:2023 (Server Side Request Forgery) are both mitigated by WAF rate-limiting and SSRF rules.`,
+    canAcknowledge: true,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+
+  // ── ALB: no ACM certificate in architecture ───────────────────────────────
+  {
+    id: "missing_acm_on_alb",
+    level: "warning",
+    title: "Application Load Balancer has no ACM certificate in the architecture",
+    applies: (n) => n.type === "alb",
+    check: (n, edges, nodes) =>
+      !hasNeighborOfType(n.id, "acm", edges, nodes) &&
+      !nodes.some((nd) => nd.type === "acm"),
+    message: (n) =>
+      `${n.data?.label || n.id} has no ACM certificate in the architecture. Without a TLS certificate, the ALB cannot serve HTTPS (port 443) traffic — all connections will be unencrypted HTTP.`,
+    fix: "Add an ACM certificate component, connect it to the ALB, and configure an HTTPS listener.",
+    suggestion: `Create \`aws_acm_certificate\` with \`validation_method = "DNS"\`, generate the Route 53 validation record, and reference the certificate ARN in \`aws_lb_listener\` HTTPS forward action. ACM certificates are free, auto-renew, and are deeply integrated with ALB — there is no reason to use HTTP-only in production.`,
+    canAcknowledge: true,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+
+  // ── Sensitive data stores: no KMS node in architecture ────────────────────
+  {
+    id: "sensitive_data_no_kms",
+    level: "warning",
+    title: "Architecture contains data stores but no KMS key resource",
+    applies: (n) => ["rds", "aurora", "dynamodb", "s3", "redshift", "documentdb", "opensearch", "elasticache"].includes(n.type),
+    check: (n, edges, nodes) => {
+      const hasSensitiveStore = nodes.some((nd) =>
+        ["rds", "aurora", "dynamodb", "s3", "redshift", "documentdb", "opensearch", "elasticache"].includes(nd.type)
+      );
+      const hasKms = nodes.some((nd) => nd.type === "kms_key");
+      return hasSensitiveStore && !hasKms;
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} and other data stores in the architecture have no KMS key resource. Encryption uses AWS-managed keys with no audit trail, no access revocation capability, and no per-resource key policies.`,
+    fix: "Add a KMS Key component to the architecture and reference it from data store encryption configs.",
+    suggestion: `Add \`aws_kms_key\` with \`enable_key_rotation = true\` and \`deletion_window_in_days = 30\`. Create aliases per service (e.g. \`alias/archon-rds\`, \`alias/archon-s3\`). Reference key ARNs in each data store's encryption configuration. CMKs produce a CloudTrail event for every Decrypt operation — essential for detecting unauthorized data access patterns in a SIEM.`,
+    canAcknowledge: true,
+    standards: ["SOC2", "PCI", "HIPAA", "NIST"],
+  },
+
+  // ── Lambda: no IAM role connected ─────────────────────────────────────────
+  {
+    id: "lambda_no_execution_role",
+    level: "critical",
+    title: "Lambda function has no IAM execution role connected",
+    applies: (n) => n.type === "lambda",
+    check: (n, edges, nodes) =>
+      !n.data?.iam_role_id &&
+      !hasNeighborOfType(n.id, "iam_role", edges, nodes),
+    message: (n) =>
+      `${n.data?.label || n.id} has no IAM execution role. Lambda requires an execution role to write CloudWatch logs and access any AWS service. Without one, all invocations will fail with an access denied error.`,
+    fix: "Attach an IAM Role to this Lambda function via the Config panel, or connect an iam_role node.",
+    suggestion: `Create \`aws_iam_role\` with trust policy \`{"Service": "lambda.amazonaws.com"}\` and attach \`AWSLambdaBasicExecutionRole\` via \`aws_iam_role_policy_attachment\`. Add additional policies for any AWS services the function calls (DynamoDB, S3, SQS, etc.). Reference the role via \`role = aws_iam_role.<name>.arn\` on \`aws_lambda_function\`.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "NIST"],
+  },
+
+  // ── ECS: no execution role connected ──────────────────────────────────────
+  {
+    id: "ecs_no_execution_role",
+    level: "critical",
+    title: "ECS Fargate task has no IAM execution role connected",
+    applies: (n) => n.type === "ecs_fargate",
+    check: (n, edges, nodes) =>
+      !n.data?.iam_role_id &&
+      !hasNeighborOfType(n.id, "iam_role", edges, nodes),
+    message: (n) =>
+      `${n.data?.label || n.id} has no IAM execution role. ECS Fargate requires the execution role to pull images from ECR and write logs to CloudWatch. Without it, task placement will fail.`,
+    fix: "Attach an IAM Role with AmazonECSTaskExecutionRolePolicy to this ECS task.",
+    suggestion: `Create \`aws_iam_role\` with trust policy \`{"Service": "ecs-tasks.amazonaws.com"}\` and attach \`AmazonECSTaskExecutionRolePolicy\`. Reference it via \`execution_role_arn\` on \`aws_ecs_task_definition\`. Separately, define a task role (\`task_role_arn\`) with only the permissions the application code needs — keep execution role and task role separate.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "NIST"],
+  },
+
+  // ── RDS: no multi-AZ and no backup ────────────────────────────────────────
+  {
+    id: "rds_single_az_no_backup",
+    level: "warning",
+    title: "RDS instance is single-AZ with no connection to a backup plan",
+    applies: (n) => n.type === "rds",
+    check: (n, edges, nodes) => {
+      const noMultiAz = !n.data?.config?.multi_az && n.data?.config?.multi_az !== true;
+      const noBackup = !hasNeighborOfType(n.id, "backup", edges, nodes) &&
+        (!n.data?.config?.backup_retention_period || parseInt(n.data?.config?.backup_retention_period, 10) < 7);
+      return noMultiAz && noBackup;
+    },
+    message: (n) =>
+      `${n.data?.label || n.id} is single-AZ with a backup retention period under 7 days. An AZ failure causes extended downtime, and limited backup retention restricts recovery options.`,
+    fix: "Enable Multi-AZ and set backup_retention_period to at least 7 in the RDS config.",
+    suggestion: `Set \`multi_az = true\` and \`backup_retention_period = 7\` (minimum; 30+ for compliance) on \`aws_db_instance\`. Consider adding \`aws_backup_plan\` for longer-term retention beyond RDS automated backups. Multi-AZ provides synchronous replication and automatic failover — typically < 60 seconds. AWS Well-Architected Reliability Pillar requires multi-AZ for production databases.`,
+    canAcknowledge: true,
+    standards: ["SOC2", "PCI", "HIPAA", "NIST"],
+  },
 ];
 
 // ─── SG port inspection rules ─────────────────────────────────────────────────
@@ -1765,6 +2344,92 @@ const SG_RULES = [
     suggestion: `Restrict the admin port source to a VPN or bastion CIDR. If using a jump host, use \`source_security_group_id = aws_security_group.bastion.id\` as the inbound source instead of a public CIDR.`,
     standards: ["CIS", "SOC2", "PCI", "NIST"]
   },
+  {
+    id: "sg_open_redis",
+    level: "critical",
+    title: "Redis port (6379) open to internet",
+    canAcknowledge: false,
+    check: (sg) => sgAllowsPortFromPublic(sg, 6379),
+    message: (sg) =>
+      `Security group "${sg.name}" exposes Redis port 6379 to 0.0.0.0/0. Redis has no authentication by default and no TLS. Any internet actor can read, write, or delete all cache data.`,
+    fix: "Remove the 0.0.0.0/0 inbound rule on port 6379. Restrict access to the application security group only.",
+    suggestion: `Replace \`cidr_blocks = ["0.0.0.0/0"]\` with \`source_security_group_id = aws_security_group.app.id\` on the Redis inbound rule. Enable Redis AUTH (\`auth_token\`) and TLS (\`transit_encryption_enabled = true\`) on the ElastiCache replication group. CVE-2022-0543 (Lua sandbox escape) and multiple SSRF-to-RCE chains begin with unauthenticated Redis access.`,
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+  },
+  {
+    id: "sg_open_memcached",
+    level: "critical",
+    title: "Memcached port (11211) open to internet",
+    canAcknowledge: false,
+    check: (sg) => sgAllowsPortFromPublic(sg, 11211),
+    message: (sg) =>
+      `Security group "${sg.name}" exposes Memcached port 11211 to 0.0.0.0/0. Memcached has no authentication or encryption. All cache data is readable and writable by anyone, and the UDP interface enables DDoS amplification attacks (~50,000x amplification factor).`,
+    fix: "Remove the 0.0.0.0/0 inbound rule on port 11211 immediately.",
+    suggestion: `Restrict Memcached to \`source_security_group_id\` of the application tier only. Memcached has no native auth — never expose it externally. The Memcached UDP amplification attack (CVE-2018-1000115) has been used in record-breaking DDoS attacks exceeding 1.3Tbps. This is one of the highest-severity misconfigurations possible.`,
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+  },
+  {
+    id: "sg_open_elasticsearch",
+    level: "critical",
+    title: "Elasticsearch/OpenSearch port (9200/9300) open to internet",
+    canAcknowledge: false,
+    check: (sg) =>
+      sgAllowsPortFromPublic(sg, 9200) ||
+      sgAllowsPortFromPublic(sg, 9300) ||
+      sgAllowsPortFromPublic(sg, 5601),
+    message: (sg) =>
+      `Security group "${sg.name}" exposes Elasticsearch/OpenSearch (9200/9300) or Kibana (5601) to 0.0.0.0/0. Unauthenticated Elasticsearch clusters have led to breaches of billions of records — entire indices are downloadable in seconds.`,
+    fix: "Remove the 0.0.0.0/0 inbound rules on ports 9200, 9300, and 5601.",
+    suggestion: `Restrict Elasticsearch to internal security group references only. Deploy OpenSearch inside a VPC (no public endpoint). Enable fine-grained access control with a master user. Shodan regularly discovers thousands of publicly exposed Elasticsearch instances — this misconfiguration is a top cause of large-scale data breaches.`,
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+  },
+  {
+    id: "sg_open_mongodb",
+    level: "critical",
+    title: "MongoDB port (27017) open to internet",
+    canAcknowledge: false,
+    check: (sg) =>
+      sgAllowsPortFromPublic(sg, 27017) ||
+      sgAllowsPortFromPublic(sg, 27018) ||
+      sgAllowsPortFromPublic(sg, 27019),
+    message: (sg) =>
+      `Security group "${sg.name}" exposes MongoDB port 27017/27018/27019 to 0.0.0.0/0. Exposed MongoDB instances are a leading source of data breaches — automated scanners find and exfiltrate databases within minutes of exposure.`,
+    fix: "Remove the 0.0.0.0/0 inbound rule on MongoDB ports immediately.",
+    suggestion: `Restrict MongoDB to \`source_security_group_id\` of the application tier. Enable authentication (\`mongod --auth\`), TLS, and IP binding (\`bindIp\`). The 2017 MongoDB ransomware wave compromised 27,000+ databases within 48 hours, deleting data and demanding Bitcoin ransoms. Never expose MongoDB to the internet.`,
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+  },
+  {
+    id: "sg_open_kafka",
+    level: "critical",
+    title: "Kafka broker port (9092/9093) open to internet",
+    canAcknowledge: false,
+    check: (sg) =>
+      sgAllowsPortFromPublic(sg, 9092) ||
+      sgAllowsPortFromPublic(sg, 9093) ||
+      sgAllowsPortFromPublic(sg, 9094),
+    message: (sg) =>
+      `Security group "${sg.name}" exposes Kafka broker ports to 0.0.0.0/0. Unauthenticated Kafka brokers allow anyone to produce or consume messages from any topic — reading all event streams or injecting malicious events.`,
+    fix: "Remove the 0.0.0.0/0 inbound rules on Kafka ports. Restrict to producer/consumer security groups only.",
+    suggestion: `Restrict Kafka ports to \`source_security_group_id\` of producer and consumer tiers. Enable SASL/SCRAM or mTLS authentication on the broker. For MSK, set \`client_authentication { sasl { scram = true } }\` and \`encryption_in_transit { client_broker = "TLS" }\`. Port 9092 (PLAINTEXT) should never be used in production — use 9094 (TLS) only.`,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+  {
+    id: "sg_icmp_unrestricted",
+    level: "info",
+    title: "ICMP traffic unrestricted from internet",
+    canAcknowledge: true,
+    check: (sg) => {
+      if (!sg?.inbound) return false;
+      return sg.inbound.some(
+        (rule) => rule.protocol === "icmp" && isPublicCidr(rule.source),
+      );
+    },
+    message: (sg) =>
+      `Security group "${sg.name}" allows unrestricted ICMP from 0.0.0.0/0. This enables ping sweeps, traceroute-based network topology mapping, and ICMP tunneling of data out of the network.`,
+    fix: "Restrict ICMP to specific trusted CIDRs, or block it entirely from public sources.",
+    suggestion: `Remove unrestricted ICMP ingress or restrict to known management CIDRs. If ping/traceroute is needed for monitoring, use specific source CIDRs or use AWS Reachability Analyzer instead. ICMP tunneling tools (e.g. ptunnel, icmptunnel) can exfiltrate data through ICMP echo payloads — useful to attackers when TCP/UDP egress is blocked.`,
+    standards: ["CIS", "SOC2", "NIST"],
+  },
 ];
 
 // ─── IAM-based rules ─────────────────────────────────────────────────────────
@@ -1862,6 +2527,128 @@ const IAM_RULES = [
     canAcknowledge: true,
     standards: ["SOC2", "NIST"]
   },
+  // ── IAM: cross-account role with no external ID condition ─────────────────
+  // CIS IAM 1.21 — confused deputy attack prevention
+  {
+    id: "iam_cross_account_no_external_id",
+    level: "critical",
+    title: "Cross-account IAM role has no ExternalId condition",
+    check: (role) => {
+      if (!role.policies) return false;
+      return role.policies.some((stmt) => {
+        const actions = Array.isArray(stmt.actions)
+          ? stmt.actions
+          : String(stmt.actions ?? "").split(/[\s,]+/);
+        const isTrustPolicy = actions.some((a) =>
+          a.trim() === "sts:AssumeRole"
+        );
+        const hasExternalAccount = Array.isArray(stmt.resources)
+          ? stmt.resources.some((r) => /arn:aws:iam::\d{12}/.test(r) && !r.includes(":root"))
+          : false;
+        const hasExternalId = stmt.condition?.StringEquals?.["sts:ExternalId"];
+        return isTrustPolicy && hasExternalAccount && !hasExternalId;
+      });
+    },
+    message: (role) =>
+      `IAM role "${role.name}" allows cross-account sts:AssumeRole without a sts:ExternalId condition. Any AWS account that knows the role ARN can assume it — the "confused deputy" attack.`,
+    fix: "Add a Condition block requiring sts:ExternalId to the cross-account trust policy.",
+    suggestion: `Add \`"Condition": { "StringEquals": { "sts:ExternalId": "<unique-secret>" } }\` to the trust policy statement. The ExternalId is a secret shared only between you and the trusted account's deployment process — it prevents a malicious third party from tricking their legitimate role into assuming yours. AWS recommends generating a UUID per customer/integration. CIS IAM 1.21 and the AWS Well-Architected Security Pillar both require ExternalId for cross-account access.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+  // ── IAM: iam:PassRole with unrestricted resource ──────────────────────────
+  // Privilege escalation: PassRole on * allows promotion to any role
+  {
+    id: "iam_pass_role_unrestricted",
+    level: "critical",
+    title: "IAM role grants iam:PassRole on all resources",
+    check: (role) => {
+      if (!role.policies) return false;
+      return role.policies.some((stmt) => {
+        if (stmt.effect !== "Allow") return false;
+        const actions = Array.isArray(stmt.actions)
+          ? stmt.actions
+          : String(stmt.actions ?? "").split(/[\s,]+/);
+        const resources = Array.isArray(stmt.resources)
+          ? stmt.resources
+          : String(stmt.resources ?? "").split(/[\s,]+/);
+        const hasPassRole = actions.some(
+          (a) => a.trim() === "iam:PassRole" || a.trim() === "*",
+        );
+        const allResources = resources.some((r) => r.trim() === "*");
+        return hasPassRole && allResources;
+      });
+    },
+    message: (role) =>
+      `IAM role "${role.name}" can pass any IAM role to any AWS service. An attacker with this permission can escalate to Administrator by passing a highly privileged role to EC2, Lambda, or ECS.`,
+    fix: "Restrict iam:PassRole to specific role ARNs that this principal legitimately needs to pass.",
+    suggestion: `Change the Resource from \`"*"\` to a specific role ARN pattern: \`"arn:aws:iam::ACCOUNT_ID:role/allowed-role-prefix-*"\`. For CI/CD pipelines, enumerate the exact roles the pipeline can assume. \`iam:PassRole\` on \`*\` is a classic privilege escalation path — Rhino Security Labs lists it as one of the top IAM privilege escalation techniques. Pair with a Permission Boundary on all roles to set a hard ceiling on what can be escalated to.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+  // ── IAM: trust policy allows all AWS services ─────────────────────────────
+  {
+    id: "iam_trust_all_services",
+    level: "warning",
+    title: "IAM role trust policy allows all AWS services to assume it",
+    check: (role) => {
+      if (!role.policies) return false;
+      return role.policies.some((stmt) => {
+        if (stmt.effect !== "Allow") return false;
+        const actions = Array.isArray(stmt.actions)
+          ? stmt.actions
+          : String(stmt.actions ?? "").split(/[\s,]+/);
+        const isTrust = actions.some((a) => a.trim() === "sts:AssumeRole");
+        const resources = Array.isArray(stmt.resources)
+          ? stmt.resources
+          : String(stmt.resources ?? "").split(/[\s,]+/);
+        const allServices = resources.some(
+          (r) => r.trim() === "*" || r.trim() === "*.amazonaws.com",
+        );
+        return isTrust && allServices;
+      });
+    },
+    message: (role) =>
+      `IAM role "${role.name}" has a trust policy that allows all AWS services (*.amazonaws.com) to assume it. Any AWS service in any account could assume this role — not just your intended service.`,
+    fix: "Restrict the Principal in the trust policy to the specific AWS service that needs to assume this role.",
+    suggestion: `Replace \`"Service": "*.amazonaws.com"\` with the specific service principal, e.g. \`"Service": "lambda.amazonaws.com"\`, \`"Service": "ecs-tasks.amazonaws.com"\`, or \`"Service": "ec2.amazonaws.com"\`. Service principals are specific strings listed in AWS documentation for each service. Overly broad trust policies violate the principle of least privilege and may allow unexpected service-to-service assumption chains.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "NIST"],
+  },
+  // ── IAM: human-access role without MFA condition ──────────────────────────
+  // CIS IAM 1.10 — IAM console access should require MFA
+  {
+    id: "iam_no_mfa_condition",
+    level: "critical",
+    title: "IAM role with console access has no MFA required condition",
+    check: (role) => {
+      if (!role.policies) return false;
+      return role.policies.some((stmt) => {
+        if (stmt.effect !== "Allow") return false;
+        const actions = Array.isArray(stmt.actions)
+          ? stmt.actions
+          : String(stmt.actions ?? "").split(/[\s,]+/);
+        const isTrust = actions.some((a) => a.trim() === "sts:AssumeRole");
+        const resources = Array.isArray(stmt.resources)
+          ? stmt.resources
+          : String(stmt.resources ?? "").split(/[\s,]+/);
+        const isUser = resources.some((r) =>
+          r.includes(":user/") || r.includes(":root"),
+        );
+        const hasMfa =
+          stmt.condition?.BoolIfExists?.["aws:MultiFactorAuthPresent"] === "true" ||
+          stmt.condition?.Bool?.["aws:MultiFactorAuthPresent"] === "true" ||
+          stmt.condition?.NumericLessThan?.["aws:MultiFactorAuthAge"];
+        return isTrust && isUser && !hasMfa;
+      });
+    },
+    message: (role) =>
+      `IAM role "${role.name}" can be assumed by IAM users without requiring MFA. A compromised password alone is sufficient to assume this role and access its permissions.`,
+    fix: "Add a Condition block requiring aws:MultiFactorAuthPresent = true to the trust policy.",
+    suggestion: `Add \`"Condition": { "BoolIfExists": { "aws:MultiFactorAuthPresent": "true" } }\` to the trust policy. Use \`BoolIfExists\` (not \`Bool\`) to handle both console and CLI with assumed-role sessions correctly. For time-bound sessions also add \`"NumericLessThan": { "aws:MultiFactorAuthAge": "3600" }\` to enforce MFA recency. CIS IAM 1.10 and PCI DSS Req 8.3 both require MFA for all access to the AWS management console.`,
+    canAcknowledge: false,
+    standards: ["CIS", "SOC2", "PCI", "HIPAA", "NIST"],
+  },
 ];
 
 // ─── Acknowledge persistence ──────────────────────────────────────────────────
@@ -1883,6 +2670,559 @@ function saveAcknowledged(map) {
   } catch {}
 }
 
+// ─── Azure Config Rules ───────────────────────────────────────────────────────
+
+const AZURE_CONFIG_RULES = [
+  {
+    id: "azure_vm_password_auth",
+    level: "warning",
+    title: "Azure VM: password authentication enabled",
+    applies: (n) => n.type === "azure_vm",
+    check: (n) => n.data?.config?.disable_password_authentication === false,
+    message: (n) => `${n.data.label} allows password authentication. Use SSH keys only.`,
+    fix: "Set 'SSH Key Only' to true in the component config.",
+    suggestion: "Set `disable_password_authentication = true` on `azurerm_linux_virtual_machine` and use `admin_ssh_key` blocks.",
+    standards: ["CIS", "NIST"],
+  },
+  {
+    id: "azure_vm_no_boot_diagnostics",
+    level: "info",
+    title: "Azure VM: boot diagnostics not enabled",
+    applies: (n) => n.type === "azure_vm",
+    check: (n) => !n.data?.config?.boot_diagnostics_enabled,
+    message: (n) => `${n.data.label} does not have boot diagnostics enabled.`,
+    fix: "Enable 'Boot Diagnostics' in the component config.",
+    suggestion: "Add `boot_diagnostics {}` block to `azurerm_linux_virtual_machine`. Enables serial console and screenshot access for troubleshooting.",
+    standards: ["NIST"],
+  },
+  {
+    id: "azure_aks_rbac_disabled",
+    level: "critical",
+    title: "AKS: RBAC disabled",
+    applies: (n) => n.type === "azure_aks",
+    check: (n) => n.data?.config?.role_based_access_control_enabled === false,
+    message: (n) => `${n.data.label} has RBAC disabled. All users have unrestricted cluster access.`,
+    fix: "Enable 'RBAC' in the AKS component config.",
+    suggestion: "Set `role_based_access_control_enabled = true` on `azurerm_kubernetes_cluster`. Re-enabling after disable requires cluster recreation.",
+    standards: ["CIS", "NIST", "SOC2"],
+  },
+  {
+    id: "azure_aks_no_private_cluster",
+    level: "warning",
+    title: "AKS: API server not private",
+    applies: (n) => n.type === "azure_aks",
+    check: (n) => !n.data?.config?.private_cluster_enabled,
+    message: (n) => `${n.data.label} has a public-facing API server endpoint.`,
+    fix: "Enable 'Private Cluster' in the AKS component config.",
+    suggestion: "Set `private_cluster_enabled = true` in `azurerm_kubernetes_cluster`. Requires VNet integration and private DNS zone.",
+    standards: ["CIS", "NIST"],
+  },
+  {
+    id: "azure_aks_no_authorized_ips",
+    level: "warning",
+    title: "AKS: no authorized IP ranges on API server",
+    applies: (n) => n.type === "azure_aks",
+    check: (n) => !n.data?.config?.private_cluster_enabled && !n.data?.config?.api_server_authorized_ip_ranges,
+    message: (n) => `${n.data.label} API server is open to all IPs with no IP range restriction.`,
+    fix: "Set 'API Server Authorized IPs' in the AKS component config, or enable private cluster.",
+    suggestion: "Set `api_server_authorized_ip_ranges` or use `private_cluster_enabled = true` on `azurerm_kubernetes_cluster`.",
+    standards: ["CIS", "NIST"],
+  },
+  {
+    id: "azure_aks_no_network_policy",
+    level: "warning",
+    title: "AKS: no network policy configured",
+    applies: (n) => n.type === "azure_aks",
+    check: (n) => !n.data?.config?.network_policy,
+    message: (n) => `${n.data.label} has no network policy. All pods can communicate freely.`,
+    fix: "Set 'Network Policy' (azure or calico) in the AKS component config.",
+    suggestion: "Set `network_policy = 'azure'` or `'calico'` in the `network_profile` block of `azurerm_kubernetes_cluster`.",
+    standards: ["NIST", "SOC2"],
+  },
+  {
+    id: "azure_sql_tde_disabled",
+    level: "critical",
+    title: "Azure SQL: Transparent Data Encryption disabled",
+    applies: (n) => n.type === "azure_sql",
+    check: (n) => n.data?.config?.transparent_data_encryption_enabled === false,
+    message: (n) => `${n.data.label} has Transparent Data Encryption disabled.`,
+    fix: "Enable 'Transparent Data Encryption' in the SQL component config.",
+    suggestion: "Set `transparent_data_encryption_enabled = true` on `azurerm_mssql_database`.",
+    standards: ["CIS", "HIPAA", "PCI"],
+  },
+  {
+    id: "azure_sql_min_tls_old",
+    level: "warning",
+    title: "Azure SQL: minimum TLS version below 1.2",
+    applies: (n) => n.type === "azure_sql",
+    check: (n) => n.data?.config?.minimum_tls_version && n.data.config.minimum_tls_version !== "1.2",
+    message: (n) => `${n.data.label} accepts TLS versions older than 1.2.`,
+    fix: "Set minimum TLS version to 1.2 in the SQL component config.",
+    suggestion: "Set `minimum_tls_version = '1.2'` on `azurerm_mssql_server`.",
+    standards: ["CIS", "PCI"],
+  },
+  {
+    id: "azure_sql_no_auditing",
+    level: "warning",
+    title: "Azure SQL: auditing not enabled",
+    applies: (n) => n.type === "azure_sql",
+    check: (n) => !n.data?.config?.auditing_enabled,
+    message: (n) => `${n.data.label} does not have auditing enabled.`,
+    fix: "Enable 'Auditing' in the SQL component config.",
+    suggestion: "Generate `azurerm_mssql_server_extended_auditing_policy` with `storage_endpoint` and `retention_in_days >= 90`.",
+    standards: ["CIS", "SOC2", "PCI", "HIPAA"],
+  },
+  {
+    id: "azure_storage_public_access",
+    level: "critical",
+    title: "Azure Storage: public blob access allowed",
+    applies: (n) => ["azure_blob", "azure_files", "azure_datalake", "azure_table", "azure_queue"].includes(n.type),
+    check: (n) => n.data?.config?.allow_nested_items_to_be_public === true,
+    message: (n) => `${n.data.label} allows public blob/container access.`,
+    fix: "Set 'Allow Public Access' to false in the storage component config.",
+    suggestion: "Set `allow_nested_items_to_be_public = false` on `azurerm_storage_account`. Require SAS tokens or managed identity.",
+    standards: ["CIS", "NIST", "SOC2"],
+  },
+  {
+    id: "azure_storage_https_only",
+    level: "warning",
+    title: "Azure Storage: HTTPS not enforced",
+    applies: (n) => ["azure_blob", "azure_files", "azure_datalake", "azure_table", "azure_queue"].includes(n.type),
+    check: (n) => n.data?.config?.enable_https_traffic_only === false,
+    message: (n) => `${n.data.label} allows unencrypted HTTP traffic.`,
+    fix: "Enable 'HTTPS Only' in the storage component config.",
+    suggestion: "Set `enable_https_traffic_only = true` on `azurerm_storage_account`.",
+    standards: ["CIS", "PCI"],
+  },
+  {
+    id: "azure_storage_min_tls_old",
+    level: "warning",
+    title: "Azure Storage: minimum TLS below 1.2",
+    applies: (n) => ["azure_blob", "azure_files", "azure_datalake", "azure_table", "azure_queue"].includes(n.type),
+    check: (n) => n.data?.config?.min_tls_version && n.data.config.min_tls_version !== "TLS1_2",
+    message: (n) => `${n.data.label} accepts TLS versions older than 1.2.`,
+    fix: "Set min TLS version to TLS1_2 in the storage component config.",
+    suggestion: "Set `min_tls_version = 'TLS1_2'` on `azurerm_storage_account`.",
+    standards: ["CIS", "PCI"],
+  },
+  {
+    id: "azure_keyvault_soft_delete_disabled",
+    level: "critical",
+    title: "Key Vault: soft delete not enabled",
+    applies: (n) => n.type === "azure_keyvault",
+    check: (n) => n.data?.config?.soft_delete_retention_days === 0 || n.data?.config?.soft_delete_enabled === false,
+    message: (n) => `${n.data.label} does not have soft delete enabled. Secrets can be permanently deleted.`,
+    fix: "Set soft delete retention days to at least 7 in the Key Vault config.",
+    suggestion: "Set `soft_delete_retention_days = 90` on `azurerm_key_vault`.",
+    standards: ["CIS", "NIST", "SOC2"],
+  },
+  {
+    id: "azure_keyvault_purge_protection_disabled",
+    level: "critical",
+    title: "Key Vault: purge protection not enabled",
+    applies: (n) => n.type === "azure_keyvault",
+    check: (n) => n.data?.config?.purge_protection_enabled === false,
+    message: (n) => `${n.data.label} does not have purge protection enabled.`,
+    fix: "Enable 'Purge Protection' in the Key Vault component config.",
+    suggestion: "Set `purge_protection_enabled = true` on `azurerm_key_vault`.",
+    standards: ["CIS", "NIST", "SOC2"],
+  },
+  {
+    id: "azure_functions_https_only",
+    level: "warning",
+    title: "Azure Functions: HTTPS not enforced",
+    applies: (n) => n.type === "azure_functions",
+    check: (n) => n.data?.config?.https_only === false,
+    message: (n) => `${n.data.label} allows unencrypted HTTP traffic.`,
+    fix: "Enable 'HTTPS Only' in the Functions component config.",
+    suggestion: "Set `https_only = true` on `azurerm_linux_function_app`.",
+    standards: ["CIS", "PCI"],
+  },
+  {
+    id: "azure_app_service_https_only",
+    level: "warning",
+    title: "App Service: HTTPS not enforced",
+    applies: (n) => n.type === "azure_app_service",
+    check: (n) => n.data?.config?.https_only === false,
+    message: (n) => `${n.data.label} allows unencrypted HTTP traffic.`,
+    fix: "Enable 'HTTPS Only' in the App Service component config.",
+    suggestion: "Set `https_only = true` on `azurerm_linux_web_app` or `azurerm_windows_web_app`.",
+    standards: ["CIS", "PCI"],
+  },
+  {
+    id: "azure_app_service_min_tls_old",
+    level: "warning",
+    title: "App Service: minimum TLS below 1.2",
+    applies: (n) => n.type === "azure_app_service",
+    check: (n) => n.data?.config?.minimum_tls_version && n.data.config.minimum_tls_version !== "1.2",
+    message: (n) => `${n.data.label} accepts TLS versions below 1.2.`,
+    fix: "Set minimum TLS version to 1.2 in the App Service component config.",
+    suggestion: "Set `minimum_tls_version = '1.2'` in `site_config` on `azurerm_linux_web_app`.",
+    standards: ["CIS", "PCI"],
+  },
+  {
+    id: "azure_redis_non_ssl_port",
+    level: "warning",
+    title: "Azure Redis: non-SSL port enabled",
+    applies: (n) => n.type === "azure_redis",
+    check: (n) => n.data?.config?.enable_non_ssl_port === true,
+    message: (n) => `${n.data.label} has the unencrypted Redis port (6379) enabled.`,
+    fix: "Disable 'Non-SSL Port' in the Redis component config.",
+    suggestion: "Set `enable_non_ssl_port = false` on `azurerm_redis_cache`. Always use SSL port 6380.",
+    standards: ["CIS", "PCI"],
+  },
+  {
+    id: "azure_redis_min_tls_old",
+    level: "warning",
+    title: "Azure Redis: minimum TLS below 1.2",
+    applies: (n) => n.type === "azure_redis",
+    check: (n) => n.data?.config?.minimum_tls_version && n.data.config.minimum_tls_version !== "1.2",
+    message: (n) => `${n.data.label} accepts TLS versions below 1.2.`,
+    fix: "Set minimum TLS version to 1.2 in the Redis component config.",
+    suggestion: "Set `minimum_tls_version = '1.2'` on `azurerm_redis_cache`.",
+    standards: ["CIS", "PCI"],
+  },
+  {
+    id: "azure_postgres_ssl_disabled",
+    level: "critical",
+    title: "Azure PostgreSQL: SSL not enforced",
+    applies: (n) => n.type === "azure_postgres",
+    check: (n) => n.data?.config?.ssl_enforcement_enabled === false,
+    message: (n) => `${n.data.label} does not enforce SSL connections.`,
+    fix: "Enable 'SSL Enforcement' in the PostgreSQL component config.",
+    suggestion: "Set `ssl_enforcement_enabled = true` on `azurerm_postgresql_flexible_server`.",
+    standards: ["CIS", "HIPAA", "PCI"],
+  },
+  {
+    id: "azure_mysql_ssl_disabled",
+    level: "critical",
+    title: "Azure MySQL: SSL not enforced",
+    applies: (n) => n.type === "azure_mysql",
+    check: (n) => n.data?.config?.ssl_enforcement_enabled === false,
+    message: (n) => `${n.data.label} does not enforce SSL connections.`,
+    fix: "Enable 'SSL Enforcement' in the MySQL component config.",
+    suggestion: "Set `require_secure_transport = 'ON'` via `azurerm_mysql_flexible_server_configuration`.",
+    standards: ["CIS", "HIPAA", "PCI"],
+  },
+  {
+    id: "azure_acr_admin_enabled",
+    level: "warning",
+    title: "Container Registry: admin user enabled",
+    applies: (n) => n.type === "azure_acr",
+    check: (n) => n.data?.config?.admin_enabled === true,
+    message: (n) => `${n.data.label} has the admin user enabled. Use managed identity instead.`,
+    fix: "Disable 'Admin Enabled' in the Container Registry config.",
+    suggestion: "Set `admin_enabled = false` on `azurerm_container_registry`. Use `azurerm_role_assignment` with AcrPull/AcrPush roles.",
+    standards: ["CIS", "NIST"],
+  },
+  {
+    id: "azure_agw_no_waf",
+    level: "warning",
+    title: "Application Gateway: WAF not enabled",
+    applies: (n) => n.type === "azure_agw",
+    check: (n) => n.data?.config?.sku_name && !String(n.data.config.sku_name).startsWith("WAF"),
+    message: (n) => `${n.data.label} is not using the WAF_v2 SKU. Web traffic is not protected.`,
+    fix: "Set SKU to WAF_v2 in the Application Gateway config.",
+    suggestion: "Set `sku { name='WAF_v2' tier='WAF_v2' }` and add `waf_configuration { enabled=true mode='Prevention' }` on `azurerm_application_gateway`.",
+    standards: ["CIS", "PCI", "SOC2"],
+  },
+  {
+    id: "azure_cosmosdb_public_access",
+    level: "warning",
+    title: "CosmosDB: no network access restriction",
+    applies: (n) => n.type === "azure_cosmosdb",
+    check: (n) => !n.data?.config?.ip_range_filter && !n.data?.config?.virtual_network_rule,
+    message: (n) => `${n.data.label} is accessible from all networks with no IP filtering.`,
+    fix: "Set IP range filter or virtual network rule in the CosmosDB component config.",
+    suggestion: "Set `ip_range_filter` or `virtual_network_rule` blocks on `azurerm_cosmosdb_account` to restrict access.",
+    standards: ["CIS", "NIST"],
+  },
+  {
+    id: "azure_vpn_gateway_basic_sku",
+    level: "info",
+    title: "VPN Gateway: Basic SKU does not support SLAs",
+    applies: (n) => n.type === "azure_vpn_gateway",
+    check: (n) => n.data?.config?.sku === "Basic",
+    message: (n) => `${n.data.label} uses the Basic SKU which lacks SLA and zone-redundancy.`,
+    fix: "Upgrade to VpnGw1 or higher in the VPN Gateway config.",
+    suggestion: "Use `sku = 'VpnGw1'` or higher for production workloads on `azurerm_virtual_network_gateway`.",
+    standards: ["NIST"],
+  },
+];
+
+// ─── Azure Topology Rules ─────────────────────────────────────────────────────
+
+const AZURE_TOPOLOGY_RULES = [
+  {
+    id: "azure_no_keyvault",
+    level: "warning",
+    title: "No Key Vault in architecture",
+    applies: (n) => ["azure_sql", "azure_cosmosdb", "azure_postgres", "azure_mysql", "azure_redis", "azure_servicebus", "azure_eventhub"].includes(n.type),
+    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_keyvault"),
+    message: (n) => `Architecture has databases/services but no Key Vault for secrets management.`,
+    fix: "Add an Azure Key Vault component to store connection strings and secrets.",
+    suggestion: "Add `azurerm_key_vault` with `purge_protection_enabled = true`. Store all passwords and connection strings as Key Vault secrets.",
+    standards: ["CIS", "NIST", "SOC2"],
+  },
+  {
+    id: "azure_no_log_analytics",
+    level: "warning",
+    title: "No Log Analytics workspace",
+    applies: (n) => ["azure_aks", "azure_vm", "azure_app_service", "azure_functions"].includes(n.type),
+    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_log_analytics"),
+    message: (n) => `${n.data.label} has no Log Analytics workspace for centralized logging.`,
+    fix: "Add an Azure Log Analytics component to the architecture.",
+    suggestion: "Add `azurerm_log_analytics_workspace` and configure diagnostic settings on all resources to send logs/metrics to it.",
+    standards: ["CIS", "NIST", "SOC2"],
+  },
+  {
+    id: "azure_no_monitor",
+    level: "info",
+    title: "No Azure Monitor or App Insights",
+    applies: (n) => ["azure_app_service", "azure_functions", "azure_aks", "azure_vm"].includes(n.type),
+    check: (n, edges, nodes) => !nodes.some((x) => ["azure_monitor", "azure_app_insights"].includes(x.type)),
+    message: (n) => `${n.data.label} has no observability infrastructure (Monitor/App Insights).`,
+    fix: "Add Azure Monitor or Application Insights to the architecture.",
+    suggestion: "Add `azurerm_application_insights` for APM and `azurerm_monitor_metric_alert` for key metric thresholds.",
+    standards: ["NIST", "SOC2"],
+  },
+  {
+    id: "azure_no_backup",
+    level: "warning",
+    title: "No backup vault for stateful resources",
+    applies: (n) => ["azure_vm", "azure_sql", "azure_postgres", "azure_mysql"].includes(n.type),
+    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_backup"),
+    message: (n) => `${n.data.label} has no Azure Backup vault configured.`,
+    fix: "Add an Azure Backup component to the architecture.",
+    suggestion: "Add `azurerm_recovery_services_vault` and `azurerm_backup_policy_vm` to protect VMs and databases.",
+    standards: ["CIS", "NIST", "SOC2", "HIPAA"],
+  },
+  {
+    id: "azure_aks_no_acr",
+    level: "info",
+    title: "AKS without Container Registry",
+    applies: (n) => n.type === "azure_aks",
+    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_acr"),
+    message: (n) => `${n.data.label} has no Container Registry for storing container images.`,
+    fix: "Add an Azure Container Registry component linked to AKS.",
+    suggestion: "Add `azurerm_container_registry` (sku='Standard') and wire to AKS via `azurerm_role_assignment` with AcrPull role.",
+    standards: ["NIST"],
+  },
+  {
+    id: "azure_vm_no_bastion",
+    level: "warning",
+    title: "VMs present without Azure Bastion",
+    applies: (n) => n.type === "azure_vm",
+    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_bastion"),
+    message: (n) => `${n.data.label} is accessible without a Bastion host — RDP/SSH may be publicly exposed.`,
+    fix: "Add Azure Bastion to the architecture for secure VM access.",
+    suggestion: "Add `azurerm_bastion_host` in a dedicated AzureBastionSubnet. Disable public IPs on VMs.",
+    standards: ["CIS", "NIST"],
+  },
+  {
+    id: "azure_no_ddos_protection",
+    level: "info",
+    title: "No DDoS Protection Plan",
+    applies: (n) => n.type === "azure_vnet",
+    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_ddos"),
+    message: (n) => `${n.data.label} has no DDoS Protection Plan attached.`,
+    fix: "Add an Azure DDoS Protection component to the architecture.",
+    suggestion: "Add `azurerm_network_ddos_protection_plan` and reference it in the VNet `ddos_protection_plan` block.",
+    standards: ["NIST", "PCI"],
+  },
+  {
+    id: "azure_internet_facing_vm",
+    level: "critical",
+    title: "VM directly internet-facing",
+    applies: (n) => n.type === "azure_vm",
+    check: (n, edges, nodes) => {
+      const neighbors = neighborIds(n.id, edges);
+      const hasLBOrAGW = neighbors.some((nid) => {
+        const nb = nodes.find((x) => x.id === nid);
+        return nb && ["azure_agw", "azure_lb", "azure_frontdoor"].includes(nb.type);
+      });
+      const hasInternet = neighbors.some((nid) => {
+        const nb = nodes.find((x) => x.id === nid);
+        return nb && String(nb.data?.label ?? "").toLowerCase().includes("internet");
+      });
+      return hasInternet && !hasLBOrAGW;
+    },
+    message: (n) => `${n.data.label} appears to be directly internet-facing without a load balancer or Application Gateway.`,
+    fix: "Place an Application Gateway or Load Balancer in front of the VM.",
+    suggestion: "Add `azurerm_application_gateway` (WAF_v2) or `azurerm_lb` between the internet and the VM. Remove the VM public IP.",
+    standards: ["CIS", "NIST", "PCI"],
+  },
+  {
+    id: "azure_sql_no_private_endpoint",
+    level: "warning",
+    title: "Azure SQL: no Private Endpoint",
+    applies: (n) => n.type === "azure_sql",
+    check: (n, edges, nodes) => {
+      const neighbors = neighborIds(n.id, edges);
+      return !neighbors.some((nid) => nodes.find((x) => x.id === nid && x.type === "azure_private_endpoint"));
+    },
+    message: (n) => `${n.data.label} has no Private Endpoint. Database may be reachable over public internet.`,
+    fix: "Add a Private Endpoint component connected to the SQL database.",
+    suggestion: "Add `azurerm_private_endpoint` with subresource 'sqlServer'. Set `public_network_access_enabled = false` on the server.",
+    standards: ["CIS", "NIST", "PCI"],
+  },
+  {
+    id: "azure_storage_no_private_endpoint",
+    level: "info",
+    title: "Storage: no Private Endpoint",
+    applies: (n) => ["azure_blob", "azure_datalake"].includes(n.type),
+    check: (n, edges, nodes) => {
+      const neighbors = neighborIds(n.id, edges);
+      return !neighbors.some((nid) => nodes.find((x) => x.id === nid && x.type === "azure_private_endpoint"));
+    },
+    message: (n) => `${n.data.label} has no Private Endpoint. Storage is accessible over the public internet.`,
+    fix: "Add a Private Endpoint connected to the storage account.",
+    suggestion: "Add `azurerm_private_endpoint` with subresource 'blob' and set `public_network_access_enabled = false`.",
+    standards: ["NIST", "SOC2"],
+  },
+  {
+    id: "azure_apim_no_waf",
+    level: "warning",
+    title: "APIM: no WAF or Application Gateway in front",
+    applies: (n) => n.type === "azure_apim",
+    check: (n, edges, nodes) => {
+      const neighbors = neighborIds(n.id, edges);
+      return !neighbors.some((nid) => nodes.find((x) => x.id === nid && ["azure_agw", "azure_waf", "azure_frontdoor"].includes(x.type)));
+    },
+    message: (n) => `${n.data.label} has no WAF or Application Gateway protecting the gateway.`,
+    fix: "Add an Azure Application Gateway (WAF_v2) or Azure Front Door in front of APIM.",
+    suggestion: "Place `azurerm_application_gateway` with WAF_v2 SKU in front of APIM, or use Azure Front Door Premium with WAF policy.",
+    standards: ["CIS", "PCI", "SOC2"],
+  },
+  {
+    id: "azure_aks_no_defender",
+    level: "warning",
+    title: "AKS: Microsoft Defender for Containers not enabled",
+    applies: (n) => n.type === "azure_aks",
+    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_defender"),
+    message: (n) => `${n.data.label} has no Microsoft Defender for Containers.`,
+    fix: "Add an Azure Defender component to the architecture.",
+    suggestion: "Add `azurerm_security_center_subscription_pricing { resource_type='Containers' tier='Standard' }`.",
+    standards: ["CIS", "NIST"],
+  },
+  {
+    id: "azure_no_sentinel",
+    level: "info",
+    title: "No Microsoft Sentinel (SIEM)",
+    applies: (n) => n.type === "azure_log_analytics",
+    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_sentinel"),
+    message: (n) => `Log Analytics workspace present but no Microsoft Sentinel SIEM enabled.`,
+    fix: "Add Microsoft Sentinel to the architecture for threat detection.",
+    suggestion: "Add `azurerm_sentinel_log_analytics_workspace_onboarding` referencing the Log Analytics workspace.",
+    standards: ["NIST", "SOC2"],
+  },
+];
+
+// ─── Azure NSG Rules ──────────────────────────────────────────────────────────
+
+const AZURE_NSG_RULES = [
+  {
+    id: "azure_nsg_ssh_open",
+    level: "critical",
+    title: "NSG: SSH (22) open to internet",
+    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 22) && isPublicCidr(r.source)),
+    message: (sg) => `NSG "${sg.name}" allows SSH (port 22) from the internet (0.0.0.0/0).`,
+    fix: "Restrict SSH to known IP ranges or use Azure Bastion.",
+    suggestion: "Replace source_address_prefix with your office IP or Bastion subnet CIDR. Use Azure Bastion for all admin access.",
+    canAcknowledge: true,
+    standards: ["CIS", "NIST", "PCI"],
+  },
+  {
+    id: "azure_nsg_rdp_open",
+    level: "critical",
+    title: "NSG: RDP (3389) open to internet",
+    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 3389) && isPublicCidr(r.source)),
+    message: (sg) => `NSG "${sg.name}" allows RDP (port 3389) from the internet (0.0.0.0/0).`,
+    fix: "Restrict RDP to known IP ranges or use Azure Bastion.",
+    suggestion: "Replace source_address_prefix with your office IP. Use Azure Bastion for all remote desktop access.",
+    canAcknowledge: true,
+    standards: ["CIS", "NIST", "PCI"],
+  },
+  {
+    id: "azure_nsg_all_traffic_open",
+    level: "critical",
+    title: "NSG: all inbound traffic allowed from internet",
+    check: (sg) => sgAllowsAllTrafficFromPublic(sg),
+    message: (sg) => `NSG "${sg.name}" allows all inbound traffic from the internet.`,
+    fix: "Remove the catch-all allow-all inbound rule.",
+    suggestion: "Replace the protocol=* allow-all rule with explicit rules for only the ports your application requires.",
+    canAcknowledge: false,
+    standards: ["CIS", "NIST", "PCI", "SOC2"],
+  },
+  {
+    id: "azure_nsg_sql_server_open",
+    level: "critical",
+    title: "NSG: SQL Server (1433) open to internet",
+    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 1433) && isPublicCidr(r.source)),
+    message: (sg) => `NSG "${sg.name}" allows SQL Server traffic (1433) from the internet.`,
+    fix: "Restrict SQL Server port to the application subnet CIDR only.",
+    suggestion: "Set source_address_prefix to the app subnet CIDR. Never expose database ports to the internet.",
+    canAcknowledge: false,
+    standards: ["CIS", "NIST", "PCI", "HIPAA"],
+  },
+  {
+    id: "azure_nsg_postgres_open",
+    level: "critical",
+    title: "NSG: PostgreSQL (5432) open to internet",
+    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 5432) && isPublicCidr(r.source)),
+    message: (sg) => `NSG "${sg.name}" allows PostgreSQL (5432) from the internet.`,
+    fix: "Restrict PostgreSQL to the app tier subnet only.",
+    suggestion: "Scope NSG rule source to the application subnet. Use Private Endpoint to remove public exposure entirely.",
+    canAcknowledge: false,
+    standards: ["CIS", "NIST", "PCI", "HIPAA"],
+  },
+  {
+    id: "azure_nsg_mysql_open",
+    level: "critical",
+    title: "NSG: MySQL (3306) open to internet",
+    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 3306) && isPublicCidr(r.source)),
+    message: (sg) => `NSG "${sg.name}" allows MySQL (3306) from the internet.`,
+    fix: "Restrict MySQL to the app tier subnet only.",
+    suggestion: "Scope NSG rule source to the application subnet. Use Private Endpoint to remove public exposure entirely.",
+    canAcknowledge: false,
+    standards: ["CIS", "NIST", "PCI", "HIPAA"],
+  },
+  {
+    id: "azure_nsg_redis_open",
+    level: "critical",
+    title: "NSG: Redis (6380) open to internet",
+    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 6380) && isPublicCidr(r.source)),
+    message: (sg) => `NSG "${sg.name}" allows Redis SSL port (6380) from the internet.`,
+    fix: "Restrict Redis to the app tier subnet only.",
+    suggestion: "Scope source_address_prefix to the application subnet CIDR. Redis should only be reachable from within the VNet.",
+    canAcknowledge: false,
+    standards: ["CIS", "NIST", "PCI"],
+  },
+  {
+    id: "azure_nsg_mongodb_open",
+    level: "critical",
+    title: "NSG: MongoDB (27017) open to internet",
+    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 27017) && isPublicCidr(r.source)),
+    message: (sg) => `NSG "${sg.name}" allows MongoDB (27017) from the internet.`,
+    fix: "Restrict MongoDB port to the application subnet.",
+    suggestion: "Scope NSG rule source to the app subnet CIDR. Use Private Endpoint for CosmosDB/MongoDB API.",
+    canAcknowledge: false,
+    standards: ["CIS", "NIST", "PCI"],
+  },
+  {
+    id: "azure_nsg_wide_range_open",
+    level: "warning",
+    title: "NSG: wide port range open to internet",
+    check: (sg) => (sg.inbound ?? []).some((r) => isWideRange(r)),
+    message: (sg) => `NSG "${sg.name}" allows a wide port range from the internet.`,
+    fix: "Narrow the port range to only required ports.",
+    suggestion: "Replace wide port range rules with specific allowed ports per application requirement.",
+    canAcknowledge: true,
+    standards: ["CIS", "NIST"],
+  },
+];
+
+
 // ─── Main compute function ────────────────────────────────────────────────────
 
 function computeFindings(nodes, edges, securityGroups, iamRoles) {
@@ -1890,9 +3230,10 @@ function computeFindings(nodes, edges, securityGroups, iamRoles) {
   const roles = Array.isArray(iamRoles) ? iamRoles : [];
   const findings = [];
 
-  // 1. Config-based rules
+  // 1. Config-based rules (AWS + Azure)
+  const allConfigRules = [...CONFIG_RULES, ...AZURE_CONFIG_RULES];
   for (const node of nodes) {
-    for (const rule of CONFIG_RULES) {
+    for (const rule of allConfigRules) {
       if (rule.applies(node) && rule.check(node, edges, nodes)) {
         findings.push({
           id: `${rule.id}::${node.id}`,
@@ -1913,9 +3254,10 @@ function computeFindings(nodes, edges, securityGroups, iamRoles) {
     }
   }
 
-  // 2. Topology-based rules
+  // 2. Topology-based rules (AWS + Azure)
+  const allTopologyRules = [...TOPOLOGY_RULES, ...AZURE_TOPOLOGY_RULES];
   for (const node of nodes) {
-    for (const rule of TOPOLOGY_RULES) {
+    for (const rule of allTopologyRules) {
       if (rule.applies(node) && rule.check(node, edges, nodes)) {
         findings.push({
           id: `${rule.id}::${node.id}`,
@@ -1936,7 +3278,8 @@ function computeFindings(nodes, edges, securityGroups, iamRoles) {
     }
   }
 
-  // 3. SG port inspection rules
+  // 3. SG/NSG port inspection rules (AWS + Azure)
+  const allSGRules = [...SG_RULES, ...AZURE_NSG_RULES];
   const sgUsers = {};
   for (const node of nodes) {
     for (const sgId of node.data?.security_group_ids ?? []) {
@@ -1949,7 +3292,7 @@ function computeFindings(nodes, edges, securityGroups, iamRoles) {
     if (node.type === "security_group") sgNodeById[node.id] = node;
   }
   for (const sg of sgs) {
-    for (const rule of SG_RULES) {
+    for (const rule of allSGRules) {
       if (!rule.check(sg)) continue;
       const sgNode = sgNodeById[sg.id];
       const sgFindingBase = {
@@ -2027,71 +3370,57 @@ function computeFindings(nodes, edges, securityGroups, iamRoles) {
   return { findings, nodeFindings, warnings };
 }
 
-// ─── Store ───────────────────────────────────────────────────────────────────────────────────
+// ─── Store ────────────────────────────────────────────────────────────────────
 
 const useValidationStore = create((set, get) => ({
   findings: [],
   nodeFindings: {},
   warnings: {},
-  acknowledgedFindings: loadAcknowledged(),
-  activeStandard: "all",  // "all" | "CIS" | "SOC2" | "PCI" | "HIPAA" | "NIST"
+  dismissedIds: loadAcknowledged(),
 
-  update: (nodes, edges, securityGroups, iamRoles) =>
-    set(computeFindings(nodes, edges, securityGroups, iamRoles)),
-
-  acknowledge: (findingId, reason = "") => {
-    const next = { ...get().acknowledgedFindings, [findingId]: { reason, timestamp: Date.now() } };
-    saveAcknowledged(next);
-    set({ acknowledgedFindings: next });
+  updateFindings(nodes, edges, securityGroups, iamRoles) {
+    const { findings, nodeFindings, warnings } = computeFindings(
+      nodes,
+      edges,
+      securityGroups,
+      iamRoles,
+    );
+    set({ findings, nodeFindings, warnings });
   },
 
-  unacknowledge: (findingId) => {
-    const next = { ...get().acknowledgedFindings };
+  dismissFinding(findingId) {
+    const next = { ...get().dismissedIds, [findingId]: true };
+    saveAcknowledged(next);
+    set({ dismissedIds: next });
+  },
+
+  undismissFinding(findingId) {
+    const next = { ...get().dismissedIds };
     delete next[findingId];
     saveAcknowledged(next);
-    set({ acknowledgedFindings: next });
+    set({ dismissedIds: next });
   },
 
-  activeFindingCount: () => {
-    const { findings, acknowledgedFindings } = get();
-    return findings.filter((f) => !acknowledgedFindings[f.id]).length;
+  clearDismissed() {
+    saveAcknowledged({});
+    set({ dismissedIds: {} });
   },
 
-  setActiveStandard: (standard) => set({ activeStandard: standard }),
-
-  // Returns findings filtered by activeStandard. "all" returns everything.
-  filteredFindings: () => {
-    const { findings, activeStandard } = get();
-    if (!activeStandard || activeStandard === "all") return findings;
-    return findings.filter((f) => (f.standards ?? []).includes(activeStandard));
+  get visibleFindings() {
+    const { findings, dismissedIds } = get();
+    return findings.filter((f) => !dismissedIds[f.id]);
   },
 
-  // Load findings produced externally (archon-cli validate --format archon) into the store.
-  loadExternalFindings: (rawFindings) => {
-    const findings = rawFindings.map((f) => ({
-      id: f.id ?? `${f.ruleId}::${f.nodeId}`,
-      ruleId: f.ruleId,
-      nodeId: f.nodeId,
-      nodeLabel: f.nodeLabel,
-      nodeType: f.nodeType,
-      level: f.level,
-      title: f.title,
-      message: f.message,
-      fix: f.fix,
-      canAcknowledge: f.canAcknowledge ?? false,
-      sgId: f.sgId ?? null,
-      standards: f.standards ?? [],
-    }));
-    const nodeFindings = {};
-    for (const f of findings) {
-      if (!nodeFindings[f.nodeId]) nodeFindings[f.nodeId] = [];
-      nodeFindings[f.nodeId].push(f);
-    }
-    const warnings = {};
-    for (const [nid, flist] of Object.entries(nodeFindings)) {
-      warnings[nid] = flist.map((f) => ({ message: f.message, level: f.level }));
-    }
-    set({ findings, nodeFindings, warnings });
+  get allRules() {
+    return [
+      ...CONFIG_RULES,
+      ...AZURE_CONFIG_RULES,
+      ...TOPOLOGY_RULES,
+      ...AZURE_TOPOLOGY_RULES,
+      ...SG_RULES,
+      ...AZURE_NSG_RULES,
+      ...IAM_RULES,
+    ];
   },
 }));
 

@@ -86,7 +86,6 @@ def _edge_exists(graph: dict, params: dict) -> tuple[bool, str]:
             continue
         if _node_type(src_node) == source_type and _node_type(tgt_node) == target_type:
             return True, f"Connection from {source_type.upper()} to {target_type.upper()} found."
-        # Check reverse for bidirectional
         if edge.get("data", {}).get("bidirectional"):
             if _node_type(src_node) == target_type and _node_type(tgt_node) == source_type:
                 return True, f"Connection from {source_type.upper()} to {target_type.upper()} found."
@@ -100,7 +99,7 @@ def _edge_exists(graph: dict, params: dict) -> tuple[bool, str]:
 def _security_port_restricted(graph: dict, params: dict) -> tuple[bool, str]:
     """
     Checks that no security group allows the given port from the forbidden source
-    (typically '0.0.0.0/0' for publicly exposed admin ports).
+    (typically 0.0.0.0/0 for publicly exposed admin ports).
     """
     port = int(params.get("port", 0))
     forbidden = params.get("forbidden_source", "0.0.0.0/0")
@@ -111,11 +110,36 @@ def _security_port_restricted(graph: dict, params: dict) -> tuple[bool, str]:
             rule_source = rule.get("source", "")
             if rule_port == port and rule_source == forbidden:
                 return False, (
-                    f"Port {port} is open to {forbidden} in security group '{sg.get('name', sg.get('id', ''))}'. "
+                    f"Port {port} is open to {forbidden} in security group "
+                    f"'{sg.get('name', sg.get('id', ''))}'. "
                     "Restrict this to a specific CIDR or remove the rule."
                 )
 
     return True, f"Port {port} is not exposed to {forbidden}. Good."
+
+
+def _any_of(graph: dict, params: dict) -> tuple[bool, str]:
+    """Passes if at least one of the listed component types is present in the graph."""
+    options = [t.lower() for t in params.get("component_types", [])]
+    types = _node_types(graph)
+    found = [t for t in options if t in types]
+    if found:
+        return True, f"Found required component: {found[0].upper()}."
+    readable = ", ".join(t.upper() for t in options)
+    return False, f"Need at least one of: {readable}. Add any of these to your canvas."
+
+
+def _min_node_count(graph: dict, params: dict) -> tuple[bool, str]:
+    """Passes if the total number of nodes in the graph is at least count."""
+    required = int(params.get("count", 1))
+    actual = len(graph.get("nodes", []))
+    if actual >= required:
+        return True, f"Architecture has {actual} components (required at least {required})."
+    missing = required - actual
+    return False, (
+        f"Architecture has only {actual} component{'s' if actual != 1 else ''} — "
+        f"add at least {missing} more to meet the minimum complexity requirement."
+    )
 
 
 # ── Dispatch table ────────────────────────────────────────────────────────────
@@ -126,6 +150,8 @@ _EVALUATORS = {
     "min_count": _min_count,
     "edge_exists": _edge_exists,
     "security_port_restricted": _security_port_restricted,
+    "any_of": _any_of,
+    "min_node_count": _min_node_count,
 }
 
 
@@ -136,9 +162,9 @@ def grade(graph: dict, rubric: list[dict]) -> tuple[int, int, list[dict]]:
     Evaluate the rubric against a submitted graph.
 
     Returns:
-        automated_score  — total points earned
-        total_points     — total points possible
-        criteria_results — list of result dicts (one per criterion)
+        automated_score  -- total points earned
+        total_points     -- total points possible
+        criteria_results -- list of result dicts (one per criterion)
     """
     results = []
     earned = 0

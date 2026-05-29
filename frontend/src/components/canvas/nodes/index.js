@@ -79,6 +79,7 @@ export const nodeTypes = {
   kinesis_firehose: AWSNode,
   msk: AWSNode,
   mq: AWSNode,
+  memorydb: AWSNode,
 
   // AWS — Analytics / Data
   athena: AWSNode,

@@ -308,7 +308,7 @@ function CanvasInner({ onNodeSelect }) {
   // "grab" = pan mode (default), "select" = rubber-band select mode
   const [canvasMode, setCanvasMode] = useState("grab");
 
-  const updateValidation = useValidationStore((s) => s.update);
+  const updateValidation = useValidationStore((s) => s.updateFindings);
   const securityGroups = useSecurityStore((s) => s.securityGroups);
   const iamRoles = useIAMStore((s) => s.iamRoles);
 

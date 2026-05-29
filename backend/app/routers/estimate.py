@@ -77,7 +77,10 @@ def _static_estimate(
 ) -> dict | None:
     """Return a static-pricing dict, or None for free/unknown resources."""
     if infra_provider == "azure":
-        return estimate_azure_component(component, region)
+        result = estimate_azure_component(component, region, usage=usage)
+        if result is None:
+            return None
+        return {**result, "live": False}
     if infra_provider == "gcp":
         return estimate_gcp_component(component, region)
     if infra_provider == "onprem":

@@ -44,7 +44,7 @@ function SeverityPill({ level, count }) {
 
 function DismissFlow({ findingId, onDone }) {
   const [reason, setReason] = useState("");
-  const acknowledge = useValidationStore((s) => s.acknowledge);
+  const acknowledge = useValidationStore((s) => s.dismissFinding);
 
   const handleConfirm = () => {
     acknowledge(findingId, reason.trim());
@@ -90,7 +90,7 @@ function FindingRow({ f, onSelectNode, isAcknowledged, hideLabel }) {
   const setFocusConfigKey   = useGraphStore((s) => s.setFocusConfigKey);
   const updateNodeData      = useGraphStore((s) => s.updateNodeData);
   const [fixing, setFixing] = useState(false);
-  const unacknowledge = useValidationStore((s) => s.unacknowledge);
+  const unacknowledge = useValidationStore((s) => s.undismissFinding);
 
   const cfg = SEVERITY[f.level];
   const detail = f.suggestion || f.fix;
@@ -451,7 +451,7 @@ function PlanModeView({ planSummary, archName, onClearPlan }) {
 export default function ValidateTab({ onSelectNode }) {
   const findings        = useValidationStore((s) => s.findings);
   const activeStandard  = useValidationStore((s) => s.activeStandard);
-  const acknowledged    = useValidationStore((s) => s.acknowledgedFindings);
+  const acknowledged    = useValidationStore((s) => s.dismissedIds);
   const filteredFindings = useMemo(() => {
     if (!activeStandard || activeStandard === "all") return findings;
     return findings.filter((f) => (f.standards ?? []).includes(activeStandard));

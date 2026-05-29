@@ -1517,3 +1517,894 @@ class TestParsePlanJSON:
         nodes, edges, sgs, iam_roles = parse_plan_json(plan)
         assert len(nodes) == 1
         assert nodes[0].type == "generic_tf"
+
+
+# ─── Tests for 23 parity rules added in v0.9 ─────────────────────────────────
+
+
+class TestParityConfigRules:
+    """Tests for the 13 config-level rules added to achieve JS/CLI parity."""
+
+    # ── cis_cloudtrail_log_validation ─────────────────────────────────────────
+
+    def test_cloudtrail_log_validation_disabled(self):
+        nodes = [_node("ct", "cloudtrail", config={"enable_log_file_validation": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "cis_cloudtrail_log_validation" for f in findings)
+
+    def test_cloudtrail_log_validation_string_false(self):
+        nodes = [_node("ct", "cloudtrail", config={"enable_log_file_validation": "false"})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "cis_cloudtrail_log_validation" for f in findings)
+
+    def test_cloudtrail_log_validation_enabled_no_finding(self):
+        nodes = [_node("ct", "cloudtrail", config={"enable_log_file_validation": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "cis_cloudtrail_log_validation" for f in findings)
+
+    # ── cis_cloudtrail_multi_region ───────────────────────────────────────────
+
+    def test_cloudtrail_multi_region_disabled(self):
+        nodes = [_node("ct", "cloudtrail", config={"is_multi_region_trail": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "cis_cloudtrail_multi_region" for f in findings)
+
+    def test_cloudtrail_multi_region_enabled_no_finding(self):
+        nodes = [_node("ct", "cloudtrail", config={"is_multi_region_trail": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "cis_cloudtrail_multi_region" for f in findings)
+
+    # ── cis_rds_auto_minor_upgrade ────────────────────────────────────────────
+
+    def test_rds_auto_minor_upgrade_false(self):
+        nodes = [_node("db", "rds", config={"auto_minor_version_upgrade": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "cis_rds_auto_minor_upgrade" for f in findings)
+
+    def test_aurora_auto_minor_upgrade_false(self):
+        nodes = [_node("db", "aurora", config={"auto_minor_version_upgrade": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "cis_rds_auto_minor_upgrade" for f in findings)
+
+    def test_rds_auto_minor_upgrade_true_no_finding(self):
+        nodes = [_node("db", "rds", config={"auto_minor_version_upgrade": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "cis_rds_auto_minor_upgrade" for f in findings)
+
+    # ── cis_s3_mfa_delete ─────────────────────────────────────────────────────
+
+    def test_s3_versioning_without_mfa_delete(self):
+        nodes = [_node("bkt", "s3", config={
+            "versioning": {"enabled": True, "mfa_delete": "Disabled"}
+        })]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "cis_s3_mfa_delete" for f in findings)
+
+    def test_s3_versioning_with_mfa_delete_no_finding(self):
+        nodes = [_node("bkt", "s3", config={
+            "versioning": {"enabled": True, "mfa_delete": "Enabled"}
+        })]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "cis_s3_mfa_delete" for f in findings)
+
+    def test_s3_no_versioning_no_mfa_finding(self):
+        nodes = [_node("bkt", "s3", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "cis_s3_mfa_delete" for f in findings)
+
+    # ── guardduty_detector_disabled ───────────────────────────────────────────
+
+    def test_guardduty_disabled(self):
+        nodes = [_node("gd", "guardduty", config={"enable": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "guardduty_detector_disabled" for f in findings)
+
+    def test_guardduty_enabled_no_finding(self):
+        nodes = [_node("gd", "guardduty", config={"enable": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "guardduty_detector_disabled" for f in findings)
+
+    # ── macie_disabled ────────────────────────────────────────────────────────
+
+    def test_macie_paused(self):
+        nodes = [_node("mac", "macie", config={"status": "PAUSED"})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "macie_disabled" for f in findings)
+
+    def test_macie_enabled_false(self):
+        nodes = [_node("mac", "macie", config={"enabled": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "macie_disabled" for f in findings)
+
+    def test_macie_enabled_no_finding(self):
+        nodes = [_node("mac", "macie", config={"status": "ENABLED"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "macie_disabled" for f in findings)
+
+    # ── nist_ec2_detailed_monitoring ──────────────────────────────────────────
+
+    def test_ec2_monitoring_false(self):
+        nodes = [_node("ec2a", "ec2", config={"monitoring": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_ec2_detailed_monitoring" for f in findings)
+
+    def test_ec2_monitoring_enabled_no_finding(self):
+        nodes = [_node("ec2a", "ec2", config={"monitoring": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "nist_ec2_detailed_monitoring" for f in findings)
+
+    # ── nist_lambda_env_encryption ────────────────────────────────────────────
+
+    def test_lambda_env_vars_no_kms(self):
+        nodes = [_node("fn", "lambda", config={
+            "environment": {"DB_HOST": "localhost"},
+        })]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_lambda_env_encryption" for f in findings)
+
+    def test_lambda_env_vars_with_kms_no_finding(self):
+        nodes = [_node("fn", "lambda", config={
+            "environment": {"DB_HOST": "localhost"},
+            "kms_key_arn": "arn:aws:kms:us-east-1:123:key/abc",
+        })]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "nist_lambda_env_encryption" for f in findings)
+
+    def test_lambda_no_env_vars_no_finding(self):
+        nodes = [_node("fn", "lambda", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "nist_lambda_env_encryption" for f in findings)
+
+    # ── nist_rds_iam_auth ─────────────────────────────────────────────────────
+
+    def test_rds_iam_auth_disabled(self):
+        nodes = [_node("db", "rds", config={"iam_database_authentication_enabled": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_rds_iam_auth" for f in findings)
+
+    def test_rds_iam_auth_enabled_no_finding(self):
+        nodes = [_node("db", "rds", config={"iam_database_authentication_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "nist_rds_iam_auth" for f in findings)
+
+    # ── nist_rds_no_ssl ───────────────────────────────────────────────────────
+
+    def test_rds_no_ssl_config(self):
+        nodes = [_node("db", "rds", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_rds_no_ssl" for f in findings)
+
+    def test_rds_ssl_via_parameter_group_no_finding(self):
+        nodes = [_node("db", "rds", config={"parameter_group_name": "pg-ssl"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "nist_rds_no_ssl" for f in findings)
+
+    def test_rds_ssl_enforcement_no_finding(self):
+        nodes = [_node("db", "rds", config={"ssl_enforcement_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "nist_rds_no_ssl" for f in findings)
+
+    # ── nist_s3_access_logging ────────────────────────────────────────────────
+
+    def test_s3_no_access_logging(self):
+        nodes = [_node("bkt", "s3", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_s3_access_logging" for f in findings)
+
+    def test_s3_access_logging_enabled_no_finding(self):
+        nodes = [_node("bkt", "s3", config={
+            "logging": {"target_bucket": "logs-bucket", "target_prefix": "access/"}
+        })]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "nist_s3_access_logging" for f in findings)
+
+    # ── s3_public_acl ─────────────────────────────────────────────────────────
+
+    def test_s3_public_read_acl(self):
+        nodes = [_node("bkt", "s3", config={"acl": "public-read"})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "s3_public_acl" for f in findings)
+
+    def test_s3_public_read_write_acl(self):
+        nodes = [_node("bkt", "s3", config={"acl": "public-read-write"})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "s3_public_acl" for f in findings)
+
+    def test_s3_private_acl_no_finding(self):
+        nodes = [_node("bkt", "s3", config={"acl": "private"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "s3_public_acl" for f in findings)
+
+    # ── waf_no_logging ────────────────────────────────────────────────────────
+
+    def test_waf_no_logging_config(self):
+        nodes = [_node("waf1", "waf", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "waf_no_logging" for f in findings)
+
+    def test_waf_with_logging_no_finding(self):
+        nodes = [_node("waf1", "waf", config={
+            "logging_configuration": {"log_destination_configs": ["arn:aws:firehose:..."]}
+        })]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "waf_no_logging" for f in findings)
+
+
+class TestParityTopologyRules:
+    """Tests for the 10 topology-level rules added to achieve JS/CLI parity."""
+
+    # ── cis_config_missing ────────────────────────────────────────────────────
+
+    def test_cis_config_missing_fires_with_ec2(self):
+        nodes = [_node("ec2a", "ec2")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "cis_config_missing" for f in findings)
+
+    def test_cis_config_missing_not_fired_when_present(self):
+        nodes = [_node("ec2a", "ec2"), _node("cfg", "config")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "cis_config_missing" for f in findings)
+
+    def test_cis_config_missing_not_fired_empty_arch(self):
+        nodes = [_node("waf1", "waf")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "cis_config_missing" for f in findings)
+
+    # ── guardduty_missing ─────────────────────────────────────────────────────
+
+    def test_guardduty_missing_fires_with_vpc(self):
+        nodes = [_node("vpc1", "vpc")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "guardduty_missing" for f in findings)
+
+    def test_guardduty_missing_not_fired_when_present(self):
+        nodes = [_node("vpc1", "vpc"), _node("gd", "guardduty")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "guardduty_missing" for f in findings)
+
+    # ── nist_backup_plan_missing ──────────────────────────────────────────────
+
+    def test_backup_missing_fires_with_rds(self):
+        nodes = [_node("db", "rds")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_backup_plan_missing" for f in findings)
+
+    def test_backup_missing_fires_with_dynamodb(self):
+        nodes = [_node("tbl", "dynamodb")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_backup_plan_missing" for f in findings)
+
+    def test_backup_missing_not_fired_when_present(self):
+        nodes = [_node("db", "rds"), _node("bkp", "backup")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "nist_backup_plan_missing" for f in findings)
+
+    # ── nist_cloudwatch_no_alerting ───────────────────────────────────────────
+
+    def test_cloudwatch_no_sns_fires(self):
+        nodes = [_node("cw", "cloudwatch")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_cloudwatch_no_alerting" for f in findings)
+
+    def test_cloudwatch_connected_to_sns_no_finding(self):
+        nodes = [_node("cw", "cloudwatch"), _node("sns1", "sns")]
+        findings = run_validation(nodes, [_edge("cw", "sns1")], [], [])
+        assert not any(f.rule_id == "nist_cloudwatch_no_alerting" for f in findings)
+
+    # ── nist_shield_missing ───────────────────────────────────────────────────
+
+    def test_shield_missing_fires_with_cloudfront(self):
+        nodes = [_node("cf", "cloudfront")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_shield_missing" for f in findings)
+
+    def test_shield_missing_fires_with_alb(self):
+        nodes = [_node("alb1", "alb")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_shield_missing" for f in findings)
+
+    def test_shield_missing_not_fired_when_present(self):
+        nodes = [_node("cf", "cloudfront"), _node("sh", "shield")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "nist_shield_missing" for f in findings)
+
+    # ── nist_ssm_missing ──────────────────────────────────────────────────────
+
+    def test_ssm_missing_fires_for_ec2(self):
+        nodes = [_node("ec2a", "ec2", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_ssm_missing" for f in findings)
+
+    def test_ssm_missing_not_fired_when_connected(self):
+        nodes = [_node("ec2a", "ec2"), _node("ssm1", "systems_manager")]
+        findings = run_validation(nodes, [_edge("ec2a", "ssm1")], [], [])
+        assert not any(f.rule_id == "nist_ssm_missing" for f in findings)
+
+    def test_ssm_missing_not_fired_with_flag(self):
+        nodes = [_node("ec2a", "ec2", config={"ssm_managed": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "nist_ssm_missing" for f in findings)
+
+    # ── nist_xray_missing ─────────────────────────────────────────────────────
+
+    def test_xray_missing_fires_for_lambda(self):
+        nodes = [_node("fn", "lambda", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_xray_missing" for f in findings)
+
+    def test_xray_missing_fires_for_api_gateway(self):
+        nodes = [_node("apigw", "api_gateway", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "nist_xray_missing" for f in findings)
+
+    def test_xray_missing_not_fired_when_neighbor_present(self):
+        nodes = [_node("fn", "lambda"), _node("xr", "xray")]
+        findings = run_validation(nodes, [_edge("fn", "xr")], [], [])
+        assert not any(f.rule_id == "nist_xray_missing" for f in findings)
+
+    def test_xray_missing_not_fired_when_tracing_active(self):
+        nodes = [_node("fn", "lambda", config={"tracing_mode": "Active"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "nist_xray_missing" for f in findings)
+
+    # ── pci_inspector_missing ─────────────────────────────────────────────────
+
+    def test_inspector_missing_fires_with_ec2(self):
+        nodes = [_node("ec2a", "ec2")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "pci_inspector_missing" for f in findings)
+
+    def test_inspector_missing_fires_with_lambda(self):
+        nodes = [_node("fn", "lambda")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "pci_inspector_missing" for f in findings)
+
+    def test_inspector_missing_not_fired_when_present(self):
+        nodes = [_node("ec2a", "ec2"), _node("insp", "inspector")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "pci_inspector_missing" for f in findings)
+
+    # ── security_hub_missing ──────────────────────────────────────────────────
+
+    def test_security_hub_missing_fires_with_lambda(self):
+        nodes = [_node("fn", "lambda")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "security_hub_missing" for f in findings)
+
+    def test_security_hub_missing_not_fired_when_present(self):
+        nodes = [_node("fn", "lambda"), _node("sechub", "security_hub")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "security_hub_missing" for f in findings)
+
+    # ── cis_cloudtrail_bucket_logging ─────────────────────────────────────────
+
+    def test_cloudtrail_bucket_logging_missing(self):
+        nodes = [
+            _node("ct", "cloudtrail"),
+            _node("bkt", "s3", config={}),
+        ]
+        findings = run_validation(nodes, [_edge("ct", "bkt")], [], [])
+        assert any(f.rule_id == "cis_cloudtrail_bucket_logging" for f in findings)
+
+    def test_cloudtrail_bucket_logging_present_no_finding(self):
+        nodes = [
+            _node("ct", "cloudtrail"),
+            _node("bkt", "s3", config={
+                "logging": {"target_bucket": "other-bucket"}
+            }),
+        ]
+        findings = run_validation(nodes, [_edge("ct", "bkt")], [], [])
+        assert not any(f.rule_id == "cis_cloudtrail_bucket_logging" for f in findings)
+
+    def test_cloudtrail_no_s3_neighbor_no_finding(self):
+        nodes = [_node("ct", "cloudtrail")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "cis_cloudtrail_bucket_logging" for f in findings)
+
+
+# ─── Azure Config Rule tests ──────────────────────────────────────────────────
+
+
+class TestAzureConfigRules:
+
+    def test_vm_password_auth_fires(self):
+        nodes = [_node("v", "azure_vm", config={"disable_password_authentication": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_vm_password_auth" for f in findings)
+
+    def test_vm_password_auth_no_fire_when_true(self):
+        nodes = [_node("v", "azure_vm", config={"disable_password_authentication": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_vm_password_auth" for f in findings)
+
+    def test_vm_password_auth_no_fire_when_unset(self):
+        nodes = [_node("v", "azure_vm", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_vm_password_auth" for f in findings)
+
+    def test_vm_boot_diagnostics_fires_when_missing(self):
+        nodes = [_node("v", "azure_vm", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_vm_no_boot_diagnostics" for f in findings)
+
+    def test_vm_boot_diagnostics_no_fire_when_enabled(self):
+        nodes = [_node("v", "azure_vm", config={"boot_diagnostics_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_vm_no_boot_diagnostics" for f in findings)
+
+    def test_aks_rbac_disabled_fires(self):
+        nodes = [_node("k", "azure_aks", config={"role_based_access_control_enabled": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_aks_rbac_disabled" for f in findings)
+
+    def test_aks_rbac_disabled_no_fire_when_true(self):
+        nodes = [_node("k", "azure_aks", config={"role_based_access_control_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_aks_rbac_disabled" for f in findings)
+
+    def test_aks_no_private_cluster_fires(self):
+        nodes = [_node("k", "azure_aks", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_aks_no_private_cluster" for f in findings)
+
+    def test_aks_no_private_cluster_no_fire_when_enabled(self):
+        nodes = [_node("k", "azure_aks", config={"private_cluster_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_aks_no_private_cluster" for f in findings)
+
+    def test_aks_no_authorized_ips_fires(self):
+        nodes = [_node("k", "azure_aks", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_aks_no_authorized_ips" for f in findings)
+
+    def test_aks_no_authorized_ips_no_fire_when_set(self):
+        nodes = [_node("k", "azure_aks", config={"api_server_authorized_ip_ranges": "10.0.0.0/8"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_aks_no_authorized_ips" for f in findings)
+
+    def test_aks_no_authorized_ips_no_fire_when_private(self):
+        nodes = [_node("k", "azure_aks", config={"private_cluster_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_aks_no_authorized_ips" for f in findings)
+
+    def test_aks_no_network_policy_fires(self):
+        nodes = [_node("k", "azure_aks", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_aks_no_network_policy" for f in findings)
+
+    def test_aks_no_network_policy_no_fire_when_set(self):
+        nodes = [_node("k", "azure_aks", config={"network_policy": "azure"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_aks_no_network_policy" for f in findings)
+
+    def test_sql_tde_disabled_fires(self):
+        nodes = [_node("s", "azure_sql", config={"transparent_data_encryption_enabled": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_sql_tde_disabled" for f in findings)
+
+    def test_sql_tde_disabled_no_fire_when_true(self):
+        nodes = [_node("s", "azure_sql", config={"transparent_data_encryption_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_sql_tde_disabled" for f in findings)
+
+    def test_sql_min_tls_fires_for_old_version(self):
+        nodes = [_node("s", "azure_sql", config={"minimum_tls_version": "1.0"})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_sql_min_tls_old" for f in findings)
+
+    def test_sql_min_tls_no_fire_when_12(self):
+        nodes = [_node("s", "azure_sql", config={"minimum_tls_version": "1.2"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_sql_min_tls_old" for f in findings)
+
+    def test_sql_min_tls_no_fire_when_unset(self):
+        nodes = [_node("s", "azure_sql", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_sql_min_tls_old" for f in findings)
+
+    def test_sql_no_auditing_fires(self):
+        nodes = [_node("s", "azure_sql", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_sql_no_auditing" for f in findings)
+
+    def test_sql_no_auditing_no_fire_when_enabled(self):
+        nodes = [_node("s", "azure_sql", config={"auditing_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_sql_no_auditing" for f in findings)
+
+    def test_storage_public_access_fires(self):
+        for t in ["azure_blob", "azure_files", "azure_datalake", "azure_table", "azure_queue"]:
+            nodes = [_node("s", t, config={"allow_nested_items_to_be_public": True})]
+            findings = run_validation(nodes, [], [], [])
+            assert any(f.rule_id == "azure_storage_public_access" for f in findings), f"expected fire for {t}"
+
+    def test_storage_public_access_no_fire_when_false(self):
+        nodes = [_node("s", "azure_blob", config={"allow_nested_items_to_be_public": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_storage_public_access" for f in findings)
+
+    def test_storage_https_only_fires(self):
+        nodes = [_node("s", "azure_blob", config={"enable_https_traffic_only": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_storage_https_only" for f in findings)
+
+    def test_storage_https_only_no_fire_when_true(self):
+        nodes = [_node("s", "azure_blob", config={"enable_https_traffic_only": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_storage_https_only" for f in findings)
+
+    def test_storage_min_tls_fires_for_old(self):
+        nodes = [_node("s", "azure_blob", config={"min_tls_version": "TLS1_0"})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_storage_min_tls_old" for f in findings)
+
+    def test_storage_min_tls_no_fire_when_tls12(self):
+        nodes = [_node("s", "azure_blob", config={"min_tls_version": "TLS1_2"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_storage_min_tls_old" for f in findings)
+
+    def test_keyvault_soft_delete_fires_when_zero(self):
+        nodes = [_node("k", "azure_keyvault", config={"soft_delete_retention_days": 0})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_keyvault_soft_delete_disabled" for f in findings)
+
+    def test_keyvault_soft_delete_fires_when_false(self):
+        nodes = [_node("k", "azure_keyvault", config={"soft_delete_enabled": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_keyvault_soft_delete_disabled" for f in findings)
+
+    def test_keyvault_soft_delete_no_fire_when_set(self):
+        nodes = [_node("k", "azure_keyvault", config={"soft_delete_retention_days": 90})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_keyvault_soft_delete_disabled" for f in findings)
+
+    def test_keyvault_purge_protection_fires(self):
+        nodes = [_node("k", "azure_keyvault", config={"purge_protection_enabled": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_keyvault_purge_protection_disabled" for f in findings)
+
+    def test_keyvault_purge_protection_no_fire_when_true(self):
+        nodes = [_node("k", "azure_keyvault", config={"purge_protection_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_keyvault_purge_protection_disabled" for f in findings)
+
+    def test_functions_https_only_fires(self):
+        nodes = [_node("f", "azure_functions", config={"https_only": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_functions_https_only" for f in findings)
+
+    def test_functions_https_only_no_fire_when_true(self):
+        nodes = [_node("f", "azure_functions", config={"https_only": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_functions_https_only" for f in findings)
+
+    def test_app_service_https_only_fires(self):
+        nodes = [_node("a", "azure_app_service", config={"https_only": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_app_service_https_only" for f in findings)
+
+    def test_app_service_https_only_no_fire_when_true(self):
+        nodes = [_node("a", "azure_app_service", config={"https_only": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_app_service_https_only" for f in findings)
+
+    def test_app_service_min_tls_fires(self):
+        nodes = [_node("a", "azure_app_service", config={"minimum_tls_version": "1.0"})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_app_service_min_tls_old" for f in findings)
+
+    def test_app_service_min_tls_no_fire_when_12(self):
+        nodes = [_node("a", "azure_app_service", config={"minimum_tls_version": "1.2"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_app_service_min_tls_old" for f in findings)
+
+    def test_redis_non_ssl_port_fires(self):
+        nodes = [_node("r", "azure_redis", config={"enable_non_ssl_port": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_redis_non_ssl_port" for f in findings)
+
+    def test_redis_non_ssl_port_no_fire_when_false(self):
+        nodes = [_node("r", "azure_redis", config={"enable_non_ssl_port": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_redis_non_ssl_port" for f in findings)
+
+    def test_redis_min_tls_fires(self):
+        nodes = [_node("r", "azure_redis", config={"minimum_tls_version": "1.0"})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_redis_min_tls_old" for f in findings)
+
+    def test_redis_min_tls_no_fire_when_12(self):
+        nodes = [_node("r", "azure_redis", config={"minimum_tls_version": "1.2"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_redis_min_tls_old" for f in findings)
+
+    def test_postgres_ssl_disabled_fires(self):
+        nodes = [_node("p", "azure_postgres", config={"ssl_enforcement_enabled": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_postgres_ssl_disabled" for f in findings)
+
+    def test_postgres_ssl_disabled_no_fire_when_true(self):
+        nodes = [_node("p", "azure_postgres", config={"ssl_enforcement_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_postgres_ssl_disabled" for f in findings)
+
+    def test_mysql_ssl_disabled_fires(self):
+        nodes = [_node("m", "azure_mysql", config={"ssl_enforcement_enabled": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_mysql_ssl_disabled" for f in findings)
+
+    def test_mysql_ssl_disabled_no_fire_when_true(self):
+        nodes = [_node("m", "azure_mysql", config={"ssl_enforcement_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_mysql_ssl_disabled" for f in findings)
+
+    def test_acr_admin_enabled_fires(self):
+        nodes = [_node("a", "azure_acr", config={"admin_enabled": True})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_acr_admin_enabled" for f in findings)
+
+    def test_acr_admin_enabled_no_fire_when_false(self):
+        nodes = [_node("a", "azure_acr", config={"admin_enabled": False})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_acr_admin_enabled" for f in findings)
+
+    def test_agw_no_waf_fires_for_standard_v2(self):
+        nodes = [_node("a", "azure_agw", config={"sku_name": "Standard_v2"})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_agw_no_waf" for f in findings)
+
+    def test_agw_no_waf_no_fire_for_waf_v2(self):
+        nodes = [_node("a", "azure_agw", config={"sku_name": "WAF_v2"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_agw_no_waf" for f in findings)
+
+    def test_cosmosdb_public_access_fires_when_unrestricted(self):
+        nodes = [_node("c", "azure_cosmosdb", config={})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_cosmosdb_public_access" for f in findings)
+
+    def test_cosmosdb_public_access_no_fire_with_ip_filter(self):
+        nodes = [_node("c", "azure_cosmosdb", config={"ip_range_filter": "10.0.0.1"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_cosmosdb_public_access" for f in findings)
+
+    def test_vpn_gateway_basic_sku_fires(self):
+        nodes = [_node("v", "azure_vpn_gateway", config={"sku": "Basic"})]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_vpn_gateway_basic_sku" for f in findings)
+
+    def test_vpn_gateway_basic_sku_no_fire_for_vpngw1(self):
+        nodes = [_node("v", "azure_vpn_gateway", config={"sku": "VpnGw1"})]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_vpn_gateway_basic_sku" for f in findings)
+
+
+# ─── Azure Topology Rule tests ────────────────────────────────────────────────
+
+
+class TestAzureTopologyRules:
+
+    def test_no_keyvault_fires_when_sql_present(self):
+        nodes = [_node("s", "azure_sql")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_no_keyvault" for f in findings)
+
+    def test_no_keyvault_no_fire_when_keyvault_present(self):
+        nodes = [_node("s", "azure_sql"), _node("k", "azure_keyvault")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_no_keyvault" for f in findings)
+
+    def test_no_keyvault_fires_for_each_db_type(self):
+        for t in ["azure_cosmosdb", "azure_postgres", "azure_mysql", "azure_redis"]:
+            nodes = [_node("d", t)]
+            findings = run_validation(nodes, [], [], [])
+            assert any(f.rule_id == "azure_no_keyvault" for f in findings), f"expected for {t}"
+
+    def test_no_log_analytics_fires_for_aks(self):
+        nodes = [_node("k", "azure_aks")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_no_log_analytics" for f in findings)
+
+    def test_no_log_analytics_no_fire_when_workspace_present(self):
+        nodes = [_node("k", "azure_aks"), _node("la", "azure_log_analytics")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_no_log_analytics" for f in findings)
+
+    def test_no_monitor_fires_for_vm(self):
+        nodes = [_node("v", "azure_vm")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_no_monitor" for f in findings)
+
+    def test_no_monitor_no_fire_with_app_insights(self):
+        nodes = [_node("v", "azure_vm"), _node("ai", "azure_app_insights")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_no_monitor" for f in findings)
+
+    def test_no_monitor_no_fire_with_monitor(self):
+        nodes = [_node("v", "azure_vm"), _node("m", "azure_monitor")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_no_monitor" for f in findings)
+
+    def test_no_backup_fires_for_sql(self):
+        nodes = [_node("s", "azure_sql")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_no_backup" for f in findings)
+
+    def test_no_backup_no_fire_when_backup_present(self):
+        nodes = [_node("s", "azure_sql"), _node("b", "azure_backup")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_no_backup" for f in findings)
+
+    def test_aks_no_acr_fires(self):
+        nodes = [_node("k", "azure_aks")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_aks_no_acr" for f in findings)
+
+    def test_aks_no_acr_no_fire_when_acr_present(self):
+        nodes = [_node("k", "azure_aks"), _node("r", "azure_acr")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_aks_no_acr" for f in findings)
+
+    def test_vm_no_bastion_fires(self):
+        nodes = [_node("v", "azure_vm")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_vm_no_bastion" for f in findings)
+
+    def test_vm_no_bastion_no_fire_when_bastion_present(self):
+        nodes = [_node("v", "azure_vm"), _node("b", "azure_bastion")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_vm_no_bastion" for f in findings)
+
+    def test_no_ddos_protection_fires_for_vnet(self):
+        nodes = [_node("vn", "azure_vnet")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_no_ddos_protection" for f in findings)
+
+    def test_no_ddos_protection_no_fire_when_ddos_present(self):
+        nodes = [_node("vn", "azure_vnet"), _node("d", "azure_ddos")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_no_ddos_protection" for f in findings)
+
+    def test_sql_no_private_endpoint_fires(self):
+        nodes = [_node("s", "azure_sql")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_sql_no_private_endpoint" for f in findings)
+
+    def test_sql_no_private_endpoint_no_fire_when_pe_neighbor(self):
+        nodes = [_node("s", "azure_sql"), _node("pe", "azure_private_endpoint")]
+        edges = [_edge("s", "pe")]
+        findings = run_validation(nodes, edges, [], [])
+        assert not any(f.rule_id == "azure_sql_no_private_endpoint" for f in findings)
+
+    def test_storage_no_private_endpoint_fires(self):
+        nodes = [_node("b", "azure_blob")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_storage_no_private_endpoint" for f in findings)
+
+    def test_storage_no_private_endpoint_no_fire_when_pe_neighbor(self):
+        nodes = [_node("b", "azure_blob"), _node("pe", "azure_private_endpoint")]
+        edges = [_edge("b", "pe")]
+        findings = run_validation(nodes, edges, [], [])
+        assert not any(f.rule_id == "azure_storage_no_private_endpoint" for f in findings)
+
+    def test_apim_no_waf_fires(self):
+        nodes = [_node("a", "azure_apim")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_apim_no_waf" for f in findings)
+
+    def test_apim_no_waf_no_fire_when_agw_neighbor(self):
+        nodes = [_node("a", "azure_apim"), _node("g", "azure_agw")]
+        edges = [_edge("g", "a")]
+        findings = run_validation(nodes, edges, [], [])
+        assert not any(f.rule_id == "azure_apim_no_waf" for f in findings)
+
+    def test_aks_no_defender_fires(self):
+        nodes = [_node("k", "azure_aks")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_aks_no_defender" for f in findings)
+
+    def test_aks_no_defender_no_fire_when_defender_present(self):
+        nodes = [_node("k", "azure_aks"), _node("d", "azure_defender")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_aks_no_defender" for f in findings)
+
+    def test_no_sentinel_fires_when_log_analytics_present(self):
+        nodes = [_node("la", "azure_log_analytics")]
+        findings = run_validation(nodes, [], [], [])
+        assert any(f.rule_id == "azure_no_sentinel" for f in findings)
+
+    def test_no_sentinel_no_fire_when_sentinel_present(self):
+        nodes = [_node("la", "azure_log_analytics"), _node("s", "azure_sentinel")]
+        findings = run_validation(nodes, [], [], [])
+        assert not any(f.rule_id == "azure_no_sentinel" for f in findings)
+
+
+# ─── Azure NSG Rule tests ─────────────────────────────────────────────────────
+
+
+class TestAzureNSGRules:
+
+    def test_ssh_open_fires(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 22, "source": "0.0.0.0/0"}])]
+        findings = run_validation([], [], sgs, [])
+        assert any(f.rule_id == "azure_nsg_ssh_open" for f in findings)
+
+    def test_ssh_open_no_fire_when_restricted(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 22, "source": "10.0.0.0/8"}])]
+        findings = run_validation([], [], sgs, [])
+        assert not any(f.rule_id == "azure_nsg_ssh_open" for f in findings)
+
+    def test_rdp_open_fires(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 3389, "source": "0.0.0.0/0"}])]
+        findings = run_validation([], [], sgs, [])
+        assert any(f.rule_id == "azure_nsg_rdp_open" for f in findings)
+
+    def test_rdp_open_no_fire_when_restricted(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 3389, "source": "192.168.1.0/24"}])]
+        findings = run_validation([], [], sgs, [])
+        assert not any(f.rule_id == "azure_nsg_rdp_open" for f in findings)
+
+    def test_all_traffic_open_fires(self):
+        sgs = [_sg("nsg1", [{"protocol": "-1", "port": None, "source": "0.0.0.0/0"}])]
+        findings = run_validation([], [], sgs, [])
+        assert any(f.rule_id == "azure_nsg_all_traffic_open" for f in findings)
+
+    def test_all_traffic_open_no_fire_when_specific(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 443, "source": "0.0.0.0/0"}])]
+        findings = run_validation([], [], sgs, [])
+        assert not any(f.rule_id == "azure_nsg_all_traffic_open" for f in findings)
+
+    def test_sql_server_open_fires(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 1433, "source": "0.0.0.0/0"}])]
+        findings = run_validation([], [], sgs, [])
+        assert any(f.rule_id == "azure_nsg_sql_server_open" for f in findings)
+
+    def test_sql_server_open_no_fire_when_restricted(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 1433, "source": "10.0.1.0/24"}])]
+        findings = run_validation([], [], sgs, [])
+        assert not any(f.rule_id == "azure_nsg_sql_server_open" for f in findings)
+
+    def test_postgres_open_fires(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 5432, "source": "0.0.0.0/0"}])]
+        findings = run_validation([], [], sgs, [])
+        assert any(f.rule_id == "azure_nsg_postgres_open" for f in findings)
+
+    def test_mysql_open_fires(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 3306, "source": "0.0.0.0/0"}])]
+        findings = run_validation([], [], sgs, [])
+        assert any(f.rule_id == "azure_nsg_mysql_open" for f in findings)
+
+    def test_redis_open_fires(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 6380, "source": "0.0.0.0/0"}])]
+        findings = run_validation([], [], sgs, [])
+        assert any(f.rule_id == "azure_nsg_redis_open" for f in findings)
+
+    def test_redis_open_no_fire_when_restricted(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 6380, "source": "10.0.0.0/8"}])]
+        findings = run_validation([], [], sgs, [])
+        assert not any(f.rule_id == "azure_nsg_redis_open" for f in findings)
+
+    def test_mongodb_open_fires(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 27017, "source": "0.0.0.0/0"}])]
+        findings = run_validation([], [], sgs, [])
+        assert any(f.rule_id == "azure_nsg_mongodb_open" for f in findings)
+
+    def test_mongodb_open_no_fire_when_restricted(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": 27017, "source": "10.0.0.0/8"}])]
+        findings = run_validation([], [], sgs, [])
+        assert not any(f.rule_id == "azure_nsg_mongodb_open" for f in findings)
+
+    def test_wide_range_open_fires(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": "0-65535", "source": "0.0.0.0/0"}])]
+        findings = run_validation([], [], sgs, [])
+        assert any(f.rule_id == "azure_nsg_wide_range_open" for f in findings)
+
+    def test_wide_range_no_fire_for_restricted_source(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": "0-65535", "source": "10.0.0.0/8"}])]
+        findings = run_validation([], [], sgs, [])
+        assert not any(f.rule_id == "azure_nsg_wide_range_open" for f in findings)
+
+    def test_wide_range_no_fire_for_narrow_range(self):
+        sgs = [_sg("nsg1", [{"protocol": "tcp", "port": "80-443", "source": "0.0.0.0/0"}])]
+        findings = run_validation([], [], sgs, [])
+        assert not any(f.rule_id == "azure_nsg_wide_range_open" for f in findings)
