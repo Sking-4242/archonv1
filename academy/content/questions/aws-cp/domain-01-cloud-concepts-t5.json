@@ -1,0 +1,928 @@
+[
+  {
+    "id": "aws-cp-t5-01-001",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company asks why migrating to AWS reduces their risk of hardware failure causing downtime. Their on-premises servers are not redundant. Which cloud characteristic most directly addresses this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Elasticity allowing dynamic resource scaling"
+      },
+      {
+        "label": "B",
+        "text": "The ability to go global in minutes"
+      },
+      {
+        "label": "C",
+        "text": "High availability through distributed architecture across multiple AZs and"
+      },
+      {
+        "label": "D",
+        "text": "Economies of scale passed on as lower prices"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "AWS's infrastructure is built with redundancy at every layer \u2014 power, networking, servers \u2014 across multiple Availability Zones. Managed services like RDS Multi-AZ, S3, and DynamoDB automatically replicate data. This addresses hardware failure risk directly. Economies of scale reduce cost. Elasticity handles load variability. Going global is about geographic expansion.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "high-availability",
+      "fault-tolerance",
+      "cloud-benefits",
+      "az"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-002",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A CTO argues that public cloud is less secure than on-premises because 'other companies' data is on the same hardware.' How should you respond using the correct AWS architecture concept?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS uses hypervisor-level isolation so each customer's workloads are logically isolated even on shared physical hardware"
+      },
+      {
+        "label": "B",
+        "text": "Customer data is automatically encrypted in transit but not at rest by default"
+      },
+      {
+        "label": "C",
+        "text": "This is correct \u2014 shared hardware is inherently less secure"
+      },
+      {
+        "label": "D",
+        "text": "AWS dedicates separate physical hardware to each customer by default"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS's multi-tenant architecture uses hypervisor-level isolation (and hardware-level for Nitro instances) ensuring workloads are completely isolated from other tenants on the same physical hardware. The CTO's concern is valid conceptually but mitigated by multiple layers of isolation. AWS does not dedicate hardware by default (that's Dedicated Hosts). Encryption is separate from isolation.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "multi-tenancy",
+      "isolation",
+      "cloud-security",
+      "hypervisor"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-003",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company provisioned 500 EC2 instances for a product launch that never materialized. They've been running idle for 3 months. In the cloud model, what does this represent and what should they do?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The failure of elasticity \u2014 the cloud should have auto-deprovisioned these"
+      },
+      {
+        "label": "B",
+        "text": "Sunk cost \u2014 unavoidable in cloud like in on-premises; keep the instances running"
+      },
+      {
+        "label": "C",
+        "text": "A misuse of cloud's pay-as-you-go model; they should terminate unused instances immediately since cloud charges for actual usage."
+      },
+      {
+        "label": "D",
+        "text": "This demonstrates the cloud's main disadvantage: you must pay for provisioned resources even when idle"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Cloud's pay-as-you-go model means you should terminate unused resources immediately \u2014 unlike on-premises where hardware is a sunk cost regardless. This is a key cloud advantage: you can stop paying instantly. The scenario represents poor cloud hygiene, not an inherent cloud limitation. The cloud doesn't auto-deprovision unless you build that automation.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "pay-as-you-go",
+      "cost-optimization",
+      "elasticity",
+      "cloud-model"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-004",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company is choosing between deploying a new application on AWS or in their own data center. The AWS option has higher per-unit cost for compute but no upfront capital investment. The on-premises option requires $2M in hardware. Which AWS cloud economic concept justifies AWS despite higher unit costs?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Trading CapEx for OpEx \u2014 eliminating upfront capital allows the $2M to be deployed"
+      },
+      {
+        "label": "B",
+        "text": "AWS provides unlimited free storage which offsets compute costs"
+      },
+      {
+        "label": "C",
+        "text": "Spot Instances can eliminate compute costs entirely"
+      },
+      {
+        "label": "D",
+        "text": "AWS charges less per hour than on-premises amortized hardware costs in all scenarios"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The CapEx-to-OpEx shift is a core cloud value proposition: eliminating large upfront capital requirements frees cash for other business investments and aligns costs with actual usage. AWS is not always cheaper per unit for all workloads \u2014 the economics depend on utilization, commitment levels, and scale. The $2M deployed elsewhere can generate business value.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "capex",
+      "opex",
+      "cloud-economics",
+      "financial-model"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-005",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company wants to test a new mobile app feature in three geographic markets simultaneously, deploying in US, Europe, and Asia-Pacific, with the ability to tear down failing markets instantly. What cloud characteristic enables this experimentation at low risk?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Economies of scale reduce per-unit cost as AWS aggregates usage across millions of customers and passes the savings back through lower pricing."
+      },
+      {
+        "label": "B",
+        "text": "Global reach with on-demand provisioning and pay-per-use pricing"
+      },
+      {
+        "label": "C",
+        "text": "Managed services reduce operational overhead by having AWS handle patching, backups, and scaling so teams can focus on application features."
+      },
+      {
+        "label": "D",
+        "text": "High availability across multiple Availability Zones ensures workloads survive individual data center failures with automatic failover and minimal downtime."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Economies of scale reduce per-unit cost as AWS aggregates usage across millions of customers and passes the savings back through lower pricing.",
+      "C": "Managed services reduce operational overhead by having AWS handle patching, backups, and scaling so teams can focus on application features.",
+      "D": "High availability across multiple Availability Zones ensures workloads survive individual data center failures with automatic failover and minimal downtime."
+    },
+    "explanation": "Cloud's combination of global infrastructure, on-demand provisioning, and per-use pricing enables low-risk experimentation at scale: deploy to three regions in minutes, fail fast, tear down what doesn't work, and pay only for what was used. On-premises would require capital investment in each market before any testing. Managed services and HA are benefits but not the primary enabler of this experiment pattern.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "global-reach",
+      "experimentation",
+      "pay-as-you-go",
+      "innovation"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-006",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A government agency requires that all data for their workload remain within the borders of their country and never leave. They are evaluating AWS. Which AWS infrastructure concept should they focus on to meet this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Local Zones for low-latency deployments"
+      },
+      {
+        "label": "B",
+        "text": "Availability Zones within a single Region, ensuring data"
+      },
+      {
+        "label": "C",
+        "text": "AWS Outposts for on-premises AWS infrastructure"
+      },
+      {
+        "label": "D",
+        "text": "AWS Edge Locations for CloudFront caching"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Regions are geographically discrete locations, and data stored in a Region does not leave that Region unless you explicitly replicate it. Multiple AZs within a Region are all within the same country for most national Regions. The agency can deploy in a local AWS Region and data residency requirements are met. Edge Locations/CloudFront cache data closer to users but may be cross-border. Local Zones and Outposts address latency, not primarily data residency at the national level.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "data-residency",
+      "regions",
+      "compliance",
+      "government"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-007",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's engineering team is spending 40% of their time patching operating systems, managing load balancers, and handling database failover. They want to refocus on their core product. Which cloud concept addresses this operational burden?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS CloudFormation automates infrastructure provisioning"
+      },
+      {
+        "label": "B",
+        "text": "Infrastructure as Code reduces manual work"
+      },
+      {
+        "label": "C",
+        "text": "Auto Scaling reduces the need for manual capacity planning"
+      },
+      {
+        "label": "D",
+        "text": "Moving to managed AWS services reduces undifferentiated heavy lifting"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "AWS describes this as eliminating 'undifferentiated heavy lifting' \u2014 operational tasks that every company must do but provide no competitive differentiation. Managed services like RDS (handles failover, patching), ELB (managed load balancing), and Lambda (no OS management) eliminate these tasks. IaC and Auto Scaling reduce specific types of manual work but don't broadly eliminate the operational categories mentioned.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "managed-services",
+      "undifferentiated-heavy-lifting",
+      "operational-overhead",
+      "cloud-benefits"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-008",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An architect explains that AWS's shared responsibility model means the customer handles 'security IN the cloud.' What does this specifically include for an Amazon EC2 instance running a web application?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Availability Zone power and cooling infrastructure"
+      },
+      {
+        "label": "B",
+        "text": "Guest OS patching, application security, IAM configuration, security"
+      },
+      {
+        "label": "C",
+        "text": "Networking infrastructure between data centers"
+      },
+      {
+        "label": "D",
+        "text": "Physical server maintenance and hypervisor patching"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "For IaaS like EC2, the customer is responsible for everything above the hypervisor: guest OS patching and updates, installing and securing application software, configuring security groups and NACLs, managing IAM permissions, and encrypting data. AWS handles the physical infrastructure, hypervisor, and network below the instance. Physical maintenance, networking infrastructure, and AZ power are AWS's responsibility.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "shared-responsibility",
+      "ec2",
+      "guest-os",
+      "iam"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-009",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses AWS CloudFormation to define all infrastructure. When a developer modifies a resource manually through the console, it creates configuration drift between the template and actual state. Which Well-Architected principle does this violate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Reliability \u2014 manual changes to running systems could introduce unexpected failures, undermining the system's ability to perform its intended function consistently."
+      },
+      {
+        "label": "B",
+        "text": "Operational Excellence \u2014 specifically the practice of performing operations"
+      },
+      {
+        "label": "C",
+        "text": "Cost optimization \u2014 manually modifying resources at runtime can lead to configuration drift that results in over-provisioned, higher-cost infrastructure."
+      },
+      {
+        "label": "D",
+        "text": "Security \u2014 manual changes bypass security controls and audit trails, introducing vulnerabilities that automated pipelines with least-privilege access would prevent."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Reliability \u2014 manual changes to running systems could introduce unexpected failures, undermining the system's ability to perform its intended function consistently.",
+      "C": "Cost optimization \u2014 manually modifying resources at runtime can lead to configuration drift that results in over-provisioned, higher-cost infrastructure.",
+      "D": "Security \u2014 manual changes bypass security controls and audit trails, introducing vulnerabilities that automated pipelines with least-privilege access would prevent."
+    },
+    "explanation": "Operational Excellence in the Well-Architected Framework emphasizes performing operations as code and making all infrastructure changes through defined, version-controlled processes. Manual console changes create drift, bypass change management, and are not reproducible or auditable through IaC. While manual changes could impact Security and Reliability, the direct principle violation is Operational Excellence.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "well-architected",
+      "operational-excellence",
+      "iac",
+      "cloudformation"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-010",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A startup decides to run all workloads on a single EC2 instance to minimize cost. When the instance fails, the entire business is down. Which Well-Architected pillar design principle most directly addresses this single point of failure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Performance Efficiency \u2014 use the right resource type"
+      },
+      {
+        "label": "B",
+        "text": "Reliability \u2014 design workloads to withstand component failures using"
+      },
+      {
+        "label": "C",
+        "text": "Operational Excellence \u2014 automate runbook responses to failures"
+      },
+      {
+        "label": "D",
+        "text": "Cost Optimization \u2014 Reserved Instances reduce risk"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The Reliability pillar of the Well-Architected Framework explicitly addresses designing for failure: assume any component can fail and build redundancy to maintain availability. Single EC2 instance = single point of failure. The fix is distributing across multiple AZs with Auto Scaling. Performance Efficiency is about resource selection. Cost Optimization and Operational Excellence are not the primary concerns here.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "well-architected",
+      "reliability",
+      "single-point-of-failure",
+      "redundancy"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-011",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company is evaluating whether to use AWS GovCloud (US) for a new government project. Which characteristic is UNIQUE to GovCloud compared to standard AWS Regions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lower latency due to dedicated infrastructure is not a primary feature of GovCloud; latency depends on proximity, not account type."
+      },
+      {
+        "label": "B",
+        "text": "Free data egress for government customers is not an AWS GovCloud benefit; standard data transfer pricing still applies to all GovCloud accounts."
+      },
+      {
+        "label": "C",
+        "text": "Higher availability with more Availability Zones than standard Regions is not accurate; GovCloud Regions have the same AZ count as commercial Regions."
+      },
+      {
+        "label": "D",
+        "text": "Support for FIPS 140-2 compliant endpoints and isolated from standard AWS accounts"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Lower latency due to dedicated infrastructure is not a primary feature of GovCloud; latency depends on proximity, not account type.",
+      "B": "Free data egress for government customers is not an AWS GovCloud benefit; standard data transfer pricing still applies to all GovCloud accounts.",
+      "C": "Higher availability with more Availability Zones than standard Regions is not accurate; GovCloud Regions have the same AZ count as commercial Regions."
+    },
+    "explanation": "GovCloud (US) is physically and logically isolated from standard AWS Regions, accessible only to vetted US persons and US entities. It supports FIPS 140-2 compliant API endpoints and is designed for workloads subject to US government regulations like ITAR, EAR, DoD SRG, CJIS, and FedRAMP High. It's not about lower latency, more AZs, or free egress.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "govcloud",
+      "compliance",
+      "itar",
+      "fips"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-012",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company currently provisions servers based on peak load estimates, resulting in 70% idle capacity most of the time. A consultant says moving to AWS will allow 'right-sizing.' What does right-sizing mean in cloud economics?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Using Reserved Instances sized for average load"
+      },
+      {
+        "label": "B",
+        "text": "Using the largest available instance type to future-proof capacity"
+      },
+      {
+        "label": "C",
+        "text": "Matching compute resources precisely to workload requirements at any given time."
+      },
+      {
+        "label": "D",
+        "text": "Running all workloads on Spot Instances to reduce cost"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Right-sizing means using exactly the compute resources needed \u2014 no more. In the cloud, this is achievable through Auto Scaling (adding/removing instances based on demand), granular instance types, and per-second billing. The 70% idle waste exists because on-premises requires provisioning for peak. Cloud allows matching actual usage, eliminating this waste.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "right-sizing",
+      "elasticity",
+      "over-provisioning",
+      "cloud-economics"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-013",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An organization is deploying AWS for the first time using a 'lift-and-shift' approach \u2014 moving existing VMs directly to EC2 without re-architecting. Which statement about lift-and-shift is most accurate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lift-and-shift is not supported by AWS"
+      },
+      {
+        "label": "B",
+        "text": "Lift-and-shift automatically optimizes workloads for cloud pricing models"
+      },
+      {
+        "label": "C",
+        "text": "Lift-and-shift is a valid first step that reduces time-to-cloud."
+      },
+      {
+        "label": "D",
+        "text": "Lift-and-shift fully leverages cloud-native features and maximizes cost savings"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Lift-and-shift (also called 'rehosting') migrates VMs to EC2 with minimal changes \u2014 it's fast and reduces migration risk, but doesn't take advantage of managed services, serverless, or cloud-native architectures. Full cloud benefits require re-platforming (e.g., moving to RDS from self-managed MySQL) or re-architecting (e.g., moving to Lambda). It's a legitimate migration strategy, not the optimal end state.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "lift-and-shift",
+      "migration",
+      "cloud-adoption",
+      "rehosting"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-014",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A SaaS company wants to quickly expand to three new international markets but is concerned about the upfront investment required for regional infrastructure. Which cloud advantage most directly removes this barrier?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Trade fixed expense for variable expense \u2014 deploy to new AWS Regions in."
+      },
+      {
+        "label": "B",
+        "text": "Spot Instances make international expansion nearly free"
+      },
+      {
+        "label": "C",
+        "text": "AWS Free Tier covers the first year in each new region"
+      },
+      {
+        "label": "D",
+        "text": "Managed services eliminate the need for regional deployments"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The cloud's variable expense model eliminates the capital barrier to geographic expansion. Spinning up infrastructure in a new AWS Region requires no upfront hardware purchase or facility investment \u2014 you pay only for what you use. This enables rapid international expansion that would otherwise require months of planning and millions in capital. Managed services don't eliminate the need for regional deployments, and Free Tier/Spot don't fund international expansion.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "global-expansion",
+      "variable-expense",
+      "capex",
+      "cloud-advantages"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-015",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's application requires that at least two copies of every transaction exist simultaneously in different physical locations to prevent data loss from a single facility failure. Which AWS infrastructure concept supports this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable CloudFront caching in multiple locations"
+      },
+      {
+        "label": "B",
+        "text": "Deploy with replication across at least two Availability Zones."
+      },
+      {
+        "label": "C",
+        "text": "Deploy in two separate Edge Locations"
+      },
+      {
+        "label": "D",
+        "text": "Deploy in two separate AWS accounts"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Availability Zones are physically separate data centers within a Region, with independent power, cooling, and networking. Replicating data across two AZs ensures two copies in different physical locations. This is what RDS Multi-AZ, DynamoDB replication, and EFS do automatically. Edge Locations are CloudFront cache nodes, not compute/storage facilities. Separate accounts don't provide geographic isolation. CloudFront caches are for content delivery, not transactional data durability.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "availability-zones",
+      "data-durability",
+      "replication",
+      "physical-isolation"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-016",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An engineering leader says: 'We should adopt cloud because it will always be cheaper than our data center.' A cloud architect responds that this is an oversimplification. Under which scenario might on-premises actually be cheaper than AWS?",
+    "options": [
+      {
+        "label": "A",
+        "text": "When running highly variable workloads with unpredictable demand spikes, On-Demand or auto-scaling provides better value than a long-term Reserved Instance commitment."
+      },
+      {
+        "label": "B",
+        "text": "When using Spot Instances for production workloads where interruptions are acceptable, Spot pricing already provides greater savings than Reserved Instances."
+      },
+      {
+        "label": "C",
+        "text": "When using managed services like RDS and EKS that have their own pricing models, compute Savings Plans may offer more flexible savings than service-specific RIs."
+      },
+      {
+        "label": "D",
+        "text": "When running workloads 24/7 with very predictable, stable load over a 3-year period, Reserved Instances provide the highest savings."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "When running highly variable workloads with unpredictable demand spikes, On-Demand or auto-scaling provides better value than a long-term Reserved Instance commitment.",
+      "B": "When using Spot Instances for production workloads where interruptions are acceptable, Spot pricing already provides greater savings than Reserved Instances.",
+      "C": "When using managed services like RDS and EKS that have their own pricing models, compute Savings Plans may offer more flexible savings than service-specific RIs."
+    },
+    "explanation": "For stable, predictable 24/7 workloads with high utilization (consistently >70-80%), highly optimized on-premises infrastructure with owned hardware amortized over 5+ years can sometimes match or beat even Reserved Instance pricing, particularly for compute-intensive workloads. Cloud shines for variable loads, elasticity, and avoiding CapEx. This is an honest TCO consideration, not a cloud endorsement or dismissal.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "tco",
+      "cloud-economics",
+      "on-premises",
+      "cost-comparison"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-017",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A development team wants to experiment with a new machine learning framework by running experiments for 2 weeks. If the experiment fails, they want to stop all costs immediately. If it succeeds, they'll run it long-term. Which cloud principle best describes why cloud is ideal for this scenario?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cloud provides higher GPU performance at the same cost"
+      },
+      {
+        "label": "B",
+        "text": "Cloud enables low-cost experimentation with fast provisioning and instant cost stop"
+      },
+      {
+        "label": "C",
+        "text": "Cloud provides faster networking than on-premises GPU clusters"
+      },
+      {
+        "label": "D",
+        "text": "Cloud managed ML services eliminate the need for ML expertise"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The ability to experiment quickly and cheaply \u2014 spinning up resources for 2 weeks and then stopping all costs instantly \u2014 is a key cloud advantage. There's no capital sunk in hardware that must be depreciated regardless of success. This 'fail fast' economic model accelerates innovation. GPU performance and ML expertise are unrelated to the economic principle being illustrated.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "experimentation",
+      "fail-fast",
+      "cloud-benefits",
+      "innovation"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-018",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "What is the fundamental difference between an AWS Region and an AWS Availability Zone?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A Region is a geographic area containing multiple AZs"
+      },
+      {
+        "label": "B",
+        "text": "Regions are for production workloads; AZs are for development and testing"
+      },
+      {
+        "label": "C",
+        "text": "Regions are AWS-managed while AZs are customer-managed"
+      },
+      {
+        "label": "D",
+        "text": "AZs span multiple Regions to provide global redundancy"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "An AWS Region is a geographic area (e.g., us-east-1, eu-west-1) containing multiple AZs. Each AZ is a distinct physical data center (or cluster of data centers) within that Region, separated by meaningful distances with independent infrastructure. AZs in the same Region are connected by low-latency private fiber. Regions are distinct geographic areas, not scope indicators for prod vs. dev. AZs don't span regions.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "regions",
+      "availability-zones",
+      "aws-infrastructure",
+      "geography"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-019",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company has adopted the AWS Well-Architected Framework. During a review, they find their infrastructure costs are 3x higher than expected because they provisioned for maximum theoretical load which occurs <5% of the time. Which pillar's recommendations would directly address this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The Security pillar focuses on protecting information and systems through risk assessments and applying security controls across all layers of the architecture."
+      },
+      {
+        "label": "B",
+        "text": "The Reliability pillar ensures a workload performs its intended function correctly and consistently, including the ability to automatically recover from failures."
+      },
+      {
+        "label": "C",
+        "text": "Operational Excellence focuses on running and monitoring systems to deliver business value and continuously improving supporting processes and procedures."
+      },
+      {
+        "label": "D",
+        "text": "Cost Optimization \u2014 specifically the design principles of measuring efficiency, eliminating unneeded expense, and using consumption-based pricing models."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "The Security pillar focuses on protecting information and systems through risk assessments and applying security controls across all layers of the architecture.",
+      "B": "The Reliability pillar ensures a workload performs its intended function correctly and consistently, including the ability to automatically recover from failures.",
+      "C": "Operational Excellence focuses on running and monitoring systems to deliver business value and continuously improving supporting processes and procedures."
+    },
+    "explanation": "The Cost Optimization pillar includes design principles like 'match supply with demand' (use Auto Scaling to provision only what's needed) and 'use cost-effective resources' (right-size instances, use Spot where appropriate). Provisioning for theoretical maximum load that almost never occurs is a classic over-provisioning anti-pattern that Cost Optimization addresses.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "well-architected",
+      "cost-optimization",
+      "right-sizing",
+      "auto-scaling"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-020",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company needs to deploy their application in AWS but their compliance requirements state that no data can leave their on-premises facility under any circumstances. Can AWS be used? If so, how?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Yes \u2014 using AWS Local Zones which are near-premises deployments"
+      },
+      {
+        "label": "B",
+        "text": "No \u2014 AWS is a public cloud so data always leaves the premises"
+      },
+      {
+        "label": "C",
+        "text": "Yes \u2014 using a VPN to AWS which keeps data private"
+      },
+      {
+        "label": "D",
+        "text": "Yes \u2014 using AWS Outposts, which deploys AWS managed infrastructure physically within the customer's data center"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "AWS Outposts extends AWS infrastructure, services, APIs, and tools to virtually any data center or co-location facility. The hardware is physically on-premises \u2014 data never leaves the facility \u2014 while providing AWS-consistent APIs. This is designed for workloads with strict data residency or low-latency requirements that cannot use cloud regions. Local Zones are AWS-operated facilities (not on customer premises). VPN encrypts transit but data still leaves premises.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "outposts",
+      "data-residency",
+      "on-premises",
+      "hybrid"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-021",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "select-two",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "Which TWO cloud adoption benefits are examples of 'agility' advantages rather than pure cost advantages?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lower per-unit compute cost compared to on-premises"
+      },
+      {
+        "label": "B",
+        "text": "Elimination of hardware depreciation on the balance sheet"
+      },
+      {
+        "label": "C",
+        "text": "Ability to experiment with new technologies without hardware procurement processes"
+      },
+      {
+        "label": "D",
+        "text": "Reduced time to provision new resources from weeks to minutes"
+      }
+    ],
+    "correct": [
+      "C",
+      "D"
+    ],
+    "distractors": {
+      "A": "",
+      "B": ""
+    },
+    "explanation": "Agility means moving faster: provisioning new resources in minutes vs. weeks of procurement (A) and experimenting with new technologies without procurement approval cycles (C) both represent speed and innovation acceleration \u2014 the agility benefit. Lower per-unit cost (B) and eliminating hardware depreciation (D) are financial/cost advantages, not agility advantages.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "cloud-agility",
+      "cloud-benefits",
+      "innovation",
+      "provisioning"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-01-022",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company architect argues that AWS's 'pay for what you use' model is only beneficial for startups, not large enterprises. Which enterprise scenario demonstrates that this model provides value even at large scale?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Reserved Instances eliminate the pay-as-you-go benefit for enterprises"
+      },
+      {
+        "label": "B",
+        "text": "A large enterprise always pays fixed on-premises costs so cloud adds no value"
+      },
+      {
+        "label": "C",
+        "text": "Large enterprises with seasonally variable workloads (e.g., tax processing in April, retail during holidays)."
+      },
+      {
+        "label": "D",
+        "text": "Large enterprises should only use private cloud"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Enterprise workloads often have significant variability \u2014 a retailer might need 10x capacity for holiday season, a tax firm for April. The pay-for-what-you-use model allows enterprises to scale up during peaks and down during off-season without maintaining and paying for peak capacity year-round. This is highly valuable at enterprise scale. Reserved Instances provide cost savings while still benefiting from elasticity during actual peaks.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "pay-as-you-go",
+      "enterprise",
+      "variable-workloads",
+      "elasticity"
+    ]
+  }
+]

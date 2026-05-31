@@ -1,0 +1,494 @@
+[
+  {
+    "id": "aws-cp-04-001",
+    "cert": "aws-cp",
+    "domain": "Billing, Pricing and Support",
+    "domain_index": 4,
+    "difficulty": "below",
+    "test_number": 1,
+    "question_type": "single",
+    "question": "Which AWS pricing model provides the most significant discount compared to On-Demand pricing by allowing you to bid on spare AWS compute capacity?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Savings Plans"
+      },
+      {
+        "label": "B",
+        "text": "Dedicated Hosts"
+      },
+      {
+        "label": "C",
+        "text": "Spot Instances"
+      },
+      {
+        "label": "D",
+        "text": "Reserved Instances"
+      }
+    ],
+    "correct": "C",
+    "explanation": "Amazon EC2 Spot Instances let you take advantage of unused EC2 capacity in the AWS cloud. Spot Instances are available at up to a 90% discount compared to On-Demand prices, making them the cheapest compute option, though they can be interrupted by AWS with short notice.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-billing-pricing-01",
+    "keywords": [
+      "pricing models",
+      "EC2",
+      "Spot Instances",
+      "cost savings"
+    ],
+    "active": true
+  },
+  {
+    "id": "aws-cp-04-002",
+    "cert": "aws-cp",
+    "domain": "Billing, Pricing and Support",
+    "domain_index": 4,
+    "difficulty": "below",
+    "test_number": 1,
+    "question_type": "single",
+    "question": "Which AWS tool enables you to visualize, understand, and manage your AWS costs and usage over time through interactive graphs and custom reports?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Budgets"
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "C",
+        "text": "AWS Pricing Calculator"
+      },
+      {
+        "label": "D",
+        "text": "AWS Cost Explorer"
+      }
+    ],
+    "correct": "D",
+    "explanation": "AWS Cost Explorer has an easy-to-use interface that lets you visualize, understand, and manage your AWS costs and usage over time. You can view historical data (up to 12 months) and forecast how much you are likely to spend for the next 12 months.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-billing-pricing-02",
+    "keywords": [
+      "Cost Explorer",
+      "cost visualization",
+      "billing",
+      "reports"
+    ],
+    "active": true
+  },
+  {
+    "id": "aws-cp-04-003",
+    "cert": "aws-cp",
+    "domain": "Billing, Pricing and Support",
+    "domain_index": 4,
+    "difficulty": "below",
+    "test_number": 1,
+    "question_type": "single",
+    "question": "Which AWS service allows multiple AWS accounts to be combined so they share a single payment method and benefit from volume pricing discounts?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Directory Service"
+      },
+      {
+        "label": "B",
+        "text": "AWS Organizations"
+      },
+      {
+        "label": "C",
+        "text": "AWS License Manager"
+      },
+      {
+        "label": "D",
+        "text": "AWS Identity and Access Management (IAM)"
+      }
+    ],
+    "correct": "B",
+    "explanation": "AWS Organizations is an account management service that enables you to consolidate multiple AWS accounts into an organization that you create and centrally manage. One of its core features is Consolidated Billing, which provides a single payment method and combined volume discounts across all accounts.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-billing-pricing-03",
+    "keywords": [
+      "AWS Organizations",
+      "consolidated billing",
+      "volume discounts",
+      "account management"
+    ],
+    "active": true
+  },
+  {
+    "id": "aws-cp-04-004",
+    "cert": "aws-cp",
+    "domain": "Billing, Pricing and Support",
+    "domain_index": 4,
+    "difficulty": "below",
+    "test_number": 1,
+    "question_type": "single",
+    "question": "A developer wants to receive an email notification if their AWS spending exceeds $50 in a given month. Which service should they use to configure this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "B",
+        "text": "AWS Budgets"
+      },
+      {
+        "label": "C",
+        "text": "AWS Cost Explorer"
+      },
+      {
+        "label": "D",
+        "text": "Amazon CloudWatch Billing Alarms"
+      }
+    ],
+    "correct": "B",
+    "explanation": "AWS Budgets gives you the ability to set custom budgets that alert you when your costs or usage exceed (or are forecasted to exceed) your budgeted amount. You can configure alerts to be sent via email or Amazon SNS.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-billing-pricing-02",
+    "keywords": [
+      "AWS Budgets",
+      "cost alerts",
+      "spending limits",
+      "notifications"
+    ],
+    "active": true
+  },
+  {
+    "id": "aws-cp-04-005",
+    "cert": "aws-cp",
+    "domain": "Billing, Pricing and Support",
+    "domain_index": 4,
+    "difficulty": "below",
+    "test_number": 1,
+    "question_type": "single",
+    "question": "Which AWS support plan provides a designated Technical Account Manager (TAM) to proactively monitor your environment and assist with optimization?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Basic Support"
+      },
+      {
+        "label": "B",
+        "text": "Enterprise Support"
+      },
+      {
+        "label": "C",
+        "text": "Business Support"
+      },
+      {
+        "label": "D",
+        "text": "Developer Support"
+      }
+    ],
+    "correct": "B",
+    "explanation": "Enterprise Support is the highest AWS support tier and the only plan that includes a designated Technical Account Manager (TAM). The TAM provides proactive guidance, architectural reviews, and ongoing communication to help you plan, deploy, and optimize workloads.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-billing-pricing-04",
+    "keywords": [
+      "Support Plans",
+      "Enterprise Support",
+      "TAM",
+      "Technical Account Manager"
+    ],
+    "active": true
+  },
+  {
+    "id": "aws-cp-04-006",
+    "cert": "aws-cp",
+    "domain": "Billing, Pricing and Support",
+    "domain_index": 4,
+    "difficulty": "below",
+    "test_number": 1,
+    "question_type": "single",
+    "question": "Which AWS service helps new customers learn and explore AWS by allowing them to use specific services up to a specified limit at no cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Cost Explorer"
+      },
+      {
+        "label": "B",
+        "text": "AWS Pricing Calculator"
+      },
+      {
+        "label": "C",
+        "text": "AWS Educate"
+      },
+      {
+        "label": "D",
+        "text": "AWS Free Tier"
+      }
+    ],
+    "correct": "D",
+    "explanation": "The AWS Free Tier provides customers the ability to explore and try out AWS services free of charge up to specified limits. It includes offers that are always free, offers that expire 12 months after sign-up, and short-term free trials.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-billing-pricing-01",
+    "keywords": [
+      "Free Tier",
+      "cost",
+      "new accounts",
+      "trials"
+    ],
+    "active": true
+  },
+  {
+    "id": "aws-cp-04-007",
+    "cert": "aws-cp",
+    "domain": "Billing, Pricing and Support",
+    "domain_index": 4,
+    "difficulty": "below",
+    "test_number": 1,
+    "question_type": "single",
+    "question": "A startup wants to estimate the monthly cost of running a web application consisting of three EC2 instances, a load balancer, and an RDS database before they deploy it. Which tool should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "B",
+        "text": "AWS Cost Explorer"
+      },
+      {
+        "label": "C",
+        "text": "AWS Pricing Calculator"
+      },
+      {
+        "label": "D",
+        "text": "AWS Budgets"
+      }
+    ],
+    "correct": "C",
+    "explanation": "The AWS Pricing Calculator allows you to explore AWS services and create an estimate for the cost of your use cases on AWS. You input your expected usage and it provides a detailed monthly cost estimate.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-billing-pricing-02",
+    "keywords": [
+      "Pricing Calculator",
+      "estimation",
+      "planning",
+      "cost prediction"
+    ],
+    "active": true
+  },
+  {
+    "id": "aws-cp-04-008",
+    "cert": "aws-cp",
+    "domain": "Billing, Pricing and Support",
+    "domain_index": 4,
+    "difficulty": "below",
+    "test_number": 1,
+    "question_type": "multiple",
+    "question": "Which TWO factors significantly affect the cost of running an Amazon EC2 instance? (Select TWO.)",
+    "options": [
+      {
+        "label": "A",
+        "text": "The amount of data transferred INTO the instance from the internet"
+      },
+      {
+        "label": "B",
+        "text": "The AWS Region where the instance is deployed"
+      },
+      {
+        "label": "C",
+        "text": "The number of IAM users configured in the account"
+      },
+      {
+        "label": "D",
+        "text": "The number of VPCs created in the account"
+      },
+      {
+        "label": "E",
+        "text": "The selected Instance Type (e.g., t3.micro vs m5.large)"
+      }
+    ],
+    "correct": [
+      "B",
+      "E"
+    ],
+    "explanation": "EC2 pricing is primarily determined by the Instance Type (which dictates CPU and RAM capacity) and the AWS Region (because physical infrastructure costs vary by geographic location).",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-billing-pricing-01",
+    "keywords": [
+      "EC2 pricing",
+      "cost factors",
+      "Regions",
+      "Instance Types"
+    ],
+    "active": true
+  },
+  {
+    "id": "aws-cp-04-009",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company knows it will use a specific EC2 instance type continuously for the next 3 years. Which purchasing option provides the greatest discount compared to On-Demand pricing?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Dedicated Hosts provide physical server-level isolation for compliance requirements and can be used with BYOL software, but do not offer the highest Reserved Instance discounts."
+      },
+      {
+        "label": "B",
+        "text": "Reserved Instances (3-year, All Upfront)"
+      },
+      {
+        "label": "C",
+        "text": "Savings Plans (1-year, No Upfront) provide flexibility to apply discounts across EC2, Fargate, and Lambda but offer a smaller discount than 3-year All Upfront commitments."
+      },
+      {
+        "label": "D",
+        "text": "Spot Instances offer up to 90% savings for fault-tolerant workloads that can tolerate interruption, but are not suitable for commitments to steady, uninterruptible workloads."
+      },
+      {
+        "label": "E",
+        "text": "On-Demand Instances provide maximum flexibility with no upfront cost or commitment, but carry the highest per-unit price compared to any commitment-based pricing model."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Dedicated Hosts provide physical server-level isolation for compliance requirements and can be used with BYOL software, but do not offer the highest Reserved Instance discounts.",
+      "C": "Savings Plans (1-year, No Upfront) provide flexibility to apply discounts across EC2, Fargate, and Lambda but offer a smaller discount than 3-year All Upfront commitments.",
+      "D": "Spot Instances offer up to 90% savings for fault-tolerant workloads that can tolerate interruption, but are not suitable for commitments to steady, uninterruptible workloads.",
+      "E": "On-Demand Instances provide maximum flexibility with no upfront cost or commitment, but carry the highest per-unit price compared to any commitment-based pricing model."
+    },
+    "explanation": "Reserved Instances with a 3-year, All Upfront commitment provide the highest discount (up to 72% off On-Demand) because you commit to the longest term and pay the full amount in advance.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "reserved-instances",
+      "cost-optimization",
+      "ec2-pricing",
+      "commitment"
+    ]
+  },
+  {
+    "id": "aws-cp-04-010",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants compute cost savings with flexibility to change instance families, sizes, and even switch between EC2 and AWS Fargate over the commitment term. Which option provides this flexibility?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Compute Savings Plans"
+      },
+      {
+        "label": "B",
+        "text": "Convertible Reserved Instances"
+      },
+      {
+        "label": "C",
+        "text": "Standard Reserved Instances"
+      },
+      {
+        "label": "D",
+        "text": "Spot Instance Fleet"
+      },
+      {
+        "label": "E",
+        "text": "EC2 Instance Savings Plans"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Compute Savings Plans offer up to 66% discount with the most flexibility \u2014 they apply across any EC2 instance family, size, OS, tenancy, and Region, as well as AWS Fargate and Lambda.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "savings-plans",
+      "compute-savings-plans",
+      "fargate",
+      "flexibility"
+    ]
+  },
+  {
+    "id": "aws-cp-04-011",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's AWS bill has increased significantly. They want to understand which services are driving cost and identify potential savings. Which AWS tool provides cost visualization, trend analysis, and rightsizing recommendations?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Budgets"
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "C",
+        "text": "AWS Pricing Calculator"
+      },
+      {
+        "label": "D",
+        "text": "AWS Cost Explorer"
+      },
+      {
+        "label": "E",
+        "text": "AWS Cost and Usage Report (CUR)"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "AWS Cost Explorer provides interactive graphs, trend analysis, and rightsizing recommendations to help you understand your spending patterns and identify cost optimization opportunities.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "cost-explorer",
+      "cost-optimization",
+      "rightsizing",
+      "billing"
+    ]
+  }
+]

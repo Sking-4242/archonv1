@@ -15,8 +15,56 @@
     "security_group",
     "shield",
     "subnet",
-    "vpc"
+    "vpc",
+    "gcp_vpc",
+    "gcp_subnet",
+    "gcp_firewall",
+    "gcp_iam",
+    "gcp_gke",
+    "gcp_cloud_batch",
+    "gcp_firestore",
+    "gcp_datastore",
+    "gcp_bigquery",
+    "gcp_vertex_ai",
+    "gcp_automl",
+    "gcp_monitoring",
+    "gcp_trace",
+    "gcp_error_reporting",
+    "gcp_cloud_deploy",
+    "gcp_analytics_hub",
+    "gcp_apigee",
+    "gcp_looker",
+    "gcp_scc",
+    "azure_vnet",
+    "azure_subnet",
+    "azure_nsg",
+    "azure_aad",
+    "azure_managed_id",
+    "azure_policy",
+    "azure_waf",
+    "azure_dns"
   ],
+  "azure_vm_hourly": {
+    "Standard_B1s": 0.0104,
+    "Standard_B2s": 0.0416,
+    "Standard_D2s_v3": 0.096,
+    "Standard_D4s_v3": 0.192
+  },
+  "gce_hourly": {
+    "e2-micro": 0.0084,
+    "e2-small": 0.0168,
+    "e2-medium": 0.0335,
+    "e2-standard-2": 0.067,
+    "e2-standard-4": 0.134,
+    "n2-standard-2": 0.097,
+    "n2-standard-4": 0.194
+  },
+  "cloudsql_hourly": {
+    "db-f1-micro": 0.015,
+    "db-g1-small": 0.035,
+    "db-n1-standard-1": 0.096,
+    "db-n1-standard-2": 0.192
+  },
   "ec2_hourly": {
     "t3.micro": 0.0104,
     "t3.small": 0.0208,
@@ -333,6 +381,314 @@
     "codecommit": {
       "monthly_cost": 1.0,
       "description": "CodeCommit (5 active users)"
+    },
+    "gcp_gce": {
+      "monthly_cost": 24.46,
+      "description": "GCE e2-medium"
+    },
+    "gcp_mig": {
+      "monthly_cost": 48.92,
+      "description": "MIG 2× e2-medium estimate"
+    },
+    "gcp_cloud_run": {
+      "monthly_cost": 5.0,
+      "description": "Cloud Run light usage"
+    },
+    "gcp_cloud_functions": {
+      "monthly_cost": 2.0,
+      "description": "Cloud Functions light usage"
+    },
+    "gcp_app_engine": {
+      "monthly_cost": 15.0,
+      "description": "App Engine standard instance"
+    },
+    "gcp_cloud_composer": {
+      "monthly_cost": 350.0,
+      "description": "Cloud Composer small environment"
+    },
+    "gcp_gcs": {
+      "monthly_cost": 20.0,
+      "description": "GCS Standard (100 GB stored)"
+    },
+    "gcp_filestore": {
+      "monthly_cost": 200.0,
+      "description": "Filestore Basic HDD 1 TB"
+    },
+    "gcp_persistent_disk": {
+      "monthly_cost": 10.0,
+      "description": "Persistent Disk pd-balanced 100 GB"
+    },
+    "gcp_backup": {
+      "monthly_cost": 10.0,
+      "description": "Backup and DR plan"
+    },
+    "gcp_cloudsql": {
+      "monthly_cost": 36.5,
+      "description": "Cloud SQL db-f1-micro"
+    },
+    "gcp_alloydb": {
+      "monthly_cost": 180.0,
+      "description": "AlloyDB 2 vCPU primary cluster"
+    },
+    "gcp_spanner": {
+      "monthly_cost": 65.0,
+      "description": "Spanner 100 processing units"
+    },
+    "gcp_bigtable": {
+      "monthly_cost": 65.0,
+      "description": "Bigtable 1-node cluster"
+    },
+    "gcp_memorystore": {
+      "monthly_cost": 50.0,
+      "description": "Memorystore Redis 1 GB STANDARD_HA"
+    },
+    "gcp_secret_manager": {
+      "monthly_cost": 6.0,
+      "description": "Secret Manager (6 active secrets)"
+    },
+    "gcp_armor": {
+      "monthly_cost": 5.0,
+      "description": "Cloud Armor policy"
+    },
+    "gcp_kms": {
+      "monthly_cost": 6.0,
+      "description": "Cloud KMS key (1 active key)"
+    },
+    "gcp_certificate_manager": {
+      "monthly_cost": 8.0,
+      "description": "Certificate Manager managed cert"
+    },
+    "gcp_lb": {
+      "monthly_cost": 18.0,
+      "description": "Cloud Load Balancing"
+    },
+    "gcp_cdn": {
+      "monthly_cost": 8.0,
+      "description": "Cloud CDN (light traffic)"
+    },
+    "gcp_dns": {
+      "monthly_cost": 0.2,
+      "description": "Cloud DNS (1 managed zone)"
+    },
+    "gcp_nat": {
+      "monthly_cost": 32.0,
+      "description": "Cloud NAT gateway"
+    },
+    "gcp_vpn": {
+      "monthly_cost": 36.0,
+      "description": "HA VPN (1 tunnel)"
+    },
+    "gcp_interconnect": {
+      "monthly_cost": 1700.0,
+      "description": "Dedicated Interconnect 10 Gbps"
+    },
+    "gcp_private_sc": {
+      "monthly_cost": 8.0,
+      "description": "Private Service Connect"
+    },
+    "gcp_network_endpoint_grp": {
+      "monthly_cost": 0.0,
+      "description": "Network Endpoint Group (no charge)"
+    },
+    "gcp_pubsub": {
+      "monthly_cost": 10.0,
+      "description": "Pub/Sub (light usage)"
+    },
+    "gcp_dataflow": {
+      "monthly_cost": 40.0,
+      "description": "Dataflow job estimate"
+    },
+    "gcp_tasks": {
+      "monthly_cost": 3.0,
+      "description": "Cloud Tasks queue"
+    },
+    "gcp_scheduler": {
+      "monthly_cost": 1.0,
+      "description": "Cloud Scheduler job"
+    },
+    "gcp_workflows": {
+      "monthly_cost": 1.0,
+      "description": "Cloud Workflows executions"
+    },
+    "gcp_dataproc": {
+      "monthly_cost": 100.0,
+      "description": "Dataproc 2× n1-standard-4"
+    },
+    "gcp_data_catalog": {
+      "monthly_cost": 10.0,
+      "description": "Data Catalog entries"
+    },
+    "gcp_vision_ai": {
+      "monthly_cost": 5.0,
+      "description": "Vision API (1K images/mo)"
+    },
+    "gcp_speech": {
+      "monthly_cost": 5.0,
+      "description": "Speech-to-Text (10 hr/mo)"
+    },
+    "gcp_translation": {
+      "monthly_cost": 10.0,
+      "description": "Translation API (500K chars/mo)"
+    },
+    "gcp_natural_lang": {
+      "monthly_cost": 5.0,
+      "description": "Natural Language API"
+    },
+    "gcp_logging": {
+      "monthly_cost": 5.0,
+      "description": "Cloud Logging (10 GB/mo)"
+    },
+    "gcp_cloud_build": {
+      "monthly_cost": 3.0,
+      "description": "Cloud Build (100 build-min/mo)"
+    },
+    "gcp_artifact_registry": {
+      "monthly_cost": 10.0,
+      "description": "Artifact Registry (10 GB)"
+    },
+    "gcp_source_repo": {
+      "monthly_cost": 1.0,
+      "description": "Cloud Source Repositories"
+    },
+    "azure_vm": {
+      "monthly_cost": 30.0,
+      "description": "Azure VM Standard_B2s"
+    },
+    "azure_vmss": {
+      "monthly_cost": 60.0,
+      "description": "Azure VMSS 2× Standard_B2s"
+    },
+    "azure_aks": {
+      "monthly_cost": 150.0,
+      "description": "Azure AKS 3-node cluster"
+    },
+    "azure_functions": {
+      "monthly_cost": 10.0,
+      "description": "Azure Functions Consumption plan"
+    },
+    "azure_app_service": {
+      "monthly_cost": 55.0,
+      "description": "Azure App Service P1v2"
+    },
+    "azure_aci": {
+      "monthly_cost": 15.0,
+      "description": "Azure Container Instances"
+    },
+    "azure_container_apps": {
+      "monthly_cost": 25.0,
+      "description": "Azure Container Apps environment"
+    },
+    "azure_batch": {
+      "monthly_cost": 40.0,
+      "description": "Azure Batch pool estimate"
+    },
+    "azure_blob": {
+      "monthly_cost": 20.0,
+      "description": "Azure Blob Storage (100 GB LRS)"
+    },
+    "azure_files": {
+      "monthly_cost": 25.0,
+      "description": "Azure Files 100 GB"
+    },
+    "azure_disk": {
+      "monthly_cost": 10.0,
+      "description": "Azure Managed Disk Premium 128 GB"
+    },
+    "azure_sql": {
+      "monthly_cost": 150.0,
+      "description": "Azure SQL GP_Gen5_2"
+    },
+    "azure_cosmosdb": {
+      "monthly_cost": 25.0,
+      "description": "Azure Cosmos DB 400 RU/s"
+    },
+    "azure_postgres": {
+      "monthly_cost": 50.0,
+      "description": "Azure PostgreSQL Flexible B2s"
+    },
+    "azure_mysql": {
+      "monthly_cost": 50.0,
+      "description": "Azure MySQL Flexible B2s"
+    },
+    "azure_redis": {
+      "monthly_cost": 55.0,
+      "description": "Azure Cache for Redis C1"
+    },
+    "azure_keyvault": {
+      "monthly_cost": 3.0,
+      "description": "Azure Key Vault operations"
+    },
+    "azure_lb": {
+      "monthly_cost": 18.0,
+      "description": "Azure Load Balancer Standard"
+    },
+    "azure_agw": {
+      "monthly_cost": 125.0,
+      "description": "Azure Application Gateway WAF_v2"
+    },
+    "azure_frontdoor": {
+      "monthly_cost": 35.0,
+      "description": "Azure Front Door Standard"
+    },
+    "azure_nat_gw": {
+      "monthly_cost": 32.0,
+      "description": "Azure NAT Gateway"
+    },
+    "azure_vpn_gateway": {
+      "monthly_cost": 140.0,
+      "description": "Azure VPN Gateway VpnGw1"
+    },
+    "azure_firewall": {
+      "monthly_cost": 625.0,
+      "description": "Azure Firewall Standard"
+    },
+    "azure_apim": {
+      "monthly_cost": 50.0,
+      "description": "Azure API Management Developer"
+    },
+    "azure_servicebus": {
+      "monthly_cost": 10.0,
+      "description": "Azure Service Bus Standard"
+    },
+    "azure_eventhub": {
+      "monthly_cost": 11.0,
+      "description": "Azure Event Hubs Standard"
+    },
+    "azure_log_analytics": {
+      "monthly_cost": 25.0,
+      "description": "Azure Log Analytics (10 GB/mo)"
+    },
+    "azure_app_insights": {
+      "monthly_cost": 10.0,
+      "description": "Azure Application Insights"
+    },
+    "azure_openai": {
+      "monthly_cost": 100.0,
+      "description": "Azure OpenAI S0 deployment"
+    },
+    "azure_ml": {
+      "monthly_cost": 200.0,
+      "description": "Azure ML workspace + compute"
+    },
+    "azure_databricks": {
+      "monthly_cost": 350.0,
+      "description": "Azure Databricks premium DBU estimate"
+    },
+    "azure_synapse": {
+      "monthly_cost": 500.0,
+      "description": "Azure Synapse DW100c pool"
+    },
+    "azure_acr": {
+      "monthly_cost": 20.0,
+      "description": "Azure Container Registry Standard"
+    },
+    "azure_bastion": {
+      "monthly_cost": 140.0,
+      "description": "Azure Bastion Standard"
+    },
+    "azure_ddos": {
+      "monthly_cost": 2944.0,
+      "description": "Azure DDoS Protection Plan"
     }
   }
 }

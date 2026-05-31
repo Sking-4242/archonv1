@@ -337,8 +337,10 @@ def format_cost_github(report: Any, source_file: str, out: TextIO = sys.stdout) 
 def format_discover_archon(report: Any, out: TextIO = sys.stdout) -> None:
     """
     Archon Pro import format for discovery results.
-    Converts discovered resources into canvas-compatible nodes.
+    Converts discovered resources into canvas-compatible nodes and inferred edges.
     """
+    from archon_cli.discover import infer_discovery_edges
+
     nodes = []
     for r in report.resources:
         nodes.append({
@@ -353,13 +355,16 @@ def format_discover_archon(report: Any, out: TextIO = sys.stdout) -> None:
             },
         })
 
+    edges = infer_discovery_edges(report.resources)
+
     data = {
         "archonCliVersion": "0.1.0",
         "reportType": "discover",
         "region": report.region,
         "nodes": nodes,
+        "edges": edges,
         "summary": report.to_dict()["summary"],
         "errors": [e.to_dict() for e in report.errors],
     }
-    json.dump(data, sys.stdout, indent=2)
-    sys.stdout.write("\n")
+    json.dump(data, out, indent=2)
+    out.write("\n")

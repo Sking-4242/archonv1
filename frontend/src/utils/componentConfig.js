@@ -162,6 +162,13 @@ export const COMPONENT_CONFIGS = {
       default: "t3.micro",
     },
     {
+      key: "instance_id",
+      label: "Instance ID (FinOps / CloudWatch)",
+      type: "text",
+      default: "",
+      placeholder: "i-0abc123def4567890",
+    },
+    {
       key: "ami",
       label: "AMI ID",
       type: "text",
@@ -309,6 +316,13 @@ export const COMPONENT_CONFIGS = {
         "provided.al2",
       ],
       default: "python3.12",
+    },
+    {
+      key: "function_name",
+      label: "Function Name (FinOps / CloudWatch)",
+      type: "text",
+      default: "",
+      placeholder: "my-api-handler",
     },
     {
       key: "handler",
@@ -730,6 +744,13 @@ export const COMPONENT_CONFIGS = {
         "db.r6g.xlarge",
       ],
       default: "db.t3.micro",
+    },
+    {
+      key: "db_instance_identifier",
+      label: "DB Instance ID (FinOps / CloudWatch)",
+      type: "text",
+      default: "",
+      placeholder: "prod-postgres",
     },
     {
       key: "allocated_storage",

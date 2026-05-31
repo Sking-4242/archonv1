@@ -1,0 +1,917 @@
+[
+  {
+    "id": "aws-cp-01-001",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Guaranteed 100% uptime for all services"
+      },
+      {
+        "label": "B",
+        "text": "Unlimited free storage for all data"
+      },
+      {
+        "label": "C",
+        "text": "The ability to trade fixed capital expense for variable."
+      },
+      {
+        "label": "D",
+        "text": "Automatic compliance with all regulatory requirements"
+      }
+    ],
+    "correct": "C",
+    "explanation": "AWS allows organizations to replace large upfront capital expenditures (servers, data centers) with variable operational costs that scale with actual usage. You pay only for what you consume, when you consume it.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "What is the primary benefit of using AWS cloud services instead of on-premises infrastructure?",
+    "tags": [
+      "cloud economics",
+      "capex",
+      "opex",
+      "cloud benefits"
+    ]
+  },
+  {
+    "id": "aws-cp-01-002",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Durability"
+      },
+      {
+        "label": "B",
+        "text": "Elasticity"
+      },
+      {
+        "label": "C",
+        "text": "Fault tolerance"
+      },
+      {
+        "label": "D",
+        "text": "High availability"
+      }
+    ],
+    "correct": "B",
+    "explanation": "Elasticity is the ability to automatically scale resources up or down in response to changing demand. This is a core cloud principle that allows you to match capacity to actual usage rather than provisioning for peak load.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "Which term describes the ability of a system to automatically add or remove resources based on current demand?",
+    "tags": [
+      "elasticity",
+      "scaling",
+      "cloud principles",
+      "auto scaling"
+    ]
+  },
+  {
+    "id": "aws-cp-01-003",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Economies of scale"
+      },
+      {
+        "label": "B",
+        "text": "Trading capital expense for operational expense"
+      },
+      {
+        "label": "C",
+        "text": "Stop guessing capacity"
+      },
+      {
+        "label": "D",
+        "text": "Benefit from massive economies of scale"
+      }
+    ],
+    "correct": "B",
+    "explanation": "Trading capital expense (CapEx) for operational expense (OpEx) means replacing large upfront hardware purchases with ongoing usage-based payments. This shifts IT costs from a fixed investment to a variable expense aligned with actual consumption.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "A company is moving from on-premises servers to AWS. Instead of purchasing hardware upfront, they will pay monthly based on usage. Which cloud economic principle does this represent?",
+    "tags": [
+      "capex",
+      "opex",
+      "cloud economics",
+      "payment model"
+    ]
+  },
+  {
+    "id": "aws-cp-01-004",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "A content delivery network endpoint"
+      },
+      {
+        "label": "B",
+        "text": "A geographic area containing multiple isolated data center clusters"
+      },
+      {
+        "label": "C",
+        "text": "A virtual private network connecting on-premises infrastructure to AWS"
+      },
+      {
+        "label": "D",
+        "text": "A single data center that hosts AWS servers"
+      }
+    ],
+    "correct": "B",
+    "explanation": "An AWS Region is a physical geographic area of the world that contains multiple Availability Zones. Each Region is completely independent and contains at least two (typically three or more) Availability Zones, which are clusters of one or more data centers.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-02",
+    "active": true,
+    "type": "single",
+    "stem": "What is an AWS Region?",
+    "tags": [
+      "regions",
+      "global infrastructure",
+      "AWS geography"
+    ]
+  },
+  {
+    "id": "aws-cp-01-005",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "A group of AWS Regions located on the same continent"
+      },
+      {
+        "label": "B",
+        "text": "A CloudFront edge location used to cache content closer to users"
+      },
+      {
+        "label": "C",
+        "text": "One or more discrete data centers with redundant power, networking, and connectivity within a Region"
+      },
+      {
+        "label": "D",
+        "text": "A geographic boundary defining where AWS services are available"
+      }
+    ],
+    "correct": "C",
+    "explanation": "An Availability Zone (AZ) consists of one or more discrete data centers, each with redundant power, networking, and connectivity. AZs within a Region are physically separated from each other to isolate failures, but are connected through high-bandwidth, low-latency networking.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-02",
+    "active": true,
+    "type": "single",
+    "stem": "What is an AWS Availability Zone?",
+    "tags": [
+      "availability zones",
+      "AZ",
+      "global infrastructure",
+      "data centers"
+    ]
+  },
+  {
+    "id": "aws-cp-01-006",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Edge Locations"
+      },
+      {
+        "label": "B",
+        "text": "Availability Zones"
+      },
+      {
+        "label": "C",
+        "text": "Local Zones"
+      },
+      {
+        "label": "D",
+        "text": "AWS Regions"
+      }
+    ],
+    "correct": "A",
+    "explanation": "Edge Locations are endpoints used by Amazon CloudFront to cache copies of content closer to end users. There are many more Edge Locations than Regions, distributed globally to minimize latency for content delivery.",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-02",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS global infrastructure component is used by Amazon CloudFront to serve content to users with low latency?",
+    "tags": [
+      "edge locations",
+      "CloudFront",
+      "CDN",
+      "global infrastructure"
+    ]
+  },
+  {
+    "id": "aws-cp-01-007",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Go global in minutes"
+      },
+      {
+        "label": "B",
+        "text": "Stop guessing capacity"
+      },
+      {
+        "label": "C",
+        "text": "Increase speed and agility"
+      },
+      {
+        "label": "D",
+        "text": "Benefit from massive economies of scale"
+      }
+    ],
+    "correct": "B",
+    "explanation": "The cloud advantage of 'stop guessing capacity' means organizations no longer need to make capacity decisions months in advance. They can scale resources up or down as needed, eliminating both the risk of under-provisioning (poor performance) and over-provisioning (wasted spend).",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "A startup does not know how much server capacity they will need as they grow. Which cloud advantage helps them address this uncertainty?",
+    "tags": [
+      "capacity planning",
+      "cloud advantages",
+      "scaling",
+      "cloud benefits"
+    ]
+  },
+  {
+    "id": "aws-cp-01-008",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "A system designed to remain operational and accessible with minimal downtime"
+      },
+      {
+        "label": "B",
+        "text": "A system that can scale to handle any amount of traffic"
+      },
+      {
+        "label": "C",
+        "text": "A system that automatically backs up data to multiple locations"
+      },
+      {
+        "label": "D",
+        "text": "A system that reduces latency by caching data at edge locations"
+      }
+    ],
+    "correct": "A",
+    "explanation": "High availability refers to designing systems that remain operational and accessible for a high percentage of time, minimizing planned and unplanned downtime. In AWS, this is typically achieved by deploying resources across multiple Availability Zones.",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "Which of the following best describes 'high availability' in the context of AWS?",
+    "tags": [
+      "high availability",
+      "uptime",
+      "resilience",
+      "cloud principles"
+    ]
+  },
+  {
+    "id": "aws-cp-01-009",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Support plan fees are an ongoing operational expense in the cloud, not a capital expenditure that would exist in an on-premises model."
+      },
+      {
+        "label": "B",
+        "text": "Monthly AWS EC2 instance charges are variable operational costs incurred when running cloud workloads, not capital expenditures for hardware ownership."
+      },
+      {
+        "label": "C",
+        "text": "Purchasing physical servers for an on-premises data center is a classic capital expenditure that cloud adoption eliminates by replacing with variable pay-as-you-go costs."
+      },
+      {
+        "label": "D",
+        "text": "Data transfer costs between AWS services are operational usage fees specific to cloud architectures, not capital expenditures found in traditional on-premises spending."
+      }
+    ],
+    "correct": "C",
+    "explanation": "Capital expenses (CapEx) are upfront investments in physical assets. Purchasing physical servers, networking equipment, and data center infrastructure are classic CapEx examples. Moving to AWS replaces these with operational expenses (OpEx) \u2014 ongoing usage-based payments.",
+    "distractors": {
+      "A": "AWS Support plan fees are an ongoing operational expense in the cloud, not a capital expenditure that would exist in an on-premises model.",
+      "B": "Monthly AWS EC2 instance charges are variable operational costs incurred when running cloud workloads, not capital expenditures for hardware ownership.",
+      "D": "Data transfer costs between AWS services are operational usage fees specific to cloud architectures, not capital expenditures found in traditional on-premises spending."
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "Which of the following is an example of a capital expense (CapEx) that organizations typically eliminate by moving to AWS?",
+    "tags": [
+      "capex",
+      "opex",
+      "on-premises",
+      "cloud economics"
+    ]
+  },
+  {
+    "id": "aws-cp-01-010",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "The system prevents unauthorized access through security controls"
+      },
+      {
+        "label": "B",
+        "text": "The system continues operating correctly even when one or more components fail"
+      },
+      {
+        "label": "C",
+        "text": "The system automatically scales to handle more users"
+      },
+      {
+        "label": "D",
+        "text": "The system stores data redundantly across multiple regions"
+      }
+    ],
+    "correct": "B",
+    "explanation": "Fault tolerance is the ability of a system to continue functioning correctly even when individual components fail. A fault-tolerant system is designed with redundancy so that the failure of any single component does not cause overall system failure.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "What does 'fault tolerance' mean in cloud architecture?",
+    "tags": [
+      "fault tolerance",
+      "resilience",
+      "redundancy",
+      "cloud principles"
+    ]
+  },
+  {
+    "id": "aws-cp-01-011",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Trade capital expense for operational expense"
+      },
+      {
+        "label": "B",
+        "text": "Benefit from massive economies of scale"
+      },
+      {
+        "label": "C",
+        "text": "Go global in minutes"
+      },
+      {
+        "label": "D",
+        "text": "Stop guessing capacity"
+      }
+    ],
+    "correct": "C",
+    "explanation": "Go global in minutes is the cloud advantage that describes the ability to deploy applications across multiple AWS Regions worldwide quickly and at low cost. With just a few clicks, you can replicate your application infrastructure to a different Region, reducing latency for international users.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS cloud advantage allows a company to deploy their application to users in multiple countries within minutes rather than months?",
+    "tags": [
+      "global deployment",
+      "regions",
+      "cloud advantages",
+      "go global"
+    ]
+  },
+  {
+    "id": "aws-cp-01-012",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS does not make a profit and operates as a nonprofit"
+      },
+      {
+        "label": "B",
+        "text": "AWS uses older hardware that is less expensive to purchase"
+      },
+      {
+        "label": "C",
+        "text": "AWS passes government subsidies on to customers"
+      },
+      {
+        "label": "D",
+        "text": "AWS achieves economies of scale by aggregating usage across hundreds of thousands of customers"
+      }
+    ],
+    "correct": "D",
+    "explanation": "AWS achieves massive economies of scale by aggregating infrastructure usage across hundreds of thousands of customers worldwide. This scale gives AWS significant purchasing power for hardware, power, and facilities, driving down per-unit costs that are then passed on to customers through lower prices.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "How does AWS achieve lower prices compared to what individual organizations could achieve running their own data centers?",
+    "tags": [
+      "economies of scale",
+      "pricing",
+      "cloud advantages",
+      "cost"
+    ]
+  },
+  {
+    "id": "aws-cp-01-013",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Design for cost optimization"
+      },
+      {
+        "label": "B",
+        "text": "Design for performance efficiency"
+      },
+      {
+        "label": "C",
+        "text": "Design for operational simplicity"
+      },
+      {
+        "label": "D",
+        "text": "Design for failure and use redundancy"
+      }
+    ],
+    "correct": "D",
+    "explanation": "Designing for failure means assuming that individual components will fail and building redundancy so the overall system continues to operate. In AWS, this typically means deploying multiple instances across multiple Availability Zones so that the failure of any single component does not cause application downtime.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "A company wants to ensure their web application remains available even if one of their servers fails. Which design principle should they apply?",
+    "tags": [
+      "design for failure",
+      "redundancy",
+      "high availability",
+      "architecture principles"
+    ]
+  },
+  {
+    "id": "aws-cp-01-014",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Security responsibilities are negotiated individually in each customer's contract"
+      },
+      {
+        "label": "B",
+        "text": "The customer is responsible for all security including the physical infrastructure"
+      },
+      {
+        "label": "C",
+        "text": "AWS is responsible for security of the cloud; the customer is responsible for security in."
+      },
+      {
+        "label": "D",
+        "text": "AWS is responsible for all security including customer data and applications"
+      }
+    ],
+    "correct": "C",
+    "explanation": "The AWS shared responsibility model divides security into two layers: AWS is responsible for the security OF the cloud (physical infrastructure, hardware, network, managed service software), while customers are responsible for security IN the cloud (their data, applications, identity management, and operating system configuration on IaaS services).",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-03",
+    "active": true,
+    "type": "single",
+    "stem": "Which statement accurately describes the AWS shared responsibility model?",
+    "tags": [
+      "shared responsibility",
+      "security model",
+      "AWS responsibility",
+      "customer responsibility"
+    ]
+  },
+  {
+    "id": "aws-cp-01-015",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Lower latency for all database queries is not guaranteed by the cloud; latency depends on architecture, not simply whether resources are cloud-hosted."
+      },
+      {
+        "label": "B",
+        "text": "Increased speed and agility to experiment and deploy new applications"
+      },
+      {
+        "label": "C",
+        "text": "Automatic generation of application code is not a cloud computing benefit; it describes AI coding tools, not fundamental cloud infrastructure advantages."
+      },
+      {
+        "label": "D",
+        "text": "Guaranteed delivery of all messages between services is not a standard cloud benefit; reliable messaging requires specific architectural choices like SQS or SNS."
+      }
+    ],
+    "correct": "B",
+    "explanation": "Increased speed and agility is a core cloud advantage. In the cloud, developers can spin up resources in minutes and experiment with new ideas at low cost and risk. New environments for testing and development can be created quickly, dramatically reducing time from idea to deployment compared to on-premises procurement cycles.",
+    "distractors": {
+      "A": "Lower latency for all database queries is not guaranteed by the cloud; latency depends on architecture, not simply whether resources are cloud-hosted.",
+      "C": "Automatic generation of application code is not a cloud computing benefit; it describes AI coding tools, not fundamental cloud infrastructure advantages.",
+      "D": "Guaranteed delivery of all messages between services is not a standard cloud benefit; reliable messaging requires specific architectural choices like SQS or SNS."
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "Which of the following is a benefit of the AWS cloud related to development speed?",
+    "tags": [
+      "agility",
+      "speed",
+      "cloud advantages",
+      "development velocity"
+    ]
+  },
+  {
+    "id": "aws-cp-01-016",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "The ability of a system to recover automatically from failures"
+      },
+      {
+        "label": "B",
+        "text": "The ability to restrict access to resources based on user permissions"
+      },
+      {
+        "label": "C",
+        "text": "The ability of a system to handle growing amounts of work."
+      },
+      {
+        "label": "D",
+        "text": "The ability to deploy an application across multiple geographic regions"
+      }
+    ],
+    "correct": "C",
+    "explanation": "Scalability is the ability of a system to handle increased load by adding resources (scaling out/up) or to reduce resources when load decreases (scaling in/down). AWS provides scalability through services like Auto Scaling, which automatically adjusts capacity based on demand.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "What does 'scalability' mean in the context of AWS architecture?",
+    "tags": [
+      "scalability",
+      "scaling",
+      "auto scaling",
+      "cloud principles"
+    ]
+  },
+  {
+    "id": "aws-cp-01-017",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Stop spending money on running and maintaining data centers"
+      },
+      {
+        "label": "B",
+        "text": "Benefit from massive economies of scale"
+      },
+      {
+        "label": "C",
+        "text": "Stop guessing capacity means you provision only what you need and scale instantly, eliminating costly over-provisioning or under-provisioning."
+      },
+      {
+        "label": "D",
+        "text": "Going global in minutes means you can deploy your application in multiple AWS Regions worldwide with just a few clicks."
+      }
+    ],
+    "correct": "A",
+    "explanation": "One of the six advantages of cloud computing is the ability to stop spending money on running and maintaining data centers. By moving to AWS, organizations redirect resources previously spent on physical infrastructure management toward customer-facing work and innovation.",
+    "distractors": {
+      "B": "",
+      "C": "Stop guessing capacity means you provision only what you need and scale instantly, eliminating costly over-provisioning or under-provisioning.",
+      "D": "Going global in minutes means you can deploy your application in multiple AWS Regions worldwide with just a few clicks."
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "A company currently spends significant resources managing their own data center \u2014 handling cooling, power, and physical security. Which cloud advantage directly addresses this?",
+    "tags": [
+      "data center",
+      "operational burden",
+      "cloud advantages",
+      "infrastructure management"
+    ]
+  },
+  {
+    "id": "aws-cp-01-018",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "They use different AWS accounts"
+      },
+      {
+        "label": "B",
+        "text": "They are located in different countries"
+      },
+      {
+        "label": "C",
+        "text": "They are physically separated facilities with independent power"
+      },
+      {
+        "label": "D",
+        "text": "They run different versions of AWS software"
+      }
+    ],
+    "correct": "C",
+    "explanation": "Availability Zones within a Region are physically separate facilities, each with independent power sources, cooling, and networking. They are typically miles apart within the same metropolitan area. This physical separation ensures that a fire, flood, or power outage affecting one AZ does not affect others, while the high-bandwidth connections between them enable synchronous replication.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-02",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS infrastructure feature physically separates Availability Zones from each other to prevent correlated failures?",
+    "tags": [
+      "availability zones",
+      "physical isolation",
+      "fault isolation",
+      "global infrastructure"
+    ]
+  },
+  {
+    "id": "aws-cp-01-019",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Monolithic architecture"
+      },
+      {
+        "label": "B",
+        "text": "Vertical scaling"
+      },
+      {
+        "label": "C",
+        "text": "Loose coupling"
+      },
+      {
+        "label": "D",
+        "text": "Tight integration"
+      }
+    ],
+    "correct": "C",
+    "explanation": "Loose coupling is an architectural principle where components of a system interact with each other through well-defined interfaces, minimizing dependencies. When components are loosely coupled, a failure or change in one component has minimal impact on others. AWS services like SQS and SNS facilitate loose coupling between application components.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "single",
+    "stem": "Which cloud concept describes breaking down a large application into smaller, loosely connected components that can be developed and scaled independently?",
+    "tags": [
+      "loose coupling",
+      "microservices",
+      "architecture principles",
+      "decoupling"
+    ]
+  },
+  {
+    "id": "aws-cp-01-020",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Ten \u2014 to ensure maximum redundancy"
+      },
+      {
+        "label": "B",
+        "text": "One \u2014 a single large AZ is sufficient for most workloads"
+      },
+      {
+        "label": "C",
+        "text": "Two \u2014 so that if one AZ fails, the other can handle the load"
+      },
+      {
+        "label": "D",
+        "text": "Five \u2014 one for each layer of a typical application stack"
+      }
+    ],
+    "correct": "C",
+    "explanation": "AWS recommends deploying across at least two Availability Zones for high availability. If one AZ experiences an outage, the workload continues to operate in the remaining AZ(s). Many production architectures use three AZs for additional resilience.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-02",
+    "active": true,
+    "type": "single",
+    "stem": "How many Availability Zones does AWS recommend deploying across at minimum to achieve high availability for a production workload?",
+    "tags": [
+      "availability zones",
+      "high availability",
+      "redundancy",
+      "production architecture"
+    ]
+  },
+  {
+    "id": "aws-cp-01-021",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "You must purchase capacity based on your peak projected usage"
+      },
+      {
+        "label": "B",
+        "text": "You must sign multi-year contracts for all services"
+      },
+      {
+        "label": "C",
+        "text": "You can scale resources up or down based on actual demand"
+      },
+      {
+        "label": "D",
+        "text": "You are responsible for maintaining all physical hardware"
+      },
+      {
+        "label": "E",
+        "text": "You can deploy applications globally in minutes"
+      }
+    ],
+    "correct": [
+      "C",
+      "E"
+    ],
+    "explanation": "Two key advantages of AWS cloud computing are elasticity \u2014 the ability to scale resources to match actual demand rather than peak projections \u2014 and global reach, which allows you to deploy to any AWS Region worldwide in minutes. Both contrast sharply with traditional on-premises infrastructure requirements.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-01",
+    "active": true,
+    "type": "multiple",
+    "stem": "Which TWO of the following are advantages of AWS cloud computing compared to traditional on-premises infrastructure? (Select TWO.)",
+    "tags": [
+      "cloud advantages",
+      "elasticity",
+      "global reach",
+      "on-premises comparison"
+    ]
+  },
+  {
+    "id": "aws-cp-01-022",
+    "domain": "Cloud Concepts",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Regions"
+      },
+      {
+        "label": "B",
+        "text": "AWS Marketplace"
+      },
+      {
+        "label": "C",
+        "text": "Availability Zones"
+      },
+      {
+        "label": "D",
+        "text": "AWS Billing Zones"
+      },
+      {
+        "label": "E",
+        "text": "AWS Support Centers"
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "explanation": "AWS Regions and Availability Zones are the two primary components of the AWS global infrastructure used for deploying highly available applications. Regions are geographic areas containing multiple AZs, and AZs are physically isolated data center clusters within a Region. Deploying across multiple AZs within a Region is the standard pattern for high availability.",
+    "distractors": {
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "module_ref": "aws-cp-cloud-concepts-02",
+    "active": true,
+    "type": "multiple",
+    "stem": "Which TWO components make up the AWS global infrastructure that customers use when deploying highly available applications? (Select TWO.)",
+    "tags": [
+      "regions",
+      "availability zones",
+      "global infrastructure",
+      "high availability"
+    ]
+  }
+]

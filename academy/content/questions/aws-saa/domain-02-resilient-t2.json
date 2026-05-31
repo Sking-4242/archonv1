@@ -1,0 +1,970 @@
+[
+  {
+    "id": "aws-saa-t2-02-001",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's application needs 99.99% availability. Currently a single EC2 instance in us-east-1a serves all traffic. What minimum architecture achieves 99.99% availability for the compute tier?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Two EC2 instances in two different AZs behind an ALB"
+      },
+      {
+        "label": "B",
+        "text": "One EC2 instance in each of 4 AZs behind an ALB, with an Auto Scaling group"
+      },
+      {
+        "label": "C",
+        "text": "Two EC2 instances in the same AZ (us-east-1a) behind an ALB"
+      },
+      {
+        "label": "D",
+        "text": "One EC2 Reserved Instance in us-east-1a with CloudWatch restart alarm"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Two instances in two different AZs behind an ALB eliminates both the single-instance SPOF and single-AZ SPOF. The ALB health checks route traffic to the healthy AZ if one fails. This is the minimum architecture for high availability at the 99.99% level. Two instances in the same AZ doesn't protect against AZ failure. Four AZs provides even higher availability but isn't the minimum. A CloudWatch restart alarm has recovery time measured in minutes.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "high-availability",
+      "multi-az",
+      "alb",
+      "sla"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-002",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Auto Scaling for their web application. During a deployment, they want to deploy a new AMI to all instances with zero downtime and the ability to immediately roll back if the new version has issues. Which ASG deployment strategy achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SSH into each instance and update the AMI in place"
+      },
+      {
+        "label": "B",
+        "text": "Create a new ASG with the new AMI alongside the old ASG"
+      },
+      {
+        "label": "C",
+        "text": "Update the launch template and trigger a rolling refresh \u2014 terminate and replace instances in batches"
+      },
+      {
+        "label": "D",
+        "text": "Terminate all instances simultaneously and launch new ones from the updated AMI"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Running parallel ASGs (blue/green) with ALB weighted target groups allows gradual traffic shifting to the new version while the old version remains running and accessible for instant rollback \u2014 just shift weight back. Instance Refresh (rolling) is simpler but doesn't keep old instances for instant rollback (it terminates them). Terminating all at once causes downtime. SSH updates create configuration drift.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "auto-scaling",
+      "blue-green",
+      "alb",
+      "deployment"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-003",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses SQS to decouple an order service from a fulfillment service. The fulfillment service is CPU-bound and scales slowly. During peak periods, the queue depth grows to 100,000 messages and the fulfillment service can't keep up. Orders must be processed in under 5 minutes from arrival. What architecture change resolves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase the SQS message retention period to 14 days"
+      },
+      {
+        "label": "B",
+        "text": "Increase SQS message visibility timeout to 10 minutes"
+      },
+      {
+        "label": "C",
+        "text": "Use SQS FIFO instead of Standard for faster processing"
+      },
+      {
+        "label": "D",
+        "text": "Auto-scale the fulfillment service based on the ApproximateNumberOfMessagesVisible metric"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Scaling the consumer based on queue depth is the canonical SQS-based auto-scaling pattern. ApproximateNumberOfMessagesVisible is published by SQS to CloudWatch. A target tracking policy using this metric scales out the fulfillment service fleet as the queue grows. This addresses the root cause \u2014 insufficient consumer capacity. Visibility timeout and FIFO/retention changes don't address throughput. FIFO has lower throughput limits.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "sqs",
+      "auto-scaling",
+      "queue-depth",
+      "consumer-scaling"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-004",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's Aurora MySQL cluster consists of a writer instance and 2 reader instances across 3 AZs. The primary writer instance fails. What happens to the Aurora cluster?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Aurora creates a new writer instance from scratch \u2014 takes 10-15 minutes"
+      },
+      {
+        "label": "B",
+        "text": "All traffic fails until a new primary is manually promoted"
+      },
+      {
+        "label": "C",
+        "text": "Aurora restores the primary from the most recent automated backup (5-15 minute RPO)"
+      },
+      {
+        "label": "D",
+        "text": "Aurora automatically promotes one of the reader instances to become the new primary"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Aurora's failover promotes an existing reader to primary, typically within 30 seconds. Because Aurora uses a shared distributed storage layer, the promoted replica already has all data \u2014 no replication lag catchup needed. The cluster's writer endpoint DNS automatically updates to point to the new primary. Applications connected to the cluster endpoint experience a brief connection disruption and reconnect. No manual intervention or backup restore is needed.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "aurora",
+      "failover",
+      "high-availability",
+      "reader-promotion"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-005",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company runs a stateless API on Lambda. They need the API to remain available even if an entire AWS Region becomes unavailable. They have a secondary deployment in eu-west-1. What architecture achieves cross-region failover with automatic DNS-level switching?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a CloudFront distribution with both regions as origins"
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Global Accelerator with both API Gateway endpoints as endpoints"
+      },
+      {
+        "label": "C",
+        "text": "Enable Lambda Provisioned Concurrency in eu-west-1 as a warm standby"
+      },
+      {
+        "label": "D",
+        "text": "Deploy Lambda in both regions with identical API Gateway configurations"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Route 53 failover routing with health checks is the standard DNS-level cross-region failover mechanism. Configure a health check against the us-east-1 API Gateway endpoint; configure failover routing with us-east-1 as PRIMARY and eu-west-1 as SECONDARY. When the primary health check fails, Route 53 returns the secondary record. Global Accelerator also works for cross-region routing but Route 53 failover is more targeted to DNS-level switching.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "route53",
+      "failover",
+      "multi-region",
+      "lambda"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-006",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon DynamoDB with global tables enabled across us-east-1 and eu-west-1. A user in Europe writes an item to the eu-west-1 replica. Within a few seconds, they read the same item from us-east-1 and the item is not there yet. Why, and how can this be addressed?",
+    "options": [
+      {
+        "label": "A",
+        "text": "DynamoDB Global Tables use asynchronous replication (typically sub-second but not instantaneous)"
+      },
+      {
+        "label": "B",
+        "text": "Use DAX in both regions to synchronize data instantly"
+      },
+      {
+        "label": "C",
+        "text": "Global Tables replication is synchronous \u2014 the item should be there immediately; this is a bug"
+      },
+      {
+        "label": "D",
+        "text": "Enable DynamoDB Streams to force synchronous replication"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "DynamoDB Global Tables replicate asynchronously \u2014 changes propagate in sub-second typically, but brief replication lag is possible. For 'read-your-own-writes' consistency, the application should route reads to the region where the write was made, or wait for replication to complete. This is the fundamental trade-off of globally distributed multi-master systems (eventual consistency). Streams capture changes but don't make replication synchronous. DAX is a read cache, not a replication mechanism.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "dynamodb",
+      "global-tables",
+      "replication-lag",
+      "eventual-consistency"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-007",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses AWS CloudFormation. A production stack update fails at a critical resource (RDS instance modification). The stack enters UPDATE_ROLLBACK_FAILED state. What does this mean and how is it resolved?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The stack must be deleted and recreated from scratch"
+      },
+      {
+        "label": "B",
+        "text": "CloudFormation failed to roll back to the previous state"
+      },
+      {
+        "label": "C",
+        "text": "The stack successfully rolled back to the previous state"
+      },
+      {
+        "label": "D",
+        "text": "The production RDS data was deleted \u2014 restore from backup immediately"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "UPDATE_ROLLBACK_FAILED means the stack update failed AND the rollback also failed, leaving the stack in an inconsistent state. The resolution is aws cloudformation continue-update-rollback, optionally with --resources-to-skip for resources that cannot be rolled back automatically (e.g., a resource whose physical state changed outside CloudFormation). Deleting and recreating is drastic and may cause data loss. Data is not automatically deleted by a rollback failure.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "cloudformation",
+      "rollback-failed",
+      "troubleshooting",
+      "iac"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-008",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon EventBridge to trigger Lambda functions on schedule. A Lambda function processes critical billing data nightly. If the Lambda function fails, the team must know within 5 minutes and the event should be retried. What mechanism handles failures?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EventBridge has built-in retry and failure notification"
+      },
+      {
+        "label": "B",
+        "text": "Lambda automatically retries and alerts on failure"
+      },
+      {
+        "label": "C",
+        "text": "Run the Lambda function twice every night for redundancy"
+      },
+      {
+        "label": "D",
+        "text": "Configure an EventBridge rule dead-letter queue (DLQ) for failed invocations and"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "EventBridge schedules invoke Lambda asynchronously. For async Lambda invocations, configure: Lambda function destination (on failure \u2192 SQS/SNS) or EventBridge DLQ for failed delivery. For notification, create a CloudWatch alarm on the Lambda Errors metric with a 5-minute evaluation period and SNS notification. Lambda async retries 2 times automatically before failing. Running twice is not resilience but duplication.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "eventbridge",
+      "lambda",
+      "dlq",
+      "error-handling"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-009",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's application uses multiple SQS queues. They want to ensure that a surge in one queue doesn't impact processing of high-priority messages in another queue. The high-priority queue must be processed first when both have messages. How is this priority achieved?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Set the high-priority SQS queue message visibility timeout to 0"
+      },
+      {
+        "label": "B",
+        "text": "Enable SQS FIFO with message group IDs to prioritize"
+      },
+      {
+        "label": "C",
+        "text": "SQS doesn't support priority \u2014 migrate to Amazon MQ for priority queue support"
+      },
+      {
+        "label": "D",
+        "text": "Use application-level polling logic: check the high-priority queue first"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "SQS doesn't have built-in queue priority. The standard pattern is application-level priority: the consumer checks the high-priority queue first and processes all available messages; only when that queue is empty does it check the low-priority queue. This is implemented in the polling logic. FIFO provides ordering within a queue, not priority between queues. Amazon MQ supports JMS priority but SQS is simpler for this pattern.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "sqs",
+      "queue-priority",
+      "application-pattern",
+      "consumer"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-010",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to implement a blue/green database deployment strategy with Amazon RDS. They need to switch traffic from the old database (blue) to a new upgraded version (green) with minimal downtime and an easy rollback. What AWS feature supports this natively?",
+    "options": [
+      {
+        "label": "A",
+        "text": "RDS Read Replica promotion takes minutes and involves data synchronization lag, risking data loss, whereas Blue/Green provides a synchronized copy with near-zero downtime."
+      },
+      {
+        "label": "B",
+        "text": "RDS Blue/Green Deployments \u2014 creates a synchronized green copy,"
+      },
+      {
+        "label": "C",
+        "text": "RDS Multi-AZ failover is automatic for instance failures but requires engine version upgrades to happen in place with potential downtime, not zero-downtime cutover."
+      },
+      {
+        "label": "D",
+        "text": "RDS point-in-time restore creates a new instance from backup with potential data loss equal to the backup lag, not the synchronized zero-downtime upgrade Blue/Green provides."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "RDS Read Replica promotion takes minutes and involves data synchronization lag, risking data loss, whereas Blue/Green provides a synchronized copy with near-zero downtime.",
+      "C": "RDS Multi-AZ failover is automatic for instance failures but requires engine version upgrades to happen in place with potential downtime, not zero-downtime cutover.",
+      "D": "RDS point-in-time restore creates a new instance from backup with potential data loss equal to the backup lag, not the synchronized zero-downtime upgrade Blue/Green provides."
+    },
+    "explanation": "RDS Blue/Green Deployments is an AWS-managed feature that creates a green environment as a replica of the blue (production) database. Changes (OS patches, engine upgrades, schema changes) are applied to the green environment. After testing, a managed switchover switches the DNS endpoint from blue to green in under 60 seconds with minimal downtime. The blue environment is retained for rollback. PITR and Read Replica promotion are manual and slower.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "rds",
+      "blue-green",
+      "deployment",
+      "database-upgrade"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-011",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses AWS Elastic Beanstalk for their application. They want to update to a new version but need to maintain full capacity throughout the deployment (no reduction in capacity). They also need easy rollback. Which deployment policy satisfies both requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Immutable \u2014 launches new instances alongside old ones; full capacity maintained; rollback."
+      },
+      {
+        "label": "B",
+        "text": "Rolling with additional batch \u2014 adds one batch before updating (maintains capacity but takes longer than Immutable)"
+      },
+      {
+        "label": "C",
+        "text": "Rolling \u2014 updates instances in batches (reduces capacity temporarily)"
+      },
+      {
+        "label": "D",
+        "text": "All at once \u2014 fastest but causes downtime"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Immutable deployment launches a completely new set of instances with the new version. Traffic continues to the old instances until the new instances pass health checks. Once healthy, traffic switches to new instances and old ones are terminated. Full capacity is maintained throughout. Rollback is fast \u2014 terminate the new instances. Rolling with additional batch also maintains capacity but modifies existing instances (slower rollback if needed).",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "elastic-beanstalk",
+      "immutable",
+      "deployment",
+      "capacity"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-012",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company runs a critical application that requires RPO of 15 minutes and RTO of 30 minutes across AWS Regions. What DR strategy meets these requirements at the LOWEST cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Backup and restore \u2014 RPO 15 minutes requires frequent backups, but restore takes too long for 30-minute RTO"
+      },
+      {
+        "label": "B",
+        "text": "Multi-site active/active \u2014 highest resilience, highest cost"
+      },
+      {
+        "label": "C",
+        "text": "Pilot light \u2014 minimal infrastructure in DR region with continuous data replication; compute started on demand during disaster"
+      },
+      {
+        "label": "D",
+        "text": "Warm standby \u2014 scaled-down secondary environment running with continuous data replication; can scale up within RTO"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Pilot light maintains only critical data replication (e.g., RDS replicated to DR region) with minimal compute. The 15-minute RPO is achievable with continuous database replication. The 30-minute RTO is achievable if instances can be started and DNS switched within that window (pre-configured AMIs, IaC templates ready to deploy). Warm standby would also meet the RTO but costs more due to running scaled-down infrastructure. Backup and restore typically cannot achieve 30-minute RTO for full application stacks.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "disaster-recovery",
+      "pilot-light",
+      "rpo",
+      "rto"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-013",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's application writes to an SQS queue. A Lambda function consumes the queue. During a processing failure, the message visibility timeout expires and the message becomes visible again. This causes the same broken message to fail repeatedly, blocking new messages. What design change fixes this without complex application code?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a DLQ with maxReceiveCount = 3; after 3 failures the message"
+      },
+      {
+        "label": "B",
+        "text": "Enabling SQS FIFO for ordered processing ensures first-in-first-out delivery but does not route messages that fail multiple processing attempts to a separate dead-letter queue."
+      },
+      {
+        "label": "C",
+        "text": "Adding a Lambda retry configuration for 10 retries causes the function to keep retrying the same message, increasing costs and latency without isolating the failed message."
+      },
+      {
+        "label": "D",
+        "text": "Increasing the SQS visibility timeout indefinitely keeps failed messages hidden from other consumers but they are never routed to a DLQ for investigation and replay."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Enabling SQS FIFO for ordered processing ensures first-in-first-out delivery but does not route messages that fail multiple processing attempts to a separate dead-letter queue.",
+      "C": "Adding a Lambda retry configuration for 10 retries causes the function to keep retrying the same message, increasing costs and latency without isolating the failed message.",
+      "D": "Increasing the SQS visibility timeout indefinitely keeps failed messages hidden from other consumers but they are never routed to a DLQ for investigation and replay."
+    },
+    "explanation": "A DLQ with maxReceiveCount prevents poison pill messages from blocking the queue indefinitely. After 3 failed receive attempts, the message is moved to the DLQ for investigation. The main queue continues processing new messages normally. Lambda async retries are independent of SQS maxReceiveCount (Lambda SQS integration uses its own retry behavior). FIFO prevents out-of-order processing but doesn't remove failed messages.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "sqs",
+      "dlq",
+      "poison-pill",
+      "error-handling"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-014",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon Route 53. Their application has users globally. They want to ensure users in Europe are served from eu-west-1 and users in North America from us-east-1, with failover to the other region if one becomes unavailable. What Route 53 configuration achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Weighted routing with 50/50 split between eu-west-1 and us-east-1"
+      },
+      {
+        "label": "B",
+        "text": "Simple routing with both regions in the same record"
+      },
+      {
+        "label": "C",
+        "text": "Geolocation routing with failover routing policies nested \u2014 Europe records point to eu-west-1 with."
+      },
+      {
+        "label": "D",
+        "text": "Latency routing \u2014 users automatically routed to the lowest-latency region"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Geolocation routing directs users based on their geographic location. With health checks and failover configured on the geolocation records, if eu-west-1 becomes unhealthy, European users are routed to the failover record (us-east-1). This combines geolocation (primary routing) with health-check-based failover. Latency routing optimizes performance but doesn't enforce geographic restrictions. Weighted routing distributes regardless of location. Simple routing has no failover or geographic logic.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "route53",
+      "geolocation",
+      "failover",
+      "health-checks"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-015",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company experiences occasional EC2 instance failures due to hardware issues in the underlying host. They want their EC2 instances to automatically recover to healthy hardware while preserving the instance ID, private IP addresses, Elastic IP, and attached EBS volumes. What mechanism provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudFormation stack update to replace the instance"
+      },
+      {
+        "label": "B",
+        "text": "AWS Systems Manager automation to replace failed instances"
+      },
+      {
+        "label": "C",
+        "text": "Auto Scaling group \u2014 terminates failed instances and launches new ones"
+      },
+      {
+        "label": "D",
+        "text": "CloudWatch alarm with EC2 recover action on the StatusCheckFailed_System metric"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "CloudWatch EC2 recovery action is triggered by a StatusCheckFailed_System alarm (hardware issue detected by AWS). Recovery migrates the instance to healthy underlying hardware while preserving the instance ID, private IPs, Elastic IPs, and EBS volumes. Auto Scaling creates a NEW instance (new instance ID, potentially new IP). Systems Manager and CloudFormation modifications are manual or code-driven approaches that don't preserve all instance attributes.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "ec2",
+      "cloudwatch",
+      "recovery",
+      "system-status-check"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-016",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses an Application Load Balancer with multiple EC2 target groups. They notice that when they deploy a new version and instances deregister from the target group, in-flight requests are being dropped. What ALB feature prevents request dropping during deregistration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ALB sticky sessions bind a user's requests to a specific target for session affinity but do not help in-flight requests complete when a target is being deregistered."
+      },
+      {
+        "label": "B",
+        "text": "ALB connection draining (deregistration delay) \u2014 allows in-flight"
+      },
+      {
+        "label": "C",
+        "text": "ALB cross-zone load balancing distributes requests evenly across all registered targets in all Availability Zones but does not manage graceful deregistration."
+      },
+      {
+        "label": "D",
+        "text": "ALB slow start mode gradually increases request routing to newly registered targets to warm them up but does not protect in-flight connections during deregistration."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "ALB sticky sessions bind a user's requests to a specific target for session affinity but do not help in-flight requests complete when a target is being deregistered.",
+      "C": "ALB cross-zone load balancing distributes requests evenly across all registered targets in all Availability Zones but does not manage graceful deregistration.",
+      "D": "ALB slow start mode gradually increases request routing to newly registered targets to warm them up but does not protect in-flight connections during deregistration."
+    },
+    "explanation": "ALB connection draining (called deregistration delay, configured up to 3,600 seconds) instructs the ALB to stop sending new requests to a deregistering target but allows in-flight requests to complete within the timeout window. After the timeout, any remaining connections are force-closed. This ensures graceful draining during deployments. Slow start gradually increases traffic to new targets. Sticky sessions bind users to specific instances. Cross-zone load balancing distributes across AZs.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "alb",
+      "connection-draining",
+      "deregistration",
+      "deployment"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-017",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company runs their database on Amazon Aurora MySQL. A bug in the application wrote incorrect data to the database at 2 PM today. They need to restore the database to exactly 1:55 PM today without restoring from a backup snapshot. Which Aurora feature enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "RDS blue/green deployment to the 1:55 PM state"
+      },
+      {
+        "label": "B",
+        "text": "Aurora backtrack \u2014 rewinds the database in place to a specific point in time without."
+      },
+      {
+        "label": "C",
+        "text": "Aurora Multi-AZ failover to the replica as of 1:55 PM"
+      },
+      {
+        "label": "D",
+        "text": "Aurora point-in-time restore \u2014 creates a new cluster as of 1:55 PM"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Aurora Backtrack allows rewinding an Aurora cluster to a specific time within the backtrack window (up to 72 hours) in-place \u2014 no need to create a new cluster or change connection strings. The operation takes minutes rather than the hours required for PITR restore. PITR creates a new cluster (different endpoint). Backtrack is Aurora-specific and must be enabled when the cluster is created.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "aurora",
+      "backtrack",
+      "point-in-time",
+      "recovery"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-018",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "select-two",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's application uses an SQS Standard queue. They notice messages are occasionally processed twice, causing duplicate order submissions. How should their application handle this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Implement idempotent message processing \u2014 use the message ID to detect and skip already-processed messages"
+      },
+      {
+        "label": "B",
+        "text": "Increase the message visibility timeout to prevent double-reads"
+      },
+      {
+        "label": "C",
+        "text": "Switch to SQS FIFO with content-based deduplication"
+      },
+      {
+        "label": "D",
+        "text": "Enable SQS long polling to reduce duplicate receives"
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "distractors": {
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Two valid approaches: (1) SQS FIFO with content-based deduplication provides exactly-once processing within the 5-minute deduplication window. (2) Idempotent processing with DynamoDB conditional writes is an application-level pattern that works with Standard queues \u2014 before processing, attempt to insert the message ID into DynamoDB; if the conditional write fails (duplicate), skip processing. Both answers address the root cause. Visibility timeout and long polling don't prevent at-least-once delivery.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "sqs",
+      "idempotent",
+      "fifo",
+      "deduplication"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-019",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs to migrate a 10 TB Oracle database to AWS with minimal downtime. The database must remain available during migration. They want to replicate ongoing changes until the cutover. Which service provides continuous replication for database migration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS DataSync is optimized for one-time or scheduled bulk file system transfers to AWS storage services but does not support continuous database change data capture."
+      },
+      {
+        "label": "B",
+        "text": "AWS Database Migration Service (DMS) with Change Data Capture (CDC)"
+      },
+      {
+        "label": "C",
+        "text": "AWS Snowball Edge is a physical appliance for offline petabyte-scale data transfers and is not suitable for live, continuous database migration with minimal downtime."
+      },
+      {
+        "label": "D",
+        "text": "AWS Server Migration Service migrates on-premises virtual machine images to AWS EC2 instances but does not support live database migration or ongoing replication."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "AWS DataSync is optimized for one-time or scheduled bulk file system transfers to AWS storage services but does not support continuous database change data capture.",
+      "C": "AWS Snowball Edge is a physical appliance for offline petabyte-scale data transfers and is not suitable for live, continuous database migration with minimal downtime.",
+      "D": "AWS Server Migration Service migrates on-premises virtual machine images to AWS EC2 instances but does not support live database migration or ongoing replication."
+    },
+    "explanation": "AWS DMS supports full-load migration followed by ongoing CDC replication. The full load copies existing data to the target (RDS, Aurora, etc.). CDC then replicates ongoing changes (inserts, updates, deletes) keeping source and target in sync. At cutover, the replication lag is minimal and downtime is measured in seconds to minutes. Snowball is for offline bulk data transfer. DataSync transfers files, not database logical data with CDC. SMS migrates VMs.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "dms",
+      "migration",
+      "cdc",
+      "oracle"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-020",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses AWS CloudFormation StackSets to deploy infrastructure across 30 accounts and 5 Regions. A stack update fails in 3 accounts. What is the default StackSets behavior, and how can they ensure the update proceeds in the remaining 27 accounts despite the 3 failures?",
+    "options": [
+      {
+        "label": "A",
+        "text": "StackSets stops all deployments immediately on the first failure"
+      },
+      {
+        "label": "B",
+        "text": "StackSets respects the failure tolerance configuration \u2014 set MaxConcurrentPercentage."
+      },
+      {
+        "label": "C",
+        "text": "Failed accounts must be updated manually after the StackSets operation"
+      },
+      {
+        "label": "D",
+        "text": "StackSets automatically retries failed accounts indefinitely"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudFormation StackSets supports failure tolerance configuration: FailureTolerancePercentage specifies the percentage of account-region deployments that can fail before the overall operation fails. Setting this to allow 3/30 failures (10%) means the update continues in the remaining accounts. MaxConcurrentPercentage controls parallelism. StackSets does not retry indefinitely \u2014 it respects the tolerance setting.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "cloudformation",
+      "stacksets",
+      "failure-tolerance",
+      "multi-account"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-021",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company runs a two-tier application with a web layer on EC2 and an RDS database. During a region-wide service disruption affecting AZs, the entire stack becomes unavailable. What is the MINIMUM architecture change to ensure the application survives the failure of any single AZ?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable RDS automated backups with cross-region copy"
+      },
+      {
+        "label": "B",
+        "text": "Deploy EC2 instances across at least 2 AZs behind an."
+      },
+      {
+        "label": "C",
+        "text": "Use Spot Instances across multiple AZs"
+      },
+      {
+        "label": "D",
+        "text": "Add CloudWatch alarms to detect AZ failures"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AZ failure resilience requires both the compute and data tiers to span multiple AZs: ALB distributes traffic to EC2 instances in multiple AZs; RDS Multi-AZ maintains a synchronous standby in a different AZ. If one AZ fails, the ALB routes to the surviving EC2 instances, and RDS promotes the Multi-AZ standby. CloudWatch alarms alert but don't add redundancy. Cross-region backup helps with region failure but not single AZ failure.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "multi-az",
+      "alb",
+      "rds",
+      "availability"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-022",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs their application to survive the complete failure of one AWS Region. They have a secondary region but it's cold (no running infrastructure). Their RTO is 4 hours and RPO is 30 minutes. What data replication mechanism meets the 30-minute RPO for an RDS MySQL database?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS DMS continuous replication to an RDS instance in the secondary region"
+      },
+      {
+        "label": "B",
+        "text": "S3-based backup export every 4 hours"
+      },
+      {
+        "label": "C",
+        "text": "Daily RDS automated backup copy to the secondary region"
+      },
+      {
+        "label": "D",
+        "text": "RDS Cross-Region Read Replica \u2014 asynchronous replication with typically sub-minute lag"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "RDS Cross-Region Read Replicas use asynchronous replication with typical lag of seconds to minutes \u2014 well within a 30-minute RPO. In a disaster, promote the read replica to standalone (takes a few minutes). For the 4-hour RTO, the infrastructure (EC2, load balancers) can be provisioned from IaC templates during the 4 hours. Daily backups have RPO of up to 24 hours. DMS also achieves continuous replication but is more complex to set up than native RDS CRR.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "rds",
+      "cross-region",
+      "read-replica",
+      "rpo"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-02-023",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon S3 for their application's static assets. They notice that S3 PUT requests occasionally fail with 503 Slow Down errors during bulk upload operations. What causes this and what is the solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable S3 Requester Pays to get priority processing"
+      },
+      {
+        "label": "B",
+        "text": "The S3 bucket's region is experiencing degraded performance \u2014 switch to another region"
+      },
+      {
+        "label": "C",
+        "text": "S3 bucket is full \u2014 increase storage quota"
+      },
+      {
+        "label": "D",
+        "text": "Request rate exceeds S3 prefix-level throughput limits (3,500 PUT/5,500 GET per second per prefix)"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "S3 scales to very high request rates per prefix (3,500 PUT/COPY/POST/DELETE and 5,500 GET/HEAD per second). When bulk uploads concentrate on a single prefix, this limit can be hit. The solution is to distribute objects across multiple key prefixes (e.g., add a hash or date prefix) \u2014 S3 partitions by prefix, so distributing across prefixes distributes the load. S3 has no storage quota limits. Region degradation would cause broader issues. Requester Pays doesn't affect throughput priority.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "s3",
+      "performance",
+      "rate-limiting",
+      "prefix"
+    ]
+  }
+]

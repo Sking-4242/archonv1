@@ -1,0 +1,1160 @@
+[
+  {
+    "id": "aws-saa-t6-01-001",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company has a Lambda function with an execution role that has s3:PutObject on bucket-X. The function is also triggered by an SQS event source mapping. The SQS queue is in a different account (Account B). The Lambda function fails with 'Unable to receive messages from SQS'. What permission is missing?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lambda event source mappings don't support cross-account SQS queues"
+      },
+      {
+        "label": "B",
+        "text": "The Lambda function needs a VPC endpoint to reach the cross-account SQS queue"
+      },
+      {
+        "label": "C",
+        "text": "The SQS queue resource policy in Account B needs to allow the Lambda execution"
+      },
+      {
+        "label": "D",
+        "text": "The Lambda execution role needs sqs:ReceiveMessage on the cross-account SQS queue"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "For cross-account SQS \u2192 Lambda event source mapping: the SQS queue in Account B must have a resource-based policy (queue policy) granting the Lambda execution role (from Account A) sqs:ReceiveMessage, sqs:DeleteMessage, and sqs:GetQueueAttributes. Lambda's event source mapping service reads messages on behalf of the execution role \u2014 it needs these permissions both in the execution role's IAM policy AND in the SQS queue's resource policy (cross-account requires both). For same-account SQS \u2192 Lambda, only the IAM policy is needed (resource policy is optional). Cross-account Lambda SQS triggers are supported. VPC endpoints are unrelated to cross-account SQS permissions.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "lambda",
+      "sqs",
+      "cross-account",
+      "event-source-mapping",
+      "resource-policy"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-002",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's security policy requires that all secrets must be rotated every 30 days. They use Secrets Manager for database credentials. The rotation Lambda runs successfully but 30 minutes after rotation, the application starts returning database authentication errors. Investigation shows the RDS database still has the old password. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The application is not using the Secrets Manager caching client so it uses the old cached password"
+      },
+      {
+        "label": "B",
+        "text": "Secrets Manager rotation changes the secret but not the actual RDS database password"
+      },
+      {
+        "label": "C",
+        "text": "The rotation Lambda's rotateSecret step successfully updates Secrets Manager, but the setSecret step (which updates the actual RDS password using the."
+      },
+      {
+        "label": "D",
+        "text": "RDS passwords cannot be rotated via Lambda \u2014 use AWS Systems Manager to manage RDS credentials"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "AWS Secrets Manager rotation Lambda has 4 lifecycle steps: createSecret (create new version), setSecret (update the actual database password using admin credentials), testSecret (verify new credentials work), finishSecret (mark new version as AWSCURRENT). If setSecret fails silently (e.g., admin credentials in the Lambda don't have permission to ALTER USER), the Secrets Manager value changes to the new password but the RDS database still has the old password \u2014 mismatch. Application errors occur when they retrieve the 'new' password from Secrets Manager but RDS rejects it. The fix: check Lambda CloudWatch logs for the setSecret step error.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "secrets-manager",
+      "rotation",
+      "lambda",
+      "rds",
+      "debugging"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-003",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses CloudFront with an S3 origin. They enable Origin Access Control (OAC) instead of Origin Access Identity (OAI). What additional configuration is required compared to OAI?",
+    "options": [
+      {
+        "label": "A",
+        "text": "OAC requires a VPC endpoint for S3"
+      },
+      {
+        "label": "B",
+        "text": "OAC uses SigV4 signing \u2014 the S3 bucket policy must grant s3:GetObject to the."
+      },
+      {
+        "label": "C",
+        "text": "OAC requires AWS Shield Advanced to be enabled"
+      },
+      {
+        "label": "D",
+        "text": "No changes required \u2014 OAC works with the same S3 bucket policy as OAI"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "OAC (Origin Access Control) vs. OAI: OAI uses a special CloudFront identity principal in the bucket policy. OAC uses SigV4 signing with CloudFront's service principal (cloudfront.amazonaws.com). The S3 bucket policy for OAC must grant s3:GetObject to Principal: {\"Service\": \"cloudfront.amazonaws.com\"} with Condition: {\"StringEquals\": {\"AWS:SourceArn\": \"arn:aws:cloudfront::ACCOUNT:distribution/DISTID\"}}. The SourceArn condition scopes access to the specific distribution (preventing other CloudFront distributions from using the same bucket). OAI bucket policies use the OAI's ARN as the principal \u2014 different syntax.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cloudfront",
+      "oac",
+      "s3",
+      "bucket-policy",
+      "sigv4"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-004",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS IAM. An administrator creates an IAM policy allowing s3:* on a specific bucket. They attach it to a role. A developer assumes the role and attempts to list objects but receives AccessDenied. The bucket has no resource policy. The bucket is in the same account. What is most likely causing the denial?",
+    "options": [
+      {
+        "label": "A",
+        "text": "There is a permissions boundary on the IAM role that doesn't include S3 permissions"
+      },
+      {
+        "label": "B",
+        "text": "The developer needs to be added to the S3 bucket ACL"
+      },
+      {
+        "label": "C",
+        "text": "IAM policies cannot grant S3 access \u2014 S3 always requires a bucket policy"
+      },
+      {
+        "label": "D",
+        "text": "s3:ListBucket requires the ARN s3:::bucket-name (without a trailing /*) while s3:GetObject requires s3:::bucket-name/*."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "S3 has a nuanced resource ARN structure: s3:ListBucket acts on the BUCKET (arn:aws:s3:::bucket-name) while s3:GetObject acts on OBJECTS (arn:aws:s3:::bucket-name/*). A policy with Resource: arn:aws:s3:::bucket-name/* allows GetObject but NOT ListBucket. A policy with Resource: arn:aws:s3:::bucket-name allows ListBucket but NOT GetObject. The correct policy grants s3:* on both the bucket ARN AND the bucket/* ARN. Since the policy says s3:* \u2014 if only bucket-name/* is specified, ListBucket is denied. This is the classic S3 IAM policy mistake tested at above level.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "s3",
+      "iam",
+      "resource-arn",
+      "list-bucket",
+      "policy"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-005",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS Organizations. They need to implement a 'guardrail' that prevents any member account from leaving the organization. Which control implements this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure IAM policies in each member account denying organizations:LeaveOrganization"
+      },
+      {
+        "label": "B",
+        "text": "Use CloudTrail organization trail to alert when an account leaves"
+      },
+      {
+        "label": "C",
+        "text": "Enable AWS Config organization conformance packs to detect and remediate accounts that leave"
+      },
+      {
+        "label": "D",
+        "text": "Enable AWS Organizations policy type SCP and attach a Deny for organizations:LeaveOrganization at the root."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "organizations:LeaveOrganization can only be called from within the member account by a principal in that account. An SCP attached at the root OU that denies organizations:LeaveOrganization prevents ALL principals in ALL member accounts from calling this API \u2014 including account root users and administrators with full IAM permissions. SCPs cannot prevent the management account from removing member accounts using organizations:RemoveAccountFromOrganization (called from management account), but they CAN prevent the member account itself from leaving. IAM policies in each account can be bypassed by account admins. Config/CloudTrail are detective, not preventive.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "organizations",
+      "scp",
+      "preventive-controls",
+      "leave-organization"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-006",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses a shared KMS CMK for encrypting S3 objects across multiple applications. The security team wants to ensure that Application A can only encrypt/decrypt data with a specific key alias (key/app-a-key) and Application B can only use key/app-b-key. Both application roles currently have kms:* permissions in their IAM policies. How should this be restricted?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create separate AWS accounts for each application"
+      },
+      {
+        "label": "B",
+        "text": "Use KMS key policies to restrict which IAM roles can use each key"
+      },
+      {
+        "label": "C",
+        "text": "Both A and B are correct \u2014 either IAM policy restriction or key policy restriction achieves the goal"
+      },
+      {
+        "label": "D",
+        "text": "Modify IAM policies: restrict Application A's kms:* to only the specific CMK ARN for app-a-key; restrict Application B's kms:* to only the CMK ARN for app-b-key"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "KMS access is the intersection of IAM policy AND key policy (when the key policy delegates to IAM via the account root principal). Either approach works: (1) IAM policy restriction: narrow Application A's IAM policy to allow kms:* only on the specific CMK ARN for app-a-key \u2014 Application A cannot use app-b-key even if the key policy allows it; (2) Key policy restriction: modify app-a-key's policy to only allow Application A's role and app-b-key's policy to only allow Application B's role \u2014 Application A is blocked at the key level. Best practice is both (defense in depth), but either alone is sufficient for the stated requirement.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "kms",
+      "iam",
+      "key-policy",
+      "least-privilege",
+      "separation-of-duty"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-007",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company runs an API Gateway that calls Lambda. A security test reveals that the Lambda function ARN is exposed in API Gateway error responses (e.g., 'Function arn:aws:lambda:us-east-1:123456789012:function:api-function not found'). This leaks account ID and function name. What configuration prevents this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure API Gateway Gateway Responses to customize error messages"
+      },
+      {
+        "label": "B",
+        "text": "Enable API Gateway CloudWatch logging to capture error details"
+      },
+      {
+        "label": "C",
+        "text": "Add a Lambda Authorizer to prevent unauthenticated requests from triggering errors"
+      },
+      {
+        "label": "D",
+        "text": "Enable AWS Shield Advanced to protect API Gateway from error exploitation"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "API Gateway Gateway Responses allow customizing the response body, headers, and status codes for integration errors (including Lambda integration failures). By configuring a custom 502 Gateway Response with a generic body (e.g., {\"message\": \"Internal server error\"}), the Lambda ARN and account details are replaced with non-identifying information. This is a security hardening best practice \u2014 never expose internal ARNs, account IDs, or infrastructure details in API error responses. CloudWatch logging captures errors internally but doesn't mask them in API responses. Shield Advanced is DDoS protection. Auth prevents authenticated-only access but the error leakage occurs after invocation.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "api-gateway",
+      "gateway-response",
+      "security",
+      "information-disclosure"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-008",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Amazon Cognito for their mobile application. Users authenticate and receive JWT tokens. The mobile app stores these tokens in device local storage. A security researcher reports that if a device is compromised, these tokens can be used by attackers. The tokens have a 1-hour access token TTL and 30-day refresh token TTL. What configuration reduces the attack window?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch from JWT tokens to session cookies \u2014 cookies cannot be exfiltrated by certificate pinning bypass and solve the token theft problem without additional risk analysis."
+      },
+      {
+        "label": "B",
+        "text": "Enable Cognito Advanced Security (Risk-Based Adaptive Authentication) \u2014 detects anomalous sign-in patterns (new device, impossible travel) and challenges or blocks suspicious token use"
+      },
+      {
+        "label": "C",
+        "text": "Implement certificate pinning in the mobile app to prevent token interception \u2014 pinning addresses network interception, not server-side token theft from a compromised device."
+      },
+      {
+        "label": "D",
+        "text": "Reduce the access token TTL to 5 minutes \u2014 short-lived tokens limit the damage window but do not prevent the attacker from repeatedly using each stolen token within its window."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Switch from JWT tokens to session cookies \u2014 cookies cannot be exfiltrated by certificate pinning bypass and solve the token theft problem without additional risk analysis.",
+      "C": "Implement certificate pinning in the mobile app to prevent token interception \u2014 pinning addresses network interception, not server-side token theft from a compromised device.",
+      "D": "Reduce the access token TTL to 5 minutes \u2014 short-lived tokens limit the damage window but do not prevent the attacker from repeatedly using each stolen token within its window."
+    },
+    "explanation": "Cognito Advanced Security features: (1) Compromised credential detection; (2) Risk-based adaptive authentication \u2014 detects anomalous patterns (new device fingerprint, unusual IP/location, impossible travel) and can block, challenge with MFA, or allow the sign-in. If a stolen token is used from a different device/location than normal, Cognito can block it even if the token is technically valid. Reducing TTL (option A) limits damage duration but doesn't prevent token use during the window. Session cookies (option C) are a different token transport mechanism \u2014 mobile apps use local storage, not browser cookies. Certificate pinning prevents MITM during authentication but doesn't protect already-stolen tokens.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cognito",
+      "advanced-security",
+      "adaptive-authentication",
+      "mobile",
+      "token-security"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-009",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's application uses multiple AWS services in the same VPC. The security team requires that ALL communication between services must use HTTPS/TLS 1.2 or higher \u2014 including internal ALB-to-EC2 communication. What configuration enforces this for internal ALB-to-EC2 traffic?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable HTTPS on the ALB listener \u2014 this automatically encrypts all communication including backend connections"
+      },
+      {
+        "label": "B",
+        "text": "Use a Security Group rule allowing only HTTPS (443) between the ALB and EC2 instances"
+      },
+      {
+        "label": "C",
+        "text": "Configure the ALB target group protocol to HTTPS \u2014 the ALB establishes a TLS 1.2+ connection to each EC2 target instance"
+      },
+      {
+        "label": "D",
+        "text": "Internal ALB communication always uses HTTP internally \u2014 TLS termination at the ALB is sufficient"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "ALB supports end-to-end encryption: the ALB listener can accept HTTPS from clients (frontend encryption) AND the ALB can connect to targets over HTTPS (backend encryption). Configuring the target group protocol as HTTPS with the appropriate SSL/TLS policy enables TLS 1.2+ between ALB and EC2. EC2 instances must have valid TLS certificates (from ACM or self-signed). ALB HTTPS listener only encrypts client-to-ALB traffic \u2014 ALB-to-EC2 defaults to HTTP if target group protocol is HTTP. Security Group rules control connectivity but don't enforce TLS. This is the configuration for end-to-end encryption in a regulated environment.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "alb",
+      "tls",
+      "end-to-end-encryption",
+      "https",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-010",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's IAM role has the following policy:\n\n{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Action\":\"*\",\"Resource\":\"*\",\"Condition\":{\"StringEquals\":{\"aws:RequestedRegion\":\"us-east-1\"}}}]}\n\nA developer using this role tries to describe EC2 instances in eu-west-1 and also calls IAM ListRoles. IAM ListRoles succeeds but EC2 DescribeInstances in eu-west-1 fails. Why does IAM succeed while EC2 fails?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ListRoles is in the Allow list so it always succeeds regardless of conditions"
+      },
+      {
+        "label": "B",
+        "text": "The condition has a bug \u2014 StringEquals should be StringEqualsIgnoreCase for regions"
+      },
+      {
+        "label": "C",
+        "text": "IAM policies can override regional conditions"
+      },
+      {
+        "label": "D",
+        "text": "IAM is a global service \u2014 IAM API calls don't have a regional endpoint."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "aws:RequestedRegion applies to REGIONAL services that have region-specific API endpoints. IAM, STS, Route 53, and a few other global services use a single global endpoint \u2014 there is no 'requested region' for these calls. Consequently, aws:RequestedRegion condition evaluates to false/null for global service calls, and a StringEquals condition that evaluates null may not block the request as expected. In this policy: Allow with condition StringEquals us-east-1 \u2014 for IAM (global), the condition doesn't evaluate/apply \u2192 the Allow takes effect \u2192 ListRoles succeeds. For EC2 eu-west-1 (regional), condition evaluates to false \u2192 Allow is not granted \u2192 Deny by default.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "global-service",
+      "aws-requestedregion",
+      "condition",
+      "policy"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-011",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS WAF with a rate-based rule: block IP addresses that make more than 100 requests in 5 minutes. A legitimate user behind a corporate proxy has hundreds of employees sharing the same public IP. The WAF blocks the entire proxy IP, locking out all corporate users. How should the rule be refined?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase the rate limit to 10,000 requests per 5 minutes"
+      },
+      {
+        "label": "B",
+        "text": "Use API Gateway usage plans with per-API key throttling for corporate users"
+      },
+      {
+        "label": "C",
+        "text": "Add an IP Set allow rule for the known corporate proxy IP."
+      },
+      {
+        "label": "D",
+        "text": "Disable the rate-based rule for corporate users"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "WAF rules are evaluated in priority order (lower number = higher priority). Add an IP Set Allow rule for the corporate proxy IP with a LOWER priority number than the rate-based rule. AWS WAF's default action for Allow rules is to stop rule evaluation and pass the request through \u2014 the rate-based block is never evaluated for the allowed IP. This is the standard WAF exception pattern: maintain broad protection while allowing known-good sources. Simply raising the rate limit reduces protection for all IPs. Disabling the rule for corporate users isn't granular (no user context in WAF). API Gateway usage plans require per-client authentication (API keys), not viable for all corporate users.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "waf",
+      "rate-limiting",
+      "ip-set",
+      "rule-priority",
+      "allowlist"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-012",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS Config to evaluate compliance. A developer adds an unrestricted security group inbound rule (0.0.0.0/0 on port 22). Config's 'restricted-ssh' rule immediately marks the security group as NON_COMPLIANT. An auto-remediation is configured. However, the remediation removes ALL inbound rules from the security group, not just the SSH rule. Why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Config rule auto-remediation cannot target specific rules \u2014 it can only affect the entire resource"
+      },
+      {
+        "label": "B",
+        "text": "AWS managed Config remediation for restricted-ssh is designed to remove the specific offending rule only"
+      },
+      {
+        "label": "C",
+        "text": "The auto-remediation SSM document (AWS-DisablePublicAccessForSecurityGroup) removes ALL inbound rules to ensure the security group is in a known."
+      },
+      {
+        "label": "D",
+        "text": "The auto-remediation has a bug \u2014 contact AWS Support"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "AWS managed Config remediation documents like AWS-DisablePublicAccessForSecurityGroup take a conservative approach: they remove ALL inbound rules to ensure the security group is no longer publicly accessible. This is intentionally aggressive to guarantee compliance. For production environments requiring surgical remediation (only remove the specific offending rule), a custom SSM Automation document must be created that: (1) Calls ec2:DescribeSecurityGroupRules to identify the specific offending rule; (2) Calls ec2:RevokeSecurityGroupIngress on only that rule. This is an important operational consideration when using AWS managed Config remediation documents.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "config",
+      "ssm-automation",
+      "remediation",
+      "security-groups",
+      "custom-remediation"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-013",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses CloudTrail with multi-region enabled and an organization trail. A forensic investigator needs to determine if a specific IAM user (user/john) accessed any S3 objects in the last 7 days. CloudTrail data events for S3 are NOT enabled. Only management events are logged. What can the investigator determine and what should be enabled going forward?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Management events capture all S3 access \u2014 the investigator can query CloudTrail"
+      },
+      {
+        "label": "B",
+        "text": "VPC Flow Logs capture S3 access attempts \u2014 use those for forensics"
+      },
+      {
+        "label": "C",
+        "text": "S3 server access logs capture all access \u2014 use those for forensics"
+      },
+      {
+        "label": "D",
+        "text": "Management events capture S3 bucket-level operations (CreateBucket, DeleteBucket, PutBucketPolicy) but NOT object-level operations (GetObject, PutObject, DeleteObject)"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "CloudTrail event types: Management events = control plane operations (create/modify/delete resources, IAM changes, bucket policy changes). Data events = data plane operations (S3 GetObject, PutObject, DeleteObject; Lambda Invoke; DynamoDB Get/Put). S3 object access is a DATA EVENT \u2014 NOT captured by default. To audit who accessed S3 objects, data events must be explicitly enabled (additional cost: $0.10/100K S3 data events). For the current investigation, the investigator cannot determine S3 object access from management events alone. S3 server access logs DO capture object-level access and can be used for forensics if they were enabled.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cloudtrail",
+      "data-events",
+      "management-events",
+      "s3",
+      "forensics"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-014",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company has AWS GuardDuty enabled. A GuardDuty finding of type 'Recon:EC2/PortProbeUnprotectedPort' appears for an EC2 instance. The finding indicates external scanning on port 22. The security team has already reviewed and accepted this risk (the instance intentionally allows SSH from the internet). How should the security team suppress this recurring finding?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Acknowledge the finding each time it appears in the GuardDuty console"
+      },
+      {
+        "label": "B",
+        "text": "Create a GuardDuty suppression rule with filter criteria matching this finding type."
+      },
+      {
+        "label": "C",
+        "text": "Create a CloudWatch Events rule to automatically delete this finding type"
+      },
+      {
+        "label": "D",
+        "text": "Disable GuardDuty for this specific finding type"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "GuardDuty suppression rules filter findings that have been reviewed and accepted as false positives or accepted risks. Suppression rules define criteria (finding type, instance ARN, IP, etc.) \u2014 matching findings are automatically archived (not counted in statistics, not sent to EventBridge) from the moment the rule is created. This is the purpose-built mechanism for accepted risks. Disabling a finding type affects all accounts (for organization-wide GuardDuty). Manual acknowledgment every time is operationally burdensome. GuardDuty findings are not CloudWatch Events \u2014 you cannot 'delete' them via EventBridge.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "guardduty",
+      "suppression-rules",
+      "false-positive",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-015",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company stores sensitive documents in S3. They need to implement a process where documents can be viewed by authorized users but must not be permanently downloaded to local storage (DLP requirement). Which AWS solution provides browser-based document viewing without allowing local download?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a CloudFront distribution with content-disposition headers set to inline to prevent download prompts"
+      },
+      {
+        "label": "B",
+        "text": "Generate pre-signed URLs with short expiry \u2014 users view documents in-browser without downloading"
+      },
+      {
+        "label": "C",
+        "text": "Use S3 Object Lock to prevent downloads"
+      },
+      {
+        "label": "D",
+        "text": "Use AWS WorkSpaces or AppStream 2.0 \u2014 stream the document viewing experience from AWS without the."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "True DLP (preventing local files) requires streaming the DISPLAY (not the data) to users. AWS AppStream 2.0 streams application sessions: a document viewer runs on AppStream, accesses S3 directly, and streams the rendered screen to the user's browser \u2014 the file binary never reaches the user's device. WorkSpaces provides virtual desktops with the same property. Pre-signed URLs or CloudFront with inline content-disposition \u2014 the actual file bytes are transmitted to the browser. Browser-side controls (no-right-click, no-print) are easily bypassed. S3 Object Lock prevents modification/deletion but doesn't prevent downloads.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "appstream",
+      "dlp",
+      "s3",
+      "document-viewing",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-016",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS Config and discovers that IAM users in multiple accounts have access keys older than 90 days. They want to automatically disable the access keys (not delete) when they exceed 90 days without any human intervention. Which solution implements this most reliably?",
+    "options": [
+      {
+        "label": "A",
+        "text": "IAM credential report analysis + manual review and remediation"
+      },
+      {
+        "label": "B",
+        "text": "An EventBridge scheduled rule (daily) + Lambda that calls iam:ListUsers, iam:ListAccessKeys, checks CreateDate, calls iam:UpdateAccessKey(Inactive) for keys >90 days"
+      },
+      {
+        "label": "C",
+        "text": "Both A and B would work; A uses event-driven detection while B uses scheduled detection"
+      },
+      {
+        "label": "D",
+        "text": "Config managed rule 'access-keys-rotated' + Config auto-remediation with a custom SSM Automation document that calls iam:UpdateAccessKey to set Status=Inactive"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Both approaches implement the requirement reliably: (A) Config rule + SSM Automation: event-driven, fires when Config evaluates a key as non-compliant (periodic evaluation or on change). The custom SSM document calls UpdateAccessKey to Inactive. (B) EventBridge scheduled + Lambda: runs daily, proactively checks all keys, disables expired ones without waiting for Config evaluation. A has slight latency (Config evaluation period); B has up to 24-hour lag but more predictable timing. The optimal solution combines both: Config for compliance visibility + scheduled Lambda for proactive enforcement. Either alone is 'reliable' for the stated requirement. The above-level answer recognizes both are valid.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "config",
+      "lambda",
+      "iam",
+      "access-key-rotation",
+      "automation"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-017",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company needs to prove to an auditor that their AWS environment has never had a publicly accessible S3 bucket. Their AWS Config history only goes back 7 months (before that, Config wasn't enabled). What can they provide to the auditor for the period before Config was enabled?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Nothing \u2014 without Config history, compliance before the enablement date cannot be proven"
+      },
+      {
+        "label": "B",
+        "text": "AWS Artifact provides compliance reports and attestations from AWS, but these don't prove customer-specific bucket configurations"
+      },
+      {
+        "label": "C",
+        "text": "CloudTrail logs (if retained) can show bucket creation events and PutBucketAcl/PutBucketPublicAccessBlock events \u2014 analyze these to reconstruct the S3 public access configuration."
+      },
+      {
+        "label": "D",
+        "text": "S3 server access logs show all access attempts \u2014 use these to prove no unauthorized public access occurred"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "CloudTrail records the control-plane events: CreateBucket, PutBucketAcl, PutBucketPolicy, PutPublicAccessBlock, DeletePublicAccessBlock \u2014 all with timestamps, principal identity, and request parameters. If CloudTrail was enabled before Config (which is a best practice), these events can reconstruct the bucket configuration history. An analyst queries CloudTrail logs in Athena to show when public access settings were set/changed and who did it. S3 server access logs record object requests but don't show bucket policy/ACL changes. Artifact provides AWS's compliance attestations, not customer-specific resource state.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cloudtrail",
+      "s3",
+      "compliance",
+      "audit",
+      "history"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-018",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company deploys Lambda functions using AWS SAM. They want to implement the principle of least privilege automatically \u2014 each Lambda function should have the minimum permissions required. The team uses dozens of Lambda functions and manually maintaining individual IAM roles is error-prone. Which approach automates least-privilege IAM generation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS IAM Access Analyzer's policy generation feature \u2014 after running the Lambda functions."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Trusted Advisor to identify Lambda functions with overly permissive roles"
+      },
+      {
+        "label": "C",
+        "text": "Use a single IAM role with AdministratorAccess for all Lambda functions \u2014 simplifies management"
+      },
+      {
+        "label": "D",
+        "text": "Manually review each Lambda function's code to determine required permissions"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "IAM Access Analyzer policy generation: run the Lambda functions against real/staging workloads for a period, then use Access Analyzer to generate policies based on CloudTrail activity. Access Analyzer \u2192 'Generate policy' \u2192 select the IAM role \u2192 choose a date range \u2192 generates a minimal IAM policy that includes only the services and actions the function actually called. This is the AWS-native automated least-privilege generation tool. Trusted Advisor identifies overly broad permissions but doesn't generate replacements. Manual code review is error-prone. Single shared role violates least privilege entirely.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "access-analyzer",
+      "policy-generation",
+      "lambda",
+      "least-privilege"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-019",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses a third-party SIEM that needs to ingest AWS CloudTrail logs in real-time (within 2 minutes of events occurring). CloudTrail delivers log files to S3 every 5-15 minutes. How can near-real-time log delivery be achieved?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Reduce the CloudTrail log delivery frequency to S3 using API settings"
+      },
+      {
+        "label": "B",
+        "text": "Enable CloudTrail Insights to provide real-time anomaly detection"
+      },
+      {
+        "label": "C",
+        "text": "Configure CloudTrail to send events directly to CloudWatch Logs \u2014 CloudWatch Logs supports subscription filters."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS EventBridge with CloudTrail source to stream events in real-time to the SIEM"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "CloudTrail S3 delivery has 5-15 minute batching delay. For near-real-time delivery: CloudTrail \u2192 CloudWatch Logs delivers events in ~1-2 minutes. From CloudWatch Logs, subscription filters can stream to: Kinesis Data Streams, Kinesis Firehose, or Lambda in real-time. Firehose can deliver to a custom HTTP endpoint (SIEM). EventBridge does receive CloudTrail management events in near-real-time for EVENT-BASED rules (not all CloudTrail log events) \u2014 but for complete log streaming to a SIEM, the CloudWatch Logs path is the standard approach. CloudTrail Insights detects anomalies, not log forwarding. CloudTrail S3 delivery frequency cannot be reduced below 5 minutes.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cloudtrail",
+      "cloudwatch-logs",
+      "real-time",
+      "siem",
+      "firehose"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-020",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS Systems Manager Session Manager for all EC2 access (no SSH/RDP ports open, no bastion hosts). A security audit requires that all session activity be logged and stored for 1 year for compliance. Which Session Manager configuration achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Session Manager session logging: configure S3 bucket logging (stores session command input/output) and/or CloudWatch Logs."
+      },
+      {
+        "label": "B",
+        "text": "Session Manager automatically logs to S3 \u2014 no configuration is required"
+      },
+      {
+        "label": "C",
+        "text": "Enable CloudTrail for SSM API calls \u2014 all session start/end events are logged"
+      },
+      {
+        "label": "D",
+        "text": "Use VPC Flow Logs to capture all session traffic"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudTrail logs the SSM API calls (StartSession, TerminateSession) \u2014 WHO connected, WHEN, and for HOW LONG. But CloudTrail doesn't log SESSION CONTENT (commands typed, output). For compliance requiring session activity content, Session Manager must be configured with session logging: S3 logging stores the complete session transcript (encrypted with KMS); CloudWatch Logs stores session output for CloudWatch Logs retention policies (up to 10 years). Both can be enabled simultaneously. Set the S3 lifecycle to retain for 1 year. Session Manager does NOT automatically log to S3 \u2014 explicit configuration is required.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "session-manager",
+      "ssm",
+      "session-logging",
+      "compliance",
+      "audit"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-021",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses IAM roles with ABAC (Attribute-Based Access Control) policies. They tag IAM roles with Department=Engineering and S3 buckets with Department=Engineering. The policy uses condition aws:ResourceTag/Department matching aws:PrincipalTag/Department. An engineer with Department=Engineering tag successfully accesses the Engineering bucket but gets AccessDenied on a Shared bucket tagged Department=Shared. This is expected behavior. However, the engineer also gets AccessDenied on a new bucket that has NO Department tag. Why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The S3 bucket needs to be tagged before the ABAC policy can evaluate it"
+      },
+      {
+        "label": "B",
+        "text": "The condition StringEquals aws:ResourceTag/Department evaluates to null/empty for untagged resources; StringEquals with a null value doesn't match"
+      },
+      {
+        "label": "C",
+        "text": "New buckets default to Department=None which doesn't match Department=Engineering"
+      },
+      {
+        "label": "D",
+        "text": "ABAC policies require all resources to have matching tags \u2014 untagged resources are inaccessible"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "ABAC policy evaluation: the condition {\"StringEquals\": {\"aws:ResourceTag/Department\": \"${aws:PrincipalTag/Department}\"}} evaluates to: null == 'Engineering' \u2192 false \u2192 the Allow statement doesn't apply \u2192 deny by default. Untagged resources have no Department tag, so aws:ResourceTag/Department returns null. StringEquals never matches null \u2192 Allow condition fails. Fix: add a separate Allow for explicitly shared/untagged resources, OR enforce mandatory tagging on all new resources. This is an important ABAC design consideration: ABAC policies effectively DENY access to untagged resources.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "abac",
+      "attribute-based-access",
+      "resource-tags",
+      "policy-evaluation"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-022",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS Shield Advanced for DDoS protection. During a DDoS attack, the Shield Advanced response team (SRT) needs to update WAF rules to mitigate the attack. What permission must be granted to the SRT?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The account owner must explicitly authorize the SRT by granting them access via Shield Advanced console."
+      },
+      {
+        "label": "B",
+        "text": "AWS Shield Advanced includes an SCP that auto-grants SRT permissions"
+      },
+      {
+        "label": "C",
+        "text": "The SRT uses AWS root account access to modify WAF rules during attacks"
+      },
+      {
+        "label": "D",
+        "text": "The SRT automatically has permissions to modify WAF rules in any account with Shield Advanced"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Shield Advanced's SRT engagement: the SRT can only take action if the account owner explicitly authorizes them. Authorization is done through the Shield Advanced console where you specify which IAM role the SRT should assume and which resources they can access. Without explicit authorization, the SRT has NO access to your account \u2014 AWS follows strict separation of duties. The account owner must grant the SRT IAM role (AWSShieldDRTAccessPolicy) permissions to access WAF WebACLs, CloudFront, Route 53, and other resources. This explicit authorization requirement is a key Shield Advanced operational detail.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "shield-advanced",
+      "srt",
+      "iam",
+      "authorization",
+      "ddos"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-023",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Elastic Load Balancing (ALB) with SSL/TLS termination. The security team runs a TLS scan and finds the ALB is supporting TLS 1.0 and TLS 1.1 (deprecated, vulnerable to POODLE and BEAST attacks). How should the minimum TLS version be enforced to TLS 1.2?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Update the ALB listener's Security Policy \u2014 choose ELBSecurityPolicy-TLS13-1-2-2021-06 or similar policy."
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS Shield Advanced to block deprecated TLS versions"
+      },
+      {
+        "label": "C",
+        "text": "Configure an AWS WAF rule to block requests using TLS 1.0/1.1"
+      },
+      {
+        "label": "D",
+        "text": "Modify the ALB security group to block TLS 1.0/1.1 traffic"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "ALB TLS/SSL settings are controlled via Security Policies (predefined or custom): these specify the supported protocol versions (TLS 1.0, 1.1, 1.2, 1.3) and cipher suites. ELBSecurityPolicy-TLS13-1-2-2021-06 enforces TLS 1.2 minimum and supports TLS 1.3, with strong cipher suites. Selecting this policy in the ALB listener configuration removes TLS 1.0/1.1 support. Security Groups operate at L3/L4 and cannot distinguish TLS versions (they only see TCP ports). Shield Advanced is DDoS protection. WAF operates at L7 HTTP layer and cannot inspect TLS handshakes (TLS is terminated BEFORE WAF inspection).",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "alb",
+      "tls",
+      "security-policy",
+      "ssl-policy",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-024",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS CodePipeline for CI/CD. The pipeline deploys to production using an IAM role (PipelineRole) with CloudFormation:* permissions. A developer submits a malicious CloudFormation template change that creates an IAM role with AdministratorAccess. The pipeline executes it successfully. What IAM control would have prevented privilege escalation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure CloudFormation to use a separate deployment role (CloudFormation Service Role)."
+      },
+      {
+        "label": "B",
+        "text": "Use an SCP denying iam:CreateRole in the production account"
+      },
+      {
+        "label": "C",
+        "text": "Enable CloudFormation Stack Termination Protection"
+      },
+      {
+        "label": "D",
+        "text": "Require manual approval in CodePipeline for all CloudFormation changes"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudFormation privilege escalation: if the CloudFormation Service Role has iam:CreateRole, CloudFormation can create IAM roles with any permissions (including Admin). Defense: (1) CloudFormation Service Role scoped to only the permissions needed for the deployment (no iam:CreateRole unless necessary); (2) If IAM role creation is needed, add a permission boundary requirement: deny iam:CreateRole without the boundary condition, ensuring all created roles have a boundary that limits maximum permissions. Manual approval (option D) helps but requires reviewers to catch malicious templates. SCP denying iam:CreateRole breaks legitimate infrastructure deployments.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cloudformation",
+      "iam",
+      "privilege-escalation",
+      "permission-boundaries",
+      "ci-cd"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-025",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Amazon Detective to investigate a security incident. An analyst receives a GuardDuty finding indicating 'UnauthorizedAccess:IAMUser/TorIPCaller' \u2014 an IAM user accessed AWS from a Tor exit node. The analyst wants to understand the full scope: what resources were accessed, what API calls were made, and whether this is a one-time event or ongoing pattern. Which Detective feature provides this analysis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use IAM Access Advisor to see which services the user accessed"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Detective automatically blocks the IAM user and logs the incident"
+      },
+      {
+        "label": "C",
+        "text": "Use CloudTrail Insights to analyze the unusual API activity"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Detective aggregates and correlates GuardDuty findings, CloudTrail API calls, and VPC Flow Logs into."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Amazon Detective is purpose-built for security investigation after detection. It ingests GuardDuty findings, CloudTrail management events, and VPC Flow Logs into a behavioral graph model. For the TorIPCaller finding: navigate to the IAM user entity in Detective \u2192 view all API calls, called resources, IP addresses used, time patterns, and related findings. This provides the 'blast radius' analysis \u2014 what was compromised? Detective handles the correlation automatically (no custom Athena queries needed). GuardDuty detects but doesn't investigate scope. CloudTrail Insights detects unusual API patterns but doesn't correlate to a specific investigation. IAM Access Advisor shows recent service access, not detailed API call forensics.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "detective",
+      "guardduty",
+      "investigation",
+      "forensics",
+      "entity-graph"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-026",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS Config with AWS Organizations to deploy rules across all member accounts. A new Config rule needs to be applied to only the 'Sandbox' OU (not to Production or Development OUs). How are organization-level Config rules scoped to specific OUs?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create separate Config rules in each Sandbox account manually"
+      },
+      {
+        "label": "B",
+        "text": "Organization Config rules apply to all accounts in the organization \u2014 they cannot be scoped to specific OUs"
+      },
+      {
+        "label": "C",
+        "text": "When deploying an organization Config rule, specify the target accounts or OUs in the rule deployment settings"
+      },
+      {
+        "label": "D",
+        "text": "Use an SCP to prevent Config from running in non-Sandbox accounts"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "AWS Config Organization Rules support deployment scoping: when creating an organization Config rule (using the delegated admin account), you can specify which OUs or accounts to include or exclude. The rule is deployed only to the target scope. This allows different rule sets for different environment OUs without creating separate per-account rules. If no scope is specified, the rule deploys to all accounts. Exclusions (e.g., exclude management account) are also supported. This scoped deployment is the standard mechanism for applying differentiated compliance requirements across OUs.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "config",
+      "organizations",
+      "ou-scoping",
+      "compliance",
+      "multi-account"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-01-027",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's application processes financial transactions. Each transaction must be logged with non-repudiation \u2014 the system must prove that a specific IAM identity executed each specific transaction, and this proof must be tamper-proof. Which combination achieves non-repudiation for application-level transactions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use DynamoDB Streams to capture all transaction writes with the IAM context from the DynamoDB API call"
+      },
+      {
+        "label": "B",
+        "text": "Application-level transactions are NOT AWS API calls \u2014 CloudTrail doesn't capture them; implement application-level transaction logging to CloudWatch Logs."
+      },
+      {
+        "label": "C",
+        "text": "Enable CloudWatch Logs for the application \u2014 logs cannot be modified"
+      },
+      {
+        "label": "D",
+        "text": "Use CloudTrail to log all API calls \u2014 CloudTrail proves which IAM identity called which AWS API"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Non-repudiation for APPLICATION TRANSACTIONS (not AWS API calls) requires: (1) Application logs each transaction with the authenticated user identity (from Cognito JWT, IAM session, etc.) and full transaction details; (2) Logs are written to a storage system that CANNOT be modified by the user who created them (log stream resource policy, CloudWatch Logs cannot delete individual events); (3) Archive to S3 with Object Lock Compliance mode (cannot be deleted/overwritten even by administrators for the retention period). DynamoDB Streams captures data changes but doesn't cryptographically bind them to an IAM identity for non-repudiation. CloudTrail is for AWS API calls.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "non-repudiation",
+      "cloudwatch-logs",
+      "s3-object-lock",
+      "compliance",
+      "audit-trail"
+    ]
+  }
+]

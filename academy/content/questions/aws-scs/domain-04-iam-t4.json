@@ -1,0 +1,620 @@
+[
+  {
+    "id": "scs-d4-t4-001",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An IAM policy attached to a developer's role explicitly denies s3:DeleteObject on all resources. A resource-based bucket policy on the target S3 bucket explicitly allows s3:DeleteObject for that same IAM role. When the developer attempts to delete an object, what is the outcome?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The result depends on the order in which AWS evaluates the policies at runtime."
+      },
+      {
+        "label": "B",
+        "text": "The allow in the bucket policy overrides the deny in the identity policy, so the delete succeeds."
+      },
+      {
+        "label": "C",
+        "text": "AWS evaluates both policies and, because they conflict, prompts the user to resolve the ambiguity."
+      },
+      {
+        "label": "D",
+        "text": "The explicit deny in the identity policy overrides the bucket policy allow, so the delete is denied."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS policy evaluation logic applies an explicit Deny before any Allow, regardless of whether the Allow comes from an identity policy, a resource-based policy, or both. An explicit Deny in any applicable policy always wins. There is no conflict-resolution prompt, and evaluation order does not change the outcome when an explicit Deny is present.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "policy-evaluation",
+      "explicit-deny"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-002",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer attaches a Service Control Policy (SCP) to the AWS Organizations management account that denies ec2:TerminateInstances. An administrator in the management account then attempts to terminate an EC2 instance. What happens?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The termination is denied because SCPs apply to all accounts in the organization, including the management account."
+      },
+      {
+        "label": "B",
+        "text": "The termination succeeds because SCPs do not apply to the management account."
+      },
+      {
+        "label": "C",
+        "text": "The termination succeeds only if the administrator has an explicit Allow in their IAM policy."
+      },
+      {
+        "label": "D",
+        "text": "The termination is denied only if the SCP is also attached to the root organizational unit."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "SCPs are a guardrail for member accounts but explicitly do not apply to the management account of an AWS Organization. Actions performed by principals in the management account are unaffected by any SCP, regardless of where the SCP is attached. This is a documented AWS Organizations behavior.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "scp",
+      "organizations",
+      "management-account"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-003",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "IAM Access Analyzer is enabled in an account. It generates an external access finding for an S3 bucket. The bucket policy grants s3:GetObject to \"Principal\": \"*\" with no conditions. Which action resolves the finding with the least operational overhead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Delete the bucket and recreate it with a private ACL setting enabled by default."
+      },
+      {
+        "label": "B",
+        "text": "Rotate the bucket's encryption keys to prevent unauthorized data retrieval."
+      },
+      {
+        "label": "C",
+        "text": "Add an aws:PrincipalOrgID condition to the bucket policy to restrict access to the organization."
+      },
+      {
+        "label": "D",
+        "text": "Enable S3 Block Public Access at the account level to override the public bucket policy."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Enabling S3 Block Public Access at the account level overrides any bucket policy that grants public access, immediately eliminating the external access finding with a single control. Adding an org condition (option B) also works but requires editing every affected bucket policy individually. Deleting the bucket is disruptive, and rotating encryption keys does not affect access permissions.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "access-analyzer",
+      "s3",
+      "public-access"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-004",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A team implements ABAC to control EC2 access. A policy statement uses the condition key ec2:ResourceTag/Environment with value Production. A developer's IAM role has the tag Environment=Development. The developer attempts to stop a Production-tagged EC2 instance. What is the result?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The action is allowed because ec2:ResourceTag conditions apply only to launch permissions."
+      },
+      {
+        "label": "B",
+        "text": "The action is denied because the developer's role tag does not match the resource tag condition."
+      },
+      {
+        "label": "C",
+        "text": "The action is allowed because aws:RequestTag matches the developer's session tags automatically."
+      },
+      {
+        "label": "D",
+        "text": "The action is denied only if an explicit Deny referencing ec2:ResourceTag is also present."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "ec2:ResourceTag conditions evaluate the tag on the EC2 resource being acted upon, not the caller's tags. A policy that allows an action only when ec2:ResourceTag/Environment equals Production permits access to Production-tagged instances. However, if the identity policy's Allow for ec2:StopInstances is conditioned on ec2:ResourceTag/Environment matching the caller's own tag (Development), the condition fails for a Production-tagged resource, and the call is denied. aws:RequestTag applies to tag-on-create actions, not stopping instances.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "abac",
+      "resource-tag",
+      "ec2"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-005",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "After modifying a permission set in AWS IAM Identity Center (SSO), some users report that they still see the old permissions when accessing an assigned account. What is the most likely explanation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "There is a propagation delay while IAM Identity Center re-provisions the permission set across assigned accounts."
+      },
+      {
+        "label": "B",
+        "text": "Permission set changes require manual re-provisioning via the AWS CLI before taking effect."
+      },
+      {
+        "label": "C",
+        "text": "The permission set change was applied only to new user assignments, not existing ones."
+      },
+      {
+        "label": "D",
+        "text": "Browser-cached credentials must be cleared before updated permissions are visible."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "When a permission set is modified in IAM Identity Center, AWS automatically re-provisions the underlying IAM roles in every assigned account. This re-provisioning takes time to propagate, so users with active sessions or recently issued credentials may temporarily observe the old permissions. No manual CLI action is required, and the change applies to all existing assignments, not just new ones.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "identity-center",
+      "sso",
+      "permission-set"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-006",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security team wants to ensure that only a specific IAM role in a trusted account can assume a cross-account role, while rejecting all other principals even if they have sts:AssumeRole permission. Which trust policy condition achieves this most precisely?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use aws:SourceArn to restrict which service can invoke the cross-account role."
+      },
+      {
+        "label": "B",
+        "text": "Use aws:PrincipalArn with StringEquals to specify the exact ARN of the trusted role."
+      },
+      {
+        "label": "C",
+        "text": "Use aws:PrincipalAccount to restrict assumption to the trusted account only."
+      },
+      {
+        "label": "D",
+        "text": "Use sts:ExternalId to require a shared secret from the calling principal."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "aws:PrincipalArn in the trust policy condition with StringEquals locks role assumption to a single, fully qualified IAM principal ARN. aws:PrincipalAccount restricts to an account but allows any principal in that account. sts:ExternalId helps prevent the confused deputy problem for third-party integrations but does not restrict which principal can call AssumeRole. aws:SourceArn applies to service-to-service calls, not IAM role assumption.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "trust-policy",
+      "cross-account",
+      "principal-arn"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-007",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company wants an S3 bucket policy that grants access only to principals in a specific Organizational Unit (OU) within AWS Organizations. Which condition key should be used in the bucket policy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "aws:SourceOrgPaths to verify the request originates from the correct OU path."
+      },
+      {
+        "label": "B",
+        "text": "aws:PrincipalOrgID to match the organization ID of the OU's parent organization."
+      },
+      {
+        "label": "C",
+        "text": "aws:ResourceOrgPaths to verify the bucket resides in the correct organizational path."
+      },
+      {
+        "label": "D",
+        "text": "aws:PrincipalOrgPaths to match the full OU path including the OU ID."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "aws:PrincipalOrgPaths matches the organizational path of the calling principal, which includes the root, intermediate OUs, and the account's position in the hierarchy. It allows policy authors to restrict access to principals within a specific OU or sub-OU. aws:PrincipalOrgID matches only at the organization level, not the OU level. aws:ResourceOrgPaths and aws:SourceOrgPaths are not valid IAM condition keys for this purpose.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "s3",
+      "organizations",
+      "ou",
+      "principal-org-paths"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-008",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A developer calls sts:AssumeRole and passes an inline session policy. The assumed role's permission policy allows s3:* on all resources. The session policy allows only s3:GetObject on a specific bucket. What permissions does the resulting session have?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Only s3:GetObject on the specific bucket, because the session is the intersection of both policies."
+      },
+      {
+        "label": "B",
+        "text": "Full s3:* permissions, because the role's identity policy takes precedence over the session policy."
+      },
+      {
+        "label": "C",
+        "text": "No permissions, because passing a session policy always creates a zero-trust session by default."
+      },
+      {
+        "label": "D",
+        "text": "s3:GetObject on all buckets, because the session policy narrows the action but not the resource scope."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Session policies passed during AssumeRole further restrict but cannot expand the permissions of the role being assumed. The effective permissions are the intersection of what the role's identity policy allows and what the session policy allows. Because the session policy allows only s3:GetObject on one specific bucket, that is all the session can do, regardless of the broader s3:* grant on the role.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "session-policy",
+      "assume-role",
+      "intersection"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-009",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer attempts to delete the service-linked role for Amazon ECS because it appears unused. The deletion fails with an error. What is the most likely reason?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Service-linked roles require MFA authentication from the root account user before any deletion request can proceed through the console."
+      },
+      {
+        "label": "B",
+        "text": "Service-linked roles can only be deleted through the AWS Service Quotas console, not through the IAM console or CLI."
+      },
+      {
+        "label": "C",
+        "text": "The role has an attached permissions boundary policy that explicitly blocks the iam:DeleteServiceLinkedRole action for all principals."
+      },
+      {
+        "label": "D",
+        "text": "The ECS service is still using the role, and AWS prevents deletion while a service depends on it."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS enforces that a service-linked role cannot be deleted while the associated service still has resources or configuration that depend on it. Before deletion, all dependent resources such as ECS clusters or services must be removed. MFA and root account access are not required for this action, and a permissions boundary would produce an access denied error rather than an in-use deletion failure.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "service-linked-role",
+      "ecs",
+      "deletion"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-010",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A policy uses the aws:CalledVia condition key set to cloudformation.amazonaws.com. An IAM role has this policy attached. A developer tries to call s3:PutObject directly using the AWS CLI without going through CloudFormation. What happens?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The call succeeds if the role also has an unrestricted s3:PutObject Allow in a separate policy statement."
+      },
+      {
+        "label": "B",
+        "text": "The call is denied because aws:CalledVia requires the request to pass through CloudFormation."
+      },
+      {
+        "label": "C",
+        "text": "The call succeeds because aws:CalledVia only adds an additional allow and never restricts direct calls."
+      },
+      {
+        "label": "D",
+        "text": "The call is denied only if the developer also lacks s3:PutObject in their user-level IAM policy."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "aws:CalledVia is used as a condition in an Allow statement to permit actions only when the call passes through the specified intermediate service such as CloudFormation. When a developer calls s3:PutObject directly via the CLI, aws:CalledVia does not match, the condition fails, and the Allow does not apply. If this is the only Allow for that action, the request is implicitly denied. The condition restricts, rather than supplements, direct API calls.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "called-via",
+      "cloudformation",
+      "condition-key"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-011",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An IAM role in Account A needs to read objects from an S3 bucket in Account B. The bucket in Account B has no bucket policy. The IAM role in Account A has s3:GetObject granted in its identity policy. Can Account A's role access the bucket?",
+    "options": [
+      {
+        "label": "A",
+        "text": "No, because S3 cross-account access always requires aws:PrincipalOrgID on the bucket policy."
+      },
+      {
+        "label": "B",
+        "text": "Yes, because the IAM identity policy in Account A is sufficient for cross-account S3 access."
+      },
+      {
+        "label": "C",
+        "text": "Yes, but only if Account A is in the same AWS Organization as Account B."
+      },
+      {
+        "label": "D",
+        "text": "No, because cross-account S3 access requires both an IAM identity policy in Account A and a bucket policy in Account B."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "For cross-account access to S3, both sides of the authorization must grant access. Account A's IAM policy grants permission from the identity side, but without a bucket policy in Account B that explicitly allows Account A's role, the bucket owner has not granted access. Both an identity policy Allow in Account A and a resource-based bucket policy Allow in Account B are required when no other trust is established between the accounts.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "cross-account",
+      "s3",
+      "bucket-policy"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-012",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A policy restricts S3 access using the condition \"aws:SourceIp\": \"10.0.0.0/8\". A user inside a VPC with a NAT gateway makes a request. The NAT gateway has a public Elastic IP of 52.10.20.30. Is the request allowed?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Yes, because aws:SourceIp resolves the private IP inside the VPC, which falls within 10.0.0.0/8."
+      },
+      {
+        "label": "B",
+        "text": "Yes, because requests from within a VPC always match private CIDR ranges regardless of NAT translation."
+      },
+      {
+        "label": "C",
+        "text": "No, but using aws:VpcSourceIp with the instance's private IP would allow the request instead."
+      },
+      {
+        "label": "D",
+        "text": "No, because aws:SourceIp reflects the public IP of the NAT gateway (52.10.20.30), which does not match 10.0.0.0/8."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "aws:SourceIp reflects the IP address that AWS sees at the public-facing endpoint after NAT translation. When traffic exits through a NAT gateway, AWS sees the NAT gateway's public Elastic IP (52.10.20.30), not the private instance IP. Because 52.10.20.30 does not fall in 10.0.0.0/8, the condition fails and the request is denied. To match private VPC IP addresses, aws:VpcSourceIp should be used instead.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "source-ip",
+      "vpc-source-ip",
+      "nat-gateway",
+      "condition-key"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-013",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An IAM user has an identity policy that allows s3:* on all resources. A permissions boundary attached to the user allows only s3:GetObject and s3:ListBucket. The user attempts to run s3:PutObject. What is the result?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The action is denied because effective permissions are the intersection of the identity policy and the permissions boundary."
+      },
+      {
+        "label": "B",
+        "text": "The action is allowed because s3:PutObject is implicitly included within s3:* on the boundary."
+      },
+      {
+        "label": "C",
+        "text": "The action is denied only if the S3 bucket's resource policy also lacks an explicit Allow for s3:PutObject."
+      },
+      {
+        "label": "D",
+        "text": "The action is allowed because the identity policy explicitly grants s3:* and takes precedence over the boundary."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "A permissions boundary sets the maximum permissions an identity can have; it does not grant permissions on its own. Effective permissions are the intersection of what the identity policy allows and what the permissions boundary allows. Even though the identity policy allows s3:*, the boundary limits the user to s3:GetObject and s3:ListBucket. s3:PutObject is not in the boundary, so it is not in the effective permission set and the request is denied.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "permissions-boundary",
+      "intersection",
+      "effective-permissions"
+    ]
+  },
+  {
+    "id": "scs-d4-t4-014",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A team wants GitHub Actions workflows to assume an IAM role in AWS without using long-lived access keys. They configure an OIDC identity provider in IAM. Which trust policy element correctly restricts assumption to a specific GitHub repository and branch?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Set the Principal to the GitHub OIDC provider ARN and add a StringEquals condition on token.actions.githubusercontent.com:sub matching the repo and ref."
+      },
+      {
+        "label": "B",
+        "text": "Set the Principal to the GitHub organization ARN in IAM and restrict by the repository name tag."
+      },
+      {
+        "label": "C",
+        "text": "Set the Principal to federatedidentity.amazonaws.com and use aws:FederatedProvider to match the GitHub URL."
+      },
+      {
+        "label": "D",
+        "text": "Set the Principal to sts.amazonaws.com and use aws:PrincipalArn to reference the GitHub Actions runner ARN."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "For OIDC federation with GitHub Actions, the trust policy Principal must be set to the registered OIDC provider ARN using the Federated key, and a condition must check the sub claim issued by GitHub's OIDC provider (token.actions.githubusercontent.com:sub). The sub claim encodes the repository, environment, and ref such as branch or tag, allowing precise scoping of which workflows can assume the role. The other options reference invalid ARN types or non-existent condition keys for this use case.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "oidc",
+      "github-actions",
+      "federation",
+      "trust-policy"
+    ]
+  }
+]

@@ -1,0 +1,1146 @@
+[
+  {
+    "id": "aws-saa-t4-01-001",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company uses AWS Organizations with SCPs. The following SCP is attached to the Production OU:\n\n{\"Effect\":\"Deny\",\"Action\":\"s3:DeleteBucket\",\"Resource\":\"*\"}\n\nAn IAM administrator in a member account has an IAM policy granting s3:* on all resources. They attempt to delete an S3 bucket and receive AccessDenied. A colleague in the management account with the same IAM policy successfully deletes a bucket. Why does the administrator fail while the colleague succeeds?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The IAM administrator's policy does not include s3:DeleteBucket explicitly"
+      },
+      {
+        "label": "B",
+        "text": "The SCP overrides IAM policies in all accounts including the management account"
+      },
+      {
+        "label": "C",
+        "text": "SCPs apply to all principals in member accounts but do not apply to the management account"
+      },
+      {
+        "label": "D",
+        "text": "The member account needs a resource-based policy on the bucket to allow deletion"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "This is a critical SCP behavior: SCPs apply to all principals (IAM users, roles, root) in member accounts, but they do NOT apply to the management account. The management account is exempt from SCP restrictions \u2014 administrators there retain full access regardless of SCP Deny statements. The member account administrator has a compliant IAM policy (s3:*) but the SCP Deny overrides it (Deny always wins in the policy evaluation chain). The management account colleague is exempt from the SCP, so their IAM policy is evaluated without the Deny \u2014 access is granted.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "scp",
+      "organizations",
+      "iam",
+      "policy-evaluation"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-002",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "An application running on EC2 assumes an IAM role. The role's trust policy allows ec2.amazonaws.com. The role has an attached managed policy granting s3:GetObject on arn:aws:s3:::data-bucket/*. An inline policy on the same role has an explicit Deny for s3:GetObject on arn:aws:s3:::data-bucket/confidential/*. The application calls GetObject on s3://data-bucket/confidential/report.pdf. What is the result and why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Allow \u2014 the managed policy's Allow overrides the inline policy's Deny since managed policies take precedence"
+      },
+      {
+        "label": "B",
+        "text": "Deny \u2014 explicit Deny in any policy always overrides any Allow in IAM policy evaluation"
+      },
+      {
+        "label": "C",
+        "text": "Deny \u2014 the resource ARN in the managed policy does not match the confidential prefix"
+      },
+      {
+        "label": "D",
+        "text": "Allow \u2014 both are attached to the same role, so the more permissive policy wins"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS IAM policy evaluation order: explicit Deny always wins regardless of policy type (inline, managed, session, etc.). The inline policy explicitly denies s3:GetObject on data-bucket/confidential/* \u2014 this is an explicit Deny. The evaluation logic: (1) Start with deny-all default; (2) Check for explicit Deny \u2192 found; (3) Result is Deny, regardless of any Allow. Managed policies and inline policies have equal precedence \u2014 there is no hierarchy between them. Option D is incorrect because the managed policy ARN (data-bucket/*) does cover the confidential path, but the explicit Deny still prevails.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "policy-evaluation",
+      "explicit-deny",
+      "s3"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-003",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company needs to ensure their EKS workloads running in private subnets can access the EKS control plane endpoint without traffic leaving the AWS network, AND that external developers cannot reach the API server from the internet. Which endpoint configuration achieves both requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Public endpoint with an IP allowlist of developer IPs and private endpoint for worker nodes"
+      },
+      {
+        "label": "B",
+        "text": "Both public and private endpoints enabled \u2014 worker nodes use the private endpoint, developers use the public URL"
+      },
+      {
+        "label": "C",
+        "text": "Public endpoint enabled, private endpoint disabled \u2014 developers use the public URL"
+      },
+      {
+        "label": "D",
+        "text": "Private endpoint only, with the cluster's VPC CIDR authorized \u2014 worker nodes communicate internally, developer access requires VPN or Direct Connect."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "With private endpoint only: worker nodes in the VPC communicate with the Kubernetes API server over the private endpoint (stays within the AWS network, no internet traversal). The public endpoint is disabled, so the API server is unreachable from the internet. Developers must access via VPN or Direct Connect into the VPC. Option D (public endpoint with IP allowlist) still exposes the endpoint on the internet \u2014 only to specific IPs. Option B allows public access. This is the hardened EKS configuration for sensitive production clusters.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "eks",
+      "private-endpoint",
+      "network-security",
+      "vpc"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-004",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer discovers that a Lambda function execution role has been granted s3:* on all buckets (*). The function only needs to write to one specific bucket. Using the principle of least privilege, what is the most restrictive correct policy for the execution role?",
+    "options": [
+      {
+        "label": "A",
+        "text": "s3:PutObject on arn:aws:s3:::* with a Condition limiting to target-bucket"
+      },
+      {
+        "label": "B",
+        "text": "s3:PutObject on arn:aws:s3:::target-bucket/*"
+      },
+      {
+        "label": "C",
+        "text": "s3:* on arn:aws:s3:::target-bucket/*"
+      },
+      {
+        "label": "D",
+        "text": "s3:PutObject and s3:GetObject on arn:aws:s3:::target-bucket/*"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Least privilege: grant only the specific action(s) required (s3:PutObject \u2014 writing objects) on only the specific resource (arn:aws:s3:::target-bucket/*). No other S3 actions are needed. s3:* grants all S3 actions (List, Get, Delete, etc.) \u2014 far exceeds what's required. Option C uses a wildcard resource with a condition \u2014 this is less explicit and more error-prone than directly scoping the resource ARN. Option D adds s3:GetObject unnecessarily since the function only writes.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "least-privilege",
+      "lambda",
+      "s3"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-005",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company uses a SAML 2.0 identity provider for employee authentication. Employees need access to the AWS Console and AWS CLI. The IAM SAML federation is configured. An employee can log in to the console but CLI access fails with 'InvalidClientTokenId'. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The IAM role maximum session duration is set too low for CLI operations"
+      },
+      {
+        "label": "B",
+        "text": "The employee is using long-term IAM credentials for the CLI instead of calling sts:AssumeRoleWithSAML to get temporary."
+      },
+      {
+        "label": "C",
+        "text": "The IAM role trust policy is missing sts:AssumeRoleWithSAML permission"
+      },
+      {
+        "label": "D",
+        "text": "SAML federation does not support CLI access \u2014 only console access is possible"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Console SAML federation works via browser-based redirect through SAML assertions. CLI access with SAML requires the employee to call sts:AssumeRoleWithSAML (or use aws sso login if using IAM Identity Center) to exchange SAML assertions for temporary credentials, then configure those credentials in the CLI. 'InvalidClientTokenId' indicates the CLI is using invalid or nonexistent long-term IAM credentials \u2014 the employee likely has no IAM user but is trying to use static credentials. SAML federation absolutely supports CLI access via STS temporary credentials. The trust policy must include sts:AssumeRoleWithSAML as the action (not a permission in the policy).",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "saml",
+      "federation",
+      "sts",
+      "cli",
+      "iam"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-006",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "An application uses KMS to encrypt data. The CMK has the following key policy statement:\n\n{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":\"arn:aws:iam::123456789012:root\"},\"Action\":\"kms:*\",\"Resource\":\"*\"}\n\nA developer's IAM policy denies kms:Decrypt. The developer attempts to call KMS Decrypt. What happens?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deny \u2014 the key policy only grants access to the root user, not the developer IAM user"
+      },
+      {
+        "label": "B",
+        "text": "Allow \u2014 key policies take precedence over IAM policies"
+      },
+      {
+        "label": "C",
+        "text": "Deny \u2014 IAM policy explicit Deny overrides the key policy Allow"
+      },
+      {
+        "label": "D",
+        "text": "Allow \u2014 the key policy grants kms:* to the account root, which encompasses all IAM principals in the account"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "KMS access evaluation requires BOTH the key policy AND the IAM policy to allow the action (when the key policy delegates to IAM via the account root principal). The key policy grants kms:* to account 123456789012 root \u2014 this means IAM policies in the account can control KMS access. The developer's IAM policy has an explicit Deny for kms:Decrypt. In IAM evaluation: explicit Deny always wins over any Allow, including key policy Allows. The combined result is Deny. If the key policy had granted access directly to the developer's ARN (not via account root), the IAM explicit Deny would still win.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "kms",
+      "key-policy",
+      "iam",
+      "policy-evaluation"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-007",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company wants to prevent any IAM principal in their organization from disabling CloudTrail, regardless of their IAM permissions. Which control achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an IAM permission boundary that excludes cloudtrail:StopLogging for all roles"
+      },
+      {
+        "label": "B",
+        "text": "Attach an SCP to the organization root with a Deny for cloudtrail:StopLogging, cloudtrail:DeleteTrail, and cloudtrail:UpdateTrail"
+      },
+      {
+        "label": "C",
+        "text": "Create a CloudWatch alarm that alerts when CloudTrail is stopped and automatically restarts it"
+      },
+      {
+        "label": "D",
+        "text": "Enable CloudTrail log file integrity validation to detect tampering"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "An SCP Deny at the organization root applies to ALL principals in ALL member accounts (except the management account). Even account administrators with AdministratorAccess cannot override an SCP Deny \u2014 SCPs act as a guardrail above IAM. Denying cloudtrail:StopLogging, cloudtrail:DeleteTrail, and cloudtrail:UpdateTrail (which could reduce logging scope) prevents anyone from disabling the audit trail. Permission boundaries only apply to specific roles/users they're attached to \u2014 they don't cover all principals. Log integrity validation detects tampering but doesn't prevent disabling. CloudWatch auto-restart is a reactive detective control, not preventive.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "scp",
+      "cloudtrail",
+      "organizations",
+      "preventive-controls"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-008",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company runs a multi-tier application. The web tier in public subnets communicates with the app tier in private subnets. A security audit finds that the app tier security group allows inbound traffic from 0.0.0.0/0 on port 8080. The web tier security group ID is sg-web. What is the MOST secure correction that maintains application functionality?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add a NACL deny rule on the private subnet for all traffic except from the web subnet"
+      },
+      {
+        "label": "B",
+        "text": "Enable VPC Flow Logs and alert on unexpected sources connecting to port 8080"
+      },
+      {
+        "label": "C",
+        "text": "Change the app tier SG inbound rule to allow port 8080 from the web subnet CIDR (10.0.1.0/24)"
+      },
+      {
+        "label": "D",
+        "text": "Change the app tier SG inbound rule to allow port 8080 from sg-web only"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Security group referencing (allowing from sg-web) is more secure and maintainable than CIDR-based rules: it auto-tracks web tier instances regardless of IP changes, is automatically updated as instances join/leave the SG, and ensures only instances in sg-web can reach the app tier (not any host in the subnet CIDR). CIDR-based rules (option A) could allow any host in the web subnet, including compromised instances outside the web tier. NACL changes are stateless and require matching egress rules. Flow Logs are detective, not preventive.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "security-groups",
+      "vpc",
+      "least-privilege",
+      "network-security"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-009",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company deploys applications to multiple AWS accounts using CI/CD pipelines in a central tooling account. The pipelines use an IAM role (arn:aws:iam::TOOLS:role/CICDRole) that needs to deploy CloudFormation stacks in member accounts. What is required in the member accounts to allow this cross-account deployment?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an IAM role in each member account with a trust policy allowing sts:AssumeRole from arn:aws:iam::TOOLS:role/CICDRole."
+      },
+      {
+        "label": "B",
+        "text": "Configure a VPC peering connection between the tooling account VPC and each member account VPC"
+      },
+      {
+        "label": "C",
+        "text": "Create an IAM user in each member account and share long-term credentials with the tooling account"
+      },
+      {
+        "label": "D",
+        "text": "Enable AWS Organizations trusted access for CloudFormation and use StackSets"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Cross-account IAM role assumption is the standard pattern: each member account has a deployment role (e.g., DeployRole) with a trust policy that explicitly allows the tooling account's CICDRole to assume it via sts:AssumeRole. The deployment role has CloudFormation permissions in the member account. The CICDRole in the tooling account calls STS AssumeRole for each target account and uses the returned temporary credentials for deployment. IAM users with shared credentials is an anti-pattern (long-term credentials, no audit trail). StackSets is for deploying stacks across accounts, not a CI/CD pattern. VPC peering is network connectivity \u2014 irrelevant to IAM cross-account access.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "cross-account",
+      "sts",
+      "assume-role",
+      "ci-cd"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-010",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "An EC2 instance in a private subnet needs to retrieve a secret from AWS Secrets Manager. The VPC has no internet gateway or NAT gateway. The solutions architect must provide access without adding NAT infrastructure. Security requires that the connection never traverse the public internet. Which solution is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use SSM Parameter Store instead, which is reachable via Gateway Endpoint"
+      },
+      {
+        "label": "B",
+        "text": "Store the secret in S3 with SSE-KMS and use a VPC Gateway Endpoint for S3"
+      },
+      {
+        "label": "C",
+        "text": "Create a VPC Gateway Endpoint for Secrets Manager"
+      },
+      {
+        "label": "D",
+        "text": "Create a VPC Interface Endpoint for Secrets Manager (com.amazonaws.region.secretsmanager) in the private subnet"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Secrets Manager uses an Interface Endpoint (PrivateLink) \u2014 it is not available as a Gateway Endpoint (only S3 and DynamoDB use Gateway Endpoints). An Interface Endpoint for Secrets Manager creates a private DNS entry in the VPC, allowing the EC2 instance to call the Secrets Manager API over the AWS private network \u2014 no internet traversal. S3 does have a Gateway Endpoint but storing secrets in S3 is not equivalent to Secrets Manager (no rotation, no secret versioning). SSM Parameter Store also uses an Interface Endpoint, not a Gateway Endpoint \u2014 option D's premise is incorrect.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "secrets-manager",
+      "vpc-endpoint",
+      "privatelink",
+      "network-security"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-011",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company uses AWS Config to monitor S3 bucket public access settings. A Config rule triggers and marks a bucket as non-compliant. The remediation action is configured to call an SSM Automation document that runs aws s3api put-public-access-block. The remediation fails with 'AccessDenied'. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Config remediation actions require manual approval before executing"
+      },
+      {
+        "label": "B",
+        "text": "The Config rule does not have permission to call SSM Automation"
+      },
+      {
+        "label": "C",
+        "text": "The IAM role used by SSM Automation does not have s3:PutBucketPublicAccessBlock permission on the."
+      },
+      {
+        "label": "D",
+        "text": "The SSM Automation document does not exist in the account"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "SSM Automation documents execute under an IAM role (the automation execution role). This role must have the permissions required to perform the remediation action \u2014 in this case, s3:PutBucketPublicAccessBlock on the non-compliant bucket. 'AccessDenied' means the automation role lacks the required permission. Config itself calls SSM Automation via its service role (which needs ssm:StartAutomationExecution) \u2014 that's a separate concern. The SSM document is a managed AWS document (AWS-ConfigureS3BucketPublicAccessBlock) so it exists by default. Auto-remediation in Config runs without manual approval (manual remediation requires a click).",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "config",
+      "ssm-automation",
+      "iam",
+      "remediation"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-012",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company has a strict requirement that S3 objects containing financial data must be encrypted with a specific CMK (arn:aws:kms:us-east-1:123456789012:key/abc-123). All uploads must be rejected if they use a different key or no encryption. How should this be enforced?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add a bucket policy Deny statement: deny s3:PutObject unless s3:x-amz-server-side-encryption-aws-kms-key-id equals the specific CMK ARN"
+      },
+      {
+        "label": "B",
+        "text": "Add a bucket policy Deny statement: deny s3:PutObject if aws:RequestedRegion is not us-east-1"
+      },
+      {
+        "label": "C",
+        "text": "Create an SCP that requires KMS encryption for all S3 PutObject calls in the account"
+      },
+      {
+        "label": "D",
+        "text": "Enable default S3 bucket encryption with the specific CMK"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "A bucket policy Deny with a condition is the correct enforcement: `\"Condition\":{\"StringNotEquals\":{\"s3:x-amz-server-side-encryption-aws-kms-key-id\":\"arn:aws:kms:us-east-1:123456789012:key/abc-123\"}}` \u2014 any PutObject that doesn't specify this exact key is denied. Default encryption applies a key when none is specified but doesn't reject uploads with other keys. SCPs are broad account-level controls and cannot reference specific bucket-level conditions like KMS key IDs effectively. Region conditions (option B) are unrelated to encryption enforcement.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "s3",
+      "kms",
+      "bucket-policy",
+      "encryption",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-013",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's security team wants to detect when IAM credentials are accidentally committed to a public GitHub repository and automatically revoke them. Which AWS service combination enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "GuardDuty \u2192 EventBridge \u2192 Lambda to check GitHub and revoke credentials"
+      },
+      {
+        "label": "B",
+        "text": "AWS Secrets Manager rotation \u2192 Lambda \u2192 GitHub webhook for automatic revocation"
+      },
+      {
+        "label": "C",
+        "text": "AWS IAM Access Analyzer external access findings \u2192 EventBridge \u2192 Lambda revocation"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Macie scanning GitHub repos \u2192 SNS alert \u2192 manual revocation"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Amazon GuardDuty has a finding type 'UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS' and 'PenTest:IAMUser/KaliLinux' that detects anomalous credential usage. More specifically, GuardDuty continuously monitors for credentials being used from unexpected locations (like GitHub Actions or external IPs). When credentials are committed and used, GuardDuty generates findings. EventBridge routes the finding to Lambda, which calls iam:DeleteAccessKey or iam:UpdateAccessKey (Inactive) to revoke the compromised credential. This is the AWS-native approach. Macie scans AWS data stores, not GitHub repos. IAM Access Analyzer detects resource exposure, not credential leaks.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "guardduty",
+      "eventbridge",
+      "lambda",
+      "iam",
+      "security-automation"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-014",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company runs workloads in both AWS and on-premises. A new compliance requirement mandates that all traffic between on-premises and AWS must be encrypted in transit using TLS 1.2 or higher, and the encryption must be terminated at the application layer (not at a network device). Which connectivity option meets this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Direct Connect with MACsec encryption at layer 2"
+      },
+      {
+        "label": "B",
+        "text": "AWS PrivateLink for on-premises to AWS service connectivity"
+      },
+      {
+        "label": "C",
+        "text": "AWS Direct Connect with application-layer TLS 1.2 termination at the ALB."
+      },
+      {
+        "label": "D",
+        "text": "AWS Site-to-Site VPN with IPsec encryption"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "The requirement is application-layer encryption (TLS 1.2+) terminated at the application layer \u2014 not at a network device. Direct Connect provides private connectivity; adding TLS 1.2 at ALB/API Gateway (application layer, Layer 7) meets the 'terminated at application layer' requirement. VPN uses IPsec (Layer 3/4 network encryption) \u2014 not application-layer TLS. MACsec is Layer 2 link encryption \u2014 not application-layer TLS. PrivateLink provides private connectivity but is a connectivity option, not directly applicable to on-premises traffic encryption at the application layer.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "direct-connect",
+      "tls",
+      "encryption",
+      "compliance",
+      "network-security"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-015",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer needs to audit which IAM principals (users and roles) have access to a specific S3 bucket that contains sensitive data. The bucket has both a bucket policy and multiple IAM policies across various roles. Which tool provides the most comprehensive view of effective access?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use IAM Access Analyzer to identify all principals with access to the S3 bucket."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Config to generate a resource configuration history for the bucket"
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 server access logging and analyze who has accessed the bucket"
+      },
+      {
+        "label": "D",
+        "text": "Review all IAM policies manually and bucket policy to calculate effective permissions"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "IAM Access Analyzer evaluates resource-based policies (S3 bucket policies, KMS key policies, etc.) and generates findings for all principals that can access the resource \u2014 including IAM roles, users, AWS services, and cross-account principals. It provides a comprehensive view of 'who can access this resource' based on policy analysis, not just historical access logs. Manual policy review is error-prone and time-consuming. S3 access logging shows who HAS accessed the bucket historically \u2014 not who IS ABLE to access it. Config shows configuration history, not effective access analysis.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam-access-analyzer",
+      "s3",
+      "audit",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-016",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company requires that all data written to DynamoDB tables containing PII must be encrypted using a customer-managed KMS key, and the encryption must be auditable. The default DynamoDB encryption uses an AWS-owned key. How should the company configure this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable DynamoDB Streams and encrypt stream records with a CMK"
+      },
+      {
+        "label": "B",
+        "text": "Set the DynamoDB table encryption to use a customer-managed CMK at table creation time"
+      },
+      {
+        "label": "C",
+        "text": "Create a Lambda trigger on DynamoDB Streams that re-encrypts data with a CMK before storing in S3"
+      },
+      {
+        "label": "D",
+        "text": "Use SSE-KMS at the application layer before writing to DynamoDB"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "DynamoDB supports encryption at rest with customer-managed CMKs (set at table creation or by modifying an existing table). Once configured, all DynamoDB reads and writes automatically use the CMK \u2014 KMS API calls (GenerateDataKey, Decrypt) are logged in CloudTrail, providing the audit trail. This is transparent to the application. DynamoDB Streams encryption is a separate concern (stream data can also be encrypted with a CMK but that's the streaming data, not the table data). Re-encrypting to S3 is a different architecture. Application-layer encryption works but bypasses the native DynamoDB CMK support and adds application complexity.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "dynamodb",
+      "kms",
+      "encryption",
+      "cmk",
+      "pii"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-017",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's CloudTrail is configured to log to an S3 bucket in a centralized logging account. The security team discovers a 2-hour gap in logs from yesterday. Log file integrity validation is enabled. What does the absence of a digest file for that period indicate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudTrail log file integrity validation can confirm whether log files were deleted or modified."
+      },
+      {
+        "label": "B",
+        "text": "No API calls were made during that 2-hour period, so no log files were generated"
+      },
+      {
+        "label": "C",
+        "text": "The S3 bucket lifecycle policy transitioned the files to Glacier"
+      },
+      {
+        "label": "D",
+        "text": "CloudTrail only generates log files every 6 hours, so a 2-hour gap is normal"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudTrail delivers log files approximately every 5 minutes and delivers digest files once per hour. Digest files contain hashes of all log files in the previous hour. If BOTH log files AND the corresponding digest files are missing for a 2-hour window, the integrity validation chain is broken \u2014 this is a strong indicator that logs were deleted rather than simply not generated. CloudTrail validates that if a digest exists, all referenced log files should exist and match the stored hashes. Empty periods can produce empty log files, but digest files are still generated. CloudTrail logs in near real-time, not every 6 hours.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cloudtrail",
+      "log-integrity",
+      "forensics",
+      "security-audit"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-018",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company uses IAM Identity Center (AWS SSO) with Active Directory as the identity source. A user is assigned to a Permission Set that grants PowerUserAccess. The Permission Set has an inline policy that denies iam:CreateRole. The user attempts to create an IAM role and receives AccessDenied. The user believes this is a bug because PowerUserAccess includes iam:CreateRole. Is this expected behavior?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Yes \u2014 Permission Set inline policies act as permission boundaries, limiting the maximum permissions"
+      },
+      {
+        "label": "B",
+        "text": "No \u2014 this is a bug; the user should contact AWS Support to resolve the conflict"
+      },
+      {
+        "label": "C",
+        "text": "Yes \u2014 in IAM Identity Center Permission Sets, all attached policies (managed + inline) are evaluated together"
+      },
+      {
+        "label": "D",
+        "text": "No \u2014 PowerUserAccess is an AWS managed policy and its permissions cannot be restricted by inline policies in Permission Sets"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "IAM Identity Center Permission Sets combine all attached policies when the user assumes the session role. PowerUserAccess allows iam:CreateRole; the inline policy has an explicit Deny for iam:CreateRole. IAM evaluation: explicit Deny always wins over any Allow \u2014 the result is Deny. This is by design and is a common pattern for granting broad managed policy access while carving out specific prohibited actions via inline Deny. Option A is incorrect: permission boundaries are a separate IAM concept (not the same as Permission Set inline policies, though they behave similarly).",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam-identity-center",
+      "permission-sets",
+      "explicit-deny",
+      "iam"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-019",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company wants to implement MFA delete on an S3 bucket to prevent accidental or malicious deletion of objects. After enabling MFA delete, a junior admin attempts to delete an object version but receives an error. The junior admin has s3:DeleteObjectVersion permission. What additional requirement is missing?",
+    "options": [
+      {
+        "label": "A",
+        "text": "MFA delete requires the request to include a valid MFA token (x-amz-mfa header."
+      },
+      {
+        "label": "B",
+        "text": "The junior admin needs to enable MFA on their own IAM user account"
+      },
+      {
+        "label": "C",
+        "text": "MFA delete only applies to the bucket level \u2014 individual object deletions are not protected"
+      },
+      {
+        "label": "D",
+        "text": "The junior admin needs s3:GetObject permission before deleting"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "S3 MFA delete requires: (1) the request must include the MFA authentication code in the x-amz-mfa header (device serial number + space + TOTP code); and (2) critically \u2014 only the bucket owner (root account credentials, not IAM users) can perform MFA-protected operations. IAM users cannot perform operations requiring MFA delete even with the correct IAM permissions. This is a rarely-understood constraint: MFA delete enforcement requires root account authentication for the deletion, making it a strong protection against IAM-level compromises.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "s3",
+      "mfa-delete",
+      "security",
+      "root-account"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-020",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's VPC has private subnets in three AZs. Each AZ has private EC2 instances that need to call AWS services (SSM, S3, KMS, Secrets Manager). The security team prohibits NAT Gateways. Currently, Interface Endpoints exist for SSM and KMS. The company wants to minimize the number of Interface Endpoints while ensuring all services are reachable. Which S3 access pattern avoids an Interface Endpoint?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure S3 Transfer Acceleration for private subnet access"
+      },
+      {
+        "label": "B",
+        "text": "Use a VPC Gateway Endpoint for S3 \u2014 it is free and"
+      },
+      {
+        "label": "C",
+        "text": "Use an S3 Access Point with a VPC restriction policy"
+      },
+      {
+        "label": "D",
+        "text": "Create an Interface Endpoint for S3 (com.amazonaws.region.s3) in each AZ"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "S3 (and DynamoDB) are the only two services that support VPC Gateway Endpoints. Gateway Endpoints are free, don't require ENI provisioning, and are added as route table entries \u2014 one endpoint covers all AZs in the VPC. This avoids the $0.01/AZ/hour cost of Interface Endpoints for S3. Interface Endpoints for S3 exist (option A) but are unnecessary when Gateway Endpoints work. S3 Transfer Acceleration optimizes upload speeds over the internet, not applicable here. S3 Access Points with VPC restriction still require the underlying S3 connectivity \u2014 a Gateway or Interface Endpoint is still needed.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "vpc",
+      "gateway-endpoint",
+      "s3",
+      "cost-optimization",
+      "network-security"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-021",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company uses AWS Organizations with Service Control Policies. A developer in a member account has AdministratorAccess. They attempt to create a new AWS account in the organization and receive AccessDenied. The developer's account SCP allows organizations:CreateAccount. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The developer needs to be in the Organizations admins IAM group"
+      },
+      {
+        "label": "B",
+        "text": "The SCP must explicitly allow organizations:CreateAccount at the root OU level"
+      },
+      {
+        "label": "C",
+        "text": "AdministratorAccess does not include organizations:CreateAccount"
+      },
+      {
+        "label": "D",
+        "text": "organizations:CreateAccount can only be called from the management account, regardless of SCPs"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "AWS Organizations management operations (creating accounts, creating OUs, modifying SCPs, inviting accounts) can only be performed from the management account. Even if a member account's SCP allows organizations:CreateAccount and the IAM principal has the permission, the Organizations API calls that create/modify the organization structure only work when called from the management account. This is a service-level restriction, not an IAM/SCP restriction. Member accounts can use organizations:DescribeOrganization and ListAccounts but cannot create accounts.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "organizations",
+      "management-account",
+      "iam",
+      "scp"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-022",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company stores secrets in AWS Secrets Manager. An automated rotation Lambda function runs nightly. After a rotation, the application experiences 15 minutes of authentication failures before recovering. Investigation shows the application caches database credentials for 24 hours. What is the recommended fix that minimizes code changes?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add a sleep(900) in the rotation Lambda to delay rotation until off-peak hours"
+      },
+      {
+        "label": "B",
+        "text": "Use the Secrets Manager SDK with caching client \u2014 it caches secrets and automatically refreshes when"
+      },
+      {
+        "label": "C",
+        "text": "Disable Secrets Manager rotation and rotate credentials manually"
+      },
+      {
+        "label": "D",
+        "text": "Store the database password in an environment variable and update it in Lambda when rotation occurs"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The AWS Secrets Manager caching client (available for Python, Java, .NET, etc.) caches the secret locally and automatically refreshes the cache when the secret is rotated or when the TTL expires. It handles the rotation window gracefully \u2014 if a cached credential fails, the client forces a refresh from Secrets Manager. This minimizes code changes (just use the caching client wrapper instead of direct API calls). Disabling rotation defeats the purpose of secrets management. Adding sleep in the rotation Lambda doesn't solve the application's 24-hour cache problem. Environment variables require redeployment on rotation.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "secrets-manager",
+      "rotation",
+      "caching",
+      "lambda"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-023",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A penetration tester is hired to test a company's AWS environment. They want to test for SSRF vulnerabilities in EC2 instances that could allow metadata retrieval. The company uses IMDSv1. The tester successfully retrieves IAM role credentials from http://169.254.169.254/latest/meta-data/iam/security-credentials/. What configuration change prevents this attack?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Restrict the security group on the EC2 instance to block port 169"
+      },
+      {
+        "label": "B",
+        "text": "Migrate from IMDSv1 to IMDSv2 \u2014 IMDSv2 requires a session-oriented token obtained via a PUT."
+      },
+      {
+        "label": "C",
+        "text": "Enable VPC Flow Logs to detect metadata access attempts"
+      },
+      {
+        "label": "D",
+        "text": "Disable the IAM role attached to the EC2 instance"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "IMDSv1 allows any process or SSRF vulnerability to make a simple GET request to 169.254.169.254 and retrieve credentials. IMDSv2 requires a two-step process: first a PUT request to http://169.254.169.254/latest/api/token (with TTL header) to get a session token, then using that token in subsequent GET requests. SSRF vulnerabilities typically exploit HTTP GET redirects \u2014 they cannot perform the PUT request required by IMDSv2. Disabling the IAM role breaks the application. Security groups operate at instance level but IMDS is a link-local address accessed from within the instance (not through network security groups). Flow Logs are detective.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "imdsv2",
+      "ssrf",
+      "ec2",
+      "metadata",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-024",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's application needs to verify the integrity of messages received from SQS \u2014 messages must not have been tampered with in transit. Which approach provides message integrity verification?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable SQS dead letter queues to catch corrupted messages"
+      },
+      {
+        "label": "B",
+        "text": "Generate an HMAC signature of the message body before sending"
+      },
+      {
+        "label": "C",
+        "text": "Use HTTPS endpoints for SQS communication"
+      },
+      {
+        "label": "D",
+        "text": "Enable SQS server-side encryption to encrypt messages in the queue"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Message integrity (tamper detection) requires a cryptographic signature. The producer generates an HMAC (e.g., HMAC-SHA256) of the message body using a shared secret key, includes it as a MessageAttribute. The consumer recalculates the HMAC on receipt and compares \u2014 any modification to the message body invalidates the signature. SSE encrypts data at rest in the queue (confidentiality) but doesn't detect if messages are modified by an authorized party before sending. HTTPS provides transport security, not message-level integrity verification. DLQs capture processing failures, not tampered messages.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "sqs",
+      "hmac",
+      "message-integrity",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-025",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company runs a multi-account AWS environment. Security findings from GuardDuty across all accounts need to be centralized in a SIEM. The SIEM ingests from an S3 bucket. How should the solutions architect route GuardDuty findings from all member accounts to the central S3 bucket with minimal custom code?",
+    "options": [
+      {
+        "label": "A",
+        "text": "In each member account, create a Lambda function that forwards GuardDuty findings to the central S3 bucket"
+      },
+      {
+        "label": "B",
+        "text": "Enable GuardDuty with a delegated administrator account; configure EventBridge in the delegated admin account to receive findings from all member accounts; create"
+      },
+      {
+        "label": "C",
+        "text": "Export GuardDuty findings from each member account to an SNS topic that fans out to the central S3 bucket"
+      },
+      {
+        "label": "D",
+        "text": "Use CloudTrail Organization trail to capture GuardDuty findings in the central account"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "GuardDuty delegated administrator receives findings from all member accounts aggregated in one place. EventBridge in the delegated admin account receives GuardDuty findings events automatically. An EventBridge rule routing to Amazon Data Firehose (with S3 destination) delivers findings as JSON to the central S3 bucket \u2014 no custom Lambda code, fully managed. Per-account Lambda functions (option A) require deployment and maintenance across all accounts. SNS fan-out is more complex and requires per-account configuration. CloudTrail captures API calls, not GuardDuty finding content.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "guardduty",
+      "eventbridge",
+      "firehose",
+      "multi-account",
+      "siem"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-026",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company wants to enforce that all new EC2 instances launched in any account in their organization must have a specific tag (CostCenter) and must use an approved AMI from a specific AMI list. Which combination of controls enforces both requirements at launch time?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config rules to detect missing tags and unapproved AMIs after launch"
+      },
+      {
+        "label": "B",
+        "text": "An EventBridge rule that terminates instances launched without the required tag or from unapproved AMIs"
+      },
+      {
+        "label": "C",
+        "text": "IAM permission boundaries that require tag conditions on EC2 RunInstances"
+      },
+      {
+        "label": "D",
+        "text": "SCPs with conditions that deny ec2:RunInstances if aws:RequestTag/CostCenter is null and deny ec2:RunInstances if the AMI"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "SCPs with RunInstances conditions provide preventive enforcement at launch time \u2014 the instance is never created if conditions are not met. Two SCP conditions: (1) `{\"Null\":{\"aws:RequestTag/CostCenter\":\"true\"}}` denies RunInstances if CostCenter tag is missing; (2) `{\"StringNotEquals\":{\"ec2:ImageID\":[\"ami-approved1\",\"ami-approved2\"]}}` denies RunInstances for unapproved AMIs. Config rules are detective (instance already running when flagged). Permission boundaries apply to specific roles, not all principals organization-wide. EventBridge termination is reactive \u2014 instances launch briefly before termination.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "scp",
+      "ec2",
+      "tagging",
+      "ami",
+      "preventive-controls"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-01-027",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's security policy requires that all S3 data transfers within AWS must stay within the AWS network and never traverse the public internet, even for cross-region replication. Which S3 configuration ensures this for Cross-Region Replication (CRR)?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 CRR traffic always travels over the AWS internal network between Regions and never traverses the public internet, so no additional PrivateLink configuration is needed."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS PrivateLink for S3 to route CRR traffic through private endpoints in both regions"
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 Transfer Acceleration for CRR to route replication traffic through the AWS CloudFront edge network, reducing transit latency over the public internet."
+      },
+      {
+        "label": "D",
+        "text": "Create a VPC Interface Endpoint for S3 in each Region and configure CRR to route replication traffic through the private endpoint, avoiding internet transit."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "Enable S3 Transfer Acceleration for CRR to route replication traffic through the AWS CloudFront edge network, reducing transit latency over the public internet.",
+      "D": "Create a VPC Interface Endpoint for S3 in each Region and configure CRR to route replication traffic through the private endpoint, avoiding internet transit."
+    },
+    "explanation": "S3 Cross-Region Replication traffic travels entirely within the AWS backbone network between regions \u2014 AWS routes this inter-region traffic privately. The public internet is not used for S3-to-S3 replication. This is an important AWS architecture detail: S3 service traffic between AWS regions uses internal AWS infrastructure. No additional configuration (VPC Endpoints, PrivateLink) is required for CRR to stay off the public internet. Transfer Acceleration is for user uploads/downloads, not for S3-to-S3 replication.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "s3",
+      "crr",
+      "network-security",
+      "aws-backbone"
+    ]
+  }
+]

@@ -1,0 +1,519 @@
+[
+  {
+    "id": "aws-cp-04-t2-001",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company has multiple business units each with their own AWS accounts, consolidated under AWS Organizations. Which billing benefit does consolidated billing provide?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Usage from all accounts is combined to reach volume pricing tiers for services like."
+      },
+      {
+        "label": "B",
+        "text": "Each account is billed separately, with no pricing benefits"
+      },
+      {
+        "label": "C",
+        "text": "All accounts share the same IAM users and policies"
+      },
+      {
+        "label": "D",
+        "text": "Each account receives the free tier separately, doubling the total free usage"
+      },
+      {
+        "label": "E",
+        "text": "Consolidated billing eliminates data transfer costs between accounts"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "With consolidated billing, AWS aggregates usage from all accounts in the organization. If one account uses 30 TB of S3 and another uses 20 TB, the total 50 TB qualifies for volume pricing tiers \u2014 a benefit no single account would reach alone.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "consolidated-billing",
+      "organizations",
+      "volume-discounts",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t2-002",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A startup wants to estimate the monthly AWS cost for a new architecture before building it. Which tool should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor \u2014 review cost optimization recommendations"
+      },
+      {
+        "label": "B",
+        "text": "AWS Cost and Usage Report \u2014 export billing data for analysis"
+      },
+      {
+        "label": "C",
+        "text": "AWS Pricing Calculator \u2014 model the architecture and estimate monthly costs"
+      },
+      {
+        "label": "D",
+        "text": "AWS Cost Explorer \u2014 analyze current spending trends"
+      },
+      {
+        "label": "E",
+        "text": "AWS Budgets \u2014 set a spending limit before deployment"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS Pricing Calculator (calculator.aws) lets you model an architecture by selecting services, regions, and configurations to produce a detailed monthly cost estimate before any resources are deployed.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "pricing-calculator",
+      "cost-estimation",
+      "architecture-planning"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t2-003",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's monthly AWS bill increased by 40% compared to last month. A finance manager asks which service caused the increase. What is the fastest way to identify the cost driver?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Check AWS Trusted Advisor cost optimization category"
+      },
+      {
+        "label": "B",
+        "text": "Download the AWS Cost and Usage Report and process it manually"
+      },
+      {
+        "label": "C",
+        "text": "Contact AWS Support to investigate the bill increase"
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Cost Explorer to view costs by service for the current."
+      },
+      {
+        "label": "E",
+        "text": "Review CloudTrail logs for all API calls made last month"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "AWS Cost Explorer's cost breakdown by service view immediately shows which services drove the increase. You can filter by service, linked account, region, and tag to isolate the root cause in minutes.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "cost-explorer",
+      "cost-analysis",
+      "billing",
+      "troubleshooting"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t2-004",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to be notified when their monthly AWS spend reaches $10,000 and again when it reaches $15,000. Which service handles this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor \u2014 cost category"
+      },
+      {
+        "label": "B",
+        "text": "Amazon CloudWatch billing alarm"
+      },
+      {
+        "label": "C",
+        "text": "AWS Cost and Usage Report with S3 delivery"
+      },
+      {
+        "label": "D",
+        "text": "AWS Cost Explorer with custom reports"
+      },
+      {
+        "label": "E",
+        "text": "AWS Budgets with alert thresholds"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Budgets lets you create cost budgets with multiple alert thresholds. You can configure alerts at $10,000 (actual) and $15,000 (actual or forecasted), sending notifications via email or SNS.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "budgets",
+      "cost-alerts",
+      "billing",
+      "threshold-notifications"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t2-005",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company is comparing EC2 purchasing options. They have a workload that must run for the next 12 months without interruption. Which option provides a discount without any upfront commitment?",
+    "options": [
+      {
+        "label": "A",
+        "text": "On-Demand Instances charge per second or hour with no upfront commitment, providing maximum flexibility but at a higher per-unit cost than Reserved Instances."
+      },
+      {
+        "label": "B",
+        "text": "Spot Instances offer up to 90% discount over On-Demand pricing but can be interrupted with two minutes notice, making them unsuitable for steady-state production workloads."
+      },
+      {
+        "label": "C",
+        "text": "1-year Reserved Instances \u2014 No Upfront"
+      },
+      {
+        "label": "D",
+        "text": "1-year Reserved Instances \u2014 All Upfront provides a larger discount than No Upfront in exchange for paying the full reservation cost at the start of the term."
+      },
+      {
+        "label": "E",
+        "text": "Dedicated Instances run on hardware dedicated to a single customer for compliance purposes but are charged at a premium and do not offer reservation discounts."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "On-Demand Instances charge per second or hour with no upfront commitment, providing maximum flexibility but at a higher per-unit cost than Reserved Instances.",
+      "B": "Spot Instances offer up to 90% discount over On-Demand pricing but can be interrupted with two minutes notice, making them unsuitable for steady-state production workloads.",
+      "D": "1-year Reserved Instances \u2014 All Upfront provides a larger discount than No Upfront in exchange for paying the full reservation cost at the start of the term.",
+      "E": "Dedicated Instances run on hardware dedicated to a single customer for compliance purposes but are charged at a premium and do not offer reservation discounts."
+    },
+    "explanation": "1-year Reserved Instances with No Upfront payment commit you to a 1-year term with a discount (~20-40% vs On-Demand) and no upfront payment \u2014 just a lower hourly rate for the commitment period.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "reserved-instances",
+      "no-upfront",
+      "ec2-pricing",
+      "commitment"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t2-006",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company is evaluating AWS support plans. They need access to a Technical Account Manager (TAM) and proactive guidance on architecture reviews. Which plan is required?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Developer Support"
+      },
+      {
+        "label": "B",
+        "text": "Enterprise On-Ramp Support"
+      },
+      {
+        "label": "C",
+        "text": "Enterprise Support"
+      },
+      {
+        "label": "D",
+        "text": "Basic Support"
+      },
+      {
+        "label": "E",
+        "text": "Business Support"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS Enterprise Support includes a dedicated Technical Account Manager who provides proactive guidance, coordinates Well-Architected Reviews, and serves as a single point of contact for the customer's AWS relationship.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "enterprise-support",
+      "tam",
+      "support-plans",
+      "architecture-review"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t2-007",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's development team regularly forgets to stop EC2 instances on weekends, resulting in unnecessary charges. Which AWS feature can automatically stop these instances outside of business hours?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor \u2014 automatically terminates unused instances"
+      },
+      {
+        "label": "B",
+        "text": "AWS Cost Explorer \u2014 export a report and manually stop instances"
+      },
+      {
+        "label": "C",
+        "text": "AWS Budgets \u2014 set a spending limit that stops instances when exceeded"
+      },
+      {
+        "label": "D",
+        "text": "Amazon CloudWatch \u2014 alerts when instances have been running too long"
+      },
+      {
+        "label": "E",
+        "text": "AWS Instance Scheduler (via AWS Systems Manager or EventBridge Scheduler) \u2014 schedule start/stop times"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Instance Scheduler (an AWS Solution using EventBridge Scheduler and SSM) or EventBridge Scheduler with Lambda can automatically stop and start EC2 instances on a schedule, eliminating weekend idle costs.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "cost-optimization",
+      "instance-scheduling",
+      "ec2",
+      "automation"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t2-008",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon S3 to store backups and pays for both storage and data transfer. Which data transfer scenario incurs no cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Transferring data from S3 to an on-premises server via the internet"
+      },
+      {
+        "label": "B",
+        "text": "Transferring data from S3 to CloudFront in a different Region"
+      },
+      {
+        "label": "C",
+        "text": "Transferring data between S3 and EC2 in different Regions"
+      },
+      {
+        "label": "D",
+        "text": "Transferring data from S3 to the internet (public downloads)"
+      },
+      {
+        "label": "E",
+        "text": "Transferring data from S3 to EC2 in the same Region"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Data transfer between S3 and EC2 within the same AWS Region is free. This is a key architectural reason to co-locate compute and storage in the same Region to minimize data transfer costs.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "data-transfer",
+      "s3",
+      "ec2",
+      "free-transfer",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t2-009",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's finance team wants to allocate AWS costs to individual business units. Each unit uses different applications deployed in the same AWS account. What AWS feature enables this cost allocation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Organizations \u2014 create a separate account per business unit"
+      },
+      {
+        "label": "B",
+        "text": "Resource tagging with cost allocation tags \u2014 tag resources by business unit"
+      },
+      {
+        "label": "C",
+        "text": "AWS Cost and Usage Report \u2014 download billing data and analyze manually"
+      },
+      {
+        "label": "D",
+        "text": "VPC cost allocation \u2014 separate costs by VPC per business unit"
+      },
+      {
+        "label": "E",
+        "text": "AWS Budgets \u2014 create a budget per business unit"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS cost allocation tags allow you to tag resources (EC2 instances, RDS databases, S3 buckets) with key-value pairs like BusinessUnit=Marketing. Once activated in the Billing console, these tags appear as dimensions in Cost Explorer, allowing per-unit cost breakdown.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "cost-allocation-tags",
+      "chargeback",
+      "cost-management",
+      "billing"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t2-010",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company has significant Reserved Instance coverage but their instance types are changing due to a modernization project. They want to maintain savings while having flexibility to change instance families. Which option should they purchase instead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Standard Reserved Instances for the new instance type"
+      },
+      {
+        "label": "B",
+        "text": "Dedicated Hosts for maximum control over instance placement"
+      },
+      {
+        "label": "C",
+        "text": "Spot Instances for the flexibility to change at any time"
+      },
+      {
+        "label": "D",
+        "text": "On-Demand Instances until the project is complete"
+      },
+      {
+        "label": "E",
+        "text": "Convertible Reserved Instances that can be exchanged for a different instance type"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Convertible Reserved Instances allow exchange for other instance families, sizes, OSes, or tenancies during the commitment term. They offer less discount than Standard RIs but provide the flexibility needed during architecture changes.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "convertible-ri",
+      "reserved-instances",
+      "flexibility",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t2-011",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "Which of the following is included in the AWS Free Tier for 12 months for new accounts?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Unlimited Lambda invocations for the first 12 months"
+      },
+      {
+        "label": "B",
+        "text": "750 hours per month of Amazon EC2 t2.micro or t3.micro instance usage"
+      },
+      {
+        "label": "C",
+        "text": "Unlimited EC2 t2.micro usage for the first 12 months"
+      },
+      {
+        "label": "D",
+        "text": "Free data transfer out to the internet for the first 12 months"
+      },
+      {
+        "label": "E",
+        "text": "1 TB per month of S3 storage for the first 12 months"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "The AWS 12-month free tier includes 750 hours/month of EC2 t2.micro or t3.micro usage. Since there are ~720 hours in a month, this allows running one instance continuously for free. Additional instances or larger types are charged at standard rates.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "free-tier",
+      "ec2",
+      "new-accounts",
+      "750-hours"
+    ]
+  }
+]

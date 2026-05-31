@@ -1,0 +1,548 @@
+[
+  {
+    "id": "scs-d1-t4-001",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "GuardDuty generates a finding: Discovery:S3/MaliciousIPCaller. An EC2 instance's role is making s3:ListBuckets API calls from an IP on GuardDuty's threat intelligence list. What is the significance of ListBuckets versus a data access finding?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ListBuckets is a management API call; this finding indicates reconnaissance phase activity where an attacker is mapping available S3 resources before attempting data exfiltration."
+      },
+      {
+        "label": "B",
+        "text": "ListBuckets is a low-risk operation; this finding can be safely ignored unless accompanied by GetObject or DeleteObject findings indicating actual data access."
+      },
+      {
+        "label": "C",
+        "text": "ListBuckets calls from a malicious IP indicate that the S3 bucket contents are publicly accessible and the attacker is enumerating from outside AWS."
+      },
+      {
+        "label": "D",
+        "text": "A Discovery finding indicates GuardDuty's ML model predicted future malicious behavior rather than detecting an active threat, requiring no immediate response."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Discovery findings (like S3/MaliciousIPCaller) indicate reconnaissance \u2014 the enumeration phase of an attack where the attacker learns what resources are available. This is significant because it precedes data exfiltration and warrants immediate investigation even without confirmed data access.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "s3",
+      "reconnaissance",
+      "threat-detection"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-002",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security analyst receives a GuardDuty finding: CredentialAccess:Kubernetes/AnomalousBehavior. An EKS pod is making API calls to the Kubernetes API server using a service account token, with actions not typical for that service account. What should the analyst investigate first?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Review EKS audit logs for the service account's API call history, check if the pod's image matches the expected image digest, and verify whether the pod was deployed from the expected CI/CD pipeline."
+      },
+      {
+        "label": "B",
+        "text": "Rotate the service account token and restart the pod; this immediately stops the anomalous behavior without requiring investigation of root cause."
+      },
+      {
+        "label": "C",
+        "text": "Check if the pod's container image has been updated recently; a new image version may include code that makes additional Kubernetes API calls."
+      },
+      {
+        "label": "D",
+        "text": "Review the pod's resource requests and limits to determine whether the anomalous API calls are caused by resource pressure triggering retry behavior."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AnomalousBehavior findings indicate the service account is performing actions outside its baseline. The investigation should review what changed: EKS audit logs show the exact API calls, image digest verification confirms the expected code is running, and CI/CD pipeline audit reveals whether an unauthorized deployment occurred.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "eks",
+      "kubernetes",
+      "anomalous-behavior"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-003",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "During an incident, a security team needs to determine the full timeline of actions taken by a compromised IAM user over the past 72 hours. CloudTrail logs are in S3. What is the most efficient query strategy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Download all CloudTrail log files for the 72-hour period, decompress them locally, and use grep to search for the user's ARN across all log files."
+      },
+      {
+        "label": "B",
+        "text": "Use Amazon Athena to query the CloudTrail S3 bucket with a SQL query filtering on userIdentity.arn matching the compromised user and eventTime within the 72-hour window."
+      },
+      {
+        "label": "C",
+        "text": "Use the CloudTrail console Event History feature, which stores 90 days of events and supports filtering by username for fast retrieval."
+      },
+      {
+        "label": "D",
+        "text": "Use Amazon Detective to build a timeline of the user's activity; Detective automatically queries all available log sources without requiring SQL knowledge."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Athena queries the CloudTrail logs in S3 directly using SQL, filtering on specific fields like userIdentity.arn and eventTime. This is far faster than manual download/grep for large log volumes. Event History (option C) only shows 90 days but is limited to 10,000 events per filter \u2014 insufficient for high-API-call accounts.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "cloudtrail",
+      "athena",
+      "incident-response",
+      "forensics"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-004",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A GuardDuty finding: Trojan:EC2/DropPoint indicates that an EC2 instance's IP is being used as a drop point for exfiltrated credentials or data. What does this mean and what is the immediate action?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The EC2 instance is being used as an intermediate storage point by external threat actors; isolate the instance immediately and capture a memory snapshot before any data is overwritten."
+      },
+      {
+        "label": "B",
+        "text": "The EC2 instance has a Trojan installed that is actively dropping malicious files onto the instance file system; run Amazon Inspector to detect the malware."
+      },
+      {
+        "label": "C",
+        "text": "The EC2 instance is querying GuardDuty's own threat intelligence database, which is stored at the DropPoint IP range; this is a false positive from GuardDuty's internal operations."
+      },
+      {
+        "label": "D",
+        "text": "The EC2 instance's EBS volumes are being accessed from a drop zone IP; enable EBS encryption immediately to prevent further data exposure."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "A DropPoint finding indicates that the EC2 instance's IP appears in GuardDuty's threat intel as a known drop point \u2014 a staging area for stolen credentials or data. The instance should be isolated immediately and forensic evidence (memory, disk snapshot) captured before the attacker cleans up.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "ec2",
+      "drop-point",
+      "incident-response"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-005",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An organization wants GuardDuty to also protect Lambda functions by detecting anomalous invocation patterns and network connections. Which GuardDuty feature must be enabled for this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "GuardDuty Runtime Monitoring, which deploys an agent to Lambda execution environments to monitor system calls during function execution."
+      },
+      {
+        "label": "B",
+        "text": "GuardDuty EKS Protection, which extends threat detection to serverless container workloads including Lambda functions running on Fargate."
+      },
+      {
+        "label": "C",
+        "text": "GuardDuty Lambda Protection, which monitors Lambda network activity and generates findings for anomalous network connections or invocations from malicious IPs."
+      },
+      {
+        "label": "D",
+        "text": "GuardDuty Malware Protection, which scans Lambda deployment packages stored in S3 for embedded malware before functions are deployed."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "GuardDuty Lambda Protection is the specific feature for monitoring Lambda functions. It analyzes Lambda network activity logs to detect threats like functions communicating with known malicious IPs, anomalous data transfer, or cryptocurrency mining behavior.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "lambda",
+      "lambda-protection"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-006",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "After a security incident, a forensic analyst needs to ensure that the compromised EC2 instance's EBS snapshot is legally defensible as evidence. Which practices establish chain of custody for the snapshot?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Store the snapshot in a publicly accessible S3 bucket so external auditors can verify its contents at any time without needing AWS credentials."
+      },
+      {
+        "label": "B",
+        "text": "Record the snapshot ID, creation timestamp, volume ID, and the IAM principal that created it in a signed incident record; tag the snapshot with the incident ID and enable S3 Object Lock if exported."
+      },
+      {
+        "label": "C",
+        "text": "Convert the EBS snapshot to an AMI and register it in the AWS Marketplace so its provenance is publicly verifiable via Amazon's records."
+      },
+      {
+        "label": "D",
+        "text": "Delete all other snapshots of the same volume to prevent confusion; the compromised instance's snapshot should be the only version retained."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Chain of custody requires documentation of who created the evidence, when, from what source, and that it hasn't been modified. Recording snapshot ID, timestamp, volume ID, and creating principal in a signed record, then tagging and protecting with Object Lock, establishes the required defensibility.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "forensics",
+      "chain-of-custody",
+      "ebs-snapshot",
+      "incident-response"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-007",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "GuardDuty's finding severity scale runs from 0.1 to 8.9+. A finding has a severity of 7.5. What does this severity level indicate, and how quickly should the security team respond?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Severity 7.5 is classified as CRITICAL and requires immediate automated containment; GuardDuty automatically quarantines affected resources at this threshold."
+      },
+      {
+        "label": "B",
+        "text": "Severity 7.5 is classified as MEDIUM; this requires investigation within the next business week as part of normal security operations."
+      },
+      {
+        "label": "C",
+        "text": "Severity 7.5 is classified as HIGH in GuardDuty; this indicates a threat with a high likelihood of impact that should be investigated and remediated within hours, not days."
+      },
+      {
+        "label": "D",
+        "text": "Severity 7.5 is in the LOW range; these findings are informational and should be reviewed monthly during scheduled security reviews."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "GuardDuty severity ranges: LOW (0.1\u20133.9), MEDIUM (4.0\u20136.9), HIGH (7.0\u20138.9). A severity of 7.5 is HIGH, indicating a significant threat requiring prompt response \u2014 typically within hours per standard incident response SLAs. GuardDuty does not auto-quarantine resources.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "severity",
+      "incident-response",
+      "sla"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-008",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An incident responder needs to revoke all active sessions for a compromised IAM role without deleting the role or its policies. What is the correct mechanism?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Call sts:RevokeSession for each active session token; STS maintains a list of active sessions that can be individually invalidated."
+      },
+      {
+        "label": "B",
+        "text": "Disable the IAM role by setting its trust policy to deny all principals; existing sessions remain valid until they expire naturally."
+      },
+      {
+        "label": "C",
+        "text": "Delete and recreate the role with the same policies; the role ARN changes, invalidating all existing session tokens that reference the old role ARN."
+      },
+      {
+        "label": "D",
+        "text": "Attach an inline policy to the role with an explicit Deny for all actions (Action: '*') with a condition aws:TokenIssueTime less than the current time, immediately invalidating all existing sessions."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The correct technique is attaching an inline deny policy with condition aws:TokenIssueTime DateLessThan the current timestamp. Any existing session token issued before this time will be denied on the next API call, effectively revoking all current sessions without deleting the role.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "iam",
+      "session-revocation",
+      "incident-response",
+      "token-issue-time"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-009",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "GuardDuty generates a finding: UnauthorizedAccess:IAMUser/InstanceCredentialExfiltration.OutsideAWS. What specific attack scenario does this finding indicate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An IAM user created temporary instance profile credentials and attempted to use them from outside an EC2 instance, violating AWS usage terms."
+      },
+      {
+        "label": "B",
+        "text": "An unauthorized EC2 instance in an external AWS account is using the IAM role's credentials through an unintended cross-account trust relationship."
+      },
+      {
+        "label": "C",
+        "text": "The temporary credentials associated with an EC2 instance's IAM role are being used to make API calls from an IP address outside AWS, suggesting the credentials were stolen and are being used externally."
+      },
+      {
+        "label": "D",
+        "text": "An EC2 instance is making API calls to services outside AWS (such as third-party APIs) using its IAM credentials, violating the data residency policy."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "This finding is one of GuardDuty's highest-severity findings. EC2 instance role credentials should only be used from within AWS infrastructure. When these temporary credentials are called from a non-AWS IP, it strongly indicates they were exfiltrated (often via SSRF or a compromised application) and are being used by an attacker outside AWS.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "credential-exfiltration",
+      "ec2",
+      "ssrf"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-010",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company wants to test their GuardDuty incident response automation without generating real threats. How can GuardDuty findings be simulated for testing purposes?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Temporarily disable GuardDuty and re-enable it; the re-enable event triggers synthetic test findings for all configured finding types automatically."
+      },
+      {
+        "label": "B",
+        "text": "Use a third-party penetration testing tool approved by AWS that generates finding-triggering behavior; GuardDuty findings from pen tests are tagged as TEST severity."
+      },
+      {
+        "label": "C",
+        "text": "GuardDuty provides sample findings that can be generated via the console or API (guardduty:CreateSampleFindings), which create realistic but synthetic findings for all finding types."
+      },
+      {
+        "label": "D",
+        "text": "Create a test EC2 instance and establish connections to GuardDuty's built-in test IP ranges; GuardDuty will generate real findings from this benign test traffic."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "GuardDuty's CreateSampleFindings API (and the Generate Sample Findings button in the console) creates synthetic findings for all finding types with realistic field values. These trigger EventBridge rules and Lambda automations exactly like real findings, making them ideal for testing response workflows.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "sample-findings",
+      "testing",
+      "automation"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-011",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An organization runs a 24/7 security operations center. They need GuardDuty HIGH severity findings to page on-call engineers via PagerDuty within 2 minutes of generation. What is the architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure GuardDuty to export findings to SNS hourly; SNS delivers to a PagerDuty subscription that pages on-call engineers when new findings arrive."
+      },
+      {
+        "label": "B",
+        "text": "Create an EventBridge rule matching GuardDuty findings with severity >= 7, trigger Lambda to call the PagerDuty Events API, creating an incident with the finding details within seconds of the finding being generated."
+      },
+      {
+        "label": "C",
+        "text": "Use Security Hub with a PagerDuty integration app; Security Hub delivers findings to PagerDuty via webhook using its built-in third-party integration framework."
+      },
+      {
+        "label": "D",
+        "text": "Configure a CloudWatch alarm on a GuardDuty HIGH severity metric filter and use SNS to send to a PagerDuty email integration for the on-call engineer."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "EventBridge delivers GuardDuty findings in near-real time (within seconds of generation). A Lambda function calling the PagerDuty Events API creates an incident immediately. The hourly export pattern (option A) cannot meet a 2-minute SLA.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "eventbridge",
+      "lambda",
+      "pagerduty",
+      "alerting"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-012",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer is reviewing GuardDuty findings and notices multiple findings of type Recon:IAMUser/NetworkPermissions over 3 days from the same IAM user. What attack pattern does this suggest and what investigation step should follow?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The IAM user's account is being targeted by brute force; network permission enumeration calls are GuardDuty's representation of repeated login attempts from external sources."
+      },
+      {
+        "label": "B",
+        "text": "These findings indicate a GuardDuty false positive caused by AWS permission checks during IAM policy validation; suppress the finding type after confirming there is no active compromise."
+      },
+      {
+        "label": "C",
+        "text": "Repeated network permission enumeration suggests an attacker mapping the account's security posture; investigate the user's recent login activity and credential usage for signs of compromise."
+      },
+      {
+        "label": "D",
+        "text": "The IAM user is performing routine permission audits; these findings are informational and require no investigation when the user identity is recognized and their activity is expected."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Repeated Recon findings over multiple days indicate persistent enumeration activity \u2014 a pattern consistent with a low-and-slow attack where the attacker avoids triggering rate-based defenses. The investigation should review CloudTrail for all actions by this user and check for credential compromise indicators.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "reconnaissance",
+      "iam",
+      "persistence"
+    ]
+  },
+  {
+    "id": "scs-d1-t4-013",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "After a GuardDuty finding confirms an EC2 instance is compromised, the incident response team wants to preserve all evidence before terminating the instance. What is the correct order of operations?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Terminate the instance immediately; once terminated, AWS preserves the EBS volumes automatically for 30 days as forensic evidence."
+      },
+      {
+        "label": "B",
+        "text": "Isolate the instance by updating its security group to deny all traffic, capture memory via SSM Run Command, create EBS snapshots, tag all artifacts with the incident ID, then terminate after evidence collection is complete."
+      },
+      {
+        "label": "C",
+        "text": "Take an EBS snapshot first, then isolate the instance; snapshot creation requires the instance to be running, so isolation must come after the snapshot to prevent data corruption."
+      },
+      {
+        "label": "D",
+        "text": "Stop the instance first to ensure filesystem consistency, create EBS snapshots of all volumes, then terminate; memory capture is not possible after instance stop."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Correct forensic order: (1) Isolate network access first to stop ongoing damage without losing volatile state, (2) Capture volatile memory while the instance is still running, (3) Create EBS snapshots for disk evidence, (4) Tag all artifacts with incident ID, then (5) terminate. Snapshots can be created while the instance is running.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "incident-response",
+      "forensics",
+      "ec2",
+      "evidence-preservation"
+    ]
+  }
+]

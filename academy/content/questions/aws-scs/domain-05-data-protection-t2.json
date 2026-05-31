@@ -1,0 +1,673 @@
+[
+  {
+    "id": "scs-d5-t2-001",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A KMS customer-managed key is used to encrypt an S3 bucket. The key's key policy is updated to remove all IAM principal permissions. What is the effect on the S3 bucket and its data?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The S3 bucket is automatically re-encrypted using SSE-S3 since the CMK is unavailable; no data is lost in the transition."
+      },
+      {
+        "label": "B",
+        "text": "Only new objects written to the bucket are affected; existing objects remain decryptable because their DEKs are cached locally in S3."
+      },
+      {
+        "label": "C",
+        "text": "The S3 bucket becomes accessible again using the default AWS-managed key because KMS automatically falls back to the default key when a CMK becomes inaccessible."
+      },
+      {
+        "label": "D",
+        "text": "The KMS key becomes unusable (inaccessible), and no one can decrypt the S3 objects encrypted with it, effectively making the data permanently inaccessible until the key policy is restored."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "If all principals are removed from a KMS key policy (including the account root), the key becomes inaccessible. S3 objects encrypted with that CMK cannot be decrypted. AWS KMS does not fall back to another key. Restoring the key policy is the only recovery path.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "kms",
+      "key-policy",
+      "s3",
+      "data-access"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-002",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs to sign software artifacts using an asymmetric KMS key so that recipients can verify the signature without having access to the private key. What KMS API calls are used for signing and verification respectively?",
+    "options": [
+      {
+        "label": "A",
+        "text": "kms:CreateGrant to delegate signing permissions and kms:ListGrants to enumerate who can verify signatures."
+      },
+      {
+        "label": "B",
+        "text": "kms:GenerateDataKey to create the signing key and kms:GetPublicKey to retrieve the verification material."
+      },
+      {
+        "label": "C",
+        "text": "kms:Sign to produce the digital signature using the private key and kms:Verify to validate the signature using the public key."
+      },
+      {
+        "label": "D",
+        "text": "kms:Encrypt to sign the artifact hash and kms:Decrypt to verify the signature on the receiving end."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "KMS asymmetric keys support the Sign/Verify API pattern. kms:Sign uses the private key (which never leaves KMS) to produce a digital signature. kms:Verify validates a signature using the public key. Recipients can also get the public key via kms:GetPublicKey and verify locally.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "kms",
+      "asymmetric",
+      "sign",
+      "verify"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-003",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An application stores customer PII in S3. A compliance audit requires proof that PII is not stored in buckets outside approved locations. Which service provides automated discovery and classification of PII in S3?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor, which checks for S3 buckets with public access but does not scan bucket contents for sensitive data."
+      },
+      {
+        "label": "B",
+        "text": "Amazon Macie, which uses machine learning and pattern matching to automatically discover and classify sensitive data including PII across S3 buckets."
+      },
+      {
+        "label": "C",
+        "text": "Amazon GuardDuty, which detects unusual access patterns for S3 buckets but does not classify the content stored in them."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config with the s3-bucket-public-read-prohibited rule, which identifies publicly accessible buckets but does not analyze object content."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Amazon Macie is the AWS service for automated data discovery and classification. It scans S3 object contents using managed and custom data identifiers, detecting PII such as names, SSNs, credit card numbers, and other sensitive data types.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "macie",
+      "pii",
+      "data-classification",
+      "s3"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-004",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An application uses KMS GenerateDataKey to encrypt data. The plaintext data key is used to encrypt the payload, and the encrypted data key is stored alongside the ciphertext. What is the specific risk if the encrypted data key (EDK) is stored in the same location as the ciphertext?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Storing the EDK with the ciphertext doubles the storage cost because the encrypted key overhead is significant for large objects."
+      },
+      {
+        "label": "B",
+        "text": "The EDK stored with the ciphertext means an attacker who also compromises the KMS CMK key policy can decrypt all data, representing key colocality risk if the CMK becomes accessible to the attacker."
+      },
+      {
+        "label": "C",
+        "text": "KMS automatically detects when an EDK is stored alongside its corresponding ciphertext and invalidates the key pair for security."
+      },
+      {
+        "label": "D",
+        "text": "There is no risk because the encrypted data key cannot be used without the KMS CMK to decrypt it; storing them together is standard envelope encryption practice."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The standard envelope encryption pattern does store the EDK alongside ciphertext \u2014 this is normal. The key risk is that if an attacker also gains access to the KMS CMK (e.g., by compromising the key policy), they can decrypt the EDK and then the ciphertext. The CMK is the critical control point.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "kms",
+      "envelope-encryption",
+      "data-key",
+      "security"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-005",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon RDS for PostgreSQL. A compliance requirement states that data at rest must be encrypted and all connections must use TLS. An existing unencrypted RDS instance needs to be migrated to meet these requirements. What is the correct approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy AWS DMS to migrate the data from the unencrypted instance to a new encrypted instance; DMS handles encryption configuration automatically during migration."
+      },
+      {
+        "label": "B",
+        "text": "Enable TLS on the existing instance by modifying the rds.force_ssl parameter, which automatically encrypts the storage as a side effect."
+      },
+      {
+        "label": "C",
+        "text": "Create an encrypted snapshot of the existing instance by copying the unencrypted snapshot with encryption enabled, then restore a new encrypted instance from it; configure ssl_enforcement via a parameter group."
+      },
+      {
+        "label": "D",
+        "text": "Modify the existing RDS instance to enable encryption; RDS supports enabling encryption on a running instance without data migration."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "RDS encryption cannot be enabled on a running instance. The process is: take an unencrypted snapshot \u2192 copy the snapshot with encryption enabled (specifying a KMS key) \u2192 restore a new instance from the encrypted snapshot. TLS enforcement is then configured via rds.force_ssl=1 in the parameter group.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "rds",
+      "encryption",
+      "tls",
+      "snapshot"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-006",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An organization needs hardware-based cryptographic operations for a payment application that requires FIPS 140-2 Level 3 validation and sole tenancy of the HSM hardware. Which AWS service meets these requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Private CA with a hardware key storage configuration, which uses FIPS 140-2 Level 3 hardware for CA private key storage."
+      },
+      {
+        "label": "B",
+        "text": "AWS KMS with a customer-managed key using the SYMMETRIC_DEFAULT key spec, which uses FIPS 140-2 Level 2 validated HSMs under multi-tenant infrastructure."
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudHSM, which provides dedicated, single-tenant HSM hardware in your VPC that is FIPS 140-2 Level 3 validated and gives you exclusive control of the HSM partition."
+      },
+      {
+        "label": "D",
+        "text": "AWS KMS with an external key store (XKS), which lets you use your own HSM but the FIPS validation depends on the external HSM's certification."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS CloudHSM provides dedicated, single-tenant HSM appliances that are FIPS 140-2 Level 3 validated. Unlike KMS (multi-tenant, Level 2), CloudHSM gives the customer exclusive control over the HSM partition, including generating, storing, and managing keys.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "cloudhsm",
+      "fips",
+      "hsm",
+      "payment"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-007",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company has an S3 bucket containing sensitive documents. They want to ensure that objects cannot be overwritten or deleted for a minimum of 7 years, even by someone with full S3 administrative access. Which S3 feature enforces this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Glacier Vault Lock with a 7-year retention policy, which is applicable to S3 standard objects when object lock is not available."
+      },
+      {
+        "label": "B",
+        "text": "An S3 bucket policy with a Deny on s3:DeleteObject for all principals, which blocks deletion but can be removed by an account admin."
+      },
+      {
+        "label": "C",
+        "text": "S3 Object Lock in Compliance mode with a 7-year retention period, which prevents any user \u2014 including the root account \u2014 from deleting or overwriting objects before the retention period expires."
+      },
+      {
+        "label": "D",
+        "text": "S3 bucket versioning, which preserves all versions of objects so deleted objects can be recovered; administrators can still delete all versions."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "S3 Object Lock in Compliance mode enforces a write-once-read-many (WORM) model. Once set, no one \u2014 including the root account \u2014 can shorten the retention period or delete objects before it expires. Governance mode allows exceptions for accounts with special permissions.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "s3-object-lock",
+      "compliance-mode",
+      "worm",
+      "retention"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-008",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security engineer is reviewing a KMS key policy. The policy has a statement that allows kms:* to the account root (arn:aws:iam::ACCOUNT-ID:root). What does this specific statement do?",
+    "options": [
+      {
+        "label": "A",
+        "text": "It makes the KMS key publicly accessible to any principal in the account without additional IAM policy grants."
+      },
+      {
+        "label": "B",
+        "text": "It enables IAM policies in the account to control access to the KMS key; without this statement, IAM policies alone cannot grant KMS permissions."
+      },
+      {
+        "label": "C",
+        "text": "It gives the root user exclusive access to the key and prevents any delegated IAM principal from using the key."
+      },
+      {
+        "label": "D",
+        "text": "It grants the root user all KMS permissions and prevents any IAM policies in the account from further restricting KMS access."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The root ARN statement in a KMS key policy enables IAM policies to grant access to the key. Without any statement allowing the account root, IAM policies cannot grant KMS access regardless of their content \u2014 the key policy is the authoritative source for KMS authorization.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "kms",
+      "key-policy",
+      "iam",
+      "account-root"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-009",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "AWS Secrets Manager is configured to rotate a database credential every 30 days using a Lambda rotation function. The rotation is working, but an application starts failing to connect to the database after rotation. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The application is retrieving the secret by hardcoded version ID (AWSPREVIOUS) rather than using the AWSCURRENT staging label, so it receives the old credentials after rotation."
+      },
+      {
+        "label": "B",
+        "text": "The Secrets Manager rotation Lambda is deleting the old secret version immediately after creating the new one, causing applications that cached the old credential to fail."
+      },
+      {
+        "label": "C",
+        "text": "The rotation Lambda is updating Secrets Manager but not updating the database with the new password, leaving the database with the old credential."
+      },
+      {
+        "label": "D",
+        "text": "Secrets Manager rotation requires the application to restart after each rotation; the application connection pool holds stale credentials until the process restarts."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The Secrets Manager rotation Lambda is responsible for updating both the secret in Secrets Manager AND the actual credential in the database. If the Lambda only updates the secret but fails to update the DB (e.g., a bug in the Lambda or a connection issue), the database still expects the old password.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "secrets-manager",
+      "rotation",
+      "lambda",
+      "database"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-010",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company issues TLS certificates for internal services using AWS Private CA. A new microservice needs a certificate but the developers should not have access to the CA's private key. Which AWS Private CA feature allows developers to request certificates without CA key access?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Certificate Manager public certificates, which provide the same functionality as Private CA certificates for internal services."
+      },
+      {
+        "label": "B",
+        "text": "An IAM policy granting acm-pca:IssueCertificate on the CA ARN without granting access to the underlying CA key material in KMS."
+      },
+      {
+        "label": "C",
+        "text": "ACM Private CA sharing via AWS RAM, which allows developers to share the CA across accounts and issue certificates directly."
+      },
+      {
+        "label": "D",
+        "text": "ACM integrated issuance from Private CA, where developers request certificates through ACM which handles CSR submission; developers never interact with the CA key."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "ACM integrates with Private CA to allow certificate issuance through familiar ACM workflows. Developers request certificates through ACM, which handles the CSR submission to Private CA. The CA's private key (managed by KMS) is never exposed to developers.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "private-ca",
+      "acm",
+      "tls",
+      "certificate-issuance"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-011",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A KMS key used to encrypt S3 objects is scheduled for deletion with a 7-day waiting period. During the waiting period, can existing S3 objects encrypted with this key be decrypted?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Yes; the key remains fully usable during the waiting period, including for encryption and decryption operations."
+      },
+      {
+        "label": "B",
+        "text": "Yes; decryption using the key continues to work during the waiting period, but new encryptions are not permitted once deletion is scheduled."
+      },
+      {
+        "label": "C",
+        "text": "No; once deletion is scheduled, the key is immediately placed in Pending deletion state, in which all cryptographic operations are denied and all decrypt operations fail for the duration of the waiting period."
+      },
+      {
+        "label": "D",
+        "text": "No; scheduled deletion immediately triggers re-encryption of all S3 objects to an AWS-managed key to prevent data loss."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "When a KMS key is scheduled for deletion, it enters a placed in Pending deletion state (distinct from the reversible Disabled state) state immediately \u2014 all cryptographic operations (encrypt, decrypt, sign, generate data key) are denied. The waiting period (7\u201330 days) exists to allow cancellation, not to continue key usage.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "kms",
+      "key-deletion",
+      "key-state",
+      "s3"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-012",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An application encrypts sensitive data using the KMS GenerateDataKeyWithoutPlaintext API instead of GenerateDataKey. What is the difference and when is this approach appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "GenerateDataKeyWithoutPlaintext returns an encrypted data key with no plaintext version; it is used when the application wants to store the key for later use without immediately performing encryption."
+      },
+      {
+        "label": "B",
+        "text": "GenerateDataKeyWithoutPlaintext bypasses KMS entirely and uses a local software-generated key, reducing KMS API costs."
+      },
+      {
+        "label": "C",
+        "text": "GenerateDataKeyWithoutPlaintext generates a weaker data key that does not require HSM-backed entropy, making it faster for high-throughput applications."
+      },
+      {
+        "label": "D",
+        "text": "GenerateDataKeyWithoutPlaintext is used when the data has already been encrypted and the application only needs to re-wrap the key under a new CMK."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "GenerateDataKeyWithoutPlaintext returns only the encrypted form of the data key (no plaintext). This is useful when an application wants to generate and store a data key for future use (e.g., queuing encrypted messages) without needing to encrypt data immediately.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "kms",
+      "data-key",
+      "envelope-encryption"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-013",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An S3 bucket policy includes a Deny statement for s3:PutObject when the condition aws:SecureTransport is false. A developer tries to upload an object using HTTP. What happens?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 redirects the HTTP request to HTTPS automatically and the upload succeeds, because S3 enforces HTTPS before evaluating bucket policies."
+      },
+      {
+        "label": "B",
+        "text": "The upload succeeds but the object is stored without encryption, because the SecureTransport condition only affects the transport layer."
+      },
+      {
+        "label": "C",
+        "text": "The upload is denied by S3 with an access denied error because the bucket policy's Deny statement explicitly blocks non-HTTPS requests."
+      },
+      {
+        "label": "D",
+        "text": "The upload completes with a warning in CloudTrail indicating that the request used an insecure transport protocol."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "When aws:SecureTransport is false (request used HTTP), the Deny statement matches and S3 returns an access denied error. S3 does not automatically redirect HTTP to HTTPS. The Deny on insecure transport is the standard way to enforce TLS-only access to S3.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "s3",
+      "tls",
+      "bucket-policy",
+      "secure-transport"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-014",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company processes credit card transactions and needs to tokenize PANs before storing them in DynamoDB. The tokenization service must use a deterministic encryption algorithm so that the same PAN always produces the same token for lookup purposes. Which KMS feature supports deterministic encryption?",
+    "options": [
+      {
+        "label": "A",
+        "text": "KMS standard symmetric encryption (AES-GCM), which uses random IVs and produces different ciphertext for the same plaintext each time."
+      },
+      {
+        "label": "B",
+        "text": "KMS asymmetric RSA keys with RSAES_PKCS1_V1_5 padding, which produces deterministic ciphertext for the same input under the same key."
+      },
+      {
+        "label": "C",
+        "text": "KMS GenerateDataKey used with a fixed IV in the application code, which produces deterministic output but is not recommended because fixed IVs break AES-GCM security properties."
+      },
+      {
+        "label": "D",
+        "text": "AWS Payment Cryptography, which provides format-preserving encryption (FPE) algorithms like FF1/FF3-1 designed for deterministic tokenization of structured data such as PANs."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Payment Cryptography provides format-preserving encryption (FPE) algorithms (FF1, FF3-1) specifically designed for payment use cases. FPE produces deterministic tokens that preserve the format of the original data (e.g., a PAN tokenizes to another 16-digit number), enabling lookups.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "payment-cryptography",
+      "tokenization",
+      "fpe",
+      "pci"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-015",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A KMS key has key rotation enabled. After automatic rotation occurs, an application calls kms:Decrypt on data encrypted 2 years ago with an earlier key version. What happens?",
+    "options": [
+      {
+        "label": "A",
+        "text": "KMS re-encrypts the data automatically at rotation time using the new backing key, so all decrypt operations use only the latest key version."
+      },
+      {
+        "label": "B",
+        "text": "The application must specify the key version ARN used at encryption time; without it, KMS cannot determine which backing key to use for decryption."
+      },
+      {
+        "label": "C",
+        "text": "The decryption succeeds; KMS retains all previous backing key versions and automatically uses the correct version to decrypt ciphertext regardless of when it was encrypted."
+      },
+      {
+        "label": "D",
+        "text": "The decryption fails because KMS deletes the old backing key material after rotation and only the new backing key is available."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "When KMS automatic rotation occurs, the old backing key material is retained indefinitely. The KMS key ID remains the same. When decrypting, KMS detects which backing key version was used (from the ciphertext metadata) and uses that version automatically \u2014 no application changes are needed.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "kms",
+      "key-rotation",
+      "decrypt",
+      "backing-key"
+    ]
+  },
+  {
+    "id": "scs-d5-t2-016",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company enforces S3 Block Public Access at the account level. A developer attempts to add a bucket ACL that grants public read access to a specific bucket. What is the result?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The ACL modification succeeds but S3 silently ignores it; the bucket remains private because Block Public Access overrides the ACL."
+      },
+      {
+        "label": "B",
+        "text": "The developer must first disable Block Public Access at the bucket level before the account-level setting can be overridden by a bucket ACL."
+      },
+      {
+        "label": "C",
+        "text": "The ACL modification is blocked; S3 returns an error because the account-level Block Public Access setting prevents any public ACLs from being applied."
+      },
+      {
+        "label": "D",
+        "text": "The ACL modification succeeds but generates a Security Hub finding; the bucket remains accessible publicly until the finding is remediated."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "When S3 Block Public Access is enabled at the account level with the BlockPublicAcls setting, attempts to create or modify bucket ACLs that grant public access are rejected with an error. The account-level setting cannot be overridden by bucket-level operations.",
+    "module_ref": "scs-m5",
+    "tags": [
+      "s3",
+      "block-public-access",
+      "acl",
+      "account-level"
+    ]
+  }
+]

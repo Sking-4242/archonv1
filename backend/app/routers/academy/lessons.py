@@ -63,14 +63,14 @@ def list_lessons(
 ):
     """Flat list of all lessons across all published modules, grouped for the reading-list view."""
     query = db.query(Lesson).join(Module, Lesson.module_id == Module.id)
-    if current_user.role == "student":
+    if current_user.academy_role == "student":
         query = query.filter(Module.is_published.is_(True))
     if course:
         query = query.filter(Module.course == course)
     lessons = query.order_by(Module.order_index, Lesson.order_index).all()
 
     lesson_ids = [l.id for l in lessons]
-    if current_user.role == "student" and lesson_ids:
+    if current_user.academy_role == "student" and lesson_ids:
         completed_rows = (
             db.query(LessonProgress.lesson_id)
             .filter(
@@ -107,11 +107,11 @@ def get_lesson(
     lesson = db.get(Lesson, lesson_id)
     if lesson is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lesson not found")
-    if current_user.role == "student" and not lesson.module.is_published:
+    if current_user.academy_role == "student" and not lesson.module.is_published:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lesson not found")
 
     completed = False
-    if current_user.role == "student":
+    if current_user.academy_role == "student":
         progress = (
             db.query(LessonProgress)
             .filter_by(lesson_id=lesson_id, student_id=current_user.id)

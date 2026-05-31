@@ -8,7 +8,7 @@
 
 ---
 
-## Current State — v0.8.0
+## Current State — v0.9.0
 
 Archon is a full-lifecycle visual infrastructure IDE. Every major workflow described in the original v0.3.0 roadmap has shipped.
 
@@ -25,14 +25,14 @@ Archon is a full-lifecycle visual infrastructure IDE. Every major workflow descr
 - **Terraform Plan Visualization** — load `terraform show -json` output; overlay create/modify/destroy rings on canvas nodes; change diff panel
 
 **Validation**
-- **85-rule engine** — critical/warning/info severity; findings grouped by component; canvas highlights jump to affected node
+- **200-rule engine** — critical/warning/info severity; findings grouped by component; canvas highlights jump to affected node
 - **Compliance mapping** — SOC2, PCI, HIPAA, CIS, NIST per finding; standard filter in ValidateTab
 - **FinOps rules** — 14 cost-optimization checks (storage upgrade, compute right-sizing, prev-gen detection, log retention)
 - **Suggestions** — every rule carries a `suggestion` field with specific Terraform fix guidance
 - **Export** — findings as JSON or plain-text checklist
 
 **CLI (`archon-cli`)**
-- `archon validate` — Python port of all 85 rules; `--standard` flag; `--format github` for CI annotations
+- `archon validate` — Python port of all 200 rules; `--standard` flag; `--format github` for CI annotations
 - `archon cost` — TF plan cost delta calculator with pricing DB
 - `archon discover` — live AWS discovery across 30 service types; outputs Archon Graph JSON
 - Compliance badges in table output; pre-commit hook; GitHub Actions workflow templates
@@ -40,6 +40,13 @@ Archon is a full-lifecycle visual infrastructure IDE. Every major workflow descr
 
 **Discovery UI**
 - DiscoverTab in sidebar — import archon-cli discover output; browse resources by service; load selected resources to canvas
+
+**Academy**
+- Standalone learning environment at `/academy` — structured curriculum for AWS and Azure cloud architecture
+- Lesson + lab + challenge progression with progress tracking per module
+- 6+ AWS Foundation modules covering VPC, compute, storage, database, serverless, security
+- Interactive canvas labs with validation feedback; instructor-defined correct-answer schemas
+- Zustand-backed progress store; module unlock gating
 
 **Cost estimation**
 - Live pricing (AWS Pricing API, Azure Retail API, GCP Billing API) with 1-hour TTL cache and static fallback
@@ -295,7 +302,7 @@ All five core workflows are now in the product:
 
 1. **Design** — greenfield canvas → IaC generation
 2. **Import** — existing Terraform → editable canvas → updated IaC
-3. **Audit** — 85-rule validation engine → compliance-mapped findings report with fix suggestions → JSON/text export
+3. **Audit** — 200-rule validation engine → compliance-mapped findings report with fix suggestions → JSON/text export
 4. **Plan diff** — `terraform plan -json` output → visual blast radius with per-node change rings
 5. **Discovery** — `archon discover` → live AWS account → canvas → validate → export
 
@@ -429,8 +436,9 @@ The product is not ready to be the top result for anything yet.
 | 0.6.0 | Terraform Plan Visualization | ✅ Complete |
 | 0.7.0 | AWS Discovery MVP + archon-cli | ✅ Complete |
 | 0.8.0 | FinOps rules + suggestion field + GitOps integration | ✅ Complete |
+| 0.9.0 | Azure validation parity + usage-based pricing + Academy | ✅ Complete |
 | 1.0.0 | Stabilization + public launch | 🔄 In progress |
 
 ---
 
-*Last updated: May 2026 · Archon v0.8.0*
+*Last updated: May 2026 · Archon v0.9.0*

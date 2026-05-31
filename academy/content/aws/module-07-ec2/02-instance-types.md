@@ -33,6 +33,48 @@ Most modern software runs on ARM without modification (Linux distributions, cont
 
 EC2 instance families optimize for different workload profiles: General Purpose (M/T) for balanced workloads, Compute Optimized (C) for CPU-intensive jobs, Memory Optimized (R/X) for large in-memory workloads, Storage Optimized (I/D) for high I/O, Accelerated (P/G/Inf) for ML and graphics. Instance names encode family, generation, processor, and size. Graviton (ARM) instances offer ~40% better price-performance than x86 equivalents.
 
+## Examples
+
+A startup runs a Node.js API backed by a PostgreSQL database. They initially pick a `t3.medium` (General Purpose, burstable) for both the app and DB tiers. The app works fine — it has irregular traffic and the T-family's credit model handles bursts well. But the database begins dropping queries under load because it has exhausted its CPU credits and falls back to the low baseline. Switching the DB to an `r7g.large` (Memory Optimized, Graviton) stabilizes performance and costs less per hour — a direct demonstration of why matching instance family to workload profile matters.
+
+A video encoding company processes 10,000 uploaded videos per night, converting them to multiple resolutions. They benchmark `c7g.4xlarge` (Compute Optimized, Graviton) against `m7i.4xlarge` (General Purpose, Intel) for their ffmpeg workload. The C-family delivers 35% faster encode times at a lower hourly rate, because the high CPU-to-memory ratio of the C family aligns exactly with ffmpeg's compute-heavy, memory-light profile. The instance type naming — `c` for compute, `7` for 7th generation, `g` for Graviton — told them where to look before even running a benchmark.
+
+A quant trading firm runs a real-time risk calculation engine that must process a 900 GB in-memory dataset in under 30 seconds. They evaluate `x2idn.32xlarge` (Memory Optimized, high I/O) from the X family, which provides 4 TB of RAM — far beyond what any R-family instance offers. Understanding that the X family exists specifically for workloads that have exhausted R-family options (SAP HANA, large in-memory analytics) is the kind of instance-family depth that separates architects from operators.
+
+## Think About It
+
+1. Why does AWS offer burstable T-family instances instead of simply giving all instances consistent CPU? What workload pattern makes burstable CPU a cost advantage rather than a liability?
+2. If you're running a Java application on x86 today, what steps would you take before committing to Graviton (ARM) instances — and what would "done" look like for that evaluation?
+3. How would you decide between a Compute Optimized (C) and a General Purpose (M) instance for a workload you've never run before? What data would you collect after the first week?
+4. The instance name `m7g.2xlarge` encodes family, generation, processor, and size. What trade-off are you accepting when you choose a 6th-generation instance type over the equivalent 7th-generation one?
+5. What trade-offs exist between running one large instance versus many smaller instances of the same total compute capacity (e.g., one `m7i.8xlarge` vs. four `m7i.2xlarge`)?
+
+## Quick Check
+
+**Q1.** A company needs to run an in-memory Redis cluster at very large scale. Which EC2 instance family is most appropriate?
+- A) C (Compute Optimized)
+- B) T (Burstable General Purpose)
+- C) R (Memory Optimized)
+- D) I (Storage Optimized)
+
+**Answer: C** — Memory Optimized (R/X) instances provide a high memory-to-CPU ratio, making them ideal for large in-memory databases and caches like Redis.
+
+**Q2.** What does the "g" attribute mean in the instance name `c7g.xlarge`?
+- A) GPU-accelerated
+- B) High I/O NVMe storage
+- C) AWS Graviton (ARM-based) processor
+- D) 7th generation graphics
+
+**Answer: C** — In EC2 naming, "g" as a processor attribute denotes AWS Graviton (ARM-based), not GPU; GPU instances use the P or G family prefix instead.
+
+**Q3.** Which EC2 instance family is best suited for a Hadoop distributed file system workload that requires high sequential read/write throughput?
+- A) M (General Purpose)
+- B) D or H (Storage Optimized, HDD-backed)
+- C) P (Accelerated Computing, GPU)
+- D) T (Burstable)
+
+**Answer: B** — Storage Optimized families like D and H are designed for high sequential throughput workloads such as Hadoop and data warehousing, with dense HDD or high-throughput storage.
+
 ## What's Next
 
 Next: AMIs and Launch Templates — the blueprints for standardizing how EC2 instances are configured and launched.

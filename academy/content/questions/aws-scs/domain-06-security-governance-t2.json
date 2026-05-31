@@ -1,0 +1,549 @@
+[
+  {
+    "id": "scs-d6-t2-001",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A Security Hub custom insight is configured to track the count of HIGH severity findings by resource type over time. An engineer notices that the count dropped to zero for a specific account. What are the two most likely causes of this sudden drop?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The Security Hub standard was upgraded to a newer version, OR the account moved to a different OU which changed the finding severity thresholds."
+      },
+      {
+        "label": "B",
+        "text": "CloudTrail was disabled in that account, OR the Security Hub finding aggregation window was changed to a longer interval than before."
+      },
+      {
+        "label": "C",
+        "text": "All HIGH findings were remediated in that account, OR Security Hub was disabled in that account causing findings to stop flowing to the aggregation account."
+      },
+      {
+        "label": "D",
+        "text": "The custom insight filter was modified by another engineer, OR the account's Config rules were updated to report fewer findings to Security Hub."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "A sudden drop to zero findings is most often caused by either true remediation (good) or data loss \u2014 Security Hub being disabled stops all finding ingestion for that account. Both should be investigated: confirm Security Hub is enabled and check for bulk-archived or resolved findings.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "security-hub",
+      "findings",
+      "monitoring",
+      "multi-account"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-002",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "AWS Config is configured with the cloudtrail-enabled managed rule. The rule reports NONCOMPLIANT for a newly created account. Automated remediation is configured to invoke an SSM Automation document. The remediation fails with an error that the SSM Automation document cannot find the target account. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The noncompliant account's VPC does not have a VPC endpoint for AWS Config, preventing the remediation from reaching the account."
+      },
+      {
+        "label": "B",
+        "text": "The cloudtrail-enabled rule requires manual approval before automated remediation can be executed on a noncompliant resource."
+      },
+      {
+        "label": "C",
+        "text": "The SSM Automation document is not multi-account aware; it needs to be updated to use an AssumeRole parameter that targets the noncompliant account."
+      },
+      {
+        "label": "D",
+        "text": "Config managed rules do not support automated remediation for newly created accounts until they have been active for 24 hours."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Multi-account Config remediation requires the SSM Automation document to be configured with an AssumeRole parameter pointing to a role in the target account that has the necessary permissions to enable CloudTrail. Without this, the automation runs in the management account context and cannot affect the member account.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "aws-config",
+      "ssm-automation",
+      "remediation",
+      "multi-account"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-003",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses AWS Control Tower. A developer in a member account reports that they cannot create resources in a region that is not on the company's approved list. No SCP explicitly lists allowed regions, but the behavior is as described. What Control Tower mechanism is responsible?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Config conformance pack rules that report noncompliant when resources are created outside approved regions, blocking creation via proactive mode."
+      },
+      {
+        "label": "B",
+        "text": "Control Tower's region deny guardrail, which is an SCP that explicitly denies all API calls in non-governed regions using aws:RequestedRegion condition."
+      },
+      {
+        "label": "C",
+        "text": "AWS Organizations tag policies that restrict resource creation to tagged regions in the approved list."
+      },
+      {
+        "label": "D",
+        "text": "IAM permission boundaries applied by Control Tower to all roles in member accounts that restrict operations to approved regions."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Control Tower implements region restriction via a proactive guardrail \u2014 an SCP that uses the aws:RequestedRegion condition to deny all actions in regions not included in the governed region list. This is one of Control Tower's mandatory guardrails applied automatically.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "control-tower",
+      "region-restriction",
+      "scp",
+      "guardrails"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-004",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An organization stores audit evidence in Audit Manager. An external auditor requests access to review the evidence without being granted broad AWS account access. How should the auditor be given access?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add the auditor as an Audit Manager delegate, which allows the auditor to review specific assessments and evidence within the Audit Manager console without broader account access."
+      },
+      {
+        "label": "B",
+        "text": "Export the Audit Manager evidence report to a PDF and share it via a pre-signed S3 URL with a short expiration time."
+      },
+      {
+        "label": "C",
+        "text": "Grant the auditor access to AWS Artifact where all Audit Manager reports are published for compliance review."
+      },
+      {
+        "label": "D",
+        "text": "Create an IAM user for the auditor with read-only access to the Audit Manager assessment and S3 evidence bucket, using MFA enforcement."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Audit Manager supports a delegation model where specific controls or assessments can be delegated to reviewers. Adding the auditor as a delegate grants scoped access to review evidence within Audit Manager without exposing broader AWS credentials or account access.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "audit-manager",
+      "delegation",
+      "compliance",
+      "auditor"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-005",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security team wants to detect when any member account in the organization disables a Security Hub standard (such as the CIS Benchmark). This activity should trigger an alert within 5 minutes. Which architecture achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure AWS Config with a custom rule that checks Security Hub standard status hourly and generates a finding if a standard is disabled."
+      },
+      {
+        "label": "B",
+        "text": "Enable Security Hub Insights with a filter for standard-disabled findings; Security Hub generates findings when a standard is disabled."
+      },
+      {
+        "label": "C",
+        "text": "Create an organization-level EventBridge rule in the management account that matches securityhub:BatchDisableStandards API events from any member account and targets an SNS topic for notification."
+      },
+      {
+        "label": "D",
+        "text": "Use a CloudTrail organization trail with a CloudWatch metric filter for BatchDisableStandards events and configure a CloudWatch alarm with SNS."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "CloudTrail organization trails capture API events from all member accounts. A CloudWatch Logs metric filter targeting BatchDisableStandards with a CloudWatch alarm and SNS notification provides the sub-5-minute alerting. EventBridge can also work, but the organization-level event routing must be configured correctly.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "security-hub",
+      "cloudtrail",
+      "cloudwatch",
+      "alerting",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-006",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's security policy requires that all new AWS accounts created via Control Tower's Account Factory must automatically have specific Config rules deployed. What is the correct way to enforce this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "After each account is provisioned, run a CloudFormation StackSet targeting the new account to deploy the required Config rules."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Config aggregator to push Config rules from the management account to all member accounts automatically."
+      },
+      {
+        "label": "C",
+        "text": "Use the Account Factory customization hook to run a Lambda function that deploys Config rules via the AWS SDK after each new account creation event."
+      },
+      {
+        "label": "D",
+        "text": "Enable the required Config rules as Control Tower guardrails; when guardrails are enabled on an OU, they are automatically deployed to all accounts in that OU including newly provisioned ones."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Control Tower guardrails are implemented as Config rules (detective guardrails) or SCPs (preventive guardrails). When enabled on an OU, they apply automatically to all existing and newly created accounts in that OU, making them the standard mechanism for enforcing policies on Account Factory accounts.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "control-tower",
+      "aws-config",
+      "guardrails",
+      "account-factory"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-007",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A CISO requires a report showing the percentage of AWS Config rules passing versus failing across all 40 accounts in the organization. Which service provides this cross-account compliance aggregation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Security Hub with Config integration enabled, which displays Config compliance data alongside other security findings in a central dashboard."
+      },
+      {
+        "label": "B",
+        "text": "AWS Config Aggregator, which collects Config rule compliance data from multiple accounts and regions into a single aggregated view."
+      },
+      {
+        "label": "C",
+        "text": "AWS Audit Manager, which maps Config rule results to compliance frameworks and generates percentage compliance reports per control."
+      },
+      {
+        "label": "D",
+        "text": "Amazon CloudWatch cross-account dashboards, which can display Config compliance metrics from multiple accounts in a single view."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Config Aggregator is designed for multi-account compliance visibility. It aggregates Config rule compliance results from all specified accounts and regions into a single aggregator account, where you can query and report on pass/fail status across the organization.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "aws-config",
+      "aggregator",
+      "multi-account",
+      "compliance"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-008",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to implement infrastructure-as-code security scanning to detect misconfigurations (such as overly permissive security groups) before CloudFormation templates are deployed. Which approach integrates security checks earliest in the pipeline?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable AWS Security Hub's CloudFormation findings integration, which scans templates stored in S3 for misconfigurations on a scheduled basis."
+      },
+      {
+        "label": "B",
+        "text": "Use CloudFormation Guard or third-party IaC scanning tools (such as Checkov) in the CI/CD pipeline to validate templates against security policies before deployment."
+      },
+      {
+        "label": "C",
+        "text": "Deploy templates to a staging account first, run AWS Config rules against the deployed resources, and block production deployment if findings are detected."
+      },
+      {
+        "label": "D",
+        "text": "Enable AWS Config proactive rules that evaluate CloudFormation templates before stack creation and block deployments with non-compliant resources."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Shifting security left means scanning IaC templates at commit time in the CI/CD pipeline, before any resource is deployed. CloudFormation Guard (cfn-guard) or tools like Checkov analyze template syntax and configuration against policy rules without requiring AWS deployment.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "iac-security",
+      "cloudformation",
+      "shift-left",
+      "cicd"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-009",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's SCP prevents member accounts from disabling AWS Config. A Config rule detects that an S3 bucket is public. The automated remediation role does not have permission to modify the bucket. Who is responsible for granting the remediation role the necessary permissions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config automatically grants the remediation role all necessary permissions when automated remediation is enabled for a rule."
+      },
+      {
+        "label": "B",
+        "text": "The management account must modify the SCP to add an exception that allows the Config remediation role to modify S3 buckets."
+      },
+      {
+        "label": "C",
+        "text": "AWS Systems Manager assumes the remediation permissions automatically from the account's AdministratorAccess role when executing automation documents."
+      },
+      {
+        "label": "D",
+        "text": "The member account administrator must create or modify the IAM role used by the remediation in that account to grant it the specific S3 permissions required."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The remediation role used by Config automated remediation is a customer-managed IAM role. The account administrator must grant this role the permissions needed to perform the remediation actions (e.g., s3:PutBucketAcl, s3:PutBucketPublicAccessBlock). Config does not self-provision permissions.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "aws-config",
+      "remediation",
+      "iam",
+      "s3"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-010",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security team is building a threat model for their AWS environment and wants to categorize security controls by function. Which classification correctly maps example AWS services to their control types?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Security Hub = preventive, CloudTrail = corrective, IAM policies = detective"
+      },
+      {
+        "label": "B",
+        "text": "AWS WAF = detective, Macie = preventive, Audit Manager = corrective"
+      },
+      {
+        "label": "C",
+        "text": "SCPs = preventive, GuardDuty = detective, EventBridge+Lambda automated remediation = corrective"
+      },
+      {
+        "label": "D",
+        "text": "GuardDuty = preventive, Config = detective, Lambda automated response = corrective"
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "SCPs prevent unauthorized actions (preventive). GuardDuty detects threats and anomalies (detective). Automated EventBridge+Lambda responses that fix misconfigurations or isolate resources (corrective) are the correct categorization. GuardDuty cannot prevent actions.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "control-types",
+      "preventive",
+      "detective",
+      "corrective"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-011",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs to export Security Hub findings to their existing SIEM tool in near-real time. The SIEM accepts events via an HTTP webhook. What is the correct architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an EventBridge rule that matches Security Hub findings, targets Kinesis Data Firehose with an HTTP Endpoint destination pointing to the SIEM webhook."
+      },
+      {
+        "label": "B",
+        "text": "Configure Security Hub to export findings to CloudWatch Logs, create a Logs subscription filter, and use a Lambda function to forward events to the SIEM's webhook."
+      },
+      {
+        "label": "C",
+        "text": "Enable Security Hub cross-region aggregation, export findings to S3, and configure the SIEM to poll the S3 bucket for new finding files."
+      },
+      {
+        "label": "D",
+        "text": "Use the Security Hub native SIEM integration feature to configure a webhook URL; Security Hub pushes findings directly to the endpoint."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Security Hub publishes findings as EventBridge events. An EventBridge rule can route these to Kinesis Data Firehose, which supports HTTP Endpoint delivery to SIEM webhook URLs. This provides near-real-time delivery with buffering and retry built in.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "security-hub",
+      "eventbridge",
+      "firehose",
+      "siem"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-012",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's cloud governance team wants to enforce that all Lambda functions must have a reserved concurrency limit set to prevent runaway costs. They want this checked continuously and automatically remediated. Which combination achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An AWS Budgets alert that notifies the team when Lambda costs exceed a threshold, triggering a Lambda that sets reserved concurrency on the most expensive functions."
+      },
+      {
+        "label": "B",
+        "text": "An SCP that denies lambda:CreateFunction unless the request includes a ReservedConcurrentExecutions parameter, enforcing this at creation time."
+      },
+      {
+        "label": "C",
+        "text": "A custom AWS Config rule that evaluates all Lambda functions and checks for the presence of a ReservedConcurrentExecutions setting, with automated remediation using an SSM Automation document that calls lambda:PutFunctionConcurrency."
+      },
+      {
+        "label": "D",
+        "text": "An AWS Lambda destination configuration that rejects invocations exceeding a threshold and triggers a notification to the governance team."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "A custom Config rule can detect Lambda functions missing reserved concurrency. Automated remediation using SSM Automation (or Lambda) can invoke lambda:PutFunctionConcurrency to set the limit. This provides continuous detection and auto-correction.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "aws-config",
+      "lambda",
+      "governance",
+      "remediation"
+    ]
+  },
+  {
+    "id": "scs-d6-t2-013",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An AWS Organization has SCPs applied at the root that deny specific high-risk actions. A member account needs a temporary exception to perform one of the denied actions for a legitimate migration. What is the correct process?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Contact AWS Support to request a temporary SCP bypass for the migration; AWS Support can grant account-level SCP exceptions."
+      },
+      {
+        "label": "B",
+        "text": "Move the member account to a separate OU where the restrictive SCP is not attached or has the specific action removed; perform the migration; then move the account back."
+      },
+      {
+        "label": "C",
+        "text": "Create an IAM role in the member account with an explicit Allow for the denied action; IAM explicit Allows override SCP Denies."
+      },
+      {
+        "label": "D",
+        "text": "Add a time-limited SCP that explicitly Allows the denied action on the specific account; Allow SCPs override Deny SCPs when scoped more specifically."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "SCPs work by OU inheritance. The only way to grant an exception to an SCP Deny is to remove the account from the OU where the restrictive SCP is applied (or modify the SCP). IAM Allows do not override SCP Denies, and there is no Allow SCP that overrides a Deny SCP at the same level.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "scp",
+      "organizations",
+      "exception",
+      "governance"
+    ]
+  }
+]

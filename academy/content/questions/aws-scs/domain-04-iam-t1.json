@@ -1,0 +1,593 @@
+[
+  {
+    "id": "aws-scs-t1-04-001",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security engineer finds an IAM policy that grants `s3:*` on `arn:aws:s3:::*`. The engineer wants to apply least privilege and limit access to only reading objects in a specific bucket. What should the corrected policy statement include?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use `s3:GetObject` as the action and `arn:aws:s3:::my-bucket/*` as the resource \u2014 this grants read access only to objects in the specific bucket with no other S3 permissions."
+      },
+      {
+        "label": "B",
+        "text": "Use `s3:*` as the action and `arn:aws:s3:::my-bucket` as the resource \u2014 restricting the resource ARN to a specific bucket is sufficient to apply least privilege for read operations."
+      },
+      {
+        "label": "C",
+        "text": "Use `s3:GetObject` as the action and `arn:aws:s3:::*` as the resource \u2014 limiting the action to GetObject is sufficient even if the resource wildcard allows access to all buckets."
+      },
+      {
+        "label": "D",
+        "text": "Use `s3:Read*` as the action and `arn:aws:s3:::my-bucket` as the resource \u2014 using a wildcard suffix on Read provides least privilege while covering all current and future read operations."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Use `s3:*` as the action and `arn:aws:s3:::my-bucket` as the resource \u2014 restricting the resource ARN to a specific bucket is sufficient to apply least privilege for read operations.",
+      "C": "Use `s3:GetObject` as the action and `arn:aws:s3:::*` as the resource \u2014 limiting the action to GetObject is sufficient even if the resource wildcard allows access to all buckets.",
+      "D": "Use `s3:Read*` as the action and `arn:aws:s3:::my-bucket` as the resource \u2014 using a wildcard suffix on Read provides least privilege while covering all current and future read operations."
+    },
+    "explanation": "Least privilege requires both a specific action (`s3:GetObject`) and a specific resource ARN (`arn:aws:s3:::my-bucket/*`). Note the `/*` at the end \u2014 S3 GetObject operates on objects, so the resource must reference the objects inside the bucket, not the bucket itself. Using `s3:Read*` is overly broad as it includes actions like ListBucket and GetBucketPolicy. Using `s3:*` with a specific bucket resource still grants all S3 operations on that bucket, violating least privilege.",
+    "module_ref": "scs/iam/least-privilege",
+    "tags": [
+      "iam",
+      "least-privilege",
+      "s3",
+      "policy-design"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-002",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "What is the purpose of an IAM permission boundary, and how does it differ from an IAM policy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A permission boundary sets the maximum permissions an IAM entity can have \u2014 even if identity-based policies grant broader access, the effective permissions are limited to the intersection with the boundary."
+      },
+      {
+        "label": "B",
+        "text": "A permission boundary is a deny-all policy applied to IAM entities that prevents all access unless the entity explicitly assumes a role with the required permissions at runtime."
+      },
+      {
+        "label": "C",
+        "text": "Permission boundaries and IAM policies are functionally identical \u2014 both define the allowed actions for an IAM entity, and attaching either type produces the same access control result."
+      },
+      {
+        "label": "D",
+        "text": "A permission boundary replaces identity-based policies for delegated administrators, granting permissions defined in the boundary without requiring separate identity-based policy attachments."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "A permission boundary is a deny-all policy applied to IAM entities that prevents all access unless the entity explicitly assumes a role with the required permissions at runtime.",
+      "C": "Permission boundaries and IAM policies are functionally identical \u2014 both define the allowed actions for an IAM entity, and attaching either type produces the same access control result.",
+      "D": "A permission boundary replaces identity-based policies for delegated administrators, granting permissions defined in the boundary without requiring separate identity-based policy attachments."
+    },
+    "explanation": "A permission boundary is an advanced IAM feature that sets the maximum permissions for an IAM entity (user or role). The effective permissions are the intersection of the identity-based policies AND the permission boundary \u2014 the entity cannot perform any action not allowed by both. Boundaries are commonly used to delegate user/role creation to team leads without allowing privilege escalation: the lead can create users but only with permissions within the boundary they themselves have.",
+    "module_ref": "scs/iam/permission-boundaries",
+    "tags": [
+      "iam",
+      "permission-boundaries",
+      "privilege-escalation",
+      "delegation"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-003",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "Which IAM policy evaluation rule determines what happens when both an explicit Allow and an explicit Deny exist for the same action in different policies attached to a principal?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An explicit Deny always overrides an explicit Allow in IAM policy evaluation \u2014 regardless of which policy contains the Deny, the action is denied for that principal."
+      },
+      {
+        "label": "B",
+        "text": "The most recently attached policy takes precedence \u2014 if the Deny policy was attached after the Allow policy, the Deny wins; otherwise the Allow applies."
+      },
+      {
+        "label": "C",
+        "text": "Identity-based policies take precedence over resource-based policies \u2014 if the Allow is in an identity policy and the Deny is in a resource policy, the Allow wins."
+      },
+      {
+        "label": "D",
+        "text": "When an explicit Allow and explicit Deny conflict, IAM defaults to allowing the action because explicit policies are trusted to reflect the intended access configuration."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "The most recently attached policy takes precedence \u2014 if the Deny policy was attached after the Allow policy, the Deny wins; otherwise the Allow applies.",
+      "C": "Identity-based policies take precedence over resource-based policies \u2014 if the Allow is in an identity policy and the Deny is in a resource policy, the Allow wins.",
+      "D": "When an explicit Allow and explicit Deny conflict, IAM defaults to allowing the action because explicit policies are trusted to reflect the intended access configuration."
+    },
+    "explanation": "IAM policy evaluation follows a strict precedence: (1) explicit Deny always wins over everything, (2) Allow applies if permitted and no Deny exists, (3) implicit Deny (default) applies if no Allow is found. An explicit Deny in any policy \u2014 identity-based, resource-based, SCP, or permission boundary \u2014 overrides any Allow. This is why Deny statements are commonly used for guardrails that must never be overridden, such as preventing disabling of CloudTrail.",
+    "module_ref": "scs/iam/policy-evaluation",
+    "tags": [
+      "iam",
+      "policy-evaluation",
+      "explicit-deny",
+      "precedence"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-004",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses AWS Organizations. The security team wants to prevent any account in the organization from disabling AWS CloudTrail, even if an account administrator has AdministratorAccess. Which mechanism achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Apply an SCP (Service Control Policy) to the organization root or target OU with an explicit Deny on cloudtrail:DeleteTrail, cloudtrail:StopLogging, and cloudtrail:UpdateTrail."
+      },
+      {
+        "label": "B",
+        "text": "Create an IAM permission boundary for all IAM users and roles in every account that denies CloudTrail modification actions, preventing even administrators from disabling logging."
+      },
+      {
+        "label": "C",
+        "text": "Enable AWS Config with the cloud-trail-enabled managed rule \u2014 Config auto-remediates by re-enabling CloudTrail within seconds if it is disabled in any account."
+      },
+      {
+        "label": "D",
+        "text": "Use CloudFormation StackSets to deploy a CloudWatch alarm that triggers an SNS notification and automatically re-enables CloudTrail if it is disabled by an administrator."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Create an IAM permission boundary for all IAM users and roles in every account that denies CloudTrail modification actions, preventing even administrators from disabling logging.",
+      "C": "Enable AWS Config with the cloud-trail-enabled managed rule \u2014 Config auto-remediates by re-enabling CloudTrail within seconds if it is disabled in any account.",
+      "D": "Use CloudFormation StackSets to deploy a CloudWatch alarm that triggers an SNS notification and automatically re-enables CloudTrail if it is disabled by an administrator."
+    },
+    "explanation": "SCPs are organizational guardrails that apply to all principals in member accounts, including account administrators with AdministratorAccess. An SCP Deny overrides any IAM Allow. By adding an explicit Deny for `cloudtrail:DeleteTrail`, `cloudtrail:StopLogging`, and `cloudtrail:UpdateTrail` in an SCP applied at the root or OU level, no user or role in the targeted accounts can disable CloudTrail \u2014 even the account root user (except the management account which SCPs don't apply to). Config auto-remediation is reactive and has a delay, not preventive.",
+    "module_ref": "scs/iam/scp-guardrails",
+    "tags": [
+      "scp",
+      "organizations",
+      "cloudtrail",
+      "guardrails",
+      "preventive-control"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-005",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to allow users to federate into AWS using their corporate Active Directory credentials without creating IAM users for each person. They want roles automatically assigned based on AD group membership. What is the recommended approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure AWS IAM Identity Center with an AD Connector or AWS Managed Microsoft AD, mapping AD groups to permission sets \u2014 users sign in with AD credentials and assume roles based on group membership."
+      },
+      {
+        "label": "B",
+        "text": "Create IAM users with the same usernames as AD accounts and use IAM user sync with Active Directory, which automatically keeps credentials synchronized between AD and IAM."
+      },
+      {
+        "label": "C",
+        "text": "Use Amazon Cognito User Pools with an Active Directory LDAP connector, allowing users to authenticate with AD credentials and receive IAM-compatible tokens for AWS Console access."
+      },
+      {
+        "label": "D",
+        "text": "Deploy an ADFS server on EC2 with a SAML 2.0 integration to IAM \u2014 this is the simplest and most managed approach for AD-to-AWS federation without custom identity infrastructure."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Create IAM users with the same usernames as AD accounts and use IAM user sync with Active Directory, which automatically keeps credentials synchronized between AD and IAM.",
+      "C": "Use Amazon Cognito User Pools with an Active Directory LDAP connector, allowing users to authenticate with AD credentials and receive IAM-compatible tokens for AWS Console access.",
+      "D": "Deploy an ADFS server on EC2 with a SAML 2.0 integration to IAM \u2014 this is the simplest and most managed approach for AD-to-AWS federation without custom identity infrastructure."
+    },
+    "explanation": "AWS IAM Identity Center (formerly AWS SSO) is the recommended centralized identity management solution. It integrates with Active Directory (either on-premises via AD Connector or AWS Managed Microsoft AD via AWS Directory Service) and allows mapping AD groups to IAM Identity Center permission sets. When a user authenticates, IAM Identity Center automatically assigns the appropriate roles across all authorized accounts. No IAM users are created. This is far simpler than self-managed ADFS and provides a single-pane-of-glass for access across all Organization accounts.",
+    "module_ref": "scs/iam/identity-center-ad",
+    "tags": [
+      "iam-identity-center",
+      "sso",
+      "active-directory",
+      "federation"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-006",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A Lambda function needs to write to DynamoDB. A developer has attached a policy granting `dynamodb:*` on `arn:aws:dynamodb:us-east-1:123456789012:table/*`. What principle of IAM does this violate and how should it be corrected?",
+    "options": [
+      {
+        "label": "A",
+        "text": "It violates least privilege \u2014 the policy should grant only the specific DynamoDB actions the function needs (e.g., PutItem, GetItem) on the specific table ARN it accesses."
+      },
+      {
+        "label": "B",
+        "text": "It violates separation of duties \u2014 Lambda functions should not have write access to DynamoDB; write operations should be performed by an EC2-based microservice with a separate IAM role."
+      },
+      {
+        "label": "C",
+        "text": "It violates the principle of accountability \u2014 using wildcards in the table ARN makes it impossible to track which table the function accessed in CloudTrail logs."
+      },
+      {
+        "label": "D",
+        "text": "It violates the principle of defense in depth \u2014 the policy should be duplicated and attached to both the Lambda function and the DynamoDB table as a resource policy for double enforcement."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "It violates separation of duties \u2014 Lambda functions should not have write access to DynamoDB; write operations should be performed by an EC2-based microservice with a separate IAM role.",
+      "C": "It violates the principle of accountability \u2014 using wildcards in the table ARN makes it impossible to track which table the function accessed in CloudTrail logs.",
+      "D": "It violates the principle of defense in depth \u2014 the policy should be duplicated and attached to both the Lambda function and the DynamoDB table as a resource policy for double enforcement."
+    },
+    "explanation": "The policy violates the principle of least privilege in two ways: (1) `dynamodb:*` grants all DynamoDB actions including expensive or destructive ones like DeleteTable, DescribeTable, and CreateTable that the function doesn't need; (2) the wildcard `table/*` grants access to all current and future tables in the account and region. The corrected policy should enumerate only the required actions (e.g., `dynamodb:PutItem`, `dynamodb:GetItem`, `dynamodb:UpdateItem`) and specify the exact table ARN (e.g., `arn:aws:dynamodb:us-east-1:123456789012:table/my-specific-table`).",
+    "module_ref": "scs/iam/least-privilege-lambda",
+    "tags": [
+      "iam",
+      "least-privilege",
+      "lambda",
+      "dynamodb"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-007",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security audit finds that multiple IAM users have active long-term access keys that have not been used for 90 days. What is the recommended action?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deactivate the unused access keys to immediately stop any risk from compromised but unused keys, then work with the key owners to determine if the keys are still needed before deciding to delete them."
+      },
+      {
+        "label": "B",
+        "text": "Rotate the access keys by generating new key pairs for each user \u2014 this invalidates the old keys and ensures that any keys exposed during the 90-day period cannot be reused."
+      },
+      {
+        "label": "C",
+        "text": "Add an IAM policy condition (`aws:RequestedRegion`) that restricts the keys to specific regions, reducing the potential impact if the unused keys were to be compromised."
+      },
+      {
+        "label": "D",
+        "text": "Enable MFA for the IAM users who own the unused keys \u2014 this adds a second factor requirement that protects the long-term keys from being used even if they are compromised."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Rotate the access keys by generating new key pairs for each user \u2014 this invalidates the old keys and ensures that any keys exposed during the 90-day period cannot be reused.",
+      "C": "Add an IAM policy condition (`aws:RequestedRegion`) that restricts the keys to specific regions, reducing the potential impact if the unused keys were to be compromised.",
+      "D": "Enable MFA for the IAM users who own the unused keys \u2014 this adds a second factor requirement that protects the long-term keys from being used even if they are compromised."
+    },
+    "explanation": "The recommended first step is deactivation (not immediate deletion), which disables the key while preserving it so it can be reactivated if the key is discovered to be legitimately needed. If after a reasonable period (e.g., 30 days) no one reports access issues, the key should be deleted. Rotation creates new keys but the old keys still represent a risk during the window before they are deleted. Long-term access keys cannot require MFA \u2014 MFA device requirements apply to console sign-in, not programmatic access via access keys.",
+    "module_ref": "scs/iam/access-key-hygiene",
+    "tags": [
+      "iam",
+      "access-keys",
+      "key-rotation",
+      "credential-hygiene"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-008",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to use AWS services from their on-premises application. Instead of creating an IAM user with long-term credentials, what is the more secure approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS IAM Roles Anywhere \u2014 provision a private CA certificate for the on-premises server, register it with Roles Anywhere, and the server receives temporary STS credentials by authenticating with its X.509 certificate."
+      },
+      {
+        "label": "B",
+        "text": "Create an IAM service account with a long-term access key that has a 365-day rotation policy enforced by AWS Config, reducing the risk from stale credentials."
+      },
+      {
+        "label": "C",
+        "text": "Use Amazon Cognito Identity Pools to issue temporary credentials for on-premises applications, federating the application's identity through the Cognito identity broker."
+      },
+      {
+        "label": "D",
+        "text": "Configure an IAM role with a trust policy that allows the on-premises IP range to assume the role directly, bypassing the need for access keys."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Create an IAM service account with a long-term access key that has a 365-day rotation policy enforced by AWS Config, reducing the risk from stale credentials.",
+      "C": "Use Amazon Cognito Identity Pools to issue temporary credentials for on-premises applications, federating the application's identity through the Cognito identity broker.",
+      "D": "Configure an IAM role with a trust policy that allows the on-premises IP range to assume the role directly, bypassing the need for access keys."
+    },
+    "explanation": "IAM Roles Anywhere extends IAM roles to workloads outside AWS. On-premises servers authenticate using X.509 certificates issued by a trusted Certificate Authority (either AWS Private CA or an external CA). Roles Anywhere validates the certificate and vends temporary STS credentials (valid for up to 12 hours) that the server can use to assume IAM roles. This eliminates long-term access keys for on-premises workloads. IAM trust policies cannot authorize based on IP addresses directly for AssumeRole.",
+    "module_ref": "scs/iam/roles-anywhere",
+    "tags": [
+      "iam-roles-anywhere",
+      "on-premises",
+      "x509",
+      "temporary-credentials"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-009",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An IAM Access Analyzer finding shows that an S3 bucket policy grants access to a principal in an external AWS account. The bucket is supposed to be private. What does IAM Access Analyzer detect and why is this finding important?",
+    "options": [
+      {
+        "label": "A",
+        "text": "IAM Access Analyzer identifies resources that can be accessed by entities outside your trust zone (another account, the internet, or AWS services) \u2014 this finding requires investigation to verify whether the external access is intentional."
+      },
+      {
+        "label": "B",
+        "text": "IAM Access Analyzer detects when resources have overly permissive IAM policies and recommends least-privilege replacements, but external access findings require manual review in the S3 console."
+      },
+      {
+        "label": "C",
+        "text": "IAM Access Analyzer monitors for active exploitation attempts on external-facing resources and generates findings when successful unauthorized access from another account is detected."
+      },
+      {
+        "label": "D",
+        "text": "IAM Access Analyzer only generates findings for IAM users and roles, not resource-based policies like S3 bucket policies \u2014 the finding must have been generated by a different service."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "IAM Access Analyzer detects when resources have overly permissive IAM policies and recommends least-privilege replacements, but external access findings require manual review in the S3 console.",
+      "C": "IAM Access Analyzer monitors for active exploitation attempts on external-facing resources and generates findings when successful unauthorized access from another account is detected.",
+      "D": "IAM Access Analyzer only generates findings for IAM users and roles, not resource-based policies like S3 bucket policies \u2014 the finding must have been generated by a different service."
+    },
+    "explanation": "IAM Access Analyzer uses mathematical reasoning (automated reasoning) to analyze resource-based policies (S3 bucket policies, IAM role trust policies, KMS key policies, SQS queue policies, Lambda function policies, etc.) and identifies access that is granted to entities outside your defined zone of trust (typically your AWS account or organization). An external access finding for an S3 bucket means the bucket policy grants access to a different account or a public principal. You must determine whether this is intentional and archive the finding, or remediate by removing the external access.",
+    "module_ref": "scs/iam/access-analyzer",
+    "tags": [
+      "access-analyzer",
+      "external-access",
+      "bucket-policy",
+      "cross-account"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-010",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A developer needs to allow their application running in Account A to read from an S3 bucket in Account B without creating IAM users or sharing credentials. How is this achieved?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an IAM role in Account B with an S3 read policy; add a trust policy allowing Account A to assume the role; the Account A application assumes the role via STS to get temporary credentials for the Account B bucket."
+      },
+      {
+        "label": "B",
+        "text": "Create an IAM user in Account B with S3 read permissions and share the access key with Account A \u2014 this is the standard cross-account access pattern for S3 buckets."
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 Cross-Region Replication from Account B to Account A so the data is copied to Account A's bucket, eliminating the need for cross-account role assumptions."
+      },
+      {
+        "label": "D",
+        "text": "Use Amazon Cognito Federated Identities to create an identity pool that both accounts share, allowing the Account A application to exchange identity tokens for cross-account S3 access."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Create an IAM user in Account B with S3 read permissions and share the access key with Account A \u2014 this is the standard cross-account access pattern for S3 buckets.",
+      "C": "Enable S3 Cross-Region Replication from Account B to Account A so the data is copied to Account A's bucket, eliminating the need for cross-account role assumptions.",
+      "D": "Use Amazon Cognito Federated Identities to create an identity pool that both accounts share, allowing the Account A application to exchange identity tokens for cross-account S3 access."
+    },
+    "explanation": "Cross-account IAM roles are the standard approach for granting access between AWS accounts. In Account B: create a role with the S3 read policy and a trust policy that includes Account A's account ID (and optionally specific IAM entities from Account A) as trusted principals. In Account A: grant the application's IAM role permission to call `sts:AssumeRole` for the Account B role ARN. The application calls AssumeRole, receives temporary credentials, and uses them to access the Account B bucket. No long-term credentials are shared.",
+    "module_ref": "scs/iam/cross-account-roles",
+    "tags": [
+      "iam",
+      "cross-account",
+      "sts",
+      "assume-role"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-011",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to enforce MFA for all IAM users when accessing the AWS Management Console but allow programmatic access without MFA. Which IAM condition key enforces this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use `aws:MultiFactorAuthPresent` condition key in an IAM policy \u2014 set it to `true` to require MFA for console actions while omitting the condition from policies governing programmatic API access."
+      },
+      {
+        "label": "B",
+        "text": "Use `aws:SecureTransport` condition key set to `true` \u2014 this enforces HTTPS connections which implicitly require MFA for console access while allowing HTTP-based programmatic calls."
+      },
+      {
+        "label": "C",
+        "text": "Use `aws:RequestedRegion` condition key to restrict console access to specific Regions where MFA policies are enforced, while leaving programmatic access unrestricted globally."
+      },
+      {
+        "label": "D",
+        "text": "Use `aws:PrincipalType` condition key to distinguish between console sign-in requests and programmatic API calls, applying MFA requirements only to console-type principals."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Use `aws:SecureTransport` condition key set to `true` \u2014 this enforces HTTPS connections which implicitly require MFA for console access while allowing HTTP-based programmatic calls.",
+      "C": "Use `aws:RequestedRegion` condition key to restrict console access to specific Regions where MFA policies are enforced, while leaving programmatic access unrestricted globally.",
+      "D": "Use `aws:PrincipalType` condition key to distinguish between console sign-in requests and programmatic API calls, applying MFA requirements only to console-type principals."
+    },
+    "explanation": "The `aws:MultiFactorAuthPresent` condition key returns `true` when the request was authenticated using MFA. For console access, you can deny actions unless this key is true. Note the subtlety: programmatic access using long-term IAM user access keys never satisfies `aws:MultiFactorAuthPresent` \u2014 it will be absent or false. The common pattern is a deny-all policy with a condition that `aws:MultiFactorAuthPresent` is false, paired with an allow for iam:GetUser and iam:CreateVirtualMFADevice so users can set up MFA before anything else.",
+    "module_ref": "scs/iam/mfa-enforcement",
+    "tags": [
+      "iam",
+      "mfa",
+      "condition-keys",
+      "console-access"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-012",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security engineer is asked to implement Attribute-Based Access Control (ABAC) in AWS. Which IAM feature enables ABAC and how does it work?",
+    "options": [
+      {
+        "label": "A",
+        "text": "IAM tags on resources and principal tags enable ABAC \u2014 IAM policies can use the `aws:ResourceTag` and `aws:PrincipalTag` condition keys to match tags, granting access when tags match without maintaining lists of specific resources."
+      },
+      {
+        "label": "B",
+        "text": "ABAC in AWS is implemented using IAM permission boundaries, which grant permissions based on attributes of the requesting principal rather than statically defined resource lists."
+      },
+      {
+        "label": "C",
+        "text": "ABAC requires Amazon Cognito Identity Pools \u2014 Cognito evaluates user attributes from the identity provider and maps them to IAM roles dynamically based on attribute values."
+      },
+      {
+        "label": "D",
+        "text": "ABAC in AWS uses resource-based policies exclusively \u2014 by tagging IAM principals and adding matching tag conditions to resource policies, access is controlled by attribute matching."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "ABAC in AWS is implemented using IAM permission boundaries, which grant permissions based on attributes of the requesting principal rather than statically defined resource lists.",
+      "C": "ABAC requires Amazon Cognito Identity Pools \u2014 Cognito evaluates user attributes from the identity provider and maps them to IAM roles dynamically based on attribute values.",
+      "D": "ABAC in AWS uses resource-based policies exclusively \u2014 by tagging IAM principals and adding matching tag conditions to resource policies, access is controlled by attribute matching."
+    },
+    "explanation": "ABAC in AWS uses IAM tags combined with policy condition keys. You tag IAM roles/users with attributes (e.g., `Department=Finance`) and tag resources with matching attributes. IAM policies use condition keys like `aws:ResourceTag/Department` and `aws:PrincipalTag/Department` with a condition operator that checks if they match. For example: allow EC2 actions only when `aws:ResourceTag/Project` equals `aws:PrincipalTag/Project`. This scales better than RBAC for large environments because one policy works for all users and resources as long as tags are consistent.",
+    "module_ref": "scs/iam/abac",
+    "tags": [
+      "iam",
+      "abac",
+      "tags",
+      "condition-keys",
+      "rbac"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-013",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An organization suspects that an IAM role may have been used to perform privilege escalation. Which CloudTrail event indicates that a role was used to create a new IAM user with an attached AdministratorAccess policy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Two CloudTrail events: CreateUser showing the new IAM user being created, and AttachUserPolicy or CreatePolicy/PutUserPolicy showing AdministratorAccess being granted \u2014 both recorded under iam.amazonaws.com."
+      },
+      {
+        "label": "B",
+        "text": "A single AssumeRole CloudTrail event that captures both the role assumption and all subsequent API calls made during the session in a single aggregated log entry."
+      },
+      {
+        "label": "C",
+        "text": "A GuardDuty finding of type Policy:IAMUser/RootCredentialUsage, which is generated whenever a role with admin-level access creates new IAM entities in an account."
+      },
+      {
+        "label": "D",
+        "text": "A CloudTrail event named CreateAdminUser recorded under iam.amazonaws.com that specifically indicates privileged user creation, separate from ordinary CreateUser events."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "A single AssumeRole CloudTrail event that captures both the role assumption and all subsequent API calls made during the session in a single aggregated log entry.",
+      "C": "A GuardDuty finding of type Policy:IAMUser/RootCredentialUsage, which is generated whenever a role with admin-level access creates new IAM entities in an account.",
+      "D": "A CloudTrail event named CreateAdminUser recorded under iam.amazonaws.com that specifically indicates privileged user creation, separate from ordinary CreateUser events."
+    },
+    "explanation": "CloudTrail records each IAM API call as a separate event. Privilege escalation via user creation would appear as multiple events under `iam.amazonaws.com`: `CreateUser` (user creation), then `CreateAccessKey` (if programmatic access was needed), then `AttachUserPolicy` or `PutUserPolicy` (granting permissions). To investigate, search CloudTrail for IAM events made by the suspected role's session (identifiable by the assumed role ARN in the `userIdentity` field). There is no single consolidated event \u2014 each API call is logged individually.",
+    "module_ref": "scs/iam/privilege-escalation-detection",
+    "tags": [
+      "cloudtrail",
+      "iam",
+      "privilege-escalation",
+      "investigation"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-04-014",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's application uses a web identity federation to allow users who authenticate with Google Sign-In to access a specific DynamoDB table containing their data. Which AWS service handles this federation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Cognito Identity Pools exchange web identity tokens (from Google, Facebook, Apple, or OIDC providers) for temporary AWS credentials scoped to specific IAM roles with per-user data access."
+      },
+      {
+        "label": "B",
+        "text": "AWS IAM Identity Center handles web identity federation from social providers like Google, managing the OIDC token exchange and issuing temporary AWS credentials to end users."
+      },
+      {
+        "label": "C",
+        "text": "AWS Security Token Service can directly exchange Google ID tokens for AWS credentials without any additional federation service, using the AssumeRoleWithWebIdentity API."
+      },
+      {
+        "label": "D",
+        "text": "Amazon API Gateway handles Google Sign-In token validation and issues IAM credentials to authenticated users, eliminating the need for a separate federation service."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS IAM Identity Center handles web identity federation from social providers like Google, managing the OIDC token exchange and issuing temporary AWS credentials to end users.",
+      "C": "AWS Security Token Service can directly exchange Google ID tokens for AWS credentials without any additional federation service, using the AssumeRoleWithWebIdentity API.",
+      "D": "Amazon API Gateway handles Google Sign-In token validation and issues IAM credentials to authenticated users, eliminating the need for a separate federation service."
+    },
+    "explanation": "Amazon Cognito Identity Pools (Federated Identities) are designed for mobile and web application user-to-AWS authentication. They support social identity providers (Google, Facebook, Apple) and OIDC/SAML providers. After authenticating with Google, the app passes the ID token to Cognito, which exchanges it for temporary AWS credentials via STS AssumeRoleWithWebIdentity. You can configure authenticated and unauthenticated roles and use Cognito's enhanced flow to pass user identity attributes as session tags for ABAC. IAM Identity Center is for workforce (employee) access, not customer-facing apps.",
+    "module_ref": "scs/iam/cognito-federation",
+    "tags": [
+      "cognito",
+      "web-identity",
+      "federation",
+      "google",
+      "mobile"
+    ]
+  }
+]

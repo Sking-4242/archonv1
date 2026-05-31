@@ -31,6 +31,51 @@ Kinesis Data Analytics (KDA) runs Apache Flink applications fully managed. Flink
 
 Kinesis Data Streams: ordered, multi-consumer, durable stream with replay. Firehose: managed delivery to S3/Redshift/OpenSearch with buffering and optional Lambda transformation. KDA with Flink for complex stateful stream processing. Use KDS when multiple services consume the same stream or replay is needed; use SQS for simple one-consumer task queuing.
 
+## Examples
+
+A mobile gaming company tracks every in-game action — item pickups, kills, level completions — across millions of concurrent players. They write events to Kinesis Data Streams, which feeds three independent consumers: a real-time leaderboard service, a fraud/cheat-detection Lambda, and a Firehose delivery stream archiving raw events to S3. All three read the same stream independently at their own positions. This multi-consumer replay capability is impossible with SQS, where a message is gone once consumed.
+
+A SaaS platform needs to load application logs into Amazon OpenSearch for live dashboards and simultaneously archive them to S3 in Parquet for long-term analysis. They use Kinesis Data Firehose with two delivery streams: one to OpenSearch with a 60-second buffer, one to S3 with a Lambda transformation that converts JSON to Parquet. The operations team configures this entirely in the console — no producers or consumers to manage, no capacity planning, near-real-time delivery with automatic scaling.
+
+A digital advertising exchange processes billions of bid events per day and needs to detect bid-shading patterns — where a buyer consistently bids just below the clearing price — within a 5-minute rolling window. They run a Kinesis Data Analytics Apache Flink application with a sliding-window aggregation joining two streams: bid requests and win notifications. The stateful Flink job maintains per-buyer running averages and emits anomalies to a downstream Lambda for action. This is a scenario where neither a simple Lambda-per-record pattern nor Firehose is sufficient — stateful stream joining requires Flink.
+
+## Think About It
+
+1. Kinesis Data Streams retains records for 24 hours by default. What specific operational or business scenarios would justify paying for 7-day or 365-day retention, and what scenarios would not?
+2. You have a stream with 4 shards and your write throughput has grown to consistently hit the per-shard limits. What are your options, and what are the trade-offs of each?
+3. Why can't you replay messages from SQS the way you can replay records from Kinesis? What architectural decision in SQS makes replay structurally impossible?
+4. How would you decide whether to use Kinesis Data Firehose alone versus Kinesis Data Streams feeding into a Lambda and then Firehose? What does the extra hop through KDS buy you?
+5. Kinesis Data Analytics with Flink supports windowing operations (tumbling, sliding, session). What real business problem does a session window solve that a fixed tumbling window cannot?
+
+## Quick Check
+
+**Q1.** A Kinesis Data Stream has 5 shards. What is its maximum sustained write throughput?
+
+- A) 1 MB/s total
+- B) 5 MB/s total
+- C) 10 MB/s total
+- D) Unlimited — Kinesis scales automatically
+
+**Answer: B** — Each shard provides 1 MB/s write throughput, so 5 shards = 5 MB/s total sustained write capacity.
+
+**Q2.** Which Kinesis service is best suited for delivering streaming log data to Amazon S3 with optional Lambda transformation and no capacity planning?
+
+- A) Kinesis Data Streams
+- B) Kinesis Data Analytics
+- C) Kinesis Data Firehose
+- D) Kinesis Enhanced Fan-Out
+
+**Answer: C** — Kinesis Data Firehose is a fully managed delivery service that buffers, optionally transforms via Lambda, and delivers to S3, Redshift, OpenSearch, and other destinations with no shard management required.
+
+**Q3.** What is the key capability that makes Kinesis Data Streams fundamentally different from SQS for analytics pipelines?
+
+- A) Kinesis messages can be larger than 256 KB
+- B) Multiple independent consumer applications can read the same stream at different positions, and records can be replayed within the retention window
+- C) Kinesis guarantees exactly-once delivery while SQS does not
+- D) Kinesis integrates with Lambda but SQS does not
+
+**Answer: B** — The durable, ordered, replayable log model allows multiple consumers to read independently and enables reprocessing of historical records — neither of which is possible with SQS's consume-and-delete model.
+
 ## What's Next
 
 Next up: Amazon MQ and MSK — managed message broker and Kafka services.

@@ -1,0 +1,562 @@
+[
+  {
+    "id": "scs-d6-t7-001",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "An AWS Control Tower administrator is reviewing guardrails applied across the organization. A business unit asks whether a specific guardrail can be disabled for their OU to reduce operational friction. Which type of guardrail CANNOT be disabled by any OU administrator?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Mandatory guardrails, because they are always enforced and cannot be disabled by any administrator"
+      },
+      {
+        "label": "B",
+        "text": "Detective guardrails, because Control Tower uses AWS Config to monitor and cannot suspend monitoring"
+      },
+      {
+        "label": "C",
+        "text": "Strongly recommended guardrails, because they are enforced by AWS across all OUs by default"
+      },
+      {
+        "label": "D",
+        "text": "Elective guardrails, because they require explicit approval from AWS Support before removal"
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Control Tower guardrails come in three categories. Mandatory guardrails are always enforced by AWS Control Tower and cannot be disabled by any administrator, including the management account root. They protect the integrity of the landing zone (e.g., disallowing changes to CloudTrail logging). Strongly recommended guardrails are enabled by default but can be disabled. Elective guardrails are opt-in and can be freely enabled or disabled. Detective guardrails report on compliance but some can still be disabled if they are in the elective or strongly recommended tier.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "control-tower",
+      "guardrails"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-002",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security engineer enables the CIS AWS Foundations Benchmark standard in AWS Security Hub for all accounts in the organization. Which statement accurately describes what this standard evaluates?",
+    "options": [
+      {
+        "label": "A",
+        "text": "It performs penetration tests against public-facing endpoints and reports open vulnerabilities to Security Hub"
+      },
+      {
+        "label": "B",
+        "text": "It scans EC2 instance memory and running processes for known malware signatures"
+      },
+      {
+        "label": "C",
+        "text": "It validates that all IAM users rotate passwords every 30 days and reports non-compliant users to AWS Config"
+      },
+      {
+        "label": "D",
+        "text": "It checks AWS account and service settings against CIS benchmark controls including MFA on root, CloudTrail enabled, and S3 public access blocks"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The CIS AWS Foundations Benchmark standard in Security Hub evaluates AWS account and service configuration against a set of security best practices defined by the Center for Internet Security. Controls include verifying that MFA is enabled on the root account, CloudTrail is enabled and logging to an encrypted bucket, password policies meet complexity requirements, S3 buckets block public access, and security groups do not allow unrestricted access. It does not perform network penetration tests or in-memory malware scanning.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "security-hub",
+      "cis-benchmark"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-003",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A company wants to enable AWS Config in all accounts but is concerned about cost. The security team needs visibility into high-risk resource types such as IAM roles, S3 buckets, and security groups. Which recording strategy best balances cost and coverage?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable recording for all resource types globally; costs are fixed and do not vary by resource count"
+      },
+      {
+        "label": "B",
+        "text": "Configure AWS Config to record only specific high-risk resource types to reduce the number of configuration items recorded and lower cost"
+      },
+      {
+        "label": "C",
+        "text": "Enable recording for all resource types but filter out low-risk resources in the delivery channel to avoid charges"
+      },
+      {
+        "label": "D",
+        "text": "Disable AWS Config entirely and use CloudTrail data events to satisfy compliance requirements"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Config charges per configuration item recorded. Recording all resource types provides the broadest coverage but generates more configuration items, increasing cost. Limiting the recorder to specific resource types \u2014 such as IAM roles, S3 buckets, security groups, and VPCs \u2014 reduces the number of items recorded and lowers cost while still covering the resources with the highest security impact. Filtering in the delivery channel does not reduce charges because items are still recorded before delivery. CloudTrail data events serve a different purpose (API activity) and cannot replace Config for configuration state tracking.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "aws-config",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-004",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "An enterprise uses AWS Control Tower and wants every new AWS account provisioned through Account Factory to automatically receive the company's baseline security guardrails, VPC configuration, and logging setup without manual steps. Which Control Tower feature enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config conformance packs deployed to the management account that replicate settings to member accounts"
+      },
+      {
+        "label": "B",
+        "text": "AWS CloudFormation StackSets that administrators must manually trigger after each new account is created"
+      },
+      {
+        "label": "C",
+        "text": "Account Factory, which uses a configurable template to enroll accounts into the landing zone with guardrails and baseline resources applied automatically"
+      },
+      {
+        "label": "D",
+        "text": "Service Control Policies applied after the account is created manually through the AWS Organizations console"
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Control Tower Account Factory provisions new AWS accounts using a standardized template (backed by AWS Service Catalog). When an account is vended through Account Factory, it is automatically enrolled in the landing zone, the appropriate OU guardrails are applied, baseline AWS Config rules are enabled, CloudTrail logging is configured, and a pre-defined VPC baseline is deployed \u2014 all without manual administrator intervention. SCPs, conformance packs, and StackSets can supplement governance but do not automatically apply at account creation the way Account Factory does.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "control-tower",
+      "account-factory"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-005",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security architect must ensure that only a specific set of approved AWS services can be used across all accounts in an organization. Unapproved services must be denied even if an IAM policy allows them. Which SCP construct accomplishes this with the least ongoing maintenance?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Individual Deny SCPs for each unapproved service, updated every time AWS releases a new service"
+      },
+      {
+        "label": "B",
+        "text": "An IAM permission boundary attached to every role, listing only the approved services as allowed actions"
+      },
+      {
+        "label": "C",
+        "text": "An Allow SCP that explicitly allows each approved service, applied at the root OU level"
+      },
+      {
+        "label": "D",
+        "text": "A Deny SCP that uses NotAction to list only the approved services, blocking all actions not in the approved list"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "SCPs use an implicit deny model \u2014 only explicit allows in SCPs combined with identity policy allows grant access. A Deny SCP with a NotAction element that lists the approved services blocks all actions on any service not in that list with a single policy. This is lower maintenance than maintaining individual Deny SCPs per unapproved service, which must be updated as AWS adds new services. Note that SCPs cannot use Allow statements to grant access on their own; they only restrict what IAM can allow. Permission boundaries are account-local and would require individual attachment to every role.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "scp",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-006",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A company with an AWS Developer support plan wants to use AWS Trusted Advisor to identify open security groups with unrestricted access. A colleague mentions that full Trusted Advisor checks require a higher support tier. Which support plan first unlocks the full set of Trusted Advisor security checks?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enterprise support plan, because Trusted Advisor security checks are exclusively reserved for enterprise customers"
+      },
+      {
+        "label": "B",
+        "text": "Developer support plan, which includes all Trusted Advisor checks for accounts created after 2022"
+      },
+      {
+        "label": "C",
+        "text": "Business support plan, which provides access to all Trusted Advisor checks including the full security category"
+      },
+      {
+        "label": "D",
+        "text": "Enterprise On-Ramp support plan, which is the minimum tier for Trusted Advisor security checks"
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "With the Basic and Developer support plans, AWS Trusted Advisor provides access to only seven core checks (covering basic security such as S3 bucket permissions, IAM use, MFA on root, and a few others). The Business support plan unlocks all Trusted Advisor checks across all five categories: cost optimization, performance, security, fault tolerance, and service limits. Enterprise On-Ramp and Enterprise plans also include full checks, but Business is the first tier that grants complete access. Developer plan customers cannot access checks such as security group open port scanning or exposed access keys beyond the core seven.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "trusted-advisor",
+      "support-plans"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-007",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A governance team needs to deploy a consistent set of 15 AWS Config rules to every account across 200 member accounts in an organization. The team wants to manage all 15 rules as a single deployable and updatable unit. Which AWS feature is designed for this use case?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Security Hub standards, which automatically deploy Config rules when a standard is enabled in each account"
+      },
+      {
+        "label": "B",
+        "text": "AWS Config conformance pack, which bundles multiple Config rules and remediation actions into a single deployable YAML template that can be deployed org-wide"
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudFormation StackSets deployed from the management account, with one stack per Config rule per account"
+      },
+      {
+        "label": "D",
+        "text": "AWS Systems Manager State Manager, which runs a document to create Config rules in each account on a schedule"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "An AWS Config conformance pack is a collection of Config rules and optional remediation actions packaged in a single YAML template. It can be deployed to an entire organization or to specific OUs using the Organizations integration, making it straightforward to ensure all 200 accounts have the same 15 rules. Updating the conformance pack template propagates changes to all target accounts. Security Hub standards do deploy some Config rules but are not designed for custom rule bundles. StackSets can technically deploy Config rules but create one stack per rule per account, significantly increasing management overhead.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "aws-config",
+      "conformance-pack"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-008",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A multinational company runs workloads in eight AWS regions. The security team wants a single pane of glass in one region to view Security Hub findings generated in all other regions without logging into each region separately. Which Security Hub feature provides this capability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config aggregator, which collects Security Hub findings from all regions and displays them in the aggregator region"
+      },
+      {
+        "label": "B",
+        "text": "Security Hub cross-region aggregation, which replicates findings from linked regions into a designated aggregation region for centralized visibility"
+      },
+      {
+        "label": "C",
+        "text": "Amazon GuardDuty multi-region export, which forwards all findings to Security Hub in a primary region automatically"
+      },
+      {
+        "label": "D",
+        "text": "Security Hub administrator account, which automatically consolidates findings from all regions into a single account but not a single region"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Security Hub cross-region aggregation allows you to designate one region as the aggregation region and link other regions as linked regions. Findings from all linked regions are replicated to the aggregation region, giving the security team a unified view without switching regions. The administrator account feature consolidates findings from multiple member accounts within a single region but does not aggregate across regions. AWS Config aggregators collect Config compliance data, not Security Hub findings. GuardDuty findings flow into Security Hub but GuardDuty itself does not perform cross-region Security Hub aggregation.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "security-hub",
+      "cross-region-aggregation"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-009",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A financial services company must produce continuous compliance evidence mapped to PCI DSS controls for external auditors. The evidence must be automatically collected from AWS services over time, not manually assembled. Which AWS service is purpose-built for this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Audit Manager, which continuously collects evidence from AWS services and maps it to compliance framework controls such as PCI DSS automatically"
+      },
+      {
+        "label": "B",
+        "text": "AWS Config, which generates compliance reports in PCI DSS format and exports them directly to auditors on a schedule"
+      },
+      {
+        "label": "C",
+        "text": "AWS Artifact, which stores pre-generated AWS compliance reports that satisfy PCI DSS control evidence requirements"
+      },
+      {
+        "label": "D",
+        "text": "AWS Security Hub, which generates a PCI DSS audit report from findings and emails it to the compliance team monthly"
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Audit Manager is purpose-built for continuous compliance evidence collection. It maps AWS resource configurations and activity to specific controls in frameworks like PCI DSS, SOC 2, HIPAA, and GDPR, automatically gathering evidence from services such as Config, CloudTrail, Security Hub, and IAM. Auditors can review collected evidence directly in Audit Manager reports. AWS Config tracks resource configuration but does not produce PCI DSS-formatted audit reports. Security Hub aggregates security findings but does not produce structured compliance evidence packages. AWS Artifact provides AWS's own compliance documents (e.g., AWS SOC reports, PCI attestations) \u2014 not customer-specific evidence.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "audit-manager",
+      "pci-dss"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-010",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "An AWS Organizations administrator moves a member account from OU-A to OU-B. OU-B has a stricter SCP that denies access to Amazon RDS. What is the effect on the moved account immediately after the move?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The moved account retains a grace period where it inherits SCPs from both OUs and applies the more permissive policy"
+      },
+      {
+        "label": "B",
+        "text": "Both the OU-A and OU-B SCPs are applied simultaneously until an administrator explicitly removes the OU-A policies"
+      },
+      {
+        "label": "C",
+        "text": "The OU-A SCP remains in effect for 24 hours to allow workloads to adjust before the new OU-B SCP is applied"
+      },
+      {
+        "label": "D",
+        "text": "The OU-B SCP takes effect immediately; the account can no longer use Amazon RDS even if its IAM policies allow it"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "SCPs from the new parent OU (OU-B) apply immediately when an account is moved. There is no grace period, no overlap with the old OU's SCPs, and no notification delay. As soon as the account is placed in OU-B, the OU-B SCP hierarchy \u2014 including the RDS deny \u2014 governs all actions in that account. Any running workloads that attempt to make new RDS API calls will be denied. Existing RDS resources are not deleted, but new API calls to RDS will be blocked by the SCP.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "organizations",
+      "scp",
+      "ou-movement"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-011",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security team wants to identify all S3 buckets, KMS keys, and IAM roles in their organization that grant access to principals outside the organization. Which IAM Access Analyzer configuration provides organization-wide visibility from a single analyzer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An organization-level analyzer created in the management or delegated administrator account, which analyzes resource policies across all member accounts and flags external access"
+      },
+      {
+        "label": "B",
+        "text": "A service-level analyzer enabled per resource type in each account that reports findings to the management account automatically"
+      },
+      {
+        "label": "C",
+        "text": "An account-level analyzer in the management account, which automatically scans all resource policies in every member account"
+      },
+      {
+        "label": "D",
+        "text": "An account-level analyzer deployed via StackSets to each member account, with findings aggregated in Security Hub"
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "IAM Access Analyzer supports an organization zone of trust when you create an analyzer of type ORGANIZATION in the management account or a delegated administrator account. This single analyzer evaluates resource-based policies (S3 bucket policies, KMS key policies, IAM role trust policies, etc.) across all member accounts and generates findings for any access granted to principals outside the organization boundary. An account-level analyzer only evaluates within one account. Deploying per-account analyzers via StackSets works but requires aggregation logic and is more complex than a single organization-level analyzer.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "iam-access-analyzer",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-012",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A platform team wants to allow developers to provision approved infrastructure components such as EC2 instances, RDS databases, and S3 buckets using pre-approved configurations, without granting developers direct IAM permissions to create those resources. Which AWS service supports this self-service model?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS IAM roles with permission boundaries that restrict developers to a specific set of approved CloudFormation templates"
+      },
+      {
+        "label": "B",
+        "text": "AWS Service Catalog, which lets administrators publish approved products that developers can launch without needing IAM permissions to create those resources directly"
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudFormation with exported outputs, which developers reference to reuse approved resource configurations"
+      },
+      {
+        "label": "D",
+        "text": "AWS Config, which auto-remediates non-compliant resources and allows developers to trigger provisioning through remediation actions"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Service Catalog allows administrators to curate a portfolio of approved CloudFormation-backed products. Developers (end users) can launch these products through the Service Catalog console or API. Service Catalog uses a launch role with the necessary IAM permissions \u2014 developers themselves do not need direct permissions to call ec2:RunInstances or rds:CreateDBInstance. This enforces approved configurations (instance types, AMIs, parameter ranges) while allowing developer self-service. CloudFormation exported outputs support cross-stack references but do not restrict IAM. Config remediations fix drift; they are not a provisioning self-service mechanism.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "service-catalog",
+      "least-privilege"
+    ]
+  },
+  {
+    "id": "scs-d6-t7-013",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A change management team modifies a VPC security group and wants to identify all EC2 instances, RDS databases, and load balancers currently associated with that security group before approving the change. Which AWS Config capability provides this relationship mapping?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config resource relationships, which show all resources connected to or dependent on a given resource within the configuration timeline"
+      },
+      {
+        "label": "B",
+        "text": "AWS CloudTrail event history, which lists every API call made against the security group and infers all associated resources"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Inspector, which scans the security group and generates a list of attached EC2 instances with open vulnerabilities"
+      },
+      {
+        "label": "D",
+        "text": "VPC Flow Logs, which identify all resources that have sent traffic through the security group over the past 30 days"
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Config records configuration items for each resource and tracks the relationships between resources. When you view a security group's configuration item in Config, the Relationships section lists all resources currently associated with it \u2014 such as EC2 instances, RDS instances, and load balancers that reference the security group. This allows the change management team to perform impact analysis before modifying the group. CloudTrail shows API activity but does not produce a current relationship map. Amazon Inspector performs vulnerability assessments and does not enumerate security group associations. VPC Flow Logs capture network traffic metadata, not resource-to-resource configuration relationships.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "aws-config",
+      "resource-relationships"
+    ]
+  }
+]

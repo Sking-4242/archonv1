@@ -35,6 +35,51 @@ Every KMS API call — including every Decrypt and GenerateDataKey — is logged
 
 KMS provides centralized key management with full CloudTrail audit logging. Use CMKs for control and compliance. Envelope encryption scales KMS to large data volumes. Key policies and IAM together control key usage. Multi-Region Keys enable global encryption consistency. Every serious security architecture on AWS is built on KMS.
 
+## Examples
+
+A healthcare startup stores patient records in S3 and needs to demonstrate to auditors that only the application's IAM role ever decrypted protected health information. They create a Customer Managed Key with a key policy that explicitly allows only the app role to call `kms:Decrypt` and `kms:GenerateDataKey`. Because every KMS API call is recorded in CloudTrail with the caller's ARN, they can produce an exportable log proving no human ever directly decrypted patient data — a requirement for their HIPAA compliance audit.
+
+An e-commerce platform runs an active-active architecture across `us-east-1` and `eu-west-1`, with DynamoDB Global Tables replicating order records. They create a Multi-Region KMS key with the primary in `us-east-1` and a replica in `eu-west-1`. Application servers in Europe can decrypt data locally without a cross-region API call, keeping latency under 5 ms and eliminating dependency on the US region being available during a failover event.
+
+A data analytics company processes hundreds of millions of records daily through a Spark cluster on EMR. Instead of sending every record through KMS for encryption, the cluster calls `kms:GenerateDataKey` once per job to obtain a plaintext data key, encrypts the entire dataset in memory using that key, then discards the plaintext key and stores only the KMS-encrypted key blob alongside the output files. This is envelope encryption in practice: KMS is called thousands of times per day instead of billions, and the CMK never touches the actual data.
+
+## Think About It
+
+1. Why does envelope encryption exist? What problem would arise if KMS encrypted every byte of application data directly, without generating intermediate data keys?
+2. An IAM policy grants a role full `kms:*` permissions, but the CMK's key policy does not mention that role at all. Can the role use the key? What does this tell you about the relationship between IAM policies and key policies?
+3. What trade-offs would you consider when deciding between an AWS Managed Key and a Customer Managed Key for encrypting an RDS database in a regulated industry?
+4. How would you design a key rotation strategy if your application caches decrypted data keys in memory for performance? What happens to data encrypted under the old key material after rotation?
+5. A multi-region application team proposes encrypting all data with a single CMK in one region and replicating ciphertext globally. What risks does this introduce, and how do Multi-Region Keys address them differently?
+
+## Quick Check
+
+**Q1.** In envelope encryption, what is encrypted by the KMS Customer Managed Key (CMK)?
+
+- A) The application data directly
+- B) The plaintext data key
+- C) The S3 bucket policy
+- D) The CloudTrail log files
+
+**Answer: B** — The CMK encrypts the data key (the "envelope"), not the application data itself; the data key encrypts the actual data locally.
+
+**Q2.** A developer has an IAM policy granting `kms:Decrypt` on a CMK's ARN. The CMK's key policy does not reference this developer. What is the outcome when the developer calls `kms:Decrypt`?
+
+- A) The call succeeds because the IAM policy grants permission
+- B) The call fails because KMS requires an explicit Allow in the key policy as well
+- C) The call succeeds but generates a high-severity GuardDuty finding
+- D) The call is routed to the AWS Managed Key instead
+
+**Answer: B** — KMS requires authorization from both the key policy and the IAM policy; an IAM policy alone is insufficient if the key policy does not grant access.
+
+**Q3.** Which KMS feature allows ciphertext encrypted in `us-east-1` to be decrypted in `eu-west-1` without re-encryption?
+
+- A) KMS key rotation
+- B) KMS Grants
+- C) Multi-Region Keys
+- D) Cross-account key sharing
+
+**Answer: C** — Multi-Region Keys replicate the same key material to multiple regions under the same key ID, allowing encrypt-in-one-region and decrypt-in-another without re-encrypting the data.
+
 ## What's Next
 
 Next up: AWS Secrets Manager and Parameter Store — storing and rotating application secrets.

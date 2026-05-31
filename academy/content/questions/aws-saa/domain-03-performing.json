@@ -1,0 +1,926 @@
+[
+  {
+    "id": "aws-saa-t1-03-001",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs a web application with a database backend. The database receives the same read queries repeatedly, causing high load. The queries return data that changes every 15 minutes. What caching strategy reduces database load?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switching to DynamoDB for faster reads requires rewriting the application and data model and may not provide faster reads for complex relational queries."
+      },
+      {
+        "label": "B",
+        "text": "Enabling RDS Performance Insights provides visibility into database query performance but does not reduce database load or improve read response times."
+      },
+      {
+        "label": "C",
+        "text": "Add Amazon ElastiCache (Redis) as a caching layer in front of RDS to serve repeated read queries from memory, dramatically reducing database load and latency."
+      },
+      {
+        "label": "D",
+        "text": "Enabling RDS Multi-AZ creates a standby replica for failover but does not serve read traffic and does not reduce the load on the primary database instance."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Switching to DynamoDB for faster reads requires rewriting the application and data model and may not provide faster reads for complex relational queries.",
+      "B": "Enabling RDS Performance Insights provides visibility into database query performance but does not reduce database load or improve read response times.",
+      "D": "Enabling RDS Multi-AZ creates a standby replica for failover but does not serve read traffic and does not reduce the load on the primary database instance."
+    },
+    "explanation": "ElastiCache Redis stores query results in memory. With a 15-minute TTL, the cache stays fresh. Subsequent identical queries are served from cache at sub-millisecond latency without hitting the database. Multi-AZ is for failover. Switching databases changes the data architecture. Performance Insights is for monitoring, not caching.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "elasticache",
+      "redis",
+      "caching",
+      "database"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-002",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs to run a high-performance computing (HPC) workload that requires extremely low latency between EC2 instances. The instances must be placed physically close together to minimize inter-node network latency. Which EC2 feature achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Spread placement group"
+      },
+      {
+        "label": "B",
+        "text": "Partition placement group"
+      },
+      {
+        "label": "C",
+        "text": "Reserved Instance in a specific AZ"
+      },
+      {
+        "label": "D",
+        "text": "Cluster placement group"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Cluster placement groups pack instances close together within a single AZ, providing low-latency, high-throughput networking (up to 10 Gbps with enhanced networking, or 100 Gbps with Elastic Network Adapter). Spread groups distribute instances across distinct hardware (for HA). Partition groups spread across logical partitions (for large distributed systems like Hadoop). Reserved Instances reduce cost but don't affect placement.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "placement-groups",
+      "hpc",
+      "cluster",
+      "network-performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-003",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's web application serves static content (HTML, CSS, JS, images) globally. Users in Asia-Pacific report slow page loads because the application is hosted only in us-east-1. What is the most effective solution to reduce latency for global users?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy EC2 instances in every AWS Region requires significant operational overhead and does not automatically route users to the nearest instance or cache static content."
+      },
+      {
+        "label": "B",
+        "text": "Increasing EC2 instance size improves compute capacity for dynamic content generation but does not reduce the geographic latency experienced by distant users."
+      },
+      {
+        "label": "C",
+        "text": "Configure Amazon CloudFront with the S3 bucket as origin to cache and serve static assets from edge locations closest to each user, reducing latency globally."
+      },
+      {
+        "label": "D",
+        "text": "Enabling EC2 Enhanced Networking improves network throughput between the instance and AWS backbone but does not reduce the geographic distance between the server and distant users."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Deploy EC2 instances in every AWS Region requires significant operational overhead and does not automatically route users to the nearest instance or cache static content.",
+      "B": "Increasing EC2 instance size improves compute capacity for dynamic content generation but does not reduce the geographic latency experienced by distant users.",
+      "C": "Configure Amazon CloudFront with the S3 bucket as origin to cache and serve static assets from edge locations closest to each user, reducing latency globally."
+    },
+    "explanation": "CloudFront caches content at 400+ edge locations globally. APAC users receive cached content from a nearby edge location instead of making a round-trip to us-east-1. This dramatically reduces latency for static content. Deploying to every region is expensive and complex. Larger instances or enhanced networking don't reduce geographic latency.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "cloudfront",
+      "cdn",
+      "static-content",
+      "global-latency"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-004",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses Amazon DynamoDB for a gaming leaderboard that requires the fastest possible read performance \u2014 returning the top 10 players with sub-millisecond latency at any scale. Which DynamoDB feature provides microsecond read latency?",
+    "options": [
+      {
+        "label": "A",
+        "text": "DynamoDB Streams"
+      },
+      {
+        "label": "B",
+        "text": "DynamoDB Accelerator (DAX)"
+      },
+      {
+        "label": "C",
+        "text": "DynamoDB Global Tables"
+      },
+      {
+        "label": "D",
+        "text": "DynamoDB On-Demand capacity mode"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "DAX is an in-memory cache for DynamoDB that reduces read latency from single-digit milliseconds to microseconds for cached items. It's API-compatible with DynamoDB \u2014 the application uses the DAX client which transparently serves cached results. Global Tables replicate for low-latency global access. Streams capture change events. On-Demand capacity handles unpredictable traffic without pre-provisioning.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "dynamodb",
+      "dax",
+      "caching",
+      "microsecond-latency"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-005",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An application needs to read a large file from S3 frequently. Each read operation downloads the entire 10 GB file but the application typically only needs a specific 100 MB section. What S3 feature allows reading only a portion of an object?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Range GET retrieves a specific byte range of an object, allowing applications to fetch only the portion of large files needed without downloading the entire object."
+      },
+      {
+        "label": "B",
+        "text": "S3 Transfer Acceleration speeds up complete object uploads and downloads by routing through CloudFront edge locations but does not support partial object retrieval."
+      },
+      {
+        "label": "C",
+        "text": "S3 Multipart Upload splits large objects into parts for parallel upload to S3 but is an upload mechanism and cannot retrieve a specific range of a stored object."
+      },
+      {
+        "label": "D",
+        "text": "S3 Select retrieves a subset of data from a CSV, JSON, or Parquet object using SQL expressions but operates on structured data records, not arbitrary byte ranges."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "S3 Transfer Acceleration speeds up complete object uploads and downloads by routing through CloudFront edge locations but does not support partial object retrieval.",
+      "C": "S3 Multipart Upload splits large objects into parts for parallel upload to S3 but is an upload mechanism and cannot retrieve a specific range of a stored object.",
+      "D": "S3 Select retrieves a subset of data from a CSV, JSON, or Parquet object using SQL expressions but operates on structured data records, not arbitrary byte ranges."
+    },
+    "explanation": "S3 supports the HTTP Range header in GET requests, allowing the application to retrieve only a specific byte range of the object. This is significantly more efficient than downloading the entire 10 GB file when only 100 MB is needed. S3 Select queries data within objects using SQL (for CSV/JSON/Parquet). Multipart Upload is for splitting large uploads. Transfer Acceleration speeds uploads from distant locations.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "s3",
+      "range-get",
+      "performance",
+      "bandwidth"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-006",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company processes transaction records stored as CSV files in S3. They want to run SQL queries against this data without loading it into a database. Which service enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon RDS"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Athena"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EMR"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Redshift"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Athena is a serverless, interactive query service that runs SQL queries directly against files in S3 (CSV, JSON, Parquet, ORC, Avro). No infrastructure to provision or manage. You pay per TB of data scanned. Redshift requires loading data into a cluster. RDS requires database provisioning and data import. EMR is for large-scale distributed processing (Hadoop, Spark) with more setup required.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "athena",
+      "s3",
+      "serverless-query",
+      "sql"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-007",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's EC2 instances need high-performance block storage for a database workload that requires 10,000 IOPS and low latency. Which EBS volume type is most appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "io1 or io2 (Provisioned IOPS SSD) delivers consistent high IOPS and low millisecond latency, making them ideal for I/O-intensive databases requiring predictable performance."
+      },
+      {
+        "label": "B",
+        "text": "sc1 (Cold HDD) provides the lowest cost per gigabyte for infrequently accessed large sequential workloads but offers much lower IOPS than SSD-based volumes."
+      },
+      {
+        "label": "C",
+        "text": "st1 (Throughput Optimized HDD) delivers high sequential read/write throughput for large streaming workloads like log processing but provides lower IOPS than SSD volumes."
+      },
+      {
+        "label": "D",
+        "text": "gp2 (General Purpose SSD) provides a balance of price and performance for most workloads but may throttle under sustained high-IOPS database demands."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "sc1 (Cold HDD) provides the lowest cost per gigabyte for infrequently accessed large sequential workloads but offers much lower IOPS than SSD-based volumes.",
+      "C": "st1 (Throughput Optimized HDD) delivers high sequential read/write throughput for large streaming workloads like log processing but provides lower IOPS than SSD volumes.",
+      "D": "gp2 (General Purpose SSD) provides a balance of price and performance for most workloads but may throttle under sustained high-IOPS database demands."
+    },
+    "explanation": "io1/io2 (Provisioned IOPS SSD) are designed for I/O-intensive workloads like databases that require sustained, high IOPS with low latency. You specify the IOPS independently of volume size (up to 64,000 IOPS for io2). gp2/gp3 are general purpose (max 16,000 IOPS). st1 and sc1 are HDD-based and optimized for throughput, not IOPS \u2014 unsuitable for random I/O database workloads.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "ebs",
+      "iops",
+      "database",
+      "storage-performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-008",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An application generates large amounts of data that must be analyzed in real time as it's produced \u2014 within milliseconds of each event. The data rate is approximately 10,000 records per second. Which AWS service handles this real-time streaming ingestion?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon S3 with event notifications"
+      },
+      {
+        "label": "B",
+        "text": "Amazon SQS Standard queue"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Kinesis Data Streams"
+      },
+      {
+        "label": "D",
+        "text": "AWS Glue ETL jobs"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Kinesis Data Streams is designed for real-time data streaming at scale. Data is available for processing within milliseconds of ingestion. It handles thousands of records per second across multiple shards. Consumers (Lambda, Kinesis Data Analytics, custom applications) process the stream in real time. S3 events are for file-based triggers, not record streaming. SQS is optimized for job queuing. Glue ETL runs batch transformations.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "kinesis",
+      "real-time",
+      "streaming",
+      "ingestion"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-009",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses Amazon Redshift for data warehousing. Query performance has degraded as the data volume grew to 10 TB. A DBA notices many queries scan entire large tables. What Redshift optimization would most improve query performance?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Define distribution keys and sort keys on large tables to co-locate related data on the same compute node and enable efficient zone map pruning during queries."
+      },
+      {
+        "label": "B",
+        "text": "Enabling Redshift automatic backups protects against data loss and supports point-in-time recovery but has no impact on query execution performance."
+      },
+      {
+        "label": "C",
+        "text": "Using Redshift Serverless removes cluster management overhead and scales automatically but does not specifically address the performance of complex analytical queries."
+      },
+      {
+        "label": "D",
+        "text": "Increasing the Redshift cluster node count adds parallel processing capacity but without proper distribution and sort key design the additional nodes may not be utilized."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Enabling Redshift automatic backups protects against data loss and supports point-in-time recovery but has no impact on query execution performance.",
+      "C": "Using Redshift Serverless removes cluster management overhead and scales automatically but does not specifically address the performance of complex analytical queries.",
+      "D": "Increasing the Redshift cluster node count adds parallel processing capacity but without proper distribution and sort key design the additional nodes may not be utilized."
+    },
+    "explanation": "Distribution keys control how data is distributed across Redshift nodes \u2014 choosing the right distribution key minimizes data movement during joins. Sort keys determine physical data ordering \u2014 queries with range predicates on the sort key skip blocks of data (zone map pruning). These schema-level optimizations are the most impactful performance improvements for Redshift before adding hardware. Adding nodes scales capacity but doesn't fix query design issues.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "redshift",
+      "distribution-key",
+      "sort-key",
+      "query-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-010",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company hosts a REST API on EC2 behind an ALB. Their API is stateless and request rate varies from 0 to 50,000 requests per second throughout the day. They want to reduce infrastructure costs and operational overhead. What is the recommended re-architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add more EC2 instances behind the ALB permanently"
+      },
+      {
+        "label": "B",
+        "text": "Use larger EC2 instances to handle peak load 24/7"
+      },
+      {
+        "label": "C",
+        "text": "Replace EC2 instances with AWS Lambda functions behind Amazon API Gateway"
+      },
+      {
+        "label": "D",
+        "text": "Use Spot Instances to reduce cost"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "A stateless API with highly variable traffic (0 to 50K RPS) is ideal for serverless: Lambda scales from 0 to thousands of concurrent invocations automatically, you pay only per invocation, and there's no infrastructure to manage. API Gateway handles the HTTP layer. For near-zero traffic periods, serverless costs approach zero, while running EC2 instances 24/7 wastes capacity.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "lambda",
+      "api-gateway",
+      "serverless",
+      "stateless"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-011",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses Amazon EC2 for a data processing workload that requires very high sequential read/write throughput for large files. The storage must be attached to the instance (not a shared file system). Which EBS type provides the highest throughput for sequential large-file workloads?",
+    "options": [
+      {
+        "label": "A",
+        "text": "io2 (Provisioned IOPS SSD)"
+      },
+      {
+        "label": "B",
+        "text": "sc1 (Cold HDD)"
+      },
+      {
+        "label": "C",
+        "text": "st1 (Throughput Optimized HDD)"
+      },
+      {
+        "label": "D",
+        "text": "gp3 (General Purpose SSD)"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "st1 (Throughput Optimized HDD) is optimized for large sequential workloads like big data, log processing, and data warehousing \u2014 providing up to 500 MB/s throughput at lower cost than SSD. For sequential large-file reads/writes where latency is less important than throughput, st1 is ideal. io2 and gp3 are optimized for IOPS-sensitive random access. sc1 is even cheaper but lower throughput (max 250 MB/s) and for cold data.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "ebs",
+      "st1",
+      "throughput",
+      "sequential-io"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-012",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs to accelerate a machine learning training job that currently takes 8 hours on a single CPU-based EC2 instance. The training is parallelizable across multiple GPUs. What is the most direct solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use an EC2 P-series (GPU) instance type with multiple GPUs for parallel training"
+      },
+      {
+        "label": "B",
+        "text": "Add more CPU-based EC2 instances running in parallel"
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Lambda for distributed ML training"
+      },
+      {
+        "label": "D",
+        "text": "Move the model training to Amazon SageMaker with managed CPU instances"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "GPU instances (p3, p4, p5 series) with NVIDIA GPUs provide massively parallel compute for ML training. A p3.8xlarge has 4 GPUs; a p3.16xlarge has 8 GPUs. ML frameworks (TensorFlow, PyTorch) natively use GPU parallelism to reduce training time dramatically. Multiple CPU instances require custom distribution logic (more complex). Lambda has memory/time limits unsuitable for long training jobs.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "ec2",
+      "gpu",
+      "machine-learning",
+      "compute-performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-013",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses AWS Lambda. They notice that the first request after a period of inactivity takes significantly longer than subsequent requests. What causes this and what feature addresses it for a critical API endpoint?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lambda timeout setting is too low \u2014 increase the timeout"
+      },
+      {
+        "label": "B",
+        "text": "Cold start: Lambda initializes a new execution environment for the first request"
+      },
+      {
+        "label": "C",
+        "text": "VPC configuration adds network latency \u2014 move Lambda outside VPC"
+      },
+      {
+        "label": "D",
+        "text": "Lambda Layer dependencies cause slow initialization"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Lambda cold starts occur when a new execution environment is initialized (downloading code, starting runtime, running initialization code). Provisioned Concurrency pre-initializes a specified number of environments, which stay warm and respond immediately \u2014 eliminating cold start latency for the configured concurrency. Timeout affects how long a function can run. VPC configuration can add cold start latency (it's one factor) but Provisioned Concurrency addresses all cold starts.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "lambda",
+      "cold-start",
+      "provisioned-concurrency",
+      "performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-014",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs analytics queries against 100 TB of log data stored in S3. Queries typically filter by date and region. Currently queries scan the entire dataset. What two optimizations would most reduce Athena query costs and time?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Load the data into Amazon RDS for faster querying"
+      },
+      {
+        "label": "B",
+        "text": "Partition the data in S3 by date and region,"
+      },
+      {
+        "label": "C",
+        "text": "Use Athena workgroups to limit query complexity"
+      },
+      {
+        "label": "D",
+        "text": "Enable Athena query result caching"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Partitioning allows Athena to skip entire partitions that don't match the query filter (e.g., querying January 2024 only reads January 2024 S3 prefixes). Parquet columnar format means queries selecting specific columns only read those columns' data from disk. Together these can reduce data scanned by 99%, directly reducing both cost (charged per TB scanned) and query time. Loading into RDS adds data transfer and storage costs and loses serverless benefits.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "athena",
+      "partitioning",
+      "parquet",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-015",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses Amazon CloudFront. They want to ensure that requests to their origin are only processed if they include a specific HTTP header set by CloudFront. This prevents direct access to the origin. Which CloudFront feature enables this origin protection?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudFront field-level encryption encrypts specific data fields from the viewer all the way to the origin application, protecting sensitive fields from intermediate services."
+      },
+      {
+        "label": "B",
+        "text": "CloudFront geo-restriction blocks or allows users in specific countries but does not restrict which origin the distribution will accept requests from."
+      },
+      {
+        "label": "C",
+        "text": "CloudFront custom HTTP headers add a secret value to requests that CloudFront sends to the origin, allowing the origin to reject requests not passing through CloudFront."
+      },
+      {
+        "label": "D",
+        "text": "CloudFront signed URLs grant time-limited access to individual CloudFront URLs for specific users but do not restrict requests made directly to the origin URL."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "CloudFront field-level encryption encrypts specific data fields from the viewer all the way to the origin application, protecting sensitive fields from intermediate services.",
+      "B": "CloudFront geo-restriction blocks or allows users in specific countries but does not restrict which origin the distribution will accept requests from.",
+      "D": "CloudFront signed URLs grant time-limited access to individual CloudFront URLs for specific users but do not restrict requests made directly to the origin URL."
+    },
+    "explanation": "CloudFront can add custom HTTP headers to all requests sent to the origin. The origin (ALB or EC2) is configured to reject requests that don't include the secret header value. This ensures only traffic passing through CloudFront reaches the origin. For stronger security, the ALB security group should also restrict inbound to CloudFront IP ranges. Signed URLs restrict who can access CloudFront content. Field-level encryption encrypts specific form fields. Geo-restriction blocks by country.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "cloudfront",
+      "custom-headers",
+      "origin-protection",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-016",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's Aurora database has grown to 50 TB. They need to run analytical queries that take 30+ minutes and consume significant CPU, impacting their transactional workload. What Aurora feature allows analytical queries without impacting the primary?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Aurora Parallel Query"
+      },
+      {
+        "label": "B",
+        "text": "Enable Aurora backtrack for historical queries"
+      },
+      {
+        "label": "C",
+        "text": "Aurora Read Replicas dedicated to analytics"
+      },
+      {
+        "label": "D",
+        "text": "Migrate to Amazon Redshift for all queries"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Aurora Read Replicas share the same storage as the primary but run independently. Routing analytical queries to a dedicated read replica isolates CPU load from the transactional primary. Aurora Parallel Query pushes analytical processing into the storage layer (useful for some queries). Backtrack enables reverting the database state. Migrating to Redshift is a larger change \u2014 dedicated read replicas are a simpler first solution.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "aurora",
+      "read-replicas",
+      "analytics",
+      "workload-isolation"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-017",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs to store and query time-series data from thousands of IoT sensors at high write throughput. The data must be queryable by sensor ID and time range. Which database service is optimized for this workload?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon DynamoDB with a composite key (sensor ID + timestamp)"
+      },
+      {
+        "label": "B",
+        "text": "Amazon RDS MySQL"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Timestream"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Neptune"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Amazon Timestream is purpose-built for time-series data \u2014 it automatically organizes data by time, applies time-based tiering, and provides time-series-specific query functions. It scales to handle trillions of daily events from IoT devices. DynamoDB with composite keys also works well for IoT data but lacks native time-series query functions. RDS is general-purpose relational. Neptune is a graph database.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "timestream",
+      "iot",
+      "time-series",
+      "database"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-018",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs their application in a VPC. The application needs to communicate with an external partner's API hosted at a specific IP address. The company uses a NAT Gateway for internet access. They notice high data transfer costs. What reduces NAT Gateway data processing costs for this specific API call?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use an Elastic IP on the EC2 instance"
+      },
+      {
+        "label": "B",
+        "text": "Compress data before sending to reduce bytes transferred"
+      },
+      {
+        "label": "C",
+        "text": "Move the EC2 instance to a public subnet"
+      },
+      {
+        "label": "D",
+        "text": "Use an Interface VPC Endpoint (PrivateLink) if the partner exposes"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "If the partner exposes their API via AWS PrivateLink, an Interface VPC Endpoint routes traffic directly over the AWS network without going through the NAT Gateway, eliminating NAT Gateway data processing charges and providing lower-latency private connectivity. If PrivateLink is not available, traffic must go through NAT. Moving to a public subnet exposes the instance directly. Compression reduces bytes but NAT charges per GB regardless of compression.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "vpc-endpoint",
+      "privatelink",
+      "nat-gateway",
+      "data-transfer"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-019",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An application requires its Amazon EC2 instances to achieve the lowest possible network latency between each other for distributed in-memory computing. The cluster must also tolerate individual instance failures. What combination of EC2 features is appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cluster placement group with multiple instances + Auto"
+      },
+      {
+        "label": "B",
+        "text": "Enhanced Networking only \u2014 placement doesn't matter"
+      },
+      {
+        "label": "C",
+        "text": "Spread placement group for maximum fault tolerance"
+      },
+      {
+        "label": "D",
+        "text": "Reserved Instances for guaranteed availability"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "A cluster placement group provides the lowest inter-instance latency (10-100 Gbps). Auto Scaling can replace failed instances within the placement group. The trade-off is that a hardware failure in the placement group's physical cluster can affect multiple instances, but for maximum network performance this is the correct choice. Spread groups maximize fault tolerance across hardware but sacrifice network proximity. Enhanced Networking helps but placement group is needed for minimum latency.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "placement-groups",
+      "cluster",
+      "enhanced-networking",
+      "hpc"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-020",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to use Amazon Redshift for analytics but their queries access only recent data (last 3 months). Older data (3+ months) is accessed monthly by executive reports. What Redshift feature reduces cost by automatically tiering cold data to S3?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Redshift Automated Snapshots create periodic backups of the cluster for point-in-time recovery but do not optimize the cost or performance of cold data storage."
+      },
+      {
+        "label": "B",
+        "text": "Amazon Redshift with Redshift Spectrum to query historical data stored in S3 (using Intelligent-Tiering for cost), keeping only recent hot data in Redshift managed storage nodes."
+      },
+      {
+        "label": "C",
+        "text": "Redshift Automatic Table Optimization selects sort and distribution keys for new tables but does not manage tiering of cold data to external cheaper storage."
+      },
+      {
+        "label": "D",
+        "text": "Redshift Spectrum queries data directly from S3 without loading it into Redshift but requires manual lifecycle management of which data to move to S3."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Redshift Automated Snapshots create periodic backups of the cluster for point-in-time recovery but do not optimize the cost or performance of cold data storage.",
+      "C": "Redshift Automatic Table Optimization selects sort and distribution keys for new tables but does not manage tiering of cold data to external cheaper storage.",
+      "D": "Redshift Spectrum queries data directly from S3 without loading it into Redshift but requires manual lifecycle management of which data to move to S3."
+    },
+    "explanation": "Store older data in S3 (using Intelligent-Tiering for further cost reduction) and query it with Redshift Spectrum without loading it into Redshift. Keep hot data (last 3 months) in Redshift tables for fast, frequent queries. Spectrum extends Redshift to query S3 data using standard SQL with the same Redshift tools. This tiered approach reduces Redshift storage costs significantly.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "redshift",
+      "redshift-spectrum",
+      "s3",
+      "data-tiering"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-021",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses AWS Global Accelerator for their gaming application. Players connect from various regions. They notice that traffic from Asia-Pacific enters AWS at a US edge location before routing to their us-east-1 backend. What does Global Accelerator do to fix this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Global Accelerator is only for HTTP/HTTPS \u2014 gaming TCP/UDP connections aren't supported"
+      },
+      {
+        "label": "B",
+        "text": "Global Accelerator replicates backend infrastructure to all regions automatically"
+      },
+      {
+        "label": "C",
+        "text": "Nothing \u2014 Global Accelerator routes traffic over the public internet like any other service"
+      },
+      {
+        "label": "D",
+        "text": "Global Accelerator routes user traffic to the nearest AWS edge location and then uses AWS's private"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Global Accelerator routes user packets to the nearest AWS edge location (PoP) and then forwards them over AWS's private global network backbone \u2014 which has lower jitter, packet loss, and latency than the public internet. APAC users connect to an APAC edge location and traffic travels privately to us-east-1. Global Accelerator supports TCP and UDP (suitable for gaming).",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "global-accelerator",
+      "network-performance",
+      "gaming",
+      "edge-location"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-03-022",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses Amazon ElastiCache Redis in cluster mode. Their cache hit ratio dropped from 95% to 60% after they increased the number of cache nodes. Why might this happen and how is it fixed?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase the TTL on all cached items"
+      },
+      {
+        "label": "B",
+        "text": "More nodes means less memory per node \u2014 upgrade to larger nodes"
+      },
+      {
+        "label": "C",
+        "text": "Redis cluster mode doesn't support high hit ratios \u2014 switch to Memcached"
+      },
+      {
+        "label": "D",
+        "text": "In cluster mode, keys are distributed across shards \u2014 if the client doesn't use cluster-aware."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Redis Cluster mode distributes keys across multiple shards using consistent hashing. Standard (non-cluster-aware) Redis clients don't know which shard owns which key and may connect to the wrong node, causing cache misses for keys that exist on other nodes. Cluster-aware clients use the MOVED redirect or connect to the correct shard directly. This is a common issue when migrating from single-node Redis to cluster mode.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "elasticache",
+      "redis",
+      "cluster-mode",
+      "cache-hit-ratio"
+    ]
+  }
+]

@@ -13,6 +13,8 @@
 import { useState } from "react";
 import useDiscoveryStore from "../../store/discoveryStore";
 import useGraphStore from "../../store/graphStore";
+import useAccessStore from "../../store/accessStore";
+import UpgradePrompt from "../ui/UpgradePrompt";
 import { AWS_ICONS } from "../../assets/icons/awsIcons";
 
 // ─── State badge ──────────────────────────────────────────────────────────────
@@ -77,9 +79,13 @@ function ResourceRow({ node, onAdd, added }) {
 
 // ─── Service group ────────────────────────────────────────────────────────────
 
-function ServiceGroup({ service, nodes, addedIds, onAdd, onAddAll }) {
-  const [collapsed, setCollapsed] = useState(false);
+function ServiceGroup({ service, nodes, addedIds, onAdd, onAddAll, defaultCollapsed = false }) {
+  const PAGE_SIZE = 50;
+  const [collapsed, setCollapsed] = useState(defaultCollapsed);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const addedCount = nodes.filter((n) => addedIds.has(n.id)).length;
+  const visibleNodes = nodes.slice(0, visibleCount);
+  const hasMore = nodes.length > visibleCount;
 
   return (
     <div className="border-b border-gray-100 last:border-b-0">
@@ -105,7 +111,7 @@ function ServiceGroup({ service, nodes, addedIds, onAdd, onAddAll }) {
       </div>
 
       {/* Resources */}
-      {!collapsed && nodes.map((node) => (
+      {!collapsed && visibleNodes.map((node) => (
         <ResourceRow
           key={node.id}
           node={node}
@@ -113,6 +119,15 @@ function ServiceGroup({ service, nodes, addedIds, onAdd, onAddAll }) {
           added={addedIds.has(node.id)}
         />
       ))}
+      {!collapsed && hasMore && (
+        <button
+          type="button"
+          onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+          className="w-full text-xs py-2 text-indigo-600 hover:bg-indigo-50 border-t border-gray-100"
+        >
+          Show {Math.min(PAGE_SIZE, nodes.length - visibleCount)} more ({nodes.length - visibleCount} remaining)
+        </button>
+      )}
     </div>
   );
 }
@@ -157,20 +172,29 @@ function EmptyState({ onOpenImport }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function DiscoverTab({ onOpenImport }) {
+  const canDiscover = useAccessStore((s) => s.canUse("discovery"));
   const report = useDiscoveryStore((s) => s.report);
   const clearReport = useDiscoveryStore((s) => s.clearReport);
   const addNode = useGraphStore((s) => s.addNode);
+  const addEdge = useGraphStore((s) => s.addEdge);
   const nodes = useGraphStore((s) => s.nodes);
 
   const [search, setSearch] = useState("");
   const [serviceFilter, setServiceFilter] = useState("all");
   const [addedIds, setAddedIds] = useState(new Set());
+  const [addedEdgeIds, setAddedEdgeIds] = useState(new Set());
+
+  if (!canDiscover) {
+    return <UpgradePrompt feature="discovery" />;
+  }
 
   if (!report) {
     return <EmptyState onOpenImport={onOpenImport} />;
   }
 
   const allNodes = report.nodes ?? [];
+  const reportEdges = report.edges ?? [];
+  const largeReport = allNodes.length > 100;
 
   // Collect unique services in order of first appearance
   const services = [];
@@ -214,23 +238,53 @@ export default function DiscoverTab({ onOpenImport }) {
     };
   }
 
+  function addEdgesForNodes(nodeIdSet, edgeIdsAlreadyAdded) {
+    const canvasIds = new Set([...nodes.map((n) => n.id), ...nodeIdSet]);
+    reportEdges.forEach((edge) => {
+      if (edgeIdsAlreadyAdded.has(edge.id)) return;
+      if (!canvasIds.has(edge.source) || !canvasIds.has(edge.target)) return;
+      addEdge({
+        id: edge.id,
+        source: edge.source,
+        target: edge.target,
+        type: edge.type ?? "network",
+        data: { bidirectional: false },
+      });
+      edgeIdsAlreadyAdded.add(edge.id);
+    });
+    return edgeIdsAlreadyAdded;
+  }
+
   function handleAdd(node, positionIndex = 0) {
     if (addedIds.has(node.id)) return;
     addNode({
       ...node,
       position: nextPosition(positionIndex),
     });
-    setAddedIds((prev) => new Set([...prev, node.id]));
+    const nextIds = new Set([...addedIds, node.id]);
+    const nextEdgeIds = addEdgesForNodes(nextIds, new Set(addedEdgeIds));
+    setAddedIds(nextIds);
+    setAddedEdgeIds(nextEdgeIds);
   }
 
   function handleAddAll(groupNodes) {
     const notYetAdded = groupNodes.filter((n) => !addedIds.has(n.id));
-    notYetAdded.forEach((n, i) => handleAdd(n, i));
+    let nextIds = new Set(addedIds);
+    let nextEdgeIds = new Set(addedEdgeIds);
+    notYetAdded.forEach((n, i) => {
+      addNode({
+        ...n,
+        position: nextPosition(i),
+      });
+      nextIds.add(n.id);
+    });
+    nextEdgeIds = addEdgesForNodes(nextIds, nextEdgeIds);
+    setAddedIds(nextIds);
+    setAddedEdgeIds(nextEdgeIds);
   }
 
   function handleAddAllToCanvas() {
-    const notYetAdded = filtered.filter((n) => !addedIds.has(n.id));
-    notYetAdded.forEach((n, i) => handleAdd(n, i));
+    handleAddAll(filtered);
   }
 
   function handleClear() {
@@ -238,10 +292,12 @@ export default function DiscoverTab({ onOpenImport }) {
     setSearch("");
     setServiceFilter("all");
     setAddedIds(new Set());
+    setAddedEdgeIds(new Set());
   }
 
   const addedCount = addedIds.size;
   const totalCount = allNodes.length;
+  const edgeCount = reportEdges.length;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
@@ -252,6 +308,11 @@ export default function DiscoverTab({ onOpenImport }) {
             <span className="text-xs font-semibold text-gray-700">
               {totalCount} resources
             </span>
+            {edgeCount > 0 && (
+              <span className="text-xs text-gray-500">
+                · {edgeCount} relationships
+              </span>
+            )}
             <span className="text-xs px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200 font-medium">
               {report.region}
             </span>
@@ -333,6 +394,7 @@ export default function DiscoverTab({ onOpenImport }) {
               addedIds={addedIds}
               onAdd={handleAdd}
               onAddAll={handleAddAll}
+              defaultCollapsed={largeReport}
             />
           ))
         )}

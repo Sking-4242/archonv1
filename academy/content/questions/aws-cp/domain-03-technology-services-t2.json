@@ -1,0 +1,1427 @@
+[
+  {
+    "id": "aws-cp-03-t2-001",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs to run a batch processing job overnight. The job can be interrupted and restarted without data loss. Which EC2 pricing option minimizes cost for this workload?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Reserved Instances (1-year)"
+      },
+      {
+        "label": "B",
+        "text": "On-Demand Instances"
+      },
+      {
+        "label": "C",
+        "text": "Savings Plans"
+      },
+      {
+        "label": "D",
+        "text": "Spot Instances"
+      },
+      {
+        "label": "E",
+        "text": "Dedicated Hosts"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "Spot Instances use unused EC2 capacity at discounts up to 90% off On-Demand. Because Spot can be interrupted with 2 minutes notice, they are ideal for fault-tolerant batch jobs that can save progress and restart.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "ec2",
+      "spot-instances",
+      "cost-optimization",
+      "batch-processing"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-002",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's web application receives high read traffic on its relational database. The writes go to a primary instance, but reads are overwhelming it. Which RDS feature reduces read load on the primary?",
+    "options": [
+      {
+        "label": "A",
+        "text": "RDS storage auto-scaling"
+      },
+      {
+        "label": "B",
+        "text": "Amazon ElastiCache"
+      },
+      {
+        "label": "C",
+        "text": "RDS Read Replicas"
+      },
+      {
+        "label": "D",
+        "text": "RDS automated backups"
+      },
+      {
+        "label": "E",
+        "text": "RDS Multi-AZ standby"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "RDS Read Replicas create asynchronous copies of the primary database that can serve read queries, offloading the primary instance. Applications must be configured to send reads to the replica endpoint.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "rds",
+      "read-replicas",
+      "read-scaling",
+      "database"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-003",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An e-commerce company stores product catalog data that requires single-digit millisecond responses at any scale, without managing server capacity. Which database service is the best fit?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon RDS for MySQL"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Neptune"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Redshift"
+      },
+      {
+        "label": "D",
+        "text": "Amazon DynamoDB"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Aurora"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "DynamoDB is a serverless NoSQL database that delivers single-digit millisecond performance at any scale. There are no servers to provision \u2014 it scales capacity automatically.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "dynamodb",
+      "nosql",
+      "serverless",
+      "performance",
+      "auto-scaling"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-004",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to decouple their order processing system so that if the fulfillment service goes down, orders are not lost. Which service should they place between the order intake and fulfillment services?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Step Functions"
+      },
+      {
+        "label": "B",
+        "text": "Amazon SNS"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Kinesis"
+      },
+      {
+        "label": "D",
+        "text": "Amazon EventBridge"
+      },
+      {
+        "label": "E",
+        "text": "Amazon SQS"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "SQS is a managed message queue that stores messages until they are processed. If the fulfillment service goes down, orders accumulate in the queue and are processed when the service recovers \u2014 no orders are lost.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "sqs",
+      "decoupling",
+      "loose-coupling",
+      "queue",
+      "resilience"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-005",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs to run code that resizes images whenever a new image is uploaded to S3. They want to pay only when the code runs and not manage any servers. Which service is most appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EC2 t3.micro"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Lightsail"
+      },
+      {
+        "label": "C",
+        "text": "AWS Lambda"
+      },
+      {
+        "label": "D",
+        "text": "AWS Elastic Beanstalk"
+      },
+      {
+        "label": "E",
+        "text": "Amazon ECS with EC2 launch type"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS Lambda runs code in response to events (such as S3 uploads) with no server management. You pay only for the compute time consumed during each function execution, making it ideal for event-driven, variable-frequency workloads.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "lambda",
+      "serverless",
+      "event-driven",
+      "s3-triggers"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-006",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's S3 bucket contains objects that must be retained for 7 years and cannot be deleted or overwritten during that period to meet compliance requirements. Which S3 feature enforces this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Versioning"
+      },
+      {
+        "label": "B",
+        "text": "S3 Lifecycle policies"
+      },
+      {
+        "label": "C",
+        "text": "S3 Replication"
+      },
+      {
+        "label": "D",
+        "text": "S3 Object Lock"
+      },
+      {
+        "label": "E",
+        "text": "S3 Intelligent-Tiering"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "S3 Object Lock implements WORM (Write Once Read Many) storage. Objects can be locked with a retention period (Compliance mode prevents even root from deleting them) to meet regulations like SEC 17a-4 and HIPAA.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "s3",
+      "object-lock",
+      "worm",
+      "compliance",
+      "data-retention"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-007",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An application runs across 3 EC2 instances behind an Application Load Balancer. One instance fails its health check. What does the ALB do?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sends an alert but continues sending traffic to all instances including the failed one"
+      },
+      {
+        "label": "B",
+        "text": "Pauses all traffic until the instance is replaced"
+      },
+      {
+        "label": "C",
+        "text": "Stops routing traffic to the unhealthy instance and continues routing to the remaining healthy."
+      },
+      {
+        "label": "D",
+        "text": "Fails over to the standby ALB in another Region"
+      },
+      {
+        "label": "E",
+        "text": "Terminates all three instances and launches new ones"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Application Load Balancers continuously health-check registered targets. When an instance fails its health check, the ALB immediately stops routing requests to it and distributes traffic only to healthy instances.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "alb",
+      "health-checks",
+      "load-balancing",
+      "high-availability"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-008",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company is building a VPC and needs some EC2 instances to be accessible from the internet and others to be completely private. How should they architect this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use a single subnet and assign Elastic IPs only to public instances"
+      },
+      {
+        "label": "B",
+        "text": "Create public subnets (with an Internet Gateway) for internet-facing instances and private subnets for backend instances"
+      },
+      {
+        "label": "C",
+        "text": "Put all instances in private subnets and open firewall rules for internet access"
+      },
+      {
+        "label": "D",
+        "text": "Put all instances in one subnet and use security groups to block internet access for private instances"
+      },
+      {
+        "label": "E",
+        "text": "Enable VPC peering to separate public and private instances"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "The standard VPC architecture uses public subnets (with routes to an Internet Gateway) for internet-facing resources like load balancers, and private subnets for backend servers and databases that should not be directly reachable from the internet.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "vpc",
+      "public-subnet",
+      "private-subnet",
+      "internet-gateway",
+      "network-architecture"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-009",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses AWS CloudFormation to deploy infrastructure. An update to the stack fails halfway through, leaving some resources created and others not. What does CloudFormation do by default?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Leaves the stack in the partially deployed state and requires manual cleanup"
+      },
+      {
+        "label": "B",
+        "text": "Deletes the entire stack including previously working resources"
+      },
+      {
+        "label": "C",
+        "text": "Sends an alert but takes no automated action"
+      },
+      {
+        "label": "D",
+        "text": "Rolls back all changes to the previous successful state"
+      },
+      {
+        "label": "E",
+        "text": "Continues deploying the remaining resources and ignores the failure"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "By default, CloudFormation automatically rolls back a failed stack update to the last known working state, ensuring you never end up with a partially configured environment after a deployment failure.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudformation",
+      "rollback",
+      "iac",
+      "stack-management"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-010",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to monitor the CPU utilization of their EC2 instances and send an email when it exceeds 85% for 5 consecutive minutes. Which AWS services should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config and AWS SNS"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Inspector and Amazon SQS"
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudTrail and Amazon SES"
+      },
+      {
+        "label": "D",
+        "text": "AWS Trusted Advisor and Amazon SNS"
+      },
+      {
+        "label": "E",
+        "text": "Amazon CloudWatch Alarms and Amazon SNS"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudWatch Alarms monitor metrics (including EC2 CPU utilization) and trigger actions when thresholds are breached. An alarm can publish to an SNS topic, which delivers email notifications to subscribers.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudwatch",
+      "alarms",
+      "sns",
+      "monitoring",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-011",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An organization needs to register a domain name and route internet traffic to their AWS resources using latency-based routing policies. Which service handles both?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon VPC with an Internet Gateway"
+      },
+      {
+        "label": "B",
+        "text": "Elastic Load Balancing"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Route 53"
+      },
+      {
+        "label": "D",
+        "text": "Amazon CloudFront"
+      },
+      {
+        "label": "E",
+        "text": "AWS Global Accelerator"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon Route 53 is AWS's authoritative DNS service that also allows domain registration. It supports routing policies including latency-based routing (routes users to the AWS Region with lowest latency), geolocation, weighted, and failover routing.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "route53",
+      "dns",
+      "domain-registration",
+      "latency-routing"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-012",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to migrate 80 TB of on-premises data to Amazon S3. Their internet connection is 100 Mbps and is heavily used. Uploading over the internet would take months. What should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Multipart Upload"
+      },
+      {
+        "label": "B",
+        "text": "AWS Direct Connect"
+      },
+      {
+        "label": "C",
+        "text": "S3 Transfer Acceleration"
+      },
+      {
+        "label": "D",
+        "text": "AWS DataSync"
+      },
+      {
+        "label": "E",
+        "text": "AWS Snowball Edge"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Snowball Edge is a physical device shipped to your location. You copy data onto it locally (no internet bandwidth consumed) and ship it back to AWS for ingestion into S3. It is ideal for large migrations when bandwidth is limited.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "snowball",
+      "data-migration",
+      "offline-transfer",
+      "s3"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-013",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company is running a MySQL database on an EC2 instance. They want high availability so the database automatically fails over to a standby if the primary fails, without changing the application connection string. Which service provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EC2 with MySQL in two AZs"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Aurora with one read replica"
+      },
+      {
+        "label": "C",
+        "text": "Amazon DynamoDB with global tables"
+      },
+      {
+        "label": "D",
+        "text": "RDS for MySQL with Multi-AZ deployment"
+      },
+      {
+        "label": "E",
+        "text": "RDS for MySQL with Read Replicas"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "RDS Multi-AZ maintains a synchronous standby replica in another AZ. On primary failure, RDS automatically fails over to the standby and updates the DNS endpoint \u2014 the application reconnects without a connection string change.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "rds",
+      "multi-az",
+      "high-availability",
+      "automatic-failover"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-014",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's application needs to process millions of log entries per second from IoT devices and feed them into analytics dashboards in near real-time. Which service is designed for this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Lambda with a scheduled trigger"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Kinesis Data Streams"
+      },
+      {
+        "label": "C",
+        "text": "Amazon SQS"
+      },
+      {
+        "label": "D",
+        "text": "Amazon SNS"
+      },
+      {
+        "label": "E",
+        "text": "Amazon S3 with batch processing"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon Kinesis Data Streams is designed for ingesting and processing large volumes of streaming data in real time. It can handle millions of records per second and feed analytics services like Kinesis Data Analytics, Lambda, or Redshift.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "kinesis",
+      "streaming",
+      "real-time",
+      "iot",
+      "analytics"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-015",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's S3 bucket contains objects that were frequently accessed 6 months ago but have not been accessed since. They want to automatically move these objects to cheaper storage. Which feature handles this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Object Lock"
+      },
+      {
+        "label": "B",
+        "text": "S3 Versioning"
+      },
+      {
+        "label": "C",
+        "text": "S3 Replication"
+      },
+      {
+        "label": "D",
+        "text": "S3 Lifecycle policies"
+      },
+      {
+        "label": "E",
+        "text": "S3 Event Notifications"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "S3 Lifecycle policies automate transitioning objects between storage classes based on age or last access. For example, objects can transition from Standard \u2192 Standard-IA after 30 days \u2192 Glacier after 90 days \u2192 deleted after 365 days.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "s3",
+      "lifecycle-policies",
+      "cost-optimization",
+      "storage-classes"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-016",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to connect their on-premises Active Directory to AWS so employees can use their existing credentials to access AWS resources. Which service enables this federation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS IAM \u2014 create matching IAM users for each AD user"
+      },
+      {
+        "label": "B",
+        "text": "AWS CloudTrail \u2014 sync AD users to CloudTrail"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Inspector \u2014 scan AD for compliance"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Cognito \u2014 use the on-premises AD as an identity provider"
+      },
+      {
+        "label": "E",
+        "text": "AWS Directory Service or IAM Identity Center with AD integration"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS IAM Identity Center (formerly SSO) integrates with Microsoft AD via AWS Directory Service, enabling employees to log into AWS accounts and applications using their existing AD credentials through SAML 2.0 federation.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "iam-identity-center",
+      "active-directory",
+      "federation",
+      "sso"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-017",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A DevOps team wants to automate building, testing, and deploying their application to production every time code is committed to their repository. Which AWS service orchestrates this CI/CD pipeline?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS CloudFormation"
+      },
+      {
+        "label": "B",
+        "text": "AWS CodePipeline"
+      },
+      {
+        "label": "C",
+        "text": "AWS CodeDeploy"
+      },
+      {
+        "label": "D",
+        "text": "AWS CodeBuild"
+      },
+      {
+        "label": "E",
+        "text": "AWS CodeCommit"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS CodePipeline is a fully managed CI/CD orchestration service. It connects source (CodeCommit/GitHub), build (CodeBuild), and deploy (CodeDeploy/CloudFormation) stages into an automated pipeline triggered by code changes.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "codepipeline",
+      "cicd",
+      "devops",
+      "automation"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-018",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to run containerized microservices without managing any servers or clusters. Which AWS option provides the most serverless container experience?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon ECS with EC2 launch type"
+      },
+      {
+        "label": "B",
+        "text": "Docker on EC2 instances"
+      },
+      {
+        "label": "C",
+        "text": "AWS Fargate with ECS or EKS"
+      },
+      {
+        "label": "D",
+        "text": "AWS Elastic Beanstalk with Docker platform"
+      },
+      {
+        "label": "E",
+        "text": "Amazon EKS with self-managed nodes"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS Fargate is a serverless compute engine for containers. When used with ECS or EKS, it eliminates the need to provision or manage servers \u2014 you define your container requirements and Fargate runs them.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "fargate",
+      "containers",
+      "serverless",
+      "ecs",
+      "eks"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-019",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A gaming company needs a database that can serve leaderboard queries with microsecond latency. Their existing DynamoDB table is too slow for leaderboard reads. What should they add?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon CloudFront in front of DynamoDB"
+      },
+      {
+        "label": "B",
+        "text": "Amazon DynamoDB Accelerator (DAX)"
+      },
+      {
+        "label": "C",
+        "text": "An Amazon ElastiCache Redis cluster"
+      },
+      {
+        "label": "D",
+        "text": "An RDS Read Replica"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Redshift for leaderboard queries"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "DAX (DynamoDB Accelerator) is an in-memory cache purpose-built for DynamoDB. It is API-compatible, requiring minimal code changes, and reduces read latency from milliseconds to microseconds \u2014 ideal for leaderboards and similar high-read workloads.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "dax",
+      "dynamodb",
+      "caching",
+      "microsecond-latency",
+      "gaming"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-020",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to provide a REST API to external developers that allows them to query their product catalog. They want to manage access with API keys and throttle requests per consumer. Which AWS service is designed for this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Elastic Load Balancing"
+      },
+      {
+        "label": "B",
+        "text": "AWS Direct Connect"
+      },
+      {
+        "label": "C",
+        "text": "AWS AppSync"
+      },
+      {
+        "label": "D",
+        "text": "Amazon API Gateway"
+      },
+      {
+        "label": "E",
+        "text": "Amazon CloudFront"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "Amazon API Gateway creates, publishes, and manages REST, HTTP, and WebSocket APIs. It handles authentication (API keys, IAM, Cognito), throttling per consumer, caching, and integrates with Lambda and other backends.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "api-gateway",
+      "rest-api",
+      "api-keys",
+      "throttling"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-021",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company runs critical workloads on AWS and needs to receive technical support from AWS engineers with a 1-hour response time for production system failures. Which support plan provides this SLA?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Basic Support"
+      },
+      {
+        "label": "B",
+        "text": "AWS Developer Support"
+      },
+      {
+        "label": "C",
+        "text": "AWS Enterprise Support"
+      },
+      {
+        "label": "D",
+        "text": "AWS Business Support"
+      },
+      {
+        "label": "E",
+        "text": "AWS Enterprise On-Ramp Support"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "AWS Business Support provides a 1-hour response time for production system down cases (Severity 1). It also includes access to AWS Support engineers via phone/chat and Trusted Advisor full checks.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "support-plans",
+      "business-support",
+      "sla",
+      "response-time"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-022",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A solutions architect needs to choose between Amazon EBS and Amazon S3 for storing user-uploaded profile photos that must be served via URLs. Which is the correct choice and why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EBS \u2014 it provides higher throughput for HTTP serving"
+      },
+      {
+        "label": "B",
+        "text": "S3 \u2014 it stores objects accessible via HTTP/HTTPS URLs, scales to any volume,"
+      },
+      {
+        "label": "C",
+        "text": "EBS \u2014 it replicates data across multiple AZs automatically"
+      },
+      {
+        "label": "D",
+        "text": "EFS \u2014 it is the only service that can serve files via URLs"
+      },
+      {
+        "label": "E",
+        "text": "S3 Glacier \u2014 it provides the lowest cost for profile photos"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon S3 stores objects that can be accessed via HTTPS URLs, serves as the backbone for static content hosting, scales to any amount of data, and is designed for this exact use case. EBS is block storage for compute \u2014 not for HTTP-served content.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "s3",
+      "ebs",
+      "storage",
+      "static-content",
+      "object-storage"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-023",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company is migrating a large Oracle database from on-premises to AWS. They want a managed service that maintains Oracle compatibility but reduces licensing cost over time. Which is the best option?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon RDS for Oracle"
+      },
+      {
+        "label": "B",
+        "text": "Amazon EMR is a cloud big data platform for processing vast amounts of data using open-source tools like Apache Spark, Hive, HBase, Flink, and Hudi."
+      },
+      {
+        "label": "C",
+        "text": "Amazon Redshift is a fast, fully managed, petabyte-scale data warehouse service that makes it simple and cost-effective to analyze your data."
+      },
+      {
+        "label": "D",
+        "text": "Amazon Aurora is a MySQL and PostgreSQL-compatible relational database built for the cloud that combines the performance of commercial databases with open-source simplicity."
+      },
+      {
+        "label": "E",
+        "text": "Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Amazon EMR is a cloud big data platform for processing vast amounts of data using open-source tools like Apache Spark, Hive, HBase, Flink, and Hudi.",
+      "C": "Amazon Redshift is a fast, fully managed, petabyte-scale data warehouse service that makes it simple and cost-effective to analyze your data.",
+      "D": "Amazon Aurora is a MySQL and PostgreSQL-compatible relational database built for the cloud that combines the performance of commercial databases with open-source simplicity.",
+      "E": "Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability."
+    },
+    "explanation": "Amazon RDS for Oracle runs Oracle Database on managed infrastructure. AWS handles patching, backups, and HA \u2014 reducing operational overhead. License Included or BYOL options are available depending on their existing Oracle agreement.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "rds",
+      "oracle",
+      "database-migration",
+      "managed-service"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-024",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's application needs to detect faces in images uploaded by users. They do not have machine learning expertise. Which AWS service provides facial recognition without requiring ML knowledge?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Rekognition \u2014 pre-built image and video analysis with face detection"
+      },
+      {
+        "label": "B",
+        "text": "Amazon SageMaker \u2014 train a custom facial recognition model"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Comprehend \u2014 analyze text for names and faces"
+      },
+      {
+        "label": "D",
+        "text": "AWS DeepLens \u2014 deploy a custom model on a camera device"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Textract \u2014 extract faces from images"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon Rekognition is a pre-built AI service for image and video analysis. It provides facial detection, recognition, sentiment analysis, and object detection via a simple API \u2014 no ML expertise required.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "rekognition",
+      "ai-services",
+      "facial-recognition",
+      "pre-built-ml"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-025",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company stores archived compliance documents in Amazon S3 Glacier. An auditor occasionally needs to retrieve specific documents within 5 minutes. Which Glacier retrieval option should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "On-Demand retrieval \u2014 real-time, no delay"
+      },
+      {
+        "label": "B",
+        "text": "Standard retrieval \u2014 3-5 hours"
+      },
+      {
+        "label": "C",
+        "text": "Expedited retrieval \u2014 1-5 minutes"
+      },
+      {
+        "label": "D",
+        "text": "Instant retrieval \u2014 milliseconds (S3 Glacier Instant Retrieval)"
+      },
+      {
+        "label": "E",
+        "text": "Bulk retrieval \u2014 lowest cost, 5-12 hours"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "S3 Glacier Flexible Retrieval Expedited retrievals complete in 1-5 minutes, making them suitable for occasional urgent access. They cost more than Standard or Bulk but meet the 5-minute requirement.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "glacier",
+      "expedited-retrieval",
+      "archival",
+      "retrieval-tiers"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-026",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company is running a 3-tier web application: a web tier, application tier, and database tier. Which AWS Well-Architected best practice does this design represent?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Single point of failure elimination removes individual components that could bring down the entire application if they fail unexpectedly."
+      },
+      {
+        "label": "B",
+        "text": "Separation of concerns \u2014 each tier has a single responsibility."
+      },
+      {
+        "label": "C",
+        "text": "Infrastructure as code enables automated, repeatable provisioning of all tiers so environments can be recreated consistently from version-controlled templates."
+      },
+      {
+        "label": "D",
+        "text": "Defense in depth places multiple security controls across all tiers so that a breach of one layer does not automatically compromise the entire application."
+      },
+      {
+        "label": "E",
+        "text": "Immutable infrastructure means servers are replaced rather than modified in place, ensuring all environments are built from a known-good baseline."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Single point of failure elimination removes individual components that could bring down the entire application if they fail unexpectedly.",
+      "C": "Infrastructure as code enables automated, repeatable provisioning of all tiers so environments can be recreated consistently from version-controlled templates.",
+      "D": "Defense in depth places multiple security controls across all tiers so that a breach of one layer does not automatically compromise the entire application.",
+      "E": "Immutable infrastructure means servers are replaced rather than modified in place, ensuring all environments are built from a known-good baseline."
+    },
+    "explanation": "A 3-tier architecture separates presentation (web), logic (application), and data (database) tiers. Each can be scaled, secured, and updated independently \u2014 a direct application of the separation of concerns design principle.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "three-tier",
+      "architecture",
+      "separation-of-concerns",
+      "well-architected"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-027",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses AWS for production and needs to isolate their production environment from development to prevent accidental changes. What is the AWS-recommended approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use S3 bucket policies to separate prod and dev resources"
+      },
+      {
+        "label": "B",
+        "text": "Use different Regions for prod and dev"
+      },
+      {
+        "label": "C",
+        "text": "Use separate IAM users for prod and dev activities"
+      },
+      {
+        "label": "D",
+        "text": "Use separate AWS accounts for prod and dev, managed via AWS Organizations"
+      },
+      {
+        "label": "E",
+        "text": "Use different VPCs for prod and dev within the same AWS account"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "AWS best practice is to use separate accounts for prod, staging, and dev. Account-level isolation provides the strongest boundary \u2014 IAM policies in one account cannot affect resources in another. AWS Organizations manages these accounts centrally.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "multi-account",
+      "organizations",
+      "environment-isolation",
+      "best-practice"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-028",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to use a pre-trained natural language model to extract sentiment and key phrases from customer reviews at scale, without building or training an ML model. Which service should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Polly"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Lex"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Comprehend"
+      },
+      {
+        "label": "D",
+        "text": "Amazon SageMaker"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Transcribe"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon Comprehend is a pre-built NLP service that detects sentiment (positive, negative, neutral, mixed), key phrases, entities, and language from text \u2014 no ML expertise required.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "comprehend",
+      "nlp",
+      "sentiment-analysis",
+      "pre-built-ai"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-029",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "multiple",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to run a highly available web application on EC2. Which TWO architectural components should they implement to ensure traffic is distributed and the application can handle an AZ failure? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy EC2 instances in at least two Availability Zones"
+      },
+      {
+        "label": "B",
+        "text": "Enable detailed CloudWatch monitoring on EC2 instances"
+      },
+      {
+        "label": "C",
+        "text": "Use an Application Load Balancer to distribute traffic across healthy instances"
+      },
+      {
+        "label": "D",
+        "text": "Enable VPC Flow Logs on the application subnets"
+      },
+      {
+        "label": "E",
+        "text": "Store all application logs in Amazon S3"
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "distractors": {
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "To survive an AZ failure: (1) deploy instances across multiple AZs so at least one remains available if an AZ fails; (2) place an ALB in front to automatically route traffic only to healthy instances across the available AZs.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "high-availability",
+      "alb",
+      "multi-az",
+      "ec2",
+      "architecture"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t2-030",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "multiple",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "Which TWO statements correctly describe the difference between Amazon S3 and Amazon EBS? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Both S3 and EBS require an EC2 instance to access data"
+      },
+      {
+        "label": "B",
+        "text": "S3 is object storage accessible via HTTP/HTTPS from anywhere"
+      },
+      {
+        "label": "C",
+        "text": "EBS provides lower storage costs than S3 for all workload types"
+      },
+      {
+        "label": "D",
+        "text": "S3 automatically replicates data across multiple AZs; EBS replicates within a single AZ"
+      },
+      {
+        "label": "E",
+        "text": "S3 can only store files smaller than 5 GB"
+      }
+    ],
+    "correct": [
+      "B",
+      "D"
+    ],
+    "distractors": {
+      "A": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "S3 is object storage with a flat namespace accessible globally via HTTPS \u2014 data is replicated across \u22653 AZs within a Region. EBS is block storage that behaves like a hard drive, attached to one EC2 instance at a time, and replicated within a single AZ.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "s3",
+      "ebs",
+      "storage",
+      "object-vs-block",
+      "replication"
+    ]
+  }
+]

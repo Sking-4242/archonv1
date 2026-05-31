@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -10,40 +11,15 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import JSON
+from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
+from app.models.user import User  # re-export for academy routers and seeds
 
 
 def _utcnow() -> datetime:
     return datetime.now(timezone.utc)
-
-
-# ── Users ─────────────────────────────────────────────────────────────────────
-
-class User(Base):
-    __tablename__ = "users"
-
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    name: Mapped[str] = mapped_column(String(200))
-    email: Mapped[str] = mapped_column(String(200), unique=True, index=True)
-    password_hash: Mapped[str] = mapped_column(String(200))
-    role: Mapped[str] = mapped_column(String(20))  # "student" | "instructor"
-    class_code: Mapped[Optional[str]] = mapped_column(String(20), nullable=True, unique=True, index=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
-
-    assignments: Mapped[list["Assignment"]] = relationship(back_populates="creator")
-    submissions: Mapped[list["Submission"]] = relationship(back_populates="student")
-    lesson_progress: Mapped[list["LessonProgress"]] = relationship(back_populates="student")
-    library_progress: Mapped[list["LibraryLessonProgress"]] = relationship(back_populates="student")
-    notes: Mapped[list["LessonNote"]] = relationship(back_populates="author")
-    enrollments_as_student: Mapped[list["ClassEnrollment"]] = relationship(
-        back_populates="student", foreign_keys="ClassEnrollment.student_id"
-    )
-    enrollments_as_instructor: Mapped[list["ClassEnrollment"]] = relationship(
-        back_populates="instructor", foreign_keys="ClassEnrollment.instructor_id"
-    )
 
 
 # ── Assignments ───────────────────────────────────────────────────────────────
@@ -55,11 +31,11 @@ class Assignment(Base):
     title: Mapped[str] = mapped_column(String(300))
     brief: Mapped[str] = mapped_column(Text)
     due_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
-    created_by: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    created_by: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     rubric: Mapped[list] = mapped_column(JSON, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
-    creator: Mapped["User"] = relationship(back_populates="assignments")
+    creator: Mapped["User"] = relationship()
     submissions: Mapped[list["Submission"]] = relationship(back_populates="assignment")
     module_links: Mapped[list["ModuleAssignment"]] = relationship(back_populates="assignment")
 
@@ -69,7 +45,9 @@ class Submission(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     assignment_id: Mapped[int] = mapped_column(Integer, ForeignKey("assignments.id"), index=True)
-    student_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), index=True)
+    student_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), index=True
+    )
     graph: Mapped[dict] = mapped_column(JSON)
     automated_score: Mapped[int] = mapped_column(Integer, default=0)
     total_points: Mapped[int] = mapped_column(Integer, default=0)
@@ -79,7 +57,7 @@ class Submission(Base):
     submitted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     assignment: Mapped["Assignment"] = relationship(back_populates="submissions")
-    student: Mapped["User"] = relationship(back_populates="submissions")
+    student: Mapped["User"] = relationship()
 
 
 # ── Modules & Lessons ─────────────────────────────────────────────────────────
@@ -95,7 +73,7 @@ class Module(Base):
     difficulty_level: Mapped[str] = mapped_column(String(20), default="beginner")
     certification_tags: Mapped[list] = mapped_column(JSON, default=list)
     is_published: Mapped[bool] = mapped_column(Boolean, default=False)
-    created_by: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
+    created_by: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     lessons: Mapped[list["Lesson"]] = relationship(
@@ -155,11 +133,13 @@ class LessonProgress(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     lesson_id: Mapped[int] = mapped_column(Integer, ForeignKey("lessons.id"), nullable=False, index=True)
-    student_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    student_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+    )
     completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     lesson: Mapped["Lesson"] = relationship(back_populates="progress_records")
-    student: Mapped["User"] = relationship(back_populates="lesson_progress")
+    student: Mapped["User"] = relationship()
 
 
 class ModuleAssignment(Base):
@@ -235,11 +215,13 @@ class LibraryLessonProgress(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     library_lesson_id: Mapped[int] = mapped_column(Integer, ForeignKey("library_lessons.id"), nullable=False, index=True)
-    student_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    student_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+    )
     completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     lesson: Mapped["LibraryLesson"] = relationship(back_populates="progress_records")
-    student: Mapped["User"] = relationship(back_populates="library_progress")
+    student: Mapped["User"] = relationship()
 
 
 class ModuleLibraryLink(Base):
@@ -277,7 +259,9 @@ class LessonNote(Base):
     __tablename__ = "lesson_notes"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+    )
     lesson_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("lessons.id"), nullable=True, index=True)
     library_lesson_id: Mapped[Optional[int]] = mapped_column(Integer, ForeignKey("library_lessons.id"), nullable=True, index=True)
     content: Mapped[str] = mapped_column(Text, default="")
@@ -285,7 +269,7 @@ class LessonNote(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow, onupdate=_utcnow)
 
-    author: Mapped["User"] = relationship(back_populates="notes")
+    author: Mapped["User"] = relationship()
     lesson: Mapped[Optional["Lesson"]] = relationship(
         back_populates="notes", foreign_keys=[lesson_id]
     )
@@ -294,22 +278,129 @@ class LessonNote(Base):
     )
 
 
-# ── Class Enrollment (stub — wired up when class codes are implemented) ────────
+# ── Instructor Classes ─────────────────────────────────────────────────────────
 
-class ClassEnrollment(Base):
-    """
-    Links a student to an instructor's class via class_code enrollment.
-    Stub table — enrollment UI and class_code assignment are a future phase.
-    The instructor's class_code is stored on User.class_code.
-    """
+class InstructorClass(Base):
+    """A cohort an instructor manages — roster, assigned content, and progress."""
 
-    __tablename__ = "class_enrollments"
-    __table_args__ = (UniqueConstraint("instructor_id", "student_id", name="uq_class_enrollment"),)
+    __tablename__ = "instructor_classes"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    instructor_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    student_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    enrolled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    name: Mapped[str] = mapped_column(String(300))
+    description: Mapped[str] = mapped_column(Text, default="")
+    class_code: Mapped[str] = mapped_column(String(12), unique=True, index=True)
+    course: Mapped[str] = mapped_column(String(20), default="aws", index=True)
+    instructor_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+    )
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
-    instructor: Mapped["User"] = relationship(back_populates="enrollments_as_instructor", foreign_keys=[instructor_id])
-    student: Mapped["User"] = relationship(back_populates="enrollments_as_student", foreign_keys=[student_id])
+    instructor: Mapped["User"] = relationship(foreign_keys=[instructor_id])
+    enrollments: Mapped[list["ClassEnrollment"]] = relationship(
+        back_populates="instructor_class",
+        cascade="all, delete-orphan",
+    )
+    assignment_links: Mapped[list["ClassAssignmentLink"]] = relationship(
+        back_populates="instructor_class",
+        cascade="all, delete-orphan",
+    )
+    module_links: Mapped[list["ClassModuleLink"]] = relationship(
+        back_populates="instructor_class",
+        cascade="all, delete-orphan",
+    )
+
+
+class ClassEnrollment(Base):
+    """Links a student to an instructor class."""
+
+    __tablename__ = "class_enrollments"
+    __table_args__ = (UniqueConstraint("class_id", "student_id", name="uq_class_enrollment"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    class_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("instructor_classes.id"), nullable=False, index=True
+    )
+    student_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+    )
+    enrolled_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    is_graduating: Mapped[bool] = mapped_column(Boolean, default=False)
+    graduating_marked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+
+    instructor_class: Mapped["InstructorClass"] = relationship(back_populates="enrollments")
+    student: Mapped["User"] = relationship(foreign_keys=[student_id])
+
+
+class ClassAssignmentLink(Base):
+    """Assignment assigned to a class with an optional due date override."""
+
+    __tablename__ = "class_assignment_links"
+    __table_args__ = (
+        UniqueConstraint("class_id", "assignment_id", name="uq_class_assignment_link"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    class_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("instructor_classes.id"), nullable=False, index=True
+    )
+    assignment_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("assignments.id"), nullable=False, index=True
+    )
+    due_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+    instructor_class: Mapped["InstructorClass"] = relationship(back_populates="assignment_links")
+    assignment: Mapped["Assignment"] = relationship()
+
+
+class ClassModuleLink(Base):
+    """Module assigned to a class with an optional due date."""
+
+    __tablename__ = "class_module_links"
+    __table_args__ = (UniqueConstraint("class_id", "module_id", name="uq_class_module_link"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    class_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("instructor_classes.id"), nullable=False, index=True
+    )
+    module_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("modules.id"), nullable=False, index=True
+    )
+    due_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+    instructor_class: Mapped["InstructorClass"] = relationship(back_populates="module_links")
+    module: Mapped["Module"] = relationship()
+
+
+class PracticeTestAttempt(Base):
+    """A student's practice test session (study or live mode)."""
+
+    __tablename__ = "practice_test_attempts"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    student_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
+    )
+    cert: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    test_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    mode: Mapped[str] = mapped_column(String(16), nullable=False)
+    question_ids: Mapped[list] = mapped_column(JSON, default=list)
+    answers: Mapped[dict] = mapped_column(JSON, default=dict)
+    score: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    total: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    percent: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    passed: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    domain_breakdown: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    recommendations: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    per_question: Mapped[list | None] = mapped_column(JSON, nullable=True)
+    time_limit_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    time_spent_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    status: Mapped[str] = mapped_column(String(16), default="in_progress")
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+    student: Mapped["User"] = relationship()

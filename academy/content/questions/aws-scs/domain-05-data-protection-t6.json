@@ -1,0 +1,710 @@
+[
+  {
+    "id": "scs-d5-t6-001",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security engineer wants to ensure that a KMS customer managed key used for S3 server-side encryption cannot be called directly by IAM principals or any other AWS service \u2014 only S3 itself may invoke the key. Which key policy condition achieves this restriction?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable key policy locking with aws:PrincipalOrgID set to the organization ID, limiting use to org members via S3."
+      },
+      {
+        "label": "B",
+        "text": "Add a Deny statement with condition kms:CallerAccount not equal to the account ID, preventing cross-account calls."
+      },
+      {
+        "label": "C",
+        "text": "Add a Deny statement with condition kms:ViaService not equal to s3.amazonaws.com, blocking all non-S3 callers."
+      },
+      {
+        "label": "D",
+        "text": "Add an Allow statement with condition aws:SourceService equal to s3.amazonaws.com, permitting only S3 requests."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The kms:ViaService condition key restricts KMS API calls to those made on behalf of a specific AWS service. A Deny with kms:ViaService StringNotEquals s3.amazonaws.com will block any caller\u2014including direct IAM calls\u2014that does not route through S3. Option A limits callers by account, not by service. Option C uses aws:SourceService which is not a valid KMS condition key; kms:ViaService is the correct key. Option D scopes access by organization membership, not by which AWS service invokes the key.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "kms",
+      "via-service",
+      "key-policy"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-002",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A team deploys Lambda functions from packages stored in S3 and must ensure only code signed by approved teams is executed. After creating a signing profile in AWS Signer, what additional configuration is required on the Lambda function to enforce signature verification at invocation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add a deployment package policy in S3 that invokes AWS Signer verification before Lambda reads the zip from the bucket."
+      },
+      {
+        "label": "B",
+        "text": "Enable Lambda SnapStart on the function and configure the Signer profile in the SnapStart settings for verification at restore."
+      },
+      {
+        "label": "C",
+        "text": "Create a Lambda code signing configuration referencing the signing profile, then associate that configuration with the function."
+      },
+      {
+        "label": "D",
+        "text": "Attach a resource-based policy to the Lambda function that references the Signer signing profile ARN as a source condition."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Lambda code signing requires a code signing configuration (CSC) that lists one or more allowed signing profiles. You create the CSC and then attach it to the Lambda function. When a new deployment occurs, Lambda verifies the package signature against the profiles in the CSC. Option A describes a resource policy, which controls who can invoke the function, not code integrity. Option C confuses SnapStart (performance feature) with code signing. Option D describes a non-existent S3 feature; the verification happens in Lambda, not in S3.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "aws-signer",
+      "lambda",
+      "code-signing"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-003",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An application uploads millions of small objects to an S3 bucket with SSE-KMS. The team observes high KMS API costs from frequent GenerateDataKey calls. Which bucket-level feature reduces these calls without changing the encryption algorithm or key?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable the S3 bucket key, which caches a bucket-level data encryption key from KMS and uses it to derive per-object keys locally."
+      },
+      {
+        "label": "B",
+        "text": "Enable S3 Intelligent-Tiering on the bucket to consolidate object writes and batch the KMS GenerateDataKey requests."
+      },
+      {
+        "label": "C",
+        "text": "Switch the bucket to SSE-S3 encryption, which uses AES-256 managed by S3 and never calls KMS per object."
+      },
+      {
+        "label": "D",
+        "text": "Use multipart upload for all objects so that KMS is called only once per multipart session rather than once per part."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The S3 bucket key feature fetches a single data key from KMS and caches it at the bucket level. S3 uses this bucket-level DEK to generate unique per-object data keys locally, dramatically reducing KMS API calls \u2014 often by 99% for high-throughput workloads. Option C (Intelligent-Tiering) is a storage class feature unrelated to KMS call volume. Option D changes the encryption type entirely, removing customer control of the key. Option B is a misconception; multipart upload still calls KMS for each object regardless of part count.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "s3",
+      "sse-kms",
+      "bucket-key",
+      "kms-costs"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-004",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A PKI team issues certificates via ACM Private CA and needs to support certificate revocation. Clients require the fastest possible detection of a revoked certificate, even for short-lived certs. Which revocation mechanism should they configure and why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use short validity periods instead of revocation; expiry is inherently faster than any revocation mechanism for short-lived certs."
+      },
+      {
+        "label": "B",
+        "text": "Enable OCSP on the Private CA; OCSP provides real-time per-certificate status queries without waiting for a CRL refresh cycle."
+      },
+      {
+        "label": "C",
+        "text": "Enable CRL distribution; CRLs are published to S3 on every revocation event, giving clients near-real-time revocation status."
+      },
+      {
+        "label": "D",
+        "text": "Enable both CRL and OCSP; CRL handles bulk revocation while OCSP stapling eliminates all client latency for status checks."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "OCSP (Online Certificate Status Protocol) allows clients to query the status of a specific certificate in real time, receiving a signed response immediately. CRLs are published periodically (e.g., every 12 hours by default with ACM Private CA), so revocation is not visible until the next CRL refresh and the client's cached CRL expires. Option A overstates CRL timeliness; S3 publication occurs on a schedule, not instantly per revocation. Option C is partially correct about combining mechanisms but misrepresents OCSP stapling as eliminating all latency. Option D avoids revocation rather than addressing the requirement.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "acm-private-ca",
+      "ocsp",
+      "crl",
+      "revocation"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-005",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A compliance requirement mandates that the salary column in a DynamoDB table be encrypted with a different KMS key than all other attributes. A developer proposes enabling per-attribute encryption in the DynamoDB console. What is the correct assessment of this approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "DynamoDB only supports SSE-S3 managed keys; customer managed KMS keys cannot be applied at the table or attribute level."
+      },
+      {
+        "label": "B",
+        "text": "DynamoDB table-level encryption uses one key for the entire table; per-attribute encryption requires the DynamoDB Encryption Client SDK."
+      },
+      {
+        "label": "C",
+        "text": "DynamoDB supports per-attribute KMS keys via the DynamoDB Encryption Client configuration in the console settings panel."
+      },
+      {
+        "label": "D",
+        "text": "DynamoDB encrypts each attribute with a unique DEK derived from the table key, so per-attribute isolation is already enforced natively."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "DynamoDB's native server-side encryption applies a single KMS key to the entire table; you cannot assign different KMS keys to individual attributes in the console or via table settings. To encrypt specific attributes with distinct keys, you must use the AWS DynamoDB Encryption Client (a client-side SDK), which encrypts attribute values before sending them to DynamoDB. Option A incorrectly claims this is a console feature. Option C is false; DynamoDB does not derive per-attribute keys independently for isolation purposes. Option D is wrong; DynamoDB does support customer managed KMS keys at the table level.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "dynamodb",
+      "client-side-encryption",
+      "per-attribute"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-006",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security engineer enables automatic rotation for an AWS Secrets Manager secret that stores a database password. The application owner asks whether the old password is invalidated immediately. What is the accurate behavior of Secrets Manager rotation when first enabled?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Rotation is triggered immediately upon enabling; the secret value is rotated before the function returns, so the old password becomes invalid at once."
+      },
+      {
+        "label": "B",
+        "text": "Secrets Manager stages both the old and new values as AWSPENDING and AWSCURRENT simultaneously, so both passwords remain valid indefinitely."
+      },
+      {
+        "label": "C",
+        "text": "Enabling rotation flags the secret for deletion; the secret must be cloned with a new value before rotation can proceed safely."
+      },
+      {
+        "label": "D",
+        "text": "The first rotation occurs at the next scheduled rotation window; the existing secret value remains valid until that rotation completes."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "When you enable automatic rotation in Secrets Manager, it immediately triggers an initial rotation by invoking the Lambda rotation function. This means the secret is rotated right away, not at the next scheduled window. Subsequent rotations then follow the configured schedule. This behavior can catch teams off guard if the application is not yet updated to fetch the new secret value. Option B incorrectly describes the first rotation as deferred. Option C misrepresents the staging labels; AWSPENDING is a transient state during rotation, not a permanent dual-value state. Option D is entirely fictitious.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "secrets-manager",
+      "rotation",
+      "immediate"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-007",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An organization imports its own 256-bit AES key material into a KMS customer managed key to satisfy a regulatory requirement that the organization control the root key bytes. After import, a compliance auditor asks whether the key can be automatically rotated annually. What is the correct answer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Imported key material supports automatic rotation only if it is wrapped with AWS CloudHSM rather than a local HSM or software tool."
+      },
+      {
+        "label": "B",
+        "text": "KMS automatically rotates imported key material by re-encrypting all data keys under the new material on the configured rotation schedule."
+      },
+      {
+        "label": "C",
+        "text": "Automatic annual rotation is supported for imported key material if the key was imported with the RSAES_OAEP_SHA_256 wrapping algorithm."
+      },
+      {
+        "label": "D",
+        "text": "Imported key material cannot be automatically rotated by KMS; the organization must manually import new key material and update the key alias."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "KMS automatic key rotation is not available for keys with imported key material. Because AWS does not possess or generate the underlying key bytes, it cannot automatically replace them. To rotate an imported key, the organization must generate new key material externally, import it into the same KMS key, and update any aliases or references as needed. Options B and A incorrectly tie rotation eligibility to the wrapping algorithm or HSM origin. Option D is false; KMS does not re-encrypt data keys on behalf of imported material rotations.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "kms",
+      "imported-key-material",
+      "rotation"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-008",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security analyst needs to run SQL queries across years of CloudTrail log data. The logs are stored in S3 with SSE-KMS. The analyst considers migrating to CloudTrail Lake for querying. How does CloudTrail Lake handle encryption of ingested event data internally?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudTrail Lake encrypts event data at rest using the same customer managed KMS key specified for the S3-based trail source."
+      },
+      {
+        "label": "B",
+        "text": "CloudTrail Lake requires SSE-KMS with a customer managed key and automatically imports the S3 trail KMS key during event store creation."
+      },
+      {
+        "label": "C",
+        "text": "CloudTrail Lake stores event data in an AWS-managed internal store that is not encrypted with a customer managed KMS key by default."
+      },
+      {
+        "label": "D",
+        "text": "CloudTrail Lake decrypts S3 trail data during ingestion and re-encrypts it with AES-256 using the account's default AWS-owned key."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "CloudTrail Lake event data stores are managed by AWS and do not use customer managed KMS keys for their internal storage by default. Data is stored in an AWS-managed format optimized for SQL querying. This is a meaningful distinction from S3-based trails where you explicitly control encryption via SSE-KMS. Organizations with strict key management requirements should be aware that CloudTrail Lake does not offer the same CMK control. Options B and D falsely claim KMS CMK support or inheritance. Option A fabricates a re-encryption workflow.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "cloudtrail-lake",
+      "encryption",
+      "kms"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-009",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A legal team places an S3 Object Lock legal hold on a critical document while litigation is ongoing. The object also has a governance-mode retention period that expires in 30 days. What happens to the object when the retention period expires?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The object remains protected by the legal hold indefinitely after the retention period expires; the hold must be explicitly removed first."
+      },
+      {
+        "label": "B",
+        "text": "The object is automatically deleted when the governance retention period expires because the legal hold is subordinate to the retention date."
+      },
+      {
+        "label": "C",
+        "text": "The governance retention period is automatically extended to match the legal hold duration, preventing any gap in protection."
+      },
+      {
+        "label": "D",
+        "text": "The legal hold is automatically lifted when the governance retention period expires, and the object becomes deletable immediately."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "S3 Object Lock legal hold and retention periods are independent protection mechanisms. A legal hold prevents deletion or overwrite regardless of whether a retention period is active, expired, or never set. When the governance retention period expires, the object is no longer protected by that retention rule, but the legal hold remains in force until explicitly removed by a principal with the s3:PutObjectLegalHold permission. Options B and A incorrectly subordinate the legal hold to the retention period. Option D describes a non-existent auto-extension feature.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "s3",
+      "object-lock",
+      "legal-hold"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-010",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A developer requests the private key for a TLS certificate provisioned via AWS Certificate Manager (ACM) to install on an on-premises load balancer. What is the correct response regarding ACM's design behavior?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ACM allows private key export using the CLI command acm export-certificate with a passphrase for certificates in us-east-1 only."
+      },
+      {
+        "label": "B",
+        "text": "Private keys can be exported via the ACM console after enabling key export mode in the certificate's advanced settings."
+      },
+      {
+        "label": "C",
+        "text": "ACM allows private key export only for certificates issued through ACM Private CA, not for certificates issued by ACM's public CA."
+      },
+      {
+        "label": "D",
+        "text": "ACM never exposes the private key for ACM-managed certificates; export is blocked by design to prevent key material exfiltration."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "ACM is designed so that private keys for ACM-managed certificates are never exposed. This is a deliberate security control \u2014 the keys are stored and used only within AWS services and cannot be downloaded or exported. If a certificate needs to be installed on external infrastructure, the operator must generate the key pair themselves, create a CSR, obtain a certificate from an external or private CA, and then import both into ACM. Option C is incorrect; ACM Private CA certificates issued through ACM also cannot have their managed keys exported. Options A and B describe non-existent features.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "acm",
+      "private-key",
+      "export"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-011",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A KMS key policy must ensure that callers always include the encryption context key 'ProjectID' when calling kms:Encrypt or kms:Decrypt. Without this context key present, the request should be denied. Which condition key enforces this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use kms:EncryptionContextKeys with ForAnyValue:StringEquals set to ProjectID so at least the ProjectID key must appear in the context."
+      },
+      {
+        "label": "B",
+        "text": "Use aws:RequestTag/ProjectID with StringNotNull to verify the ProjectID tag exists on the caller's IAM identity at request time."
+      },
+      {
+        "label": "C",
+        "text": "Use kms:EncryptionContext:ProjectID with StringEquals to require a specific ProjectID value in every encrypt and decrypt call."
+      },
+      {
+        "label": "D",
+        "text": "Use kms:EncryptionContextKeys with ForAllValues:StringEquals set to ProjectID to require that key to be present in the context."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "kms:EncryptionContextKeys is a multi-valued condition key containing the set of keys (not values) present in the encryption context. Using ForAnyValue:StringEquals with 'ProjectID' enforces that the ProjectID key must appear in the context without constraining its value or other context keys. Option C (kms:EncryptionContext:ProjectID) checks for a specific value, which is stricter than just requiring the key to exist. Option D with ForAllValues would require the context to contain only ProjectID and no other keys, which is overly restrictive. Option B uses a request tag condition unrelated to encryption context.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "kms",
+      "encryption-context",
+      "condition-keys"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-012",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security team wants Amazon Macie to detect a proprietary internal employee ID format (e.g., EMP-XXXXXXXX where X is a digit) that Macie's built-in managed identifiers do not cover. What Macie feature should they configure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use an S3 event notification with Lambda to scan objects for the pattern, then publish custom findings to Macie via the API."
+      },
+      {
+        "label": "B",
+        "text": "Create a Macie findings filter with a custom regex pattern to suppress findings that do not match the employee ID format."
+      },
+      {
+        "label": "C",
+        "text": "Enable Macie automated sensitive data discovery and train it with sample employee ID values to learn the custom format."
+      },
+      {
+        "label": "D",
+        "text": "Create a Macie custom data identifier with a regex for the pattern, optional keywords, and a proximity value to increase precision."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Macie custom data identifiers allow you to define proprietary data types using a regular expression, optional supporting keywords, and a proximity value specifying how close the keyword must be to the regex match. This combination reduces false positives for patterns that resemble common strings. Option C describes findings filters, which suppress or organize existing findings rather than detect new data types. Option A describes automated discovery, which uses Macie's built-in identifiers and cannot be trained on custom patterns. Option B is a valid DIY workaround but bypasses Macie's native custom identifier feature, which is the designed solution.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "macie",
+      "custom-data-identifier",
+      "classification"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-013",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An operations team has a large EFS file system containing sensitive data that was created without encryption at rest. Management now requires the data to be encrypted at rest using a KMS key. What is the correct approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a new encrypted EFS file system with the desired KMS key, then migrate data using AWS DataSync or copy commands."
+      },
+      {
+        "label": "B",
+        "text": "Apply a KMS key ARN to the existing EFS file system using the ModifyFileSystem API, which re-encrypts data transparently online."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Backup to create an encrypted recovery point of the EFS file system, then restore it in-place as an encrypted volume."
+      },
+      {
+        "label": "D",
+        "text": "Enable EFS encryption at rest in the console by navigating to the file system settings and toggling the encryption switch."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "EFS encryption at rest must be enabled at file system creation time and cannot be enabled retroactively on an existing unencrypted file system. There is no in-place encryption option. The standard approach is to create a new EFS file system with encryption enabled, then migrate data using AWS DataSync or manual copy operations. Option C is incorrect; the encryption toggle does not exist for existing file systems. Option A is partially plausible but AWS Backup restores create a new file system rather than encrypting in place. Option B describes a non-existent API capability.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "efs",
+      "encryption-at-rest",
+      "migration"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-014",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A central security account hosts an ACM Private CA. A separate application account needs to issue TLS certificates from that CA without giving the application account permissions to the CA's KMS key. Which mechanism enables cross-account certificate issuance?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Share the Private CA ARN with the application account using AWS RAM, then grant acm-pca:IssueCertificate via a resource-based policy on the CA."
+      },
+      {
+        "label": "B",
+        "text": "Create an IAM role in the security account and allow the application account to assume it, then call acm-pca:IssueCertificate as that role."
+      },
+      {
+        "label": "C",
+        "text": "Enable cross-account mode in the Private CA console, which automatically provisions permissions in all AWS accounts in the organization."
+      },
+      {
+        "label": "D",
+        "text": "Export the CA certificate chain from ACM Private CA and import it into the application account's ACM as a trusted issuing CA."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "ACM Private CA supports cross-account certificate issuance through two mechanisms: AWS Resource Access Manager (RAM) sharing of the CA resource, and CA resource-based policies. When you share the CA via RAM and grant the acm-pca:IssueCertificate permission via a resource-based policy, principals in the application account can issue certificates directly without needing access to the CA's KMS key \u2014 the key operations happen transparently in the security account. Option B describes importing a CA cert for trust, not for issuance. Option C is a valid fallback but requires managing a cross-account role and is not the designed mechanism for this use case. Option D describes a non-existent console feature.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "acm-private-ca",
+      "cross-account",
+      "ram"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-015",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A KMS custom key store is backed by an AWS CloudHSM cluster. After routine HSM maintenance, an application reports that all KMS encrypt and decrypt operations are failing with KMSInvalidStateException. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The HSM cluster's TLS certificate expired during maintenance, causing KMS to reject the connection and disable key operations."
+      },
+      {
+        "label": "B",
+        "text": "The KMS service rotated the custom key store's kmsuser credentials during maintenance, invalidating the HSM session tokens."
+      },
+      {
+        "label": "C",
+        "text": "The KMS key was automatically disabled during the CloudHSM maintenance window to prevent data corruption during HSM updates."
+      },
+      {
+        "label": "D",
+        "text": "The custom key store's connection to the CloudHSM cluster was severed and has not been reconnected, so KMS cannot reach the key material."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "When a CloudHSM cluster backing a KMS custom key store loses its network connection, the custom key store transitions to a DISCONNECTED state. In this state, all cryptographic operations fail with KMSInvalidStateException. The resolution is to reconnect the custom key store via the KMS console or ConnectCustomKeyStore API. Option C is incorrect; KMS does not automatically disable keys during maintenance. Option A describes a certificate expiry scenario that does not align with standard maintenance behavior. Option B describes a non-existent automatic credential rotation by KMS.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "kms",
+      "custom-key-store",
+      "cloudhsm",
+      "connection-state"
+    ]
+  },
+  {
+    "id": "scs-d5-t6-016",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An S3 bucket contains millions of objects uploaded before SSE-KMS was configured as the bucket default. A compliance mandate requires all existing objects to be encrypted at rest with a specific KMS key. Which approach is most operationally efficient at scale?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Config with an auto-remediation rule that calls PutObject for each non-compliant object to re-upload it with SSE-KMS enabled."
+      },
+      {
+        "label": "B",
+        "text": "Enable S3 default encryption on the bucket; this retroactively re-encrypts all existing objects with the specified KMS key automatically."
+      },
+      {
+        "label": "C",
+        "text": "Create an S3 Batch Operations job with a Copy operation targeting the same bucket, specifying the KMS key in the SSE-KMS server-side encryption setting."
+      },
+      {
+        "label": "D",
+        "text": "Write a Lambda function triggered by an EventBridge schedule that calls CopyObject in a loop until all unencrypted objects are processed."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "S3 Batch Operations is designed for exactly this use case: performing operations on millions of S3 objects at scale without custom code. A Batch Operations Copy job copies each object to the same key in the same bucket (a same-bucket copy), allowing you to specify SSE-KMS with a customer managed key. S3 replaces the existing object with the newly encrypted copy. Option A using AWS Config auto-remediation is not designed for bulk object operations and would be extremely slow and costly at this scale. Option B is a common misconception; enabling default encryption only applies to new objects uploaded after the setting is changed \u2014 it does not retroactively encrypt existing objects. Option D works but is operationally inefficient compared to the purpose-built Batch Operations service.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "s3",
+      "batch-operations",
+      "retroactive-encryption",
+      "sse-kms"
+    ]
+  }
+]

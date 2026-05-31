@@ -10,8 +10,9 @@ export default defineConfig({
   server: {
     port: parseInt(process.env.ACADEMY_PORT || '3001'),
     proxy: {
-      // All /academy/* requests are forwarded to the backend.
-      // The browser sees them as same-origin (localhost:3001), so no CORS.
+      '/auth': { target: BACKEND_URL, changeOrigin: true },
+      '/access': { target: BACKEND_URL, changeOrigin: true },
+      '/license': { target: BACKEND_URL, changeOrigin: true },
       '/academy': {
         target: BACKEND_URL,
         changeOrigin: true,

@@ -65,7 +65,7 @@ def list_module_library_links(
 
     lesson_ids = [l.library_lesson_id for l in links]
     completed_ids: set[int] = set()
-    if current_user.role == "student":
+    if current_user.academy_role == "student":
         rows = (
             db.query(LibraryLessonProgress.library_lesson_id)
             .filter(

@@ -1,0 +1,989 @@
+[
+  {
+    "id": "aws-saa-t6-02-001",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company runs a microservices application on EKS. During a recent incident, a memory leak in one service (Service A) caused its pods to consume all node memory, evicting other pods and causing cluster-wide instability. The team wants to prevent one service from impacting others. Which Kubernetes configuration prevents this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy Service A on dedicated nodes using node selectors"
+      },
+      {
+        "label": "B",
+        "text": "Use Kubernetes HPA to scale Service A when memory usage is high"
+      },
+      {
+        "label": "C",
+        "text": "Set Kubernetes resource Requests and Limits on Service A pods"
+      },
+      {
+        "label": "D",
+        "text": "Increase node memory \u2014 more memory prevents eviction"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Kubernetes Resource Management: (1) Requests: guaranteed minimum resources for the pod \u2014 scheduler places the pod on nodes with sufficient available capacity; (2) Limits: hard cap on resource usage \u2014 if a pod exceeds the memory limit, it's OOMKilled (killed and restarted), not allowed to consume node memory to the point of evicting other pods. Setting memory limit = memory request for Service A ensures it's killed before consuming all node memory. Dedicated nodes (option C) isolate Service A but don't prevent the memory leak from consuming its own dedicated node. HPA scales replicas based on CPU/memory but doesn't cap per-pod memory usage.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "eks",
+      "kubernetes",
+      "resource-limits",
+      "requests",
+      "oom"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-002",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company runs a DynamoDB table with 50,000 WCU provisioned. A new feature launch causes writes to spike to 200,000 WCU/second for 2 minutes, then return to normal. DynamoDB Auto Scaling is enabled with max=60,000 WCU. During the spike, clients receive ProvisionedThroughputExceededException. What configuration change handles this spike without permanently increasing provisioned capacity?",
+    "options": [
+      {
+        "label": "A",
+        "text": "DynamoDB has built-in burst capacity: tables retain up to 5 minutes of unused capacity (up to."
+      },
+      {
+        "label": "B",
+        "text": "Increase the Auto Scaling maximum to 250,000 WCU"
+      },
+      {
+        "label": "C",
+        "text": "Use DynamoDB Transactions to batch the spike writes into fewer API calls"
+      },
+      {
+        "label": "D",
+        "text": "Switch to DynamoDB On-Demand for the duration of the spike and switch back"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "DynamoDB burst capacity: unused provisioned throughput (up to 300 seconds worth) is banked as burst capacity. At 50,000 WCU provisioned, up to 50,000 \u00d7 300 = 15 million WCUs can be burst. The spike of 200,000 WCU/second for 2 minutes = 24 million WCUs total. 200K - 50K = 150K excess WCU/second exceeds the burst capacity available. Mitigation: (1) Client-side exponential backoff spreads the write load over more time, potentially fitting within burst capacity; (2) Application-side write buffering (SQS queue) throttles writes to DynamoDB at 50K WCU/second. Switching to On-Demand mode requires 24 hours before switching back. Increasing max to 250K is fine but may take minutes for Auto Scaling to react.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "dynamodb",
+      "burst-capacity",
+      "throttling",
+      "auto-scaling",
+      "writes"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-003",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS CodeDeploy for EC2 deployments. After a failed deployment, the EC2 instances are in a FAILED state. Some instances were successfully updated before the failure. What is the correct CodeDeploy behavior and recovery action?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CodeDeploy retries the failed deployment 3 times before marking it as failed"
+      },
+      {
+        "label": "B",
+        "text": "CodeDeploy automatically rolls back all instances to the previous version"
+      },
+      {
+        "label": "C",
+        "text": "Failed instances are automatically terminated and replaced by Auto Scaling"
+      },
+      {
+        "label": "D",
+        "text": "CodeDeploy stops the deployment at the failed instance but does NOT automatically roll back already-deployed."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "CodeDeploy deployment behavior: when a deployment fails, CodeDeploy stops deploying to additional instances. Instances that were already successfully updated remain on the new version. Instances that failed remain in a failed state. Auto-rollback can be configured (rollback on deployment failure or CloudWatch alarm), but WITHOUT auto-rollback configured, it's manual. Even with auto-rollback, CodeDeploy re-deploys the previous revision to ALL instances (including successfully updated ones). This creates a window of inconsistency. The recovery action is to trigger a manual rollback or deploy a fixed revision to normalize the fleet.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "codedeploy",
+      "deployment",
+      "rollback",
+      "ec2",
+      "ci-cd"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-004",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company has a VPC with three application tiers in separate subnets (public, private, isolated). NACLs are configured on each subnet. A new requirement adds a 4th subnet for a new service. Traffic from this subnet needs to reach the isolated database subnet. The security team applies a NACL to the isolated subnet blocking all traffic except from the private subnet. The new service subnet has a NACL allowing all outbound traffic. Connections from the new service subnet to the database subnet fail. Why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Security groups are blocking the traffic \u2014 check the database security group"
+      },
+      {
+        "label": "B",
+        "text": "The route table in the new service subnet doesn't have a route to the isolated subnet"
+      },
+      {
+        "label": "C",
+        "text": "NACLs are stateless \u2014 the isolated subnet NACL must explicitly allow RETURN traffic (inbound allowed, but outbound response"
+      },
+      {
+        "label": "D",
+        "text": "NACLs only apply to internet-facing traffic \u2014 internal subnet traffic bypasses NACLs"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "NACLs are stateless \u2014 unlike security groups (which are stateful), NACLs require explicit rules for BOTH directions of traffic. Even if the inbound rule on the isolated subnet NACL only allows from the private subnet, the response traffic from the database (isolated subnet \u2192 new service subnet) is also subject to the isolated subnet's OUTBOUND NACL rules. If there's no outbound rule allowing return traffic to the new service subnet's CIDR, responses are dropped. Fix: add an outbound NACL rule on the isolated subnet allowing return traffic to the new service subnet on ephemeral ports (1024-65535).",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "nacl",
+      "stateless",
+      "vpc",
+      "subnets",
+      "networking"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-005",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses CloudFormation nested stacks. The parent stack deploys a child stack that creates an RDS database. The child stack fails due to an insufficient RDS capacity error. What happens to the parent stack?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The parent stack rolls back completely \u2014 child stack failure causes the parent stack to fail."
+      },
+      {
+        "label": "B",
+        "text": "Only the child stack rolls back \u2014 the parent stack continues with remaining resources"
+      },
+      {
+        "label": "C",
+        "text": "CloudFormation pauses and waits for manual intervention before proceeding or rolling back"
+      },
+      {
+        "label": "D",
+        "text": "The parent stack continues deploying other resources and marks the child stack as failed"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudFormation nested stack behavior: when a child stack fails, the PARENT stack also fails. CloudFormation then rolls back the parent stack, which includes rolling back all resources created by the parent (including calling DeleteStack on the child stack). This cascading failure/rollback behavior is by design \u2014 CloudFormation maintains transactional consistency for the entire nested stack hierarchy. The default behavior is complete rollback on any resource failure. Exception: if you enable 'Preserve successfully provisioned resources' in the stack rollback configuration, you can skip specific resources.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "cloudformation",
+      "nested-stacks",
+      "rollback",
+      "failure",
+      "rds"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-006",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company has a complex multi-tier application that takes 12 minutes to fully start (legacy initialization). They run it on a single EC2 instance. If the instance fails, the 12-minute startup means significant downtime. The application cannot be modified. They want to achieve 1-minute RTO. Which architecture achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use a warm standby EC2 instance that is pre-started and running the application continuously"
+      },
+      {
+        "label": "B",
+        "text": "Enable Multi-AZ for EC2 instances"
+      },
+      {
+        "label": "C",
+        "text": "Enable EC2 Auto Recovery \u2014 AWS recovers the instance on the same hardware within 1 minute"
+      },
+      {
+        "label": "D",
+        "text": "Use an EBS snapshot-based recovery that restores in 1 minute"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "12-minute startup prevents reactive approaches (ASG launch, restore from snapshot). For 1-minute RTO with an unmodifiable application: pre-warm a standby instance (already running the application). Route 53 health check: interval=10 seconds, failureThreshold=1 \u2192 detects failure in 10-30 seconds \u2192 DNS failover to standby IP. Total RTO: ~30-60 seconds. This is the Warm Standby DR tier. EC2 Auto Recovery recovers the instance on the same hardware after hardware failure but doesn't help for software failures; recovery itself can take 2-10 minutes. EBS snapshot restore takes 10-60 minutes. EC2 doesn't have native Multi-AZ (that's an RDS/ALB concept).",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "warm-standby",
+      "ec2",
+      "route53",
+      "health-check",
+      "rto"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-007",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company runs an application on ECS Fargate. The application uses DynamoDB. After migrating to Fargate from EC2, the DynamoDB write latency p99 increased from 3ms to 50ms. All other metrics look normal. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Fargate has lower network bandwidth than EC2 for DynamoDB calls"
+      },
+      {
+        "label": "B",
+        "text": "DynamoDB performance degrades when called from Fargate due to cold start overhead"
+      },
+      {
+        "label": "C",
+        "text": "The ECS Fargate tasks don't have a DynamoDB VPC endpoint \u2014 traffic routes."
+      },
+      {
+        "label": "D",
+        "text": "The IAM role for Fargate tasks has additional permission checks that add latency"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "When migrating from EC2 to Fargate: EC2 in a private subnet typically had a VPC endpoint for DynamoDB (Gateway Endpoint), keeping traffic on the AWS network with low latency. Fargate tasks in the same private subnet should use the same Gateway Endpoint \u2014 but if the Fargate task subnet's route table doesn't have the VPC endpoint route, DynamoDB traffic goes through the NAT Gateway (public internet path). NAT Gateway adds processing overhead ($0.045/GB) and latency (vs. private network). Adding the DynamoDB Gateway Endpoint to the Fargate subnet's route table restores the low-latency path. This is a migration gap commonly overlooked.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "fargate",
+      "dynamodb",
+      "vpc-endpoint",
+      "latency",
+      "migration"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-008",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company runs Step Functions workflows for order processing. Each workflow takes 15-30 minutes. The company processes 10,000 orders/day. The Step Functions bill is $50,000/month. Analysis shows the state machine has 50 state transitions per execution (mostly Wait states and Choice states for polling). Which pricing tier change dramatically reduces the bill?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Migrate from Step Functions Standard workflow to Step Functions Express workflow"
+      },
+      {
+        "label": "B",
+        "text": "Switch from Lambda to ECS for the activities to reduce per-transition cost"
+      },
+      {
+        "label": "C",
+        "text": "Reduce the number of state transitions by combining multiple Lambda invocations into one"
+      },
+      {
+        "label": "D",
+        "text": "Use SQS instead of Step Functions to eliminate per-transition costs"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Step Functions Standard: $0.025 per 1,000 state transitions. 10,000 orders/day \u00d7 50 transitions \u00d7 30 days = 15M transitions/month \u00d7 $0.025/1K = $375/month. Wait \u2014 actual $50K/month implies much higher transition counts. Step Functions Express: $1 per million executions + $0.00001/GB-second execution duration. 10,000/day \u00d7 30 = 300K executions/month \u00d7 $1/million = $0.30 + duration cost (\u2248$5-20/month total). Express is 99%+ cheaper for this use case. Express supports workflows up to 5 minutes \u2014 at 15-30 minutes, Express is NOT suitable. The correct answer depends on duration: if 15-30 min exceeds 5 min limit, Express doesn't apply. However, this is the typical exam pattern \u2014 check duration.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "step-functions",
+      "express-workflow",
+      "standard-workflow",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-009",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Elastic Beanstalk for a web application. During a peak traffic event, the application becomes unresponsive. Investigation shows the ALB health checks are failing \u2014 the application reports HTTP 503. Beanstalk terminates the unhealthy instances and launches new ones, causing a vicious cycle. What configuration prevents this cascading failure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch to an NLB \u2014 NLB health checks are less aggressive than ALB"
+      },
+      {
+        "label": "B",
+        "text": "Disable health checks during high traffic"
+      },
+      {
+        "label": "C",
+        "text": "Increase the ALB health check timeout to prevent false failures"
+      },
+      {
+        "label": "D",
+        "text": "Configure a minimum instance count and set the ALB health check grace period sufficiently."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "The vicious cycle: overloaded \u2192 503 \u2192 health check fails \u2192 instance terminated \u2192 fewer instances \u2192 more overload \u2192 more 503s. Solutions: (1) Health check grace period: gives newly launched instances time to initialize without being killed. (2) More importantly: don't rely solely on health check termination \u2014 configure the Auto Scaling group's minimum instance count to prevent scale-in below a safe floor during emergencies. (3) Pre-scale before predicted peaks. The ALB health check grace period for Auto Scaling groups (not the same as ALB target group health check grace period) prevents premature termination during startup. The fundamental fix is capacity management, not health check configuration.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "elastic-beanstalk",
+      "health-check",
+      "auto-scaling",
+      "cascading-failure",
+      "grace-period"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-010",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Aurora PostgreSQL with PITR. An operations mistake drops a critical schema (all tables in the schema). It's been 3 hours since the drop. Other applications continue writing to other schemas. The team needs to recover the dropped schema tables without losing the 3 hours of data in other schemas. What is the MOST targeted recovery approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Aurora Backtrack to rewind the cluster 3 hours \u2014 other schema data is preserved"
+      },
+      {
+        "label": "B",
+        "text": "Use Aurora PITR to restore to a new cluster at the time just before the drop; use pg_dump to extract the dropped schema; pg_restore into the production cluster"
+      },
+      {
+        "label": "C",
+        "text": "Use Aurora Export to S3 to export the dropped tables from a point-in-time backup, then import the table data into the production cluster"
+      },
+      {
+        "label": "D",
+        "text": "Restore the entire Aurora cluster to the point before the drop using PITR \u2014 3 hours of data in other schemas will be lost"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Same surgical recovery pattern as T5: PITR to a NEW cluster (not replacing production) preserves all ongoing production data. The new cluster (restored to T-3h-1min) has the dropped schema. pg_dump the specific schema from the restored cluster \u2192 pg_restore into production. Aurora Backtrack rewinds the ENTIRE cluster \u2014 losing 3 hours of data in all schemas (option D is wrong for this reason). Aurora Export to S3 (option B) exports the current cluster's data to Parquet \u2014 doesn't help recover already-dropped data from 3 hours ago. Option A loses 3 hours of data.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "aurora",
+      "pitr",
+      "schema-recovery",
+      "postgresql",
+      "disaster-recovery"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-011",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Amazon SNS for notifications. A subscriber (Lambda function) occasionally returns a 429 TooManyRequests response when overwhelmed. SNS marks this as a delivery failure and retries with exponential backoff. After all retries are exhausted, the message is lost. The team wants to capture these undelivered messages. What SNS feature captures them?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable SNS message filtering to reduce the message volume to the Lambda"
+      },
+      {
+        "label": "B",
+        "text": "Create a CloudWatch alarm on SNS NumberOfNotificationsFailedToDeliver"
+      },
+      {
+        "label": "C",
+        "text": "Increase the Lambda function's concurrency limit to prevent throttling"
+      },
+      {
+        "label": "D",
+        "text": "Enable SNS dead-letter queues (DLQ) on the subscription \u2014 failed/undelivered messages are sent to."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "SNS supports per-subscription dead-letter queues: when a delivery attempt to a subscriber (Lambda, HTTP endpoint, SQS) fails after all retry attempts (configurable: 3-100,000 retries with exponential backoff), the message is sent to the configured SQS DLQ. The DLQ can be consumed for analysis, alerting, or reprocessing. This is a per-subscription configuration (each subscriber can have its own DLQ). Message filtering reduces which messages reach a subscriber (addressing volume) but doesn't prevent delivery failures for the messages that do arrive. CloudWatch alarm is detective. Increasing concurrency is the root cause fix but the DLQ is the safety net.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "sns",
+      "dlq",
+      "dead-letter",
+      "lambda",
+      "notification"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-012",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company runs an application that stores files in EFS. The application is deployed on ECS Fargate in two AZs. During an AZ failure (AZ-1 fails), the Fargate tasks in AZ-2 continue running but file access from AZ-2 tasks to EFS becomes slow (latency increases from 2ms to 200ms). Why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EFS data is stored in only one AZ \u2014 cross-AZ access is always slow"
+      },
+      {
+        "label": "B",
+        "text": "Fargate in AZ-2 loses network connectivity to EFS during AZ-1 failure"
+      },
+      {
+        "label": "C",
+        "text": "EFS mount targets are per-AZ \u2014 when AZ-1 fails, AZ-2 tasks might be connecting to the AZ-1."
+      },
+      {
+        "label": "D",
+        "text": "EFS performance degrades during AZ failures due to replication overhead"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "EFS has mount targets in each AZ \u2014 for optimal performance, clients should connect to the mount target in their own AZ (same-AZ mount target). Same-AZ EFS access: ~1-2ms. Cross-AZ EFS access (AZ-2 tasks connecting to AZ-1 mount target): ~100-200ms + inter-AZ data transfer charges ($0.01/GB). If the ECS task definition or mount configuration specifies the EFS mount target by AZ-1's mount target ID, AZ-2 tasks must cross AZs even during normal operation. Fix: use DNS-based EFS mounting (fs-xxxxx.efs.region.amazonaws.com) with regional DNS \u2014 EFS DNS automatically resolves to the mount target in the same AZ as the caller.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "efs",
+      "mount-target",
+      "multi-az",
+      "latency",
+      "fargate"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-013",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company deploys a stateful web application on EC2 with an ASG. Sessions are stored in local EC2 memory. During a deployment with rolling update strategy, users experience session loss when their instance is terminated and replaced. The application uses PHP and session data is critical. What is the most architecturally correct solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use in-place deployments to avoid instance termination"
+      },
+      {
+        "label": "B",
+        "text": "Externalize session state to ElastiCache Redis \u2014 the PHP application reads/writes sessions to Redis instead of."
+      },
+      {
+        "label": "C",
+        "text": "Use sticky sessions on the ALB \u2014 users are always routed to the same instance"
+      },
+      {
+        "label": "D",
+        "text": "Increase the ASG instance termination protection to prevent instance termination during deployments"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Session externalization is the architecturally correct solution for stateless scaling: PHP sessions stored in ElastiCache Redis are independent of any specific EC2 instance. When instances are terminated/replaced, sessions persist in Redis. ALB sticky sessions work but: (1) Break session affinity when instances terminate; (2) Create load imbalance; (3) Don't survive instance replacement. In-place deployments avoid termination but prevent updating the OS or AMI. Termination protection during deployments prevents the rolling update entirely.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "elasticache",
+      "redis",
+      "session-management",
+      "php",
+      "auto-scaling"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-014",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Amazon SQS for job processing. Messages represent long-running jobs (45-90 minutes each). The default visibility timeout is 30 seconds. Workers receive a message, start processing, but the visibility timeout expires before the job completes, causing the message to be delivered to another worker (duplicate processing). What configuration prevents this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase the message retention period to prevent expiry during processing"
+      },
+      {
+        "label": "B",
+        "text": "Increase the queue's default visibility timeout to 90 minutes"
+      },
+      {
+        "label": "C",
+        "text": "Configure the worker to periodically call ChangeMessageVisibility to extend the visibility timeout."
+      },
+      {
+        "label": "D",
+        "text": "Use SQS FIFO to prevent duplicate processing"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "The visibility timeout should cover the maximum processing time. Two approaches: (1) Set queue visibility timeout to 90 minutes (max) \u2014 but this means failed/crashed workers leave messages invisible for 90 minutes before retry. (2) Better: workers use ChangeMessageVisibility to heartbeat: every 5 minutes while processing, extend the timeout by 10 minutes. This provides fast recovery (if worker crashes, visibility expires in \u226410 minutes) while preventing timeout during normal processing. SQS FIFO prevents duplicate insertion but the same consumer-side deduplication window (5 minutes) applies \u2014 FIFO doesn't prevent visibility timeout expiry duplicates. Retention period is about message longevity, not visibility timeout.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "sqs",
+      "visibility-timeout",
+      "change-message-visibility",
+      "long-running-jobs"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-015",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses a Blue/Green deployment strategy for ECS services. After a production deployment (Green is live), a critical bug is discovered 2 hours post-deployment. The original version (Blue) is still available in the target group. What is the fastest rollback procedure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Redeploy the Blue service definition via the CI/CD pipeline"
+      },
+      {
+        "label": "B",
+        "text": "Update the ECS service to use the Blue task definition revision directly"
+      },
+      {
+        "label": "C",
+        "text": "Modify the ALB listener rules to redirect production traffic back to the Blue target group"
+      },
+      {
+        "label": "D",
+        "text": "Use Route 53 weighted routing to shift traffic back to the Blue environment"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Blue/Green deployment uses ALB target groups: Blue TG (original) and Green TG (new). The ALB listener rule directs 100% to Green TG after deployment. Rollback: modify the ALB listener rule to redirect 100% traffic back to Blue TG. This is an instant ALB configuration change \u2014 no task restarts, no deployments, no DNS propagation. The Blue target group with the original tasks is still running and healthy. This is the defining advantage of Blue/Green \u2014 instant rollback by switching the routing layer. ECS service task definition updates require task replacements (takes minutes). Route 53 changes have DNS propagation delays.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "ecs",
+      "blue-green",
+      "rollback",
+      "alb",
+      "deployment"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-016",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's application sends emails via SES. The application calls ses:SendEmail synchronously. During peak, the application receives ThrottlingException from SES. The API call is retried immediately in a loop. Under load, this creates a thundering herd \u2014 many instances retry simultaneously, saturating SES and worsening throttling. What is the correct retry strategy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch to SMTP interface instead of SES API \u2014 SMTP has higher throughput limits"
+      },
+      {
+        "label": "B",
+        "text": "Implement exponential backoff with full jitter on SES API retries"
+      },
+      {
+        "label": "C",
+        "text": "Increase the SES sending rate limit"
+      },
+      {
+        "label": "D",
+        "text": "Use SES sending queues to buffer email sends"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Exponential backoff with full jitter is the AWS-recommended pattern for handling throttling across distributed systems: after each ThrottlingException, wait base \u00d7 2^n + random(0, base \u00d7 2^n) seconds. The random jitter desynchronizes retry attempts from multiple instances \u2014 preventing thundering herd where all instances retry simultaneously at the same exponential interval. Without jitter, exponential backoff still creates synchronized retry bursts at 1s, 2s, 4s intervals. AWS SDKs implement this by default if using the standard retry configuration. SES sending queues buffer from the SES side but the application still needs jittered retries. SMTP has similar rate limits.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "ses",
+      "throttling",
+      "exponential-backoff",
+      "jitter",
+      "thundering-herd"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-017",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses an Aurora Global Database with a primary cluster in us-east-1 and a secondary cluster in eu-west-1. The global database replication lag is typically <1 second. During a failover test (promoting eu-west-1 to primary), the team observes that the application in eu-west-1 takes 3 minutes to complete the failover, not the expected <1 minute. What is most likely causing the extended failover time?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The application is using the global database cluster endpoint (which is us-east-1 specific) rather than the eu-west-1 cluster."
+      },
+      {
+        "label": "B",
+        "text": "The eu-west-1 secondary cluster must restart all Aurora instances during promotion"
+      },
+      {
+        "label": "C",
+        "text": "Aurora Global Database replication lag increases to 3 minutes before failover"
+      },
+      {
+        "label": "D",
+        "text": "Aurora Global Database failover takes a minimum of 3 minutes \u2014 sub-minute failover is not supported"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Aurora Global Database managed failover: promoting the secondary to primary takes <1 minute (the storage layer is already synchronized). The application delay is usually due to endpoint reconfiguration: (1) The application must switch from the us-east-1 writer endpoint to the eu-west-1 writer endpoint after promotion; (2) If using the Global Database cluster endpoint (writer endpoint that follows the current primary), DNS propagation takes 1-3 minutes; (3) Applications with cached DNS connections may not detect the change immediately. Fix: use the Aurora Global Database's global endpoint (which automatically routes to the current primary) and ensure DNS TTL is short (10-30s).",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "aurora",
+      "global-database",
+      "failover",
+      "endpoint",
+      "dns"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-018",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS CloudFormation with drift detection. A security engineer manually adds an inbound rule to a security group managed by CloudFormation (to temporarily allow debugging). Drift detection shows this security group as 'DRIFTED'. The engineer wants to revert the security group to its CloudFormation-defined state without re-deploying the entire stack. What is the correct action?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Delete and recreate the security group using the CloudFormation template"
+      },
+      {
+        "label": "B",
+        "text": "Use CloudFormation Import to import the drifted security group back into the stack"
+      },
+      {
+        "label": "C",
+        "text": "Manually remove the extra rule from the security group; or trigger a CloudFormation stack UPDATE."
+      },
+      {
+        "label": "D",
+        "text": "Run CloudFormation drift detection again \u2014 it will automatically remediate drift"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "CloudFormation drift detection DETECTS drift but does NOT automatically remediate it. Two remediation options: (1) Manual fix: remove the extra rule from the security group directly \u2014 the resource returns to the CloudFormation-defined state; run drift detection again to confirm resolution; (2) Stack update: run an empty update (no template changes) \u2014 CloudFormation compares current state to template and reconciles differences for updated resources. Note: not all resources support drift remediation via stack update (security groups are generally supported). Stack deletion/recreation is unnecessarily destructive. CloudFormation Import is for onboarding pre-existing resources into stacks.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "cloudformation",
+      "drift-detection",
+      "remediation",
+      "security-groups",
+      "operations"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-019",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company runs an application on EC2 instances behind an ALB. The application uses a custom health check endpoint (/health) that checks database connectivity. During a database maintenance window, all EC2 instances report unhealthy (database is unreachable) and ALB removes all targets, causing complete application downtime. The application itself is still functional for non-database operations. How should the health check be redesigned?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Set the ALB health check to use TCP instead of HTTP \u2014 TCP checks bypass the application health check"
+      },
+      {
+        "label": "B",
+        "text": "Remove the database check from the health check \u2014 use a simple /ping endpoint that returns 200 always"
+      },
+      {
+        "label": "C",
+        "text": "Increase the ALB health check failure threshold to 10 \u2014 more failures required before marking unhealthy"
+      },
+      {
+        "label": "D",
+        "text": "Implement a tiered health check: /health returns 200 (healthy) even during database issues \u2014 the application degrades gracefully (returns cached responses or limited functionality)"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Health check design principle: ALB health checks determine ROUTING eligibility \u2014 they should reflect whether the instance can serve traffic, not whether all dependencies are healthy. If the application can serve non-database requests during DB maintenance, the health check should return healthy. Implement: (1) /health (ALB check): lightweight check that returns 200 if the instance is alive and able to accept connections \u2014 doesn't test database; (2) /deep-health (separate monitoring endpoint): tests full stack including DB, used by CloudWatch or external monitoring for alerting. This separates routing health (can this instance accept traffic?) from operational health (is everything working perfectly?).",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "alb",
+      "health-check",
+      "graceful-degradation",
+      "resilience",
+      "maintenance"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-020",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company has an SQS queue that receives orders. A Lambda function processes each order (PutItem to DynamoDB). A bug causes Lambda to process each order message but crash before deleting the message. The visibility timeout expires, and Lambda reprocesses the same order, creating duplicate DynamoDB items with different item IDs. The DLQ hasn't triggered because Lambda is processing successfully (no exception thrown). How should idempotency be implemented?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable SQS long polling to reduce duplicate message delivery"
+      },
+      {
+        "label": "B",
+        "text": "Set SQS FIFO with content-based deduplication to prevent duplicate messages"
+      },
+      {
+        "label": "C",
+        "text": "Increase the visibility timeout to prevent message redelivery"
+      },
+      {
+        "label": "D",
+        "text": "Use the SQS message ID as the DynamoDB item's primary key"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Idempotency via deduplication key: use the SQS MessageId (unique per message) as or part of the DynamoDB primary key. DynamoDB conditional PutItem (ConditionExpression: attribute_not_exists(order_id)) succeeds on first write and returns ConditionalCheckFailedException on duplicate attempts. The function treats ConditionalCheckFailedException as success (not an error) \u2014 order already exists, so no-op. Lambda then deletes the message. This ensures at-most-once item creation regardless of how many times the message is delivered. FIFO deduplication is a 5-minute window \u2014 after that, redelivery can still occur. Visibility timeout extension doesn't prevent redelivery after Lambda crash.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "sqs",
+      "dynamodb",
+      "idempotency",
+      "conditional-write",
+      "lambda"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-021",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS Lambda for a financial calculation service. The service is called from API Gateway. During load testing, they observe that when 100 concurrent requests arrive simultaneously, the first 10 respond in 50ms, the next 10 respond in 300ms (cold start), and the remaining 80 requests return 502 (Lambda throttled). The Lambda concurrency limit is 100. Why are some requests throttled even though the limit is 100?",
+    "options": [
+      {
+        "label": "A",
+        "text": "API Gateway has a separate 10 TPS limit that throttles Lambda"
+      },
+      {
+        "label": "B",
+        "text": "Lambda burst concurrency limit: Lambda starts with a burst limit of 500-3000 concurrent executions (region-dependent)."
+      },
+      {
+        "label": "C",
+        "text": "100 concurrent Lambda executions is insufficient \u2014 increase to 1000"
+      },
+      {
+        "label": "D",
+        "text": "The Lambda function has too much memory \u2014 reduce memory to allow more concurrent executions"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Lambda burst concurrency: when demand spikes suddenly, Lambda can add 500-3000 new concurrent executions PER MINUTE (regional burst limit). If 100 requests arrive simultaneously: 10 hit warm containers (fast), but the remaining 90 need new containers. Lambda starts spinning up containers, but there's a burst rate limit. API Gateway has a 29-second integration timeout \u2014 if Lambda containers aren't ready within 29 seconds, API Gateway returns 502. The 80 throttled requests didn't get Lambda containers quickly enough. Fix: Provisioned Concurrency pre-initializes containers to handle bursts without cold start delays. The reserved concurrency limit of 100 is sufficient but the burst rate is the bottleneck.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "lambda",
+      "burst-concurrency",
+      "cold-start",
+      "provisioned-concurrency",
+      "api-gateway"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-022",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company manages a production RDS Aurora cluster. During a schema migration deployment, a developer accidentally sets max_connections to 1 in the RDS parameter group, causing all new connections to fail. The developer reverts the parameter change. However, connections are still failing. Why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "max_connections is a static parameter \u2014 requires a reboot after any change to take effect; the revert also requires a reboot"
+      },
+      {
+        "label": "B",
+        "text": "Dynamic parameters (like max_connections) take effect immediately for new connections, but changing max_connections from 1 back to the default requires an Aurora cluster reboot to re-read the parameter group \u2014 existing connections are not affected but new connections use the old (low) limit until the reboot"
+      },
+      {
+        "label": "C",
+        "text": "RDS parameter group changes take up to 24 hours to propagate"
+      },
+      {
+        "label": "D",
+        "text": "Aurora ignores max_connections parameter \u2014 it manages connection limits internally"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "RDS parameter types: Dynamic parameters take effect immediately (no reboot). Static parameters require a reboot to take effect. max_connections is classified as STATIC in Aurora parameter groups \u2014 changing it (in either direction) requires rebooting the cluster. After the revert, the parameter group shows the correct value, but Aurora is still using the in-memory value of 1 until reboot. Fix: reboot the Aurora cluster immediately (with Multi-AZ, reboot with failover to minimize downtime). This is an important operational trap \u2014 verifying parameter type (static vs. dynamic) before making changes in production.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "aurora",
+      "rds",
+      "parameter-group",
+      "static-parameter",
+      "max-connections"
+    ]
+  },
+  {
+    "id": "aws-saa-t6-02-023",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS Fargate for containerized workloads. Due to compliance requirements, all Fargate tasks must use ephemeral storage encrypted at rest. The default Fargate ephemeral storage is 20 GB. A data processing task requires 100 GB of temporary storage during execution. What is the maximum ephemeral storage for Fargate and how is it configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Fargate ephemeral storage can be extended to unlimited by mounting additional EBS volumes"
+      },
+      {
+        "label": "B",
+        "text": "Use S3 as temporary storage for Fargate tasks requiring more than 20 GB"
+      },
+      {
+        "label": "C",
+        "text": "Fargate maximum ephemeral storage is 20 GB \u2014 use EFS for larger temporary storage"
+      },
+      {
+        "label": "D",
+        "text": "Fargate supports ephemeral storage up to 200 GB configurable in the ECS task definition's ephemeralStorage parameter"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Fargate ephemeral storage: (1) Default: 20 GB; (2) Maximum: 200 GB configurable in the task definition's ephemeralStorage field (ephemeralStorage: {sizeInGiB: 100}); (3) All Fargate ephemeral storage is encrypted at rest using AWS-managed keys by default \u2014 this satisfies the compliance requirement without additional configuration. The storage is available at /mnt/storage or the standard /tmp path depending on configuration. EBS volumes cannot be attached to Fargate tasks. S3 works but adds network latency and requires streaming data to/from S3 rather than local file I/O. EFS is for shared persistent storage, not high-performance temporary scratch space.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "fargate",
+      "ephemeral-storage",
+      "encryption",
+      "ecs",
+      "compliance"
+    ]
+  }
+]

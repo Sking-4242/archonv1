@@ -1,0 +1,1264 @@
+[
+  {
+    "id": "aws-cp-t6-03-001",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's ALB is receiving millions of requests per day. They notice that 40% of requests are for the same 5 product pages and the backend EC2 instances are heavily loaded. What ALB/CloudFront feature would reduce backend load without changing application code?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable CloudFront in front of the ALB with caching rules configured to cache static and repetitive API responses at edge locations, reducing origin load."
+      },
+      {
+        "label": "B",
+        "text": "Enabling ALB access logs records request details for troubleshooting and analysis but does not reduce the number of requests reaching the backend application."
+      },
+      {
+        "label": "C",
+        "text": "Increasing the ALB idle timeout extends the duration of keep-alive connections but does not reduce server load from high request volumes."
+      },
+      {
+        "label": "D",
+        "text": "Enabling ALB WebSocket support allows persistent bidirectional connections but is not a mechanism for caching or reducing backend request volume."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Enabling ALB access logs records request details for troubleshooting and analysis but does not reduce the number of requests reaching the backend application.",
+      "C": "Increasing the ALB idle timeout extends the duration of keep-alive connections but does not reduce server load from high request volumes.",
+      "D": "Enabling ALB WebSocket support allows persistent bidirectional connections but is not a mechanism for caching or reducing backend request volume."
+    },
+    "explanation": "CloudFront caches responses at edge locations. If 40% of traffic hits the same 5 pages with identical responses, caching eliminates those origin requests entirely. This directly reduces EC2 load without code changes. ALB access logs are for monitoring. Idle timeout affects connection management. WebSocket is for bi-directional communication, not caching.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudfront",
+      "caching",
+      "alb",
+      "origin-offload"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-002",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company stores data in S3 with versioning enabled. A ransomware attack encrypted and overwrote all objects. The attacker also deleted all versions. How can the data be recovered?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 versioning protects against this \u2014 previous versions can be restored"
+      },
+      {
+        "label": "B",
+        "text": "If delete markers were also applied and permanent version deletions were performed."
+      },
+      {
+        "label": "C",
+        "text": "Restore from S3 Cross-Region Replication in the backup region"
+      },
+      {
+        "label": "D",
+        "text": "Contact AWS Support to recover from AWS-internal backups"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "S3 versioning prevents accidental overwrite but permanent deletion (s3:DeleteObjectVersion) removes version history. If an attacker or misconfigured script deletes all versions, data is gone. S3 Object Lock in Compliance mode prevents permanent deletion of any object version during the retention period \u2014 even by the root user. Cross-Region Replication also replicates deletions by default. The correct preventive control is Object Lock.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "s3",
+      "object-lock",
+      "ransomware",
+      "versioning"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-003",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Amazon Route 53 for DNS. Their primary application is in us-east-1 and they want to automatically route users to eu-west-1 if us-east-1 becomes unhealthy. Which Route 53 routing policy combined with which Route 53 feature achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Weighted routing with equal weights between regions"
+      },
+      {
+        "label": "B",
+        "text": "Multivalue answer routing across both regions"
+      },
+      {
+        "label": "C",
+        "text": "Geolocation routing with latency checks"
+      },
+      {
+        "label": "D",
+        "text": "Failover routing policy with Route 53 health checks"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Route 53 Failover routing is designed for active-passive DR. Configure an A record for the primary region with a health check and a failover routing policy set to PRIMARY. Configure a second record for eu-west-1 as SECONDARY. When the health check for the primary fails, Route 53 automatically returns the secondary record. This is distinct from latency routing (which optimizes for performance, not failover) and weighted routing (which splits traffic).",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "route53",
+      "failover",
+      "health-checks",
+      "disaster-recovery"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-004",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Lambda to process customer orders. Processing a single order requires calling 4 separate downstream services sequentially. Each downstream call takes 200ms. The Lambda function is timing out at 800ms. Increasing the timeout is not desirable. What architectural change reduces the sequential processing time?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use SQS to queue the 4 calls and process asynchronously"
+      },
+      {
+        "label": "B",
+        "text": "Switch from Lambda to EC2 for longer timeouts"
+      },
+      {
+        "label": "C",
+        "text": "If the 4 downstream calls are independent (no data dependency between them)."
+      },
+      {
+        "label": "D",
+        "text": "Increase Lambda memory to speed up execution"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "If the 4 downstream calls are independent, parallel execution reduces total time from 4\u00d7200ms=800ms to ~200ms (limited by the slowest call). Lambda supports async parallel invocation within the function using native language concurrency primitives. SQS decouples the calls but adds latency and complexity. More memory reduces CPU-bound time but doesn't help IO-bound network calls. EC2 avoids timeout limits but adds unnecessary infrastructure.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "lambda",
+      "parallel-execution",
+      "async",
+      "performance"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-005",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company is migrating a MySQL database to AWS. They need a managed database that is MySQL-compatible, provides better performance than standard RDS MySQL, and supports read replicas in up to 5 Availability Zones. Which service should they choose?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Redshift is a fast, fully managed, petabyte-scale data warehouse service that makes it simple and cost-effective to analyze your data."
+      },
+      {
+        "label": "B",
+        "text": "Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability."
+      },
+      {
+        "label": "C",
+        "text": "Amazon RDS MySQL"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Aurora MySQL-Compatible Edition"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Amazon Redshift is a fast, fully managed, petabyte-scale data warehouse service that makes it simple and cost-effective to analyze your data.",
+      "B": "Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability.",
+      "C": ""
+    },
+    "explanation": "Amazon Aurora MySQL-Compatible delivers up to 5x the throughput of standard MySQL at the same price point, due to its distributed storage architecture. Aurora supports up to 15 low-latency read replicas across multiple AZs, shared storage architecture for fast replication, and is fully MySQL compatible \u2014 minimal application changes required. RDS MySQL is standard. DynamoDB is NoSQL. Redshift is a data warehouse.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "aurora",
+      "mysql",
+      "read-replicas",
+      "performance"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-006",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An application deployed across multiple AZs uses an Elastic Load Balancer. During a partial AZ failure (one AZ becomes degraded, not completely unavailable), healthy instances in the degraded AZ continue to receive the same traffic share as healthy AZs. What ELB feature prevents this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ELB anomaly mitigation with outlier detection or routing configuration identifies instances receiving disproportionate traffic and adjusts distribution to balance load evenly."
+      },
+      {
+        "label": "B",
+        "text": "ELB cross-zone load balancing distributes requests evenly across all registered instances across AZs but cannot detect or respond to individual instance performance issues."
+      },
+      {
+        "label": "C",
+        "text": "ELB connection draining allows in-flight requests to complete before deregistering an instance but does not prevent uneven traffic distribution to slow instances."
+      },
+      {
+        "label": "D",
+        "text": "Auto Scaling termination policies control which instances are removed during scale-in events but do not address uneven request distribution to existing instances."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "ELB cross-zone load balancing distributes requests evenly across all registered instances across AZs but cannot detect or respond to individual instance performance issues.",
+      "C": "ELB connection draining allows in-flight requests to complete before deregistering an instance but does not prevent uneven traffic distribution to slow instances.",
+      "D": "Auto Scaling termination policies control which instances are removed during scale-in events but do not address uneven request distribution to existing instances."
+    },
+    "explanation": "ELB health checks continuously monitor target health. When instances in a degraded AZ fail health checks, the ELB stops routing to them and distributes traffic to healthy targets in other AZs. With cross-zone load balancing enabled, traffic distributes evenly across all healthy instances regardless of AZ. Connection draining is for graceful removal of targets being deregistered. Auto Scaling terminates unhealthy instances but ELB handles the traffic routing.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "elb",
+      "health-checks",
+      "az-failure",
+      "traffic-routing"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-007",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's data science team needs to query 5 years of structured CSV data stored in S3 (total 50 TB). They run ad-hoc queries weekly. Which Athena optimization would most reduce cost and query time?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable S3 Transfer Acceleration for faster data reads"
+      },
+      {
+        "label": "B",
+        "text": "Increase Athena concurrency settings"
+      },
+      {
+        "label": "C",
+        "text": "Convert CSV files to Apache Parquet columnar format."
+      },
+      {
+        "label": "D",
+        "text": "Move data to RDS for faster SQL queries"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Athena charges per TB scanned. Parquet is a columnar format \u2014 queries selecting a subset of columns only scan those columns, dramatically reducing data scanned. Partitioning by date means queries with date filters only scan relevant partitions. Combined, these optimizations can reduce scanned data by 90%+, cutting both cost and query time. CSV requires scanning entire rows. Moving to RDS adds cost and migration complexity.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "athena",
+      "parquet",
+      "partitioning",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-008",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company wants to run their application on AWS but regulatory requirements mandate that data never leave their on-premises facility, yet they want to use native AWS APIs. Which service deploys actual AWS managed hardware on the customer's premises?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Local Zones"
+      },
+      {
+        "label": "B",
+        "text": "AWS Outposts"
+      },
+      {
+        "label": "C",
+        "text": "AWS Wavelength"
+      },
+      {
+        "label": "D",
+        "text": "AWS Direct Connect"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Outposts are physically installed in the customer's data center \u2014 AWS racks containing AWS hardware running AWS services (EC2, EBS, RDS, ECS, etc.). Data stays on-premises. Customers use the same AWS APIs, SDKs, and tools. Local Zones are AWS-operated facilities near population centers (not on customer premises). Wavelength is for 5G/telecom edge. Direct Connect is a network connection, not compute/storage deployment.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "outposts",
+      "on-premises",
+      "data-residency",
+      "hybrid"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-009",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company runs a monolithic application on a single large EC2 instance. They want to improve resilience. Which change provides the greatest improvement in availability for the LEAST architectural change?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch to Spot Instances for cost savings"
+      },
+      {
+        "label": "B",
+        "text": "Add an Auto Scaling group with a minimum of 2 instances."
+      },
+      {
+        "label": "C",
+        "text": "Enable EC2 Enhanced Networking for better performance"
+      },
+      {
+        "label": "D",
+        "text": "Decompose into microservices with Lambda and API Gateway"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "An ASG with min=2 behind an ALB across 2 AZs is the simplest change that eliminates the single-instance SPOF. If one instance fails, the ALB routes to the other; if one AZ fails, the other has a running instance. Microservices decomposition provides greater benefits but requires major re-architecting. Enhanced networking improves performance but doesn't improve availability. Spot Instances reduce cost but introduce interruption risk.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "auto-scaling",
+      "alb",
+      "availability",
+      "multi-az"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-010",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's application needs to send transactional emails (order confirmations, password resets) at high volume \u2014 up to 1 million per day. Which AWS service is purpose-built for this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Lambda calling a third-party SMTP server"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Pinpoint for all messaging types"
+      },
+      {
+        "label": "C",
+        "text": "Amazon SES (Simple Email Service)"
+      },
+      {
+        "label": "D",
+        "text": "Amazon SNS with email protocol"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "SES is AWS's high-volume, cost-effective email sending service designed for transactional and marketing emails. It handles IP reputation management, bounce/complaint tracking, dedicated sending IPs, and scales to millions per day. SNS email is for notifications to human subscribers (not for application-generated transactional email at scale). Lambda calling SMTP has no built-in deliverability management. Pinpoint includes email but is a broader engagement platform.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "ses",
+      "email",
+      "transactional",
+      "high-volume"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-011",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company wants to build a serverless backend for a mobile app that requires: user authentication, REST API, business logic execution, and a NoSQL database. What four AWS services form the canonical serverless mobile backend?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EC2 + RDS + IAM + CloudFront"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Lightsail + MySQL + Flask on Lambda"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Cognito (auth) + API Gateway (REST API) + Lambda"
+      },
+      {
+        "label": "D",
+        "text": "ECS Fargate + Aurora + ALB + Cognito"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "The canonical AWS serverless mobile backend: Cognito for user identity and authentication, API Gateway as the managed REST API layer, Lambda for serverless business logic, and DynamoDB for serverless NoSQL data storage. All four services are fully managed, scale automatically, and have no idle costs. This is the 'mobile four' pattern referenced in AWS documentation and certifications.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cognito",
+      "api-gateway",
+      "lambda",
+      "dynamodb"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-012",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Amazon EKS. They want to give specific Kubernetes pods access to specific AWS services (e.g., Pod A can read from S3, Pod B can write to DynamoDB) without sharing a single IAM role across all pods. What EKS feature enables per-pod IAM permissions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Environment variables containing IAM access keys injected into each pod"
+      },
+      {
+        "label": "B",
+        "text": "EC2 instance profile attached to all nodes"
+      },
+      {
+        "label": "C",
+        "text": "IAM permission boundaries on the EKS cluster role"
+      },
+      {
+        "label": "D",
+        "text": "IAM Roles for Service Accounts (IRSA) \u2014 each Kubernetes service account maps"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "IAM Roles for Service Accounts (IRSA) uses OIDC federation to allow individual Kubernetes service accounts to assume specific IAM roles. Pod A uses service account A (\u2192 IAM role A with S3 read); Pod B uses service account B (\u2192 IAM role B with DynamoDB write). This is fine-grained, follows least privilege, and uses temporary credentials injected by the pod identity webhook. Node-level instance profiles give ALL pods the same permissions. Injecting access keys in env vars is an anti-pattern.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "eks",
+      "irsa",
+      "iam",
+      "kubernetes"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-013",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A startup is launching a new application and expects traffic to grow 100x over the next year. They want to minimize the risk of running out of capacity. Why does AWS eliminate this concern compared to on-premises?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS guarantees unlimited compute capacity for all customers in all regions"
+      },
+      {
+        "label": "B",
+        "text": "AWS customers receive dedicated hardware reservations that guarantee future capacity"
+      },
+      {
+        "label": "C",
+        "text": "AWS charges for excess capacity in advance, guaranteeing availability"
+      },
+      {
+        "label": "D",
+        "text": "AWS's massive scale means customers benefit from AWS's provisioned global infrastructure"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "AWS maintains massive capacity reserves across its global infrastructure. Customers can provision additional compute in minutes (Auto Scaling, on-demand launches) without hardware lead times. In contrast, on-premises capacity planning requires months of hardware procurement. AWS doesn't guarantee unlimited capacity in every specific instance type/region but the effective capacity available dwarfs typical application needs.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "elasticity",
+      "capacity-planning",
+      "scalability",
+      "cloud-benefits"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-014",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company has a Lambda function that needs to connect to an RDS database in a private VPC subnet. The function currently runs outside the VPC and connections fail. What change is required?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure the Lambda function to run inside the VPC."
+      },
+      {
+        "label": "B",
+        "text": "Use VPC Peering to connect the Lambda to the VPC"
+      },
+      {
+        "label": "C",
+        "text": "Assign a public IP to the RDS instance"
+      },
+      {
+        "label": "D",
+        "text": "Create an internet-facing RDS proxy"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Lambda functions can be configured to run inside a VPC \u2014 you specify the VPC, subnets, and security group. Lambda then runs in the VPC's network, enabling private connectivity to RDS. The Lambda's security group must allow outbound on port 3306 (MySQL) or 5432 (PostgreSQL), and the RDS security group must allow inbound from the Lambda security group. Making RDS public is a security anti-pattern.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "lambda",
+      "vpc",
+      "rds",
+      "private-networking"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-015",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company processes financial transactions using a queue-based architecture. The CFO requires that each transaction be processed exactly once \u2014 no duplicates, no missed messages. Which SQS configuration satisfies this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SQS Standard queue with message deduplication in the consumer application"
+      },
+      {
+        "label": "B",
+        "text": "SQS FIFO queue with content-based deduplication enabled \u2014 provides exactly-once message delivery"
+      },
+      {
+        "label": "C",
+        "text": "SQS Standard queue with dead-letter queue configured"
+      },
+      {
+        "label": "D",
+        "text": "SQS Standard queue with message visibility timeout set to 0"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "SQS FIFO queues with content-based deduplication (or message deduplication IDs) provide exactly-once processing within a 5-minute deduplication interval. Messages with duplicate IDs are rejected. Standard queues provide at-least-once delivery \u2014 duplicates are possible and must be handled by the consumer. Setting visibility timeout to 0 would allow multiple consumers to see the same message simultaneously. DLQ captures failed processing, not duplicates.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "sqs",
+      "fifo",
+      "exactly-once",
+      "deduplication"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-016",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Amazon CloudFront with S3 as origin. They want to prevent direct public access to the S3 bucket \u2014 only CloudFront should be able to read from S3. What CloudFront feature achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudFront Origin Access Control with a restrictive S3 bucket policy ensures S3 objects are only accessible through CloudFront, not directly via S3 URLs."
+      },
+      {
+        "label": "B",
+        "text": "Signed URLs authenticate individual requests to CloudFront but do not prevent direct S3 URL access if the bucket policy still allows public or authenticated reads."
+      },
+      {
+        "label": "C",
+        "text": "S3 Block Public Access prevents public ACL and policy grants but does not prevent authenticated AWS users or roles from accessing objects via S3 URLs directly."
+      },
+      {
+        "label": "D",
+        "text": "S3 server-side encryption protects data at rest but does not control who can access the data via S3 URLs; encryption and access control are separate concerns."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Signed URLs authenticate individual requests to CloudFront but do not prevent direct S3 URL access if the bucket policy still allows public or authenticated reads.",
+      "C": "S3 Block Public Access prevents public ACL and policy grants but does not prevent authenticated AWS users or roles from accessing objects via S3 URLs directly.",
+      "D": "S3 server-side encryption protects data at rest but does not control who can access the data via S3 URLs; encryption and access control are separate concerns."
+    },
+    "explanation": "CloudFront Origin Access Control (OAC, the modern replacement for OAI) creates an identity for the CloudFront distribution. The S3 bucket policy grants s3:GetObject only to the CloudFront distribution's OAC \u2014 direct S3 URL access is denied. Block Public Access prevents public bucket policies but doesn't restrict to CloudFront specifically. SSE encrypts data. Signed URLs restrict user access, not origin access.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudfront",
+      "oac",
+      "s3",
+      "origin-access-control"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-017",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company has 10 TB of unstructured text documents in S3 that they need to search for specific terms across millions of documents with sub-second response times. Which AWS service provides full-text search capability over S3 documents?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Athena \u2014 SQL query over S3"
+      },
+      {
+        "label": "B",
+        "text": "Amazon OpenSearch Service (formerly Elasticsearch)"
+      },
+      {
+        "label": "C",
+        "text": "Amazon S3 Select"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Kendra"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Amazon OpenSearch Service is a managed search and analytics engine that supports full-text indexing and sub-second search across billions of documents. S3 documents can be indexed into OpenSearch. Athena can query structured data with SQL but is not designed for sub-second full-text search. S3 Select filters data within individual objects. Kendra is an intelligent enterprise search with ML relevance ranking \u2014 also valid, but OpenSearch is the classic full-text search answer.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "opensearch",
+      "full-text-search",
+      "s3",
+      "search"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-018",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Amazon Aurora Serverless v2 for their variable-load database. They notice the database pauses (scales to zero) during periods of inactivity and the first query after a pause takes 20-30 seconds. What is the cause and how can it be mitigated?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch to Aurora Provisioned to eliminate all cold starts"
+      },
+      {
+        "label": "B",
+        "text": "Increase ACU (Aurora Capacity Units) to the maximum to prevent pausing"
+      },
+      {
+        "label": "C",
+        "text": "Aurora Serverless (v1) pauses when there are no connections; configure the auto-pause setting to disabled."
+      },
+      {
+        "label": "D",
+        "text": "Aurora Serverless v2 doesn't support pausing \u2014 this is a different service"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Aurora Serverless (v1) has an auto-pause feature that scales to zero ACUs after a period of inactivity to reduce costs. The 'cold start' when a paused cluster receives a request is the resume latency (20-30 seconds to scale from 0 to minimum ACUs). This can be disabled in the cluster configuration. Aurora Serverless v2 does not pause to zero \u2014 minimum is 0.5 ACUs. Switching to provisioned eliminates cold starts but loses serverless economics.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "aurora-serverless",
+      "cold-start",
+      "auto-pause",
+      "database"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-019",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's application uses Amazon SQS and Lambda. Lambda processes messages from SQS. During a traffic surge, 50,000 messages accumulate in the queue. Lambda scales up to 500 concurrent executions but database connection limits are exhausted. What is the correct mitigation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch to SQS FIFO for better throughput"
+      },
+      {
+        "label": "B",
+        "text": "Increase the RDS instance size to support more connections"
+      },
+      {
+        "label": "C",
+        "text": "Increase the SQS message retention period"
+      },
+      {
+        "label": "D",
+        "text": "Set Lambda Reserved Concurrency to limit maximum executions."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "The Lambda-SQS-RDS connection exhaustion problem requires two-sided mitigation: (1) Lambda Reserved Concurrency caps maximum concurrent executions (which caps maximum simultaneous DB connections), and (2) RDS Proxy pools connections so that many Lambda invocations share fewer actual database connections. Increasing RDS instance size marginally increases connection limits but doesn't solve the fundamental connection-per-invocation problem. FIFO doesn't help with connection limits.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "lambda",
+      "sqs",
+      "rds-proxy",
+      "connection-pooling"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-020",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company wants to run a containerized application with persistent storage in AWS. Each container writes data to a local file path. Multiple containers need to read the same files. Which storage solution integrates natively with containers on ECS/EKS?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EFS \u2014 mount as a shared volume across all containers using a CSI"
+      },
+      {
+        "label": "B",
+        "text": "Amazon S3 \u2014 mount as a file system using S3 FUSE"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EBS \u2014 mount the same volume to multiple containers"
+      },
+      {
+        "label": "D",
+        "text": "Instance store \u2014 provide fast local storage for containers"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Amazon EFS provides fully managed NFS-based shared file storage that can be mounted simultaneously by multiple containers across ECS tasks and EKS pods using the Amazon EFS CSI driver. Multiple containers reading/writing the same files require shared filesystem semantics. EBS volumes can only be attached to one EC2 instance at a time (not shared across multiple container hosts). S3 FUSE exists but has performance limitations and is not a native integration. Instance store is non-persistent and host-local.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "efs",
+      "containers",
+      "ecs",
+      "eks"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-021",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Amazon Kinesis Data Streams. They notice their consumers are falling behind \u2014 the stream has 100 shards but processing latency is growing. Adding more consumer applications doesn't help because all consumers share the same read throughput per shard. What Kinesis feature enables multiple consumers to read from the same shard independently without sharing throughput?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Kinesis Data Analytics for real-time consumption"
+      },
+      {
+        "label": "B",
+        "text": "Increase the number of Kinesis shards"
+      },
+      {
+        "label": "C",
+        "text": "Kinesis Data Firehose for parallel delivery"
+      },
+      {
+        "label": "D",
+        "text": "Kinesis Enhanced Fan-Out \u2014 provides dedicated 2 MB/sec per"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Standard Kinesis consumers share the 2 MB/sec read throughput per shard via polling. Enhanced Fan-Out (EFO) gives each registered consumer its own dedicated 2 MB/sec per shard via an HTTP/2 push mechanism. If you have 5 EFO consumers on 100 shards, each consumer gets full 2 MB/sec per shard independently. This solves the 'consumers competing for read bandwidth' problem.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "kinesis",
+      "enhanced-fan-out",
+      "streaming",
+      "throughput"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-022",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company needs to build a real-time dashboard showing metrics from IoT devices (temperature, humidity) at 10,000+ devices. Metrics arrive every second. The dashboard must refresh within 5 seconds of data arrival. Which architecture handles ingestion and real-time visualization?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS IoT Core ingests device data \u2192 Kinesis Data Streams \u2192 Lambda for processing."
+      },
+      {
+        "label": "B",
+        "text": "Upload device metrics to SQS and batch process nightly"
+      },
+      {
+        "label": "C",
+        "text": "Batch upload to S3 every hour + Athena for dashboard queries"
+      },
+      {
+        "label": "D",
+        "text": "Direct database writes from each device to RDS MySQL"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS IoT Core securely ingests from thousands of devices. Kinesis handles high-throughput time-series streams. Lambda or Kinesis Data Analytics processes in real-time. Amazon Timestream is purpose-built for time-series IoT data. QuickSight or custom dashboards query Timestream for visualization. Direct RDS writes from 10,000+ IoT devices would overwhelm connection limits. Batch approaches don't support 5-second refresh.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "iot",
+      "kinesis",
+      "timestream",
+      "real-time"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-023",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS CodeDeploy for EC2 deployments. They want to deploy new code to 25% of instances, verify, then deploy to the remaining 75% \u2014 with automatic rollback if error rates increase. Which deployment strategy achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Blue/green deployment with a canary step \u2014 route 25% traffic to."
+      },
+      {
+        "label": "B",
+        "text": "In-place deployment \u2014 all instances updated simultaneously"
+      },
+      {
+        "label": "C",
+        "text": "Immutable deployment \u2014 launch entirely new instances"
+      },
+      {
+        "label": "D",
+        "text": "Rolling deployment with a batch size of 25%"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Blue/green with canary traffic shifting is the safest approach: launch a completely new 'green' fleet, shift 25% traffic, monitor CloudWatch alarms, and automatically roll back if alarm thresholds are breached. CodeDeploy supports traffic shifting through ALB integration with automatic rollback on alarm triggers. Rolling deployment updates existing instances (can't as easily isolate to 25% of traffic). Immutable launches new instances but without gradual traffic shifting.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "codedeploy",
+      "blue-green",
+      "canary",
+      "rollback"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-024",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company discovers their application writes 1 GB of data to the same S3 key every hour (overwriting). After a year, they realize they've been charged for 8,760 GB of S3 storage instead of 1 GB. What S3 feature caused this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Versioning retains every version of an object when it is overwritten or deleted, which increases stored object count and may explain unexpected cost growth."
+      },
+      {
+        "label": "B",
+        "text": "S3 Intelligent-Tiering incorrectly retaining data does not apply; Intelligent-Tiering only changes storage class, it does not retain extra copies of overwritten objects."
+      },
+      {
+        "label": "C",
+        "text": "S3 Cross-Region Replication stores additional copies in a destination bucket, which would increase storage costs but would be visible as a separate bucket's usage."
+      },
+      {
+        "label": "D",
+        "text": "S3 multipart uploads leave incomplete parts stored in the bucket if not completed, accumulating billable storage that is not visible in the final object listing."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "S3 Intelligent-Tiering incorrectly retaining data does not apply; Intelligent-Tiering only changes storage class, it does not retain extra copies of overwritten objects.",
+      "C": "S3 Cross-Region Replication stores additional copies in a destination bucket, which would increase storage costs but would be visible as a separate bucket's usage.",
+      "D": "S3 multipart uploads leave incomplete parts stored in the bucket if not completed, accumulating billable storage that is not visible in the final object listing."
+    },
+    "explanation": "S3 versioning stores every version of every object. Each hourly write creates a new version; the old version is retained (not deleted), resulting in 8,760 versions after a year \u2014 all billed as storage. To control costs with versioning enabled, you must add S3 Lifecycle policies to expire non-current versions after a defined number of days/versions. Incomplete multipart uploads also accumulate cost but wouldn't create 8,760 copies of 1 GB.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "s3",
+      "versioning",
+      "lifecycle",
+      "storage-cost"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-025",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company wants to implement infrastructure as code for their AWS deployments. They already use Terraform for some resources and want to continue. For new AWS-specific resources, they are considering AWS CloudFormation. What is a key distinction when choosing between Terraform and CloudFormation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudFormation requires a paid subscription is false; CloudFormation itself is free and you pay only for the resources it creates, just as with any AWS service."
+      },
+      {
+        "label": "B",
+        "text": "CloudFormation is more powerful than Terraform for all use cases is an overstatement; Terraform supports multi-cloud and has a larger ecosystem of providers."
+      },
+      {
+        "label": "C",
+        "text": "Terraform cannot manage AWS resources is completely false; Terraform's AWS provider is one of the most widely used infrastructure-as-code tools for AWS."
+      },
+      {
+        "label": "D",
+        "text": "CloudFormation is AWS-native (no state file management, tight AWS service integration, no external tool) while Terraform is multi-cloud and open-source with a provider ecosystem"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "CloudFormation requires a paid subscription is false; CloudFormation itself is free and you pay only for the resources it creates, just as with any AWS service.",
+      "B": "CloudFormation is more powerful than Terraform for all use cases is an overstatement; Terraform supports multi-cloud and has a larger ecosystem of providers.",
+      "C": "Terraform cannot manage AWS resources is completely false; Terraform's AWS provider is one of the most widely used infrastructure-as-code tools for AWS."
+    },
+    "explanation": "CloudFormation is the AWS-native IaC service: state is managed by AWS in the stack, new services are supported faster via native integration, and there's no external tool to install. Terraform is multi-cloud, community-driven, with a rich provider ecosystem but requires managing a state file (local, S3+DynamoDB, etc.) and installing the Terraform CLI. For AWS-only deployments, both are valid; multi-cloud deployments favor Terraform.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudformation",
+      "terraform",
+      "iac",
+      "multi-cloud"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-026",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's development team deploys features by modifying running EC2 instances directly (yum install, file edits). This causes configuration drift and 'works on my server' problems. What architectural practice resolves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Config to detect and alert on configuration changes"
+      },
+      {
+        "label": "B",
+        "text": "Adopt immutable infrastructure: bake application changes into new AMIs using EC2 Image Builder or Packer."
+      },
+      {
+        "label": "C",
+        "text": "Restrict SSH access so developers can't modify instances"
+      },
+      {
+        "label": "D",
+        "text": "Use EC2 User Data scripts to reset instance configuration on every restart"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Immutable infrastructure solves configuration drift by treating instances as disposable and never modifying them in place. Changes flow through an AMI build pipeline: write IaC/configuration code, build a new AMI, test it, deploy new instances, terminate old. Every instance is identical and derives from the same versioned AMI. Config detects drift but doesn't prevent it. User Data at restart is complex and still allows runtime modification.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "immutable-infrastructure",
+      "ami",
+      "configuration-drift",
+      "ec2-image-builder"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-027",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's application uses SQS for asynchronous order processing. Occasionally a message fails processing repeatedly (5 times). Instead of blocking the queue, they want failed messages isolated for investigation. What SQS feature handles this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SQS Dead Letter Queue (DLQ) with a maxReceiveCount of 5"
+      },
+      {
+        "label": "B",
+        "text": "SQS message delay \u2014 delay failed messages for 24 hours"
+      },
+      {
+        "label": "C",
+        "text": "SQS long polling \u2014 reduces failed message frequency"
+      },
+      {
+        "label": "D",
+        "text": "SQS FIFO queue \u2014 prevents message failures"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "A Dead Letter Queue captures messages that have been received (and failed) more than maxReceiveCount times. Failed messages are moved to the DLQ automatically, unblocking the main queue. Operations teams can inspect DLQ messages, identify patterns, fix the processing code, and replay the messages. Message delay defers delivery but doesn't handle repeated failures. FIFO provides ordering, not failure handling. Long polling reduces empty receives.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "sqs",
+      "dlq",
+      "error-handling",
+      "message-queue"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-028",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Amazon CloudWatch Logs. They want to alert when the word 'ERROR' appears more than 100 times in a 5-minute window in their application logs. Which CloudWatch feature enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudWatch Logs Insights query \u2014 run on-demand"
+      },
+      {
+        "label": "B",
+        "text": "CloudWatch Metric Filter \u2014 extracts a metric from log data."
+      },
+      {
+        "label": "C",
+        "text": "CloudWatch Contributor Insights \u2014 identifies top contributors"
+      },
+      {
+        "label": "D",
+        "text": "AWS X-Ray \u2014 traces application errors"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudWatch Metric Filters extract custom metrics from log data in real time \u2014 you define a filter pattern (e.g., 'ERROR') and each matching log event increments the custom metric. A CloudWatch Alarm can then trigger on this metric exceeding a threshold (100) in a time window (5 minutes). Logs Insights is ad-hoc, not real-time alerting. Contributor Insights analyzes patterns in log data. X-Ray traces request paths, not log-based alerting.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudwatch",
+      "metric-filters",
+      "log-monitoring",
+      "alarms"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-029",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "select-two",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company is designing a multi-tier application. The web tier, application tier, and database tier each need different security boundaries. Which TWO AWS VPC components provide the network-level isolation boundaries between tiers?",
+    "options": [
+      {
+        "label": "A",
+        "text": "VPC Peering \u2014 connect tiers through separate VPCs"
+      },
+      {
+        "label": "B",
+        "text": "Security Groups \u2014 control which source security groups can communicate with each tier's instances at the instance level"
+      },
+      {
+        "label": "C",
+        "text": "Subnets \u2014 each tier in a separate subnet (public subnet for web, private subnets for app and DB)"
+      },
+      {
+        "label": "D",
+        "text": "Elastic IPs \u2014 assign unique IPs per tier"
+      }
+    ],
+    "correct": [
+      "B",
+      "C"
+    ],
+    "distractors": {
+      "A": "",
+      "D": ""
+    },
+    "explanation": "Multi-tier network isolation in a VPC uses two complementary controls: (1) Subnets provide coarse network segmentation (public vs. private subnets) and associate with route tables that control internet access. (2) Security Groups provide fine-grained, stateful instance-level controls \u2014 the application tier SG allows inbound only from the web tier SG; the DB tier SG allows inbound only from the app tier SG. Together they enforce tier isolation. VPC Peering connects separate VPCs. Elastic IPs are addressing, not isolation.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "vpc",
+      "subnets",
+      "security-groups",
+      "multi-tier"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-03-030",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS CodePipeline. A new compliance requirement mandates that every production deployment must be manually approved by a designated approver before the deployment stage runs. What CodePipeline feature supports this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An AWS Config rule can detect non-compliant deployment configurations but cannot pause a pipeline for human review; it triggers remediation actions, not approvals."
+      },
+      {
+        "label": "B",
+        "text": "CodePipeline execution mode with MFA is not a real feature; MFA applies to user authentication, not to pipeline execution controls or approval gates."
+      },
+      {
+        "label": "C",
+        "text": "A manual approval action in the pipeline \u2014 CodePipeline pauses at this action and sends an SNS notification"
+      },
+      {
+        "label": "D",
+        "text": "CodeDeploy deployment configuration with manual confirmation is not a valid CodeDeploy feature; approvals must be built into CodePipeline, not CodeDeploy."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "An AWS Config rule can detect non-compliant deployment configurations but cannot pause a pipeline for human review; it triggers remediation actions, not approvals.",
+      "B": "CodePipeline execution mode with MFA is not a real feature; MFA applies to user authentication, not to pipeline execution controls or approval gates.",
+      "D": "CodeDeploy deployment configuration with manual confirmation is not a valid CodeDeploy feature; approvals must be built into CodePipeline, not CodeDeploy."
+    },
+    "explanation": "CodePipeline supports manual approval actions as a stage or action within a stage. The pipeline pauses and sends an SNS notification to approvers. An authorized reviewer approves or rejects the deployment via the CodePipeline console, CLI, or API. This is the change management gate mechanism in CodePipeline. CodeDeploy manages the deployment method but not the approval gate. Config evaluates resources after deployment.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "codepipeline",
+      "manual-approval",
+      "change-management",
+      "compliance"
+    ]
+  }
+]

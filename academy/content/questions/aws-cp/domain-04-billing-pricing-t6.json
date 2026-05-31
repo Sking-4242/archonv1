@@ -1,0 +1,466 @@
+[
+  {
+    "id": "aws-cp-t6-04-001",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company is performing a TCO comparison for a 5-year projection. Their on-premises hardware depreciates over 5 years and will require replacement at year 5. AWS costs remain flat with their negotiated Enterprise Discount Program (EDP) pricing. Which factor makes the on-premises 5-year cost appear favorable initially but significantly worse at year 5?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Support plan costs increase annually is not accurate; Support plan pricing is based on a percentage of usage and does not have a scheduled annual increase."
+      },
+      {
+        "label": "B",
+        "text": "AWS data transfer egress fees accumulate over 5 years but are typically a small percentage of compute costs and do not account for the 5-year cost inversion."
+      },
+      {
+        "label": "C",
+        "text": "Hardware refresh cycle \u2014 on-premises appears cheaper years 1-4 as hardware."
+      },
+      {
+        "label": "D",
+        "text": "EC2 pricing increases by 10% annually is false; AWS pricing has historically remained flat or decreased over time and does not include automatic annual increases."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "AWS Support plan costs increase annually is not accurate; Support plan pricing is based on a percentage of usage and does not have a scheduled annual increase.",
+      "B": "AWS data transfer egress fees accumulate over 5 years but are typically a small percentage of compute costs and do not account for the 5-year cost inversion.",
+      "D": "EC2 pricing increases by 10% annually is false; AWS pricing has historically remained flat or decreased over time and does not include automatic annual increases."
+    },
+    "explanation": "On-premises hardware follows a depreciation curve \u2014 capital costs appear to go to zero as hardware ages. But hardware has a physical lifecycle (typically 3-5 years) requiring full replacement capital expenditure. Cloud eliminates hardware refresh cycles entirely \u2014 no sudden capital reinvestment. A 5-year TCO that doesn't model the refresh cycle dramatically underestimates on-premises costs.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "tco",
+      "hardware-refresh",
+      "capex",
+      "cloud-economics"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-04-002",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's FinOps team runs a query in AWS Cost Explorer and finds that data transfer costs are $15,000/month. After investigation, they find most charges come from an ALB in us-east-1 sending responses to CloudFront, which is then delivering content globally. What is the correct interpretation of these charges?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The charges are incorrect \u2014 CloudFront-to-origin data transfer is always free"
+      },
+      {
+        "label": "B",
+        "text": "CloudFront data transfer is always more expensive than direct EC2 delivery"
+      },
+      {
+        "label": "C",
+        "text": "This is normal and cannot be optimized"
+      },
+      {
+        "label": "D",
+        "text": "The ALB-to-CloudFront transfer is an inter-service data transfer that can be reduced."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "When CloudFront has a cache miss, it fetches from the ALB origin \u2014 incurring ALB data transfer charges. Improving the CloudFront cache hit rate (via better cache policies, cache TTLs, Cache-Control headers) reduces origin fetches, directly reducing ALB-to-CloudFront data transfer. Additionally, CloudFront data transfer to the internet is charged at lower rates than direct EC2 egress, so CloudFront reduces overall costs compared to direct delivery despite the origin transfer.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "cloudfront",
+      "data-transfer",
+      "cache-hit-ratio",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-04-003",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company has $200,000 in annual EC2 spend across multiple instance families and sizes. They want maximum savings with a commitment. They plan to migrate some workloads to containers (ECS/Fargate) and Lambda within the year. Which commitment-based option best accommodates this transition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Purchase Standard Reserved Instances for their current instance types"
+      },
+      {
+        "label": "B",
+        "text": "Purchase Convertible Reserved Instances and exchange them as the architecture changes"
+      },
+      {
+        "label": "C",
+        "text": "Purchase a Compute Savings Plan \u2014 applies to EC2 (any family/size/region)."
+      },
+      {
+        "label": "D",
+        "text": "Wait until the migration is complete before making any commitments"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Compute Savings Plans are the most flexible commitment: they apply to EC2 (any instance family, size, OS, region), AWS Fargate, and Lambda. As the company migrates workloads from EC2 to Fargate and Lambda, the same Savings Plan continues providing discounts on the new services. Standard RIs lock to specific EC2 configurations. Convertible RIs can be exchanged but require manual exchanges and only apply to EC2. Waiting foregoes immediate savings.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "compute-savings-plans",
+      "ec2",
+      "fargate",
+      "lambda"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-04-004",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "select-two",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS Organizations with 20 accounts. The CFO wants to implement a 'showback' model \u2014 show each business unit their AWS costs without actually charging them back internally. What is the minimum setup required for this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Cost Anomaly Detection per business unit"
+      },
+      {
+        "label": "B",
+        "text": "Create separate AWS accounts per business unit and view per-account costs in consolidated billing"
+      },
+      {
+        "label": "C",
+        "text": "Implement AWS Budgets with one budget per business unit"
+      },
+      {
+        "label": "D",
+        "text": "Activate cost allocation tags for business unit attributes, tag all resources, and use Cost Explorer's"
+      }
+    ],
+    "correct": [
+      "B",
+      "D"
+    ],
+    "distractors": {
+      "A": "",
+      "C": ""
+    },
+    "explanation": "Two approaches work: (1) Separate accounts per business unit \u2014 account-level cost visibility comes free through Organizations consolidated billing without any tagging. (2) Cost allocation tags \u2014 tag resources by business unit within shared accounts and use Cost Explorer or CUR to attribute costs. For a showback model specifically, both A and B are minimum viable approaches. Budgets and Anomaly Detection provide alerts, not attribution.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "cost-allocation",
+      "showback",
+      "organizations",
+      "cost-explorer"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-04-005",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company pays $50,000/month for On-Demand EC2 instances that have run continuously for 18 months. Their CFO argues they should have purchased Reserved Instances at the start. What is the approximate annual savings they missed by not purchasing 1-year No Upfront Reserved Instances (approximately 40% savings)?",
+    "options": [
+      {
+        "label": "A",
+        "text": "$600,000 over 18 months ($50,000 \u00d7 18 \u00d7 40% = $360,000)"
+      },
+      {
+        "label": "B",
+        "text": "$50,000 per year"
+      },
+      {
+        "label": "C",
+        "text": "$20,000 per year"
+      },
+      {
+        "label": "D",
+        "text": "$240,000 per year ($50,000/month \u00d7 12 months \u00d7"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "At $50,000/month On-Demand, annual spend is $600,000. At 40% RI savings, annual cost would have been $360,000. The missed savings per year = $600,000 - $360,000 = $240,000/year. Over 18 months, total missed savings = $240,000 \u00d7 1.5 = $360,000. The question asks for annual savings, which is $240,000. This calculation demonstrates the significant cost of delaying RI commitments.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "reserved-instances",
+      "cost-savings",
+      "calculation",
+      "finops"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-04-006",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's Enterprise Support plan includes access to a Technical Account Manager (TAM). What is the PRIMARY role of the TAM compared to regular Cloud Support Engineers?",
+    "options": [
+      {
+        "label": "A",
+        "text": "TAMs are dedicated strategic advisors who understand the company's architecture."
+      },
+      {
+        "label": "B",
+        "text": "TAMs can override AWS service quotas on demand"
+      },
+      {
+        "label": "C",
+        "text": "TAMs are responsible for billing disputes only"
+      },
+      {
+        "label": "D",
+        "text": "TAMs provide faster response times for all support cases"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "A TAM is a proactive strategic partner, not reactive support. TAMs provide: business reviews, architecture guidance, proactive monitoring for service issues, access to AWS roadmap information, escalation management, and well-architected reviews. Regular Cloud Support Engineers respond to technical incidents and questions. The TAM relationship is advisory and ongoing, not ticket-based.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "enterprise-support",
+      "tam",
+      "technical-account-manager",
+      "strategic-advisor"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-04-007",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS Lambda and is surprised to find Lambda costs higher than expected. They identify that their functions use 3,000 MB of memory but typical execution uses only 256 MB. What cost optimization should they perform?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Right-size Lambda memory allocation \u2014 Lambda charges for memory allocated \u00d7 duration"
+      },
+      {
+        "label": "B",
+        "text": "Switch to Lambda's ARM/Graviton2 architecture without changing memory"
+      },
+      {
+        "label": "C",
+        "text": "Switch from Lambda to EC2 to reduce compute costs"
+      },
+      {
+        "label": "D",
+        "text": "Enable Lambda Provisioned Concurrency to reduce duration"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Lambda pricing is GB-seconds: (memory in GB) \u00d7 (duration in seconds). At 3,000 MB for a function that needs 256 MB, the customer pays ~12\u00d7 more in memory costs than necessary. Right-sizing to actual memory requirements dramatically reduces cost. Lambda does charge less for arm64 (Graviton2) but the overprovisioned memory is the larger issue. Provisioned Concurrency adds cost for pre-initialized environments.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "lambda",
+      "right-sizing",
+      "cost-optimization",
+      "memory"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-04-008",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company wants to understand which specific AWS resources (EC2 instance IDs, S3 bucket names) are driving their costs at an hourly granularity. AWS Cost Explorer only shows daily granularity by service. What provides hourly, resource-level cost data?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Cost and Usage Report (CUR) delivered to S3"
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor provides real-time guidance to help you provision resources following AWS best practices across cost, security, and performance."
+      },
+      {
+        "label": "C",
+        "text": "AWS Budgets with daily reporting"
+      },
+      {
+        "label": "D",
+        "text": "AWS CloudWatch billing metrics"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS Trusted Advisor provides real-time guidance to help you provision resources following AWS best practices across cost, security, and performance.",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The AWS Cost and Usage Report (CUR) is the most detailed billing data available \u2014 hourly line items with resource IDs (EC2 instance IDs, S3 bucket names, etc.), usage types, and costs. Delivered to S3, it can be queried with Athena for custom analysis. Cost Explorer is limited to daily granularity in its UI and doesn't expose individual resource IDs as cost dimensions. CloudWatch billing metrics are account-level aggregates.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "cost-usage-report",
+      "cur",
+      "resource-level",
+      "hourly-cost"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-04-009",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company is evaluating the AWS Developer, Business, and Enterprise support plans. They need a proactive cost-saving feature that continuously analyzes their AWS environment and suggests optimizations (idle resources, underutilized instances, security gaps). Which plan is the MINIMUM that provides FULL access to all Trusted Advisor checks?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Developer Support \u2014 provides all Trusted Advisor checks"
+      },
+      {
+        "label": "B",
+        "text": "Business Support \u2014 provides full access to all Trusted Advisor checks including"
+      },
+      {
+        "label": "C",
+        "text": "Free tier \u2014 all Trusted Advisor checks are free"
+      },
+      {
+        "label": "D",
+        "text": "Enterprise Support \u2014 only plan with Trusted Advisor access"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Business Support (and above) provides full access to all Trusted Advisor checks across all five categories: Cost Optimization, Performance, Security, Fault Tolerance, and Service Limits. Basic and Developer plans provide access to only 7 core checks (6 security + 1 service limit). The question asks for minimum plan with FULL access \u2014 that's Business.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "trusted-advisor",
+      "business-support",
+      "cost-optimization",
+      "support-plans"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-04-010",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's AWS bill has a line item for 'NAT Gateway \u2014 Data Processed: $3,200/month.' They're surprised by the cost. After investigation, they find their private EC2 instances download updates from the internet via NAT Gateway, and also communicate with S3 via NAT Gateway. What changes reduce this cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Move all EC2 instances to public subnets to eliminate NAT costs"
+      },
+      {
+        "label": "B",
+        "text": "Enable S3 Transfer Acceleration to bypass NAT Gateway"
+      },
+      {
+        "label": "C",
+        "text": "Create a VPC Gateway Endpoint for S3 (free, eliminates S3 traffic."
+      },
+      {
+        "label": "D",
+        "text": "Replace NAT Gateway with a smaller EC2 NAT instance"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "NAT Gateway charges per GB processed. Two optimizations: (1) VPC Gateway Endpoint for S3 routes S3 traffic directly without going through NAT \u2014 this is free and can eliminate significant NAT costs for S3-heavy workloads. (2) OS update traffic (yum/apt from internet repositories) can be reduced via AWS-provided RHEL/Amazon Linux mirrors or an internal Nexus/Artifactory cache. Moving to public subnets exposes instances directly to the internet \u2014 a security anti-pattern.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "nat-gateway",
+      "vpc-endpoint",
+      "cost-optimization",
+      "data-transfer"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-04-011",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company currently has 3 different AWS support plans across 3 accounts: one Developer, one Business, and one Enterprise. They consolidate all 3 accounts under AWS Organizations. What happens to their support plans?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Organizations automatically assigns the management account's support plan to all member accounts"
+      },
+      {
+        "label": "B",
+        "text": "Each account retains its individual support plan; support plans are account-level."
+      },
+      {
+        "label": "C",
+        "text": "All accounts automatically upgrade to Enterprise support"
+      },
+      {
+        "label": "D",
+        "text": "All accounts downgrade to the lowest plan (Developer)"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Support plans are per-account, not per-organization. Consolidating accounts under Organizations doesn't change individual account support plans. Each account retains its plan and can be changed independently. Customers wanting consistent support levels across an organization must subscribe each account to the desired tier. There is no inherited or blended support plan.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "support-plans",
+      "organizations",
+      "per-account",
+      "billing"
+    ]
+  }
+]

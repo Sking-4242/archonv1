@@ -1,0 +1,518 @@
+[
+  {
+    "id": "aws-cp-04-t3-001",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company is comparing the total cost of ownership (TCO) between on-premises infrastructure and AWS. Which factor typically makes AWS TCO lower than on-premises even if the per-unit compute price appears similar?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS eliminates costs like hardware refresh cycles, data center lease, facilities"
+      },
+      {
+        "label": "B",
+        "text": "AWS instances are more powerful than equivalent on-premises servers"
+      },
+      {
+        "label": "C",
+        "text": "AWS provides free support to all customers"
+      },
+      {
+        "label": "D",
+        "text": "AWS does not charge for data transfer between services"
+      },
+      {
+        "label": "E",
+        "text": "AWS charges less for electricity than on-premises data centers"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "On-premises TCO includes hardware refresh (servers last 3-5 years), data center lease, power, cooling, facilities staff, and idle capacity reserved for peaks. AWS eliminates all of these \u2014 the TCO comparison typically favors cloud even when raw compute rates look similar.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "tco",
+      "total-cost-of-ownership",
+      "cloud-economics",
+      "on-premises"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t3-002",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's developer team runs multiple EC2 instances that are only used during business hours (8 AM to 6 PM, Monday through Friday). They want to automatically reduce costs outside those hours. What is the most effective approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch to smaller instance types during off-hours"
+      },
+      {
+        "label": "B",
+        "text": "Purchase Reserved Instances for the full 24/7 term"
+      },
+      {
+        "label": "C",
+        "text": "Use Spot Instances for all development workloads"
+      },
+      {
+        "label": "D",
+        "text": "Schedule instances to stop at 6 PM on weekdays."
+      },
+      {
+        "label": "E",
+        "text": "Enable Hibernate on instances to reduce costs while stopped"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "Stopping EC2 instances when not in use eliminates compute charges. Instances running 50 hours/week instead of 168 hours/week saves ~70% of compute costs. AWS Instance Scheduler automates this on a defined schedule.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "instance-scheduling",
+      "cost-optimization",
+      "ec2",
+      "stop-instances"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t3-003",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company receives their monthly AWS bill and notices they are being charged for 10 unused Elastic IP addresses. Why are they charged, and what should they do?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS charges an hourly fee for Elastic IP addresses that are not associated with a running instance; releasing the unused EIPs will stop the charges."
+      },
+      {
+        "label": "B",
+        "text": "Elastic IPs are charged when disassociated from any resource; re-associating them with stopped instances resolves the billing issue."
+      },
+      {
+        "label": "C",
+        "text": "Elastic IP billing only applies to accounts on the Legacy EC2-Classic network; migrating to VPC will eliminate the charges."
+      },
+      {
+        "label": "D",
+        "text": "AWS charges for Elastic IPs when they are actively in use; stopping the EC2 instances will remove the EIP charges even if the IPs remain allocated."
+      },
+      {
+        "label": "E",
+        "text": "Elastic IPs are always free regardless of association status \u2014 charges on the invoice must be a billing error that AWS support can investigate and correct."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS provides one Elastic IP address per running EC2 instance for free. Charges apply when an EIP is allocated but not associated with a running instance (including when associated with a stopped instance). The 10 unused EIPs are incurring charges because they are allocated but not attached to running instances. The fix is to release (not just disassociate) any EIPs that are no longer needed. Option B is wrong: re-associating with stopped instances still incurs charges. Option C is wrong: EIP billing applies in VPC as well. Option D is wrong: stopping instances does not remove EIP charges \u2014 the EIP remains allocated and billable.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "elastic-ip",
+      "eip-charges",
+      "cost-optimization",
+      "billing"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t3-004",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's AWS account manager recommends they review Trusted Advisor to find cost savings. Which cost optimization check does Trusted Advisor provide?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Identifies EC2 instances with low utilization that could be right-sized or terminated"
+      },
+      {
+        "label": "B",
+        "text": "Automatically terminates instances that have been running for more than 30 days"
+      },
+      {
+        "label": "C",
+        "text": "Provides real-time cost breakdowns of every API call"
+      },
+      {
+        "label": "D",
+        "text": "Converts On-Demand instances to Spot automatically when utilization drops"
+      },
+      {
+        "label": "E",
+        "text": "Negotiates Reserved Instance pricing on the customer's behalf"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Trusted Advisor's Low Utilization Amazon EC2 Instances check identifies instances with consistently low CPU utilization and network I/O \u2014 candidates for right-sizing to smaller instance types or termination if no longer needed.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "trusted-advisor",
+      "cost-optimization",
+      "right-sizing",
+      "ec2-utilization"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t3-005",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's AWS bill is unexpectedly high. Upon investigation, they find large data transfer costs. Which data transfer scenario incurs the highest charges?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Transferring data from EC2 to S3 in the same Region"
+      },
+      {
+        "label": "B",
+        "text": "Transferring large volumes of data from S3 to users on the internet (egress)"
+      },
+      {
+        "label": "C",
+        "text": "Receiving data from the internet into EC2 (ingress)"
+      },
+      {
+        "label": "D",
+        "text": "Transferring data from S3 in one account to S3 in another account in the same Region"
+      },
+      {
+        "label": "E",
+        "text": "Transferring data between EC2 instances in the same AZ over the private IP"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Data transfer out from AWS to the internet (egress) is the primary data transfer cost. S3 egress pricing is per GB and can accumulate significantly for media or large file delivery. Using CloudFront reduces egress costs through regional pricing.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "data-transfer",
+      "egress",
+      "cost-optimization",
+      "s3-internet"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t3-006",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A mid-size company needs AWS support that includes access to AWS Support Engineers 24/7 via email, chat, and phone, and a maximum 1-hour response time for production system outages \u2014 but they do not need a dedicated Technical Account Manager. Which is the minimum support plan they need?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enterprise Support"
+      },
+      {
+        "label": "B",
+        "text": "Developer Support"
+      },
+      {
+        "label": "C",
+        "text": "Enterprise On-Ramp Support"
+      },
+      {
+        "label": "D",
+        "text": "Business Support"
+      },
+      {
+        "label": "E",
+        "text": "Basic Support"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "AWS Business Support provides 24/7 access to Cloud Support Engineers via phone, chat, and email, and a 1-hour response time for production system down (Severity 1) cases \u2014 the exact requirements stated.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "business-support",
+      "support-plans",
+      "1-hour-sla",
+      "24x7-support"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t3-007",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A startup wants to understand what AWS charges are included in the 'Always Free' tier versus the '12-Month Free' tier. Which statement correctly describes the difference?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Both are identical \u2014 they are marketing terms for the same tier"
+      },
+      {
+        "label": "B",
+        "text": "Always Free offers are available indefinitely to all AWS customers"
+      },
+      {
+        "label": "C",
+        "text": "Always Free is only available for accounts with paid support plans"
+      },
+      {
+        "label": "D",
+        "text": "Always Free includes EC2 and S3; 12-Month Free includes Lambda and DynamoDB"
+      },
+      {
+        "label": "E",
+        "text": "12-Month Free provides unlimited usage; Always Free is limited to specific regions"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Always Free tier (e.g., Lambda 1M invocations/month, DynamoDB 25 GB) never expires for any AWS account. 12-Month Free tier (e.g., EC2 750 hours t2.micro, S3 5 GB) is available only for the first 12 months of a new account.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "free-tier",
+      "always-free",
+      "12-month-free",
+      "new-accounts"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t3-008",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses AWS Organizations with multiple accounts. The management account has a 3-year Reserved Instance for r5.2xlarge in us-east-1. A member account also uses r5.2xlarge in us-east-1 but doesn't have its own RI. What happens?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Reserved Instances cannot be shared across accounts in an Organization"
+      },
+      {
+        "label": "B",
+        "text": "The RI discount is split equally between the management and member accounts"
+      },
+      {
+        "label": "C",
+        "text": "The member account pays full On-Demand pricing \u2014 RIs only apply in the account where they are purchased"
+      },
+      {
+        "label": "D",
+        "text": "The RI benefit automatically applies to the member account's matching usage through consolidated billing"
+      },
+      {
+        "label": "E",
+        "text": "The member account must purchase its own RI to receive the discount"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "With consolidated billing, unused Reserved Instance capacity in one account automatically applies to matching usage in other accounts within the organization. The member account receives the RI discount without purchasing their own RI.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "reserved-instances",
+      "consolidated-billing",
+      "organizations",
+      "ri-sharing"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t3-009",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's finance team needs the most granular AWS billing data possible \u2014 per-resource, per-hour, with custom tags \u2014 for internal chargeback. Which tool provides this level of detail?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Budgets \u2014 shows actual vs. budgeted spend"
+      },
+      {
+        "label": "B",
+        "text": "AWS Cost and Usage Report (CUR)"
+      },
+      {
+        "label": "C",
+        "text": "AWS Cost Explorer \u2014 provides cost visualization and monthly breakdowns"
+      },
+      {
+        "label": "D",
+        "text": "AWS Trusted Advisor \u2014 provides cost recommendations"
+      },
+      {
+        "label": "E",
+        "text": "AWS Pricing Calculator \u2014 estimates future costs"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "The AWS Cost and Usage Report is the most comprehensive billing dataset available. It can deliver hourly or daily records with full resource-level detail, custom cost allocation tags, and pricing information to an S3 bucket for analysis in tools like Athena or QuickSight.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "cost-and-usage-report",
+      "cur",
+      "chargeback",
+      "granular-billing"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t3-010",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company has a fleet of EC2 instances serving a web application. Usage is consistent but they sometimes need to change instance families as they adopt newer hardware generations. Which pricing model balances savings with flexibility to change instance types?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Dedicated Instances \u2014 dedicated hardware, no flexibility cost"
+      },
+      {
+        "label": "B",
+        "text": "Spot Instances \u2014 lowest cost, interruptible"
+      },
+      {
+        "label": "C",
+        "text": "On-Demand Instances \u2014 maximum flexibility, no commitment"
+      },
+      {
+        "label": "D",
+        "text": "Compute Savings Plans \u2014 apply to any instance family or"
+      },
+      {
+        "label": "E",
+        "text": "Standard Reserved Instances \u2014 locked to one instance family, highest discount"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "Compute Savings Plans (1 or 3-year commitment to a consistent compute spend in $/hour) apply to any EC2 instance family, size, OS, tenancy, and Region, as well as Fargate and Lambda. They provide up to 66% savings while allowing full flexibility to change instance types.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "compute-savings-plans",
+      "flexibility",
+      "instance-family",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-04-t3-011",
+    "domain": "4",
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company is a startup with limited AWS experience and wants AWS support to guide them through architectural reviews and best practices, with a response time of 30 minutes for business-critical failures \u2014 without the cost of full Enterprise Support. Which plan meets this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Developer Support \u2014 single contact, email only"
+      },
+      {
+        "label": "B",
+        "text": "Basic Support \u2014 free, documentation only"
+      },
+      {
+        "label": "C",
+        "text": "Enterprise Support \u2014 15-minute critical SLA, dedicated TAM"
+      },
+      {
+        "label": "D",
+        "text": "Enterprise On-Ramp \u2014 30-minute critical SLA, pool TAM access,"
+      },
+      {
+        "label": "E",
+        "text": "Business Support \u2014 1-hour production SLA, full Trusted Advisor"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "AWS Enterprise On-Ramp provides a 30-minute response for business-critical system down, access to a pool of Technical Account Managers for architectural guidance, and proactive programs \u2014 at a lower cost than full Enterprise Support.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "enterprise-on-ramp",
+      "support-plans",
+      "30-minute-sla",
+      "tam-pool"
+    ]
+  }
+]

@@ -3,6 +3,8 @@ import useValidationStore from "../../store/validationStore";
 import useGraphStore from "../../store/graphStore";
 import usePlanStore from "../../store/planStore";
 import StandardSelector from "../ui/StandardSelector";
+import UpgradePrompt from "../ui/UpgradePrompt";
+import useAccessStore from "../../store/accessStore";
 import { RULE_TO_CONFIG_KEY, RULE_FIXES, fixPreview } from "../../utils/findingFixes";
 
 const SEVERITY = {
@@ -449,6 +451,7 @@ function PlanModeView({ planSummary, archName, onClearPlan }) {
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function ValidateTab({ onSelectNode }) {
+  const canValidate = useAccessStore((s) => s.canUse("validation_engine"));
   const findings        = useValidationStore((s) => s.findings);
   const activeStandard  = useValidationStore((s) => s.activeStandard);
   const acknowledged    = useValidationStore((s) => s.dismissedIds);
@@ -459,6 +462,10 @@ export default function ValidateTab({ onSelectNode }) {
   const archName         = useGraphStore((s) => s.graphMeta?.name);
   const planSummary      = usePlanStore((s) => s.planSummary);
   const clearPlan        = usePlanStore((s) => s.clearPlan);
+
+  if (!canValidate) {
+    return <UpgradePrompt feature="validation_engine" />;
+  }
 
   // ── Plan mode — show diff view instead of validation findings ─────────────
   if (planSummary) {

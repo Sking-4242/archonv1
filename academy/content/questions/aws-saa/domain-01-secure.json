@@ -1,0 +1,1140 @@
+[
+  {
+    "id": "aws-saa-t1-01-001",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "select-two",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company stores sensitive financial data in Amazon S3. They want to ensure only authenticated users in their AWS account can access the data and that all public access is permanently blocked. Which TWO controls should they implement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Disable S3 versioning to reduce the attack surface"
+      },
+      {
+        "label": "B",
+        "text": "Create a bucket policy that explicitly allows public read"
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 Block Public Access at the account level"
+      },
+      {
+        "label": "D",
+        "text": "Use IAM policies to grant access only to authorized principals"
+      }
+    ],
+    "correct": [
+      "C",
+      "D"
+    ],
+    "distractors": {
+      "A": "",
+      "B": ""
+    },
+    "explanation": "S3 Block Public Access at the account level prevents any bucket policy or ACL from granting public access, acting as a safety net. IAM policies or resource-based bucket policies that allow only specific authenticated principals enforce least-privilege access control. Enabling public read and disabling versioning both reduce security.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "s3",
+      "iam",
+      "block-public-access",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-002",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs a web application on EC2 instances in a public subnet. The application tier EC2 instances must communicate with a database in a private subnet. The database should not be reachable from the internet. Which security group configuration achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Database SG: allow all inbound traffic within the VPC"
+      },
+      {
+        "label": "B",
+        "text": "Database SG: allow inbound on port 3306 from the application tier security group ID"
+      },
+      {
+        "label": "C",
+        "text": "Database SG: allow inbound on port 3306 from 0.0.0.0/0"
+      },
+      {
+        "label": "D",
+        "text": "Database SG: allow inbound on port 3306 from the VPC CIDR range"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Referencing the application tier's security group ID as the source in the database security group inbound rule is the most precise control \u2014 only instances with that specific security group can reach the database. Using 0.0.0.0/0 exposes to internet. Using VPC CIDR is broader than necessary. Allowing all inbound within VPC grants access to any resource in the VPC.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "security-groups",
+      "vpc",
+      "database",
+      "least-privilege"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-003",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A solutions architect needs to grant an EC2 instance permission to read objects from an S3 bucket. What is the AWS best-practice approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use the root account access key and store it in the application code"
+      },
+      {
+        "label": "B",
+        "text": "Embed IAM user access keys in the EC2 instance's environment variables"
+      },
+      {
+        "label": "C",
+        "text": "Store IAM credentials in the application's configuration file on the instance"
+      },
+      {
+        "label": "D",
+        "text": "Create an IAM role with the required S3 read permissions and attach it to the EC2 instance."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "IAM roles attached to EC2 instances via instance profiles provide temporary, automatically rotating credentials through the instance metadata service. The application doesn't need to manage any credentials. Hardcoded credentials in environment variables, config files, or code are security risks \u2014 they don't rotate and can be exposed.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "ec2",
+      "instance-profile",
+      "credentials"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-004",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses an Application Load Balancer to distribute traffic to EC2 instances. They want to encrypt data in transit between clients and the ALB. Which approach is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure HTTP listeners on the ALB and enable VPC encryption"
+      },
+      {
+        "label": "B",
+        "text": "Install the SSL certificate on each EC2 instance behind the ALB"
+      },
+      {
+        "label": "C",
+        "text": "Install an SSL/TLS certificate on the ALB using AWS Certificate Manager and configure"
+      },
+      {
+        "label": "D",
+        "text": "Enable ALB access logs to encrypt all traffic"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "ACM issues free TLS certificates that can be deployed to the ALB. Configuring an HTTPS listener terminates TLS at the ALB, encrypting client-to-ALB traffic. ACM automatically handles certificate renewal. Installing certificates on each EC2 instance is possible but creates operational overhead and is unnecessary when the ALB handles TLS termination. Access logs record request metadata, not encryption.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "acm",
+      "alb",
+      "tls",
+      "https"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-005",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs to control which AWS services can be used within their AWS accounts. They want to prevent all accounts in their organization from creating resources in any region other than us-east-1 and eu-west-1. What is the most scalable enforcement mechanism?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create AWS Config rules in each account to detect non-compliant resources"
+      },
+      {
+        "label": "B",
+        "text": "Use IAM permission boundaries on all IAM users"
+      },
+      {
+        "label": "C",
+        "text": "Apply a Service Control Policy (SCP) at the organization level denying all actions"
+      },
+      {
+        "label": "D",
+        "text": "Manually delete resources created in unauthorized regions each day"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "SCPs in AWS Organizations apply to all member accounts and cannot be overridden. A Deny condition on aws:RequestedRegion prevents resource creation in unapproved regions across the entire organization with a single policy. Config rules are detective (detect after the fact). Manual deletion is not scalable. Permission boundaries apply per-principal within an account, not organization-wide.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "scp",
+      "organizations",
+      "region-restriction",
+      "preventive-control"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-006",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to ensure that IAM users are required to rotate their access keys every 90 days. Which approach enforces this policy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable AWS Config rule access-keys-rotated with a maxAccessKeyAge of 90 days to flag non-compliant keys."
+      },
+      {
+        "label": "B",
+        "text": "Set the IAM account password policy to expire passwords every 90 days \u2014 this also rotates access keys on the same schedule."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Secrets Manager to store access keys and configure automatic rotation every 90 days."
+      },
+      {
+        "label": "D",
+        "text": "Create a CloudWatch alarm on the iam:CreateAccessKey event and alert when keys are older than 90 days."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The AWS Config managed rule access-keys-rotated checks whether active access keys are rotated within the specified number of days (maxAccessKeyAge). Non-compliant users can trigger auto-remediation via Systems Manager Automation to deactivate old keys. IAM password policy (B) controls console passwords only, not access keys. Secrets Manager (C) is not used to store IAM access keys. CloudWatch (D) can detect creation events but cannot check key age retroactively.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "access-keys",
+      "config",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-007",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A solutions architect is designing a three-tier web application. The web servers are in a public subnet. They need to access the internet to download software patches. The application servers in a private subnet also need outbound internet access for API calls. What provides outbound internet access for private subnet instances?",
+    "options": [
+      {
+        "label": "A",
+        "text": "VPN Gateway for internet access"
+      },
+      {
+        "label": "B",
+        "text": "VPC Peering connection to a VPC with internet access"
+      },
+      {
+        "label": "C",
+        "text": "NAT Gateway in the public subnet with a route in the private"
+      },
+      {
+        "label": "D",
+        "text": "Internet Gateway \u2014 attach it directly to the private subnet"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "A NAT Gateway in a public subnet allows instances in private subnets to initiate outbound internet connections while preventing unsolicited inbound connections from the internet. The private subnet's route table entry for 0.0.0.0/0 points to the NAT Gateway. An Internet Gateway on a private subnet would expose instances. VPC Peering and VPN are for private network connectivity.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "nat-gateway",
+      "vpc",
+      "private-subnet",
+      "internet-access"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-008",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to centrally manage encryption keys used across multiple AWS services (S3, RDS, EBS). They require the ability to audit key usage, rotate keys annually, and control who can use each key. Which service provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Secrets Manager stores and automatically rotates database credentials, API keys, and other secrets but does not encrypt data objects in S3 or other storage services."
+      },
+      {
+        "label": "B",
+        "text": "AWS Certificate Manager provisions and manages SSL/TLS certificates for HTTPS endpoints but does not provide general-purpose encryption keys for data at rest."
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudHSM provides dedicated hardware security modules for customer-controlled key generation but requires significantly more operational complexity than KMS for most workloads."
+      },
+      {
+        "label": "D",
+        "text": "AWS Key Management Service with customer managed keys provides envelope encryption, key rotation control, and detailed audit logs through CloudTrail for all key usage."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "AWS Secrets Manager stores and automatically rotates database credentials, API keys, and other secrets but does not encrypt data objects in S3 or other storage services.",
+      "B": "AWS Certificate Manager provisions and manages SSL/TLS certificates for HTTPS endpoints but does not provide general-purpose encryption keys for data at rest.",
+      "C": "AWS CloudHSM provides dedicated hardware security modules for customer-controlled key generation but requires significantly more operational complexity than KMS for most workloads."
+    },
+    "explanation": "AWS KMS with customer managed keys (CMKs) provides centralized key management: key usage is logged in CloudTrail, automatic annual rotation can be enabled, key policies control who can use the key for encrypt/decrypt operations, and the key integrates natively with S3, RDS, EBS, and other AWS services. Secrets Manager manages application secrets. ACM manages TLS certificates. CloudHSM provides dedicated HSM hardware.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "kms",
+      "cmk",
+      "encryption",
+      "key-management"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-009",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A mobile application needs to allow users to log in with their Google, Facebook, or corporate SAML identity and receive temporary AWS credentials to access their specific S3 folder. Which AWS service handles this web identity federation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Directory Service"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Cognito Identity Pools"
+      },
+      {
+        "label": "C",
+        "text": "AWS IAM with long-term access keys"
+      },
+      {
+        "label": "D",
+        "text": "AWS IAM Identity Center"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Amazon Cognito Identity Pools provide web identity federation: users authenticate with external identity providers (Google, Facebook, SAML) and receive temporary AWS credentials (via STS) scoped to specific AWS resources. IAM long-term access keys are not appropriate for end users. Directory Service manages Active Directory. IAM Identity Center is for workforce identity to access AWS accounts.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cognito",
+      "identity-federation",
+      "mobile",
+      "temporary-credentials"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-010",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's EC2 instances in a private subnet need to access Amazon S3 and DynamoDB without traffic going over the public internet. Which solution achieves this without adding a NAT Gateway?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Direct Connect dedicated connection"
+      },
+      {
+        "label": "B",
+        "text": "VPC Gateway Endpoints for S3 and DynamoDB"
+      },
+      {
+        "label": "C",
+        "text": "VPC Interface Endpoints for both S3 and DynamoDB"
+      },
+      {
+        "label": "D",
+        "text": "AWS Site-to-Site VPN to route traffic to S3 and DynamoDB"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "VPC Gateway Endpoints for S3 and DynamoDB route traffic directly from the VPC to these services over the AWS network, without going through a NAT Gateway or internet gateway. Gateway Endpoints are free (no per-hour or per-GB charges). Interface Endpoints (PrivateLink) are an alternative for many services but for S3 and DynamoDB, Gateway Endpoints are the standard free option.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "vpc-endpoint",
+      "s3",
+      "dynamodb",
+      "private-network"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-011",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company receives reports that their web application is being attacked with SQL injection attempts. They want to automatically block these attacks without modifying their application code. Which service provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS WAF with a managed rule group for SQL injection"
+      },
+      {
+        "label": "B",
+        "text": "VPC Network ACLs"
+      },
+      {
+        "label": "C",
+        "text": "AWS Shield Standard"
+      },
+      {
+        "label": "D",
+        "text": "Amazon GuardDuty is a threat detection service that continuously monitors for malicious activity and unauthorized behavior to protect your AWS accounts."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "Amazon GuardDuty is a threat detection service that continuously monitors for malicious activity and unauthorized behavior to protect your AWS accounts."
+    },
+    "explanation": "AWS WAF inspects HTTP/HTTPS requests at Layer 7 and can block requests containing SQL injection patterns using AWS managed rule groups or custom rules. It integrates with ALB, CloudFront, and API Gateway. Shield Standard protects against Layer 3/4 DDoS. GuardDuty detects threats but doesn't block requests. NACLs filter by IP/port (Layer 3/4), not HTTP content.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "waf",
+      "sql-injection",
+      "application-security",
+      "managed-rules"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-012",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses AWS IAM. They want to ensure that users in the 'Developers' group can launch EC2 instances only in us-east-1 and only with instance types starting with 't3.' Which IAM policy element enforces this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Action: ec2:RunInstances with a resource ARN specifying us-east-1"
+      },
+      {
+        "label": "B",
+        "text": "Effect: Deny with a Resource constraint"
+      },
+      {
+        "label": "C",
+        "text": "Principal block limiting to the Developers group"
+      },
+      {
+        "label": "D",
+        "text": "Condition block with aws:RequestedRegion and ec2:InstanceType condition keys"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "IAM Condition blocks allow fine-grained constraints. aws:RequestedRegion restricts to specific regions; ec2:InstanceType with a StringLike condition (e.g., t3.*) limits instance types. A Deny with these conditions enforces both constraints. Resource ARNs don't specify instance type constraints. Principal blocks are used in resource-based policies.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "conditions",
+      "ec2",
+      "region-restriction"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-013",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An application running on EC2 needs to securely store and retrieve database credentials that rotate every 30 days. The application must get the latest credentials automatically without redeployment. Which service handles this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Secrets Manager with automatic rotation enabled"
+      },
+      {
+        "label": "B",
+        "text": "Store credentials in an S3 bucket with versioning"
+      },
+      {
+        "label": "C",
+        "text": "Store credentials in AWS Systems Manager Parameter Store SecureString parameters"
+      },
+      {
+        "label": "D",
+        "text": "Hardcode credentials in a configuration file encrypted with KMS"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Secrets Manager is purpose-built for credential management with automatic rotation for supported databases (RDS, Redshift, DocumentDB). When rotation occurs, Secrets Manager updates the secret and the application retrieves the latest version via the Secrets Manager API \u2014 no redeployment needed. Parameter Store SecureString doesn't have automatic rotation built in. S3 and hardcoded configs require manual updates.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "secrets-manager",
+      "rotation",
+      "credentials",
+      "database"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-014",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company stores sensitive documents in S3. Compliance requires that all objects be encrypted at rest using keys that the company fully controls. Which S3 encryption option meets this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SSE-C (Server-Side Encryption with Customer-Provided Keys)"
+      },
+      {
+        "label": "B",
+        "text": "SSE-KMS with a customer managed key (CMK)"
+      },
+      {
+        "label": "C",
+        "text": "SSE-S3 (Server-Side Encryption with S3 managed keys)"
+      },
+      {
+        "label": "D",
+        "text": "Client-side encryption with any library"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "SSE-KMS with a CMK lets the company create and manage the KMS key \u2014 they control key policies, rotation, and can audit every use via CloudTrail. SSE-S3 uses AWS-managed keys (no customer control). SSE-C passes keys in each request (no key management service, no audit trail). Client-side encryption works but bypasses S3-native encryption controls and audit integration.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "s3",
+      "sse-kms",
+      "cmk",
+      "encryption"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-015",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security team wants to be notified within minutes when anyone logs in to the AWS root account. Which architecture achieves real-time notification?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Review CloudTrail logs daily using Athena"
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS Config with a rule that detects root login"
+      },
+      {
+        "label": "C",
+        "text": "Enable GuardDuty and subscribe to all findings via email"
+      },
+      {
+        "label": "D",
+        "text": "Create a CloudTrail trail \u2192 CloudWatch Events (EventBridge) rule matching ConsoleLogin from."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "CloudTrail logs the ConsoleLogin event including whether the principal is root. EventBridge can match this specific event pattern in near-real-time and route to SNS for immediate notification. Config evaluates configuration states, not login events. Daily Athena queries are not real-time. GuardDuty detects some anomalies but the direct real-time path for root login is CloudTrail \u2192 EventBridge \u2192 SNS.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cloudtrail",
+      "eventbridge",
+      "root-account",
+      "monitoring"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-016",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs to prevent EC2 instances in a private subnet from making outbound connections to the internet entirely \u2014 even through a NAT Gateway. They want this enforced at the network level. Which approach works?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Disable enhanced networking on the instances"
+      },
+      {
+        "label": "B",
+        "text": "Configure instance security groups to deny all outbound traffic"
+      },
+      {
+        "label": "C",
+        "text": "Remove the 0.0.0.0/0 route to the NAT Gateway from the private subnet's"
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Config to alert on unauthorized outbound connections"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Route tables control where traffic is sent. Removing the default route to the NAT Gateway from the private subnet's route table prevents internet-bound traffic from being routed. Network ACLs (stateless) add a second enforcement layer at the subnet level. Security groups are stateful and outbound rules can be set to deny, but route table control is the primary network-level mechanism. Config is detective, not preventive.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "vpc",
+      "route-table",
+      "nacl",
+      "network-isolation"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-017",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's application uses Amazon RDS MySQL. They need to encrypt the database at rest. Their existing unencrypted RDS instance cannot be encrypted in place. How can they encrypt it?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Attach an encrypted EBS volume to the RDS instance"
+      },
+      {
+        "label": "B",
+        "text": "Enable SSL/TLS connections to RDS \u2014 this encrypts data at rest"
+      },
+      {
+        "label": "C",
+        "text": "Enable encryption in the RDS console \u2014 it takes effect immediately for existing instances"
+      },
+      {
+        "label": "D",
+        "text": "Create an encrypted snapshot of the unencrypted instance, restore it as a new encrypted RDS instance,"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "RDS encryption cannot be enabled on an existing unencrypted instance in place. The migration path is: create a snapshot of the unencrypted instance \u2192 copy the snapshot with encryption enabled \u2192 restore the encrypted snapshot as a new encrypted instance \u2192 update DNS/connection strings. SSL/TLS encrypts data in transit, not at rest. EBS encryption is not separately configurable on RDS.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "rds",
+      "encryption",
+      "snapshot",
+      "migration"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-018",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses a bastion host (jump box) to allow administrators to SSH into private EC2 instances. They want to eliminate the bastion host and remove all SSH inbound rules while maintaining the ability to access instance shells. Which service replaces the bastion?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager Session Manager"
+      },
+      {
+        "label": "B",
+        "text": "AWS Client VPN"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EC2 Instance Connect"
+      },
+      {
+        "label": "D",
+        "text": "AWS Direct Connect"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Systems Manager Session Manager provides browser-based and CLI shell access to EC2 instances using the SSM Agent, requiring no open inbound ports (no SSH port 22), no bastion host, and no key pairs. All sessions are audited in CloudTrail and optionally logged to S3 or CloudWatch Logs. Client VPN extends the corporate network to VPC but still requires SSH. EC2 Instance Connect still uses port 22.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "session-manager",
+      "ssm",
+      "bastion",
+      "secure-access"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-019",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs to share an S3 bucket with a partner company's AWS account. The partner needs read-only access to specific prefixes in the bucket. Which approach grants cross-account access?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a bucket policy that grants the partner's AWS account ID s3:GetObject permissions on the specified prefix ARN"
+      },
+      {
+        "label": "B",
+        "text": "Make the S3 bucket public so the partner can access it"
+      },
+      {
+        "label": "C",
+        "text": "Copy the data to a new S3 bucket in the partner's account"
+      },
+      {
+        "label": "D",
+        "text": "Create an IAM user in the company's account and share the credentials with the partner"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "S3 resource-based bucket policies can grant cross-account access by specifying the partner's account ID (or specific IAM principal) in the Principal element. This allows access without creating IAM users or sharing credentials. Making the bucket public grants access to everyone, not just the partner. Copying data adds operational overhead and data duplication.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "s3",
+      "cross-account",
+      "bucket-policy",
+      "access-control"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-020",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs a public-facing web application on EC2. A security scan found port 22 (SSH) open to 0.0.0.0/0 on the instance's security group. What is the recommended remediation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Move the instance to a private subnet and keep port 22 open to 0.0.0.0/0"
+      },
+      {
+        "label": "B",
+        "text": "Keep port 22 open but enable GuardDuty to detect suspicious SSH logins"
+      },
+      {
+        "label": "C",
+        "text": "Change the SSH rule to allow only from the corporate IP range."
+      },
+      {
+        "label": "D",
+        "text": "Enable CloudTrail to audit all SSH connections"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Restricting SSH to known IP ranges (corporate office CIDRs) dramatically reduces exposure. Better still, removing port 22 entirely and using Session Manager eliminates the attack surface \u2014 Session Manager requires no open inbound ports. Keeping port 22 open with monitoring (GuardDuty/CloudTrail) is detection, not prevention. Moving to a private subnet without fixing the security group doesn't help if there's a NAT or bastion.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "security-groups",
+      "ssh",
+      "least-privilege",
+      "session-manager"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-021",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's data lake in S3 contains sensitive PII. They need continuous monitoring to detect when new PII data lands in specific S3 buckets and alert the security team. Which service automates this discovery?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Comprehend"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Inspector"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Rekognition"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Macie"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Macie uses ML to automatically discover and classify sensitive data (PII, financial data, credentials) in S3 buckets with continuous monitoring. It generates findings when sensitive data is detected and can route findings to EventBridge for automated alerts. Rekognition is for image/video analysis. Comprehend performs NLP on text but requires custom integration. Inspector scans software vulnerabilities.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "macie",
+      "pii",
+      "s3",
+      "data-classification"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-022",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses multiple AWS accounts. They want to ensure a specific IAM role in Account B can only be assumed by an EC2 instance in Account A. How should the role's trust policy be configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Principal: AWS: * with a Condition restricting to Account A"
+      },
+      {
+        "label": "B",
+        "text": "Principal: AWS: arn:aws:iam::AccountA:root"
+      },
+      {
+        "label": "C",
+        "text": "Principal: AWS: arn:aws:iam::AccountA:role/EC2InstanceRole"
+      },
+      {
+        "label": "D",
+        "text": "Principal: Service: ec2.amazonaws.com"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "The trust policy should specify the exact IAM role ARN used by the EC2 instance in Account A as the trusted principal. This allows the EC2 instance to call sts:AssumeRole on the Account B role. Using AccountA:root trusts all principals in Account A (too broad). Using ec2.amazonaws.com allows any EC2 instance in any account. Using * with a condition is technically possible but less precise than specifying the exact role ARN.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "cross-account",
+      "trust-policy",
+      "sts"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-023",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company is deploying a microservices architecture on ECS. Each service makes API calls to other AWS services. Instead of embedding credentials, what is the correct way to provide each ECS task with its own AWS permissions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use ECS Task Roles \u2014 define separate IAM roles per task definition."
+      },
+      {
+        "label": "B",
+        "text": "Pass AWS credentials as environment variables in the task definition"
+      },
+      {
+        "label": "C",
+        "text": "Attach a single EC2 instance profile with all permissions to the ECS cluster instances"
+      },
+      {
+        "label": "D",
+        "text": "Use a shared IAM user with credentials stored in Secrets Manager"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "ECS Task Roles assign IAM roles at the task level \u2014 each container gets temporary credentials through the ECS credential provider based on the task's assigned role. This implements per-task least privilege without any credential management. Instance profiles give all tasks on the host the same permissions. Environment variable credentials are static and expose keys in the task definition. Shared IAM user credentials don't rotate.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "ecs",
+      "task-role",
+      "iam",
+      "microservices"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-024",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's web application sits behind CloudFront. They want to ensure that users can only access the application through CloudFront and not by directly connecting to the ALB origin URL. How can they enforce this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure the ALB security group to allow inbound HTTPS only from CloudFront-managed IP prefixes using the AWS-managed prefix list for CloudFront origins."
+      },
+      {
+        "label": "B",
+        "text": "Configuring Route 53 to hide the ALB's DNS name does not prevent direct access since the ALB's IP address or direct DNS name can still be discovered and accessed."
+      },
+      {
+        "label": "C",
+        "text": "CloudFront access logs record viewer request details for analysis but do not enforce any origin access restrictions or prevent direct ALB connections."
+      },
+      {
+        "label": "D",
+        "text": "Enabling WAF on both CloudFront and the ALB adds rate limiting and rule enforcement but does not prevent direct HTTPS requests to the ALB from bypassing CloudFront entirely."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Restricting the ALB's security group inbound rules to allow HTTPS only from CloudFront's IP ranges (using managed prefix lists) ensures that direct connections to the ALB bypass CloudFront and are blocked. CloudFront also supports custom headers that the ALB can verify. Access logs and Route 53 don't restrict traffic. WAF on both layers provides security but doesn't restrict traffic flow to CloudFront-only.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cloudfront",
+      "alb",
+      "security-groups",
+      "origin-protection"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-025",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An application on EC2 needs to call the DynamoDB API. The EC2 instance is in a private subnet with no NAT Gateway. To avoid adding a NAT Gateway, what allows the EC2 instance to reach DynamoDB?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a VPC Gateway Endpoint for DynamoDB"
+      },
+      {
+        "label": "B",
+        "text": "Deploy a proxy EC2 instance in a public subnet"
+      },
+      {
+        "label": "C",
+        "text": "Add a public IP to the EC2 instance"
+      },
+      {
+        "label": "D",
+        "text": "Create a VPN connection for DynamoDB access"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "A VPC Gateway Endpoint for DynamoDB adds a route to the private subnet's route table that directs DynamoDB-bound traffic directly through the AWS network \u2014 no NAT Gateway, internet gateway, or internet transit required. This is free and provides private connectivity to DynamoDB. Adding a public IP or deploying a proxy are workarounds that don't follow best practices.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "vpc-endpoint",
+      "dynamodb",
+      "private-network",
+      "gateway-endpoint"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-026",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses AWS Organizations with 50 accounts. They need to apply security baselines (enable CloudTrail, GuardDuty, and Config) across all accounts automatically when new accounts are created. What automates this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Manually configure each new account after creation"
+      },
+      {
+        "label": "B",
+        "text": "SCPs that require CloudTrail and GuardDuty to be enabled"
+      },
+      {
+        "label": "C",
+        "text": "AWS Control Tower with enabled guardrails \u2014 applies detective."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config Aggregator across all accounts"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "AWS Control Tower automates multi-account security baseline setup including enabling CloudTrail, GuardDuty, Config, and other security services across all accounts. It applies guardrails (mandatory and optional) that enforce security policies when new accounts are vended. Config Aggregator collects data but doesn't enforce baselines. SCPs can prevent disabling services but don't enable them in new accounts automatically.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "control-tower",
+      "organizations",
+      "security-baseline",
+      "automation"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-01-027",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "select-two",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "Which TWO statements correctly describe the difference between VPC Security Groups and Network ACLs?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Security Groups are stateful \u2014 return traffic is automatically allowed; NACLs are stateless \u2014 return traffic must be explicitly allowed in outbound rules"
+      },
+      {
+        "label": "B",
+        "text": "Security Groups apply at the subnet level; NACLs apply at the instance level"
+      },
+      {
+        "label": "C",
+        "text": "Security Groups can only allow traffic; NACLs can both allow and deny traffic"
+      },
+      {
+        "label": "D",
+        "text": "NACLs process rules in order by rule number; Security Groups evaluate all rules and take the most permissive outcome"
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "distractors": {
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Security Groups are stateful (tracked connections allow return traffic automatically) and can only allow traffic (no explicit deny \u2014 a missing rule implicitly denies). NACLs are stateless (return traffic needs explicit rules) and can both allow and deny traffic. Security Groups apply at the ENI/instance level; NACLs apply at the subnet level. NACLs process rules by number (lowest first); SGs evaluate all matching rules.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "security-groups",
+      "nacl",
+      "vpc",
+      "stateful-stateless"
+    ]
+  }
+]

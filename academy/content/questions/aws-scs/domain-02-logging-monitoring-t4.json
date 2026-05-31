@@ -1,0 +1,658 @@
+[
+  {
+    "id": "scs-d2-t4-001",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer wants to verify that CloudTrail log files have not been tampered with since delivery. Which AWS CLI command and option enables cryptographic validation of CloudTrail digest files?",
+    "options": [
+      {
+        "label": "A",
+        "text": "aws cloudtrail lookup-events filtering on eventName equals PutObject targeting the log bucket"
+      },
+      {
+        "label": "B",
+        "text": "aws cloudtrail get-trail-status and inspect the LatestDigestDeliveryTime field for anomalies"
+      },
+      {
+        "label": "C",
+        "text": "aws s3api get-object-attributes to compare ETag checksums of log files in the bucket"
+      },
+      {
+        "label": "D",
+        "text": "aws cloudtrail validate-logs with --trail-arn and a start-time parameter"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The aws cloudtrail validate-logs command uses SHA-256 digest files that CloudTrail delivers every hour to cryptographically verify that log files were not modified, deleted, or forged after delivery. You must supply --trail-arn and --start-time; the CLI then chains digest files and verifies each log file hash. The other options expose status metadata, compare ETags which are not cryptographic proof of content integrity, or search event history rather than verifying file integrity.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-002",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An auditor requires a record of every GetObject and PutObject API call made against a specific S3 bucket, including the requester's IAM identity. A developer suggests enabling S3 server access logging. Why is CloudTrail data events the correct choice instead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 server access logs are limited to 90 days retention and cannot be exported to CloudWatch Logs for alerting on access patterns"
+      },
+      {
+        "label": "B",
+        "text": "S3 server access logs do not record the requester IAM principal, lack millisecond timestamps, and can miss requests during high-concurrency periods due to best-effort delivery"
+      },
+      {
+        "label": "C",
+        "text": "S3 server access logs only capture PUT operations and silently ignore all GET requests including those from anonymous users"
+      },
+      {
+        "label": "D",
+        "text": "S3 server access logs require bucket versioning to be enabled before they can record any object-level API calls"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "S3 server access logs are delivered on a best-effort basis and may omit some requests; they do not include the full IAM principal ARN needed for identity-based auditing. CloudTrail data events capture every S3 object-level API call with the caller identity, request time in milliseconds, and source IP. The 90-day limit applies to CloudTrail event history, not server access logs. Server access logs do capture GET requests. Versioning has no bearing on access logging enablement.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-003",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security team is ingesting logs from a third-party firewall appliance into Amazon Security Lake. The vendor does not have a native Security Lake integration. Which approach allows the team to add the firewall logs as a custom source while conforming to Security Lake's required schema?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Kinesis Data Firehose to stream raw syslog records directly into the Security Lake S3 prefix without conversion"
+      },
+      {
+        "label": "B",
+        "text": "Transform the firewall logs to OCSF schema version 1.0.0 in Parquet format, then register a custom source in Security Lake pointing to the S3 location"
+      },
+      {
+        "label": "C",
+        "text": "Store raw firewall logs in S3 and configure Security Lake to treat the bucket as an external source without schema transformation"
+      },
+      {
+        "label": "D",
+        "text": "Enable Amazon Detective as an intermediary to normalize firewall events before Security Lake ingests them automatically"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Amazon Security Lake requires all data including custom sources to conform to Open Cybersecurity Schema Framework (OCSF) version 1.0.0 in Apache Parquet format. You register a custom source in the Security Lake console or API, provide OCSF-formatted Parquet files in S3, and Security Lake indexes them alongside native sources. Storing raw logs without transformation violates the schema requirement. Kinesis Firehose alone does not perform OCSF conversion. Amazon Detective is a separate analytics service and does not act as a normalization pipeline for Security Lake.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-004",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security analyst is using VPC Flow Logs to investigate lateral movement between two EC2 instances in different subnets of the same VPC. Which field combination in the flow log records most reliably identifies East-West traffic where a NAT gateway or load balancer may be in the path?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use pkt-srcaddr and pkt-dstaddr to capture the original packet endpoints, then correlate with srcaddr and dstaddr to confirm traffic did not traverse a NAT or load balancer hop"
+      },
+      {
+        "label": "B",
+        "text": "Check the srcaddr and dstaddr fields against subnet CIDR ranges, then confirm ACCEPT action in the log-status field"
+      },
+      {
+        "label": "C",
+        "text": "Rely solely on the vpc-id and subnet-id aggregated fields to confirm both endpoints share the same VPC"
+      },
+      {
+        "label": "D",
+        "text": "Filter on the interface-id of the source ENI and verify the dstaddr falls within the destination subnet CIDR with an ACCEPT action"
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "For intra-VPC East-West traffic traversing a NAT gateway, transit gateway, or Network Load Balancer, srcaddr and dstaddr can reflect the intermediate hop IP rather than the originating instance. The pkt-srcaddr and pkt-dstaddr fields capture the true packet-level source and destination, bypassing address translation. Cross-referencing both sets of fields correctly identifies direct instance-to-instance communication versus traffic that passed through an intermediary. Options A and B can misidentify translated addresses. Option C does not provide per-flow path information.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-005",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security team wants to detect potential DNS-based data exfiltration from workloads in a private VPC by logging all DNS queries made by resources in the VPC. What is the correct way to enable this logging?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable CloudTrail data events for the Route 53 service, which automatically captures DNS query payloads for all private hosted zones in the account"
+      },
+      {
+        "label": "B",
+        "text": "Configure VPC Flow Logs with a protocol filter set to UDP port 53 to capture DNS traffic metadata including query names for the VPC"
+      },
+      {
+        "label": "C",
+        "text": "Create a Route 53 Resolver query logging configuration, associate it with the target VPC, and specify a CloudWatch Logs group or S3 bucket as the destination"
+      },
+      {
+        "label": "D",
+        "text": "Deploy a custom DNS forwarder on EC2, route all queries through it via resolver rules, and collect logs from the forwarder syslog output"
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Route 53 Resolver query logging is a native feature that records DNS query details including query name, type, response code, and resolving instance for all DNS queries made by resources in an associated VPC. You create a query logging configuration in the Route 53 console or API, associate it with one or more VPCs, and direct output to CloudWatch Logs, S3, or Kinesis Data Firehose. CloudTrail does not capture DNS query payloads. VPC Flow Logs capture IP-layer metadata but not DNS query names needed for exfiltration detection. A custom forwarder is operationally complex and unnecessary.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-006",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A DevOps team wants to alert when a CloudWatch metric for failed login attempts deviates significantly from its normal pattern without configuring a static numeric threshold. Which CloudWatch feature is best suited for this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudWatch anomaly detection, which trains a machine learning model on the metric historical data to create dynamic upper and lower bounds used for alerting"
+      },
+      {
+        "label": "B",
+        "text": "A CloudWatch composite alarm that combines multiple static threshold alarms on the same metric to reduce false positives during expected spikes"
+      },
+      {
+        "label": "C",
+        "text": "CloudWatch Contributor Insights rules that rank the top contributors to failed login events and alert when the top-N count exceeds a fixed value"
+      },
+      {
+        "label": "D",
+        "text": "CloudWatch metric math expressions that compute a rolling z-score against a manually specified standard deviation value entered in the alarm configuration"
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudWatch anomaly detection uses machine learning to model the expected behavior of a metric, producing a dynamic band that adjusts for time-of-day and day-of-week patterns. An anomaly detection alarm fires when the metric falls outside the trained band, eliminating the need for a static threshold. Composite alarms still rely on static thresholds on underlying alarms. CloudWatch metric math does not include a built-in z-score function driven purely by historical data. Contributor Insights identifies top contributors but requires a fixed count threshold rather than adaptive baselining.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-007",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer reviewing ECS Container Insights wants to find application-layer security signals such as authentication failures written by the container process. Where are these application-level log events stored?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The /aws/ecs/containerinsights log group under the cluster performance log stream, which also holds application error events"
+      },
+      {
+        "label": "B",
+        "text": "Application logs written by the container to stdout or stderr, collected by the FireLens router or awslogs driver into a CloudWatch Logs log group"
+      },
+      {
+        "label": "C",
+        "text": "The ContainerInsights CloudWatch metrics namespace, which stores CPU, memory, disk, and network utilization for ECS tasks and services"
+      },
+      {
+        "label": "D",
+        "text": "ECS service deployment circuit breaker events stored in CloudWatch Events as target tracking scaling notifications"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Container Insights collects infrastructure metrics such as CPU and memory in the ContainerInsights CloudWatch namespace, but application-level log events such as authentication failures or security exceptions are written to stdout and stderr by the container process. These are routed to CloudWatch Logs via the awslogs driver or FireLens. Security analysts must query the application log group rather than the ContainerInsights metrics namespace or performance log streams to find application-layer security signals. Option B describes infrastructure performance logs, not application logs.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-008",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A network security engineer is analyzing AWS Network Firewall alert logs and needs to determine whether each log entry was generated by a stateful rule or a stateless rule drop. Which field in the Network Firewall alert log record indicates which rule engine produced the entry?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The absence of the event.event_type field combined with a drop action implicitly indicates a stateless rule, while its presence indicates a stateful match"
+      },
+      {
+        "label": "B",
+        "text": "The event.rule_group_name field, which uses a STATEFUL or STATELESS naming prefix applied by convention during rule group creation"
+      },
+      {
+        "label": "C",
+        "text": "The event.event_type field, where a value of 'alert' indicates a stateful Suricata rule match and a value of 'stateless' indicates a stateless rule action"
+      },
+      {
+        "label": "D",
+        "text": "The firewall_name and availability_zone fields, which together identify the rule group location but not the rule engine type"
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Network Firewall alert logs include an event.event_type field. For stateful rule matches the value is 'alert' in Suricata-compatible format, while stateless rule drops produce log entries with event_type set to 'stateless'. This field is the authoritative indicator of which rule engine produced the log entry. The firewall_name and availability_zone fields describe the firewall instance, not the rule type. Rule group naming conventions are user-defined and not enforced by the service. Option D incorrectly describes the field behavior.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-009",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security analyst reviewing AWS WAF sampled requests notices that the sample appears incomplete for a high-traffic endpoint matching thousands of requests per minute. What is the correct explanation for this gap?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Sampled requests are only available for rules configured with the Block action; rules set to Count or Allow do not generate samples in the WAF console"
+      },
+      {
+        "label": "B",
+        "text": "WAF sampled requests are limited to the last 100 requests per rule per 5-minute period, so high-traffic rules show only a small fraction of all matching requests"
+      },
+      {
+        "label": "C",
+        "text": "The WAF sampling window resets every hour, so requests matching a rule after the first hour of deployment are excluded from the sample view"
+      },
+      {
+        "label": "D",
+        "text": "WAF sampled requests are gated by web ACL request capacity units, and rules exceeding 1500 WCUs are excluded from sampling entirely"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS WAF sampled requests provide up to 100 requests per rule per 5-minute period for inspection in the console or API. For high-traffic endpoints where a single rule matches thousands of requests per minute, the 100-request sample represents a tiny fraction of total matching traffic. For complete logging of every request, you must enable WAF full logging to a Kinesis Data Firehose delivery stream. Sampling is available for all rule actions including Count and Allow. There is no hourly reset tied to deployment time. WCU capacity does not gate request sampling.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-010",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security architect creates a multi-region CloudTrail trail and later notices that IAM API calls appear in only one region's log files rather than in every regional prefix. What is the correct explanation for this behavior?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Multi-region trails replicate log files to every region bucket but only index IAM events in the primary region specified at trail creation"
+      },
+      {
+        "label": "B",
+        "text": "IAM API calls are classified as data events rather than management events, so the trail management event selector does not capture them without additional configuration"
+      },
+      {
+        "label": "C",
+        "text": "IAM events are delivered exclusively to us-east-1 regardless of trail home region because IAM is physically hosted only in the us-east-1 partition endpoint"
+      },
+      {
+        "label": "D",
+        "text": "IAM is a global service whose API calls are logged as global service events and delivered to the home region S3 prefix of the trail rather than to every regional prefix"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "CloudTrail treats IAM, STS, and a handful of other services as global services whose API calls are logged as global service events. For a multi-region trail, global service events are delivered to the S3 bucket prefix for the trail home region\u2014the region where the trail was created\u2014not to every regional prefix. Analysts searching for IAM activity in a non-home-region log prefix will find nothing. Option D incorrectly asserts events always go to us-east-1 regardless of home region. IAM actions are management events, not data events. Multi-region trails do not replicate per-region index entries.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-011",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security operations center receives dozens of individual GuardDuty findings per hour that appear to relate to a single ongoing compromise involving the same EC2 instance and external IP. Which Amazon Detective feature provides a consolidated view grouping these related findings?",
+    "options": [
+      {
+        "label": "A",
+        "text": "GuardDuty threat intelligence sets that correlate findings sharing the same threat actor IP into a consolidated suppression rule automatically"
+      },
+      {
+        "label": "B",
+        "text": "Detective finding groups, which cluster related GuardDuty findings that share common entities such as an IP address, instance, or IAM role into a single investigation unit"
+      },
+      {
+        "label": "C",
+        "text": "Detective behavior graphs, which display all network traffic flows between entities in the account over a rolling 1-year data retention window"
+      },
+      {
+        "label": "D",
+        "text": "Security Hub insight rules that aggregate findings by resource ARN into a custom insight displayed in the Detective console for review"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Amazon Detective finding groups use machine learning to identify GuardDuty findings that are likely part of the same security incident by clustering findings that share common entities\u2014such as an EC2 instance, IAM principal, or external IP\u2014within a time window. Each finding group provides a single investigation pane for the full scope of a potential incident. Behavior graphs are Detective's underlying data model, not a clustering feature. Security Hub insights are separate from Detective. GuardDuty threat intelligence sets affect detection sensitivity, not finding consolidation.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-012",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A compliance auditor asks what the minimum frequency is for AWS Config to deliver periodic configuration snapshots to an S3 bucket via a delivery channel. What is the correct answer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Every 1 hour, which is the shortest periodic delivery frequency supported by the AWS Config delivery channel configuration"
+      },
+      {
+        "label": "B",
+        "text": "Every 30 minutes, which is the minimum delivery frequency for Config delivery channels targeting cross-region S3 buckets"
+      },
+      {
+        "label": "C",
+        "text": "Every 6 hours, because Config batches configuration changes within a compliance evaluation window before delivering each snapshot"
+      },
+      {
+        "label": "D",
+        "text": "Every 15 minutes, matching the Config configuration item recording interval for continuously monitored supported resources"
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Config delivery channel supports periodic configuration snapshot delivery at the following frequencies: 1 hour, 3 hours, 6 hours, 12 hours, or 24 hours. The minimum (most frequent) periodic delivery option is 1 hour. For continuous change-triggered recording, Config delivers configuration items as changes occur, but the delivery channel periodic snapshot minimum is 1 hour. There is no 15-minute or 30-minute periodic option. The 6-hour option exists but is not the minimum available frequency.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-013",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A developer creates a CloudWatch Logs metric filter that publishes a custom metric named ErrorCount under namespace MyApp/Errors. A second team creates another metric filter that accidentally uses the same metric name and namespace from a different log group. What is the result?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudWatch rejects the second metric filter at creation time with a namespace conflict error, preventing duplicate metric names within the same namespace"
+      },
+      {
+        "label": "B",
+        "text": "CloudWatch automatically appends the source log group name as a dimension to each filter output, keeping the two ErrorCount metrics separate despite sharing a namespace and metric name"
+      },
+      {
+        "label": "C",
+        "text": "Both filters publish data points to the same metric time series, causing ErrorCount to reflect combined matches from both log groups with no way to distinguish each source"
+      },
+      {
+        "label": "D",
+        "text": "The second metric filter overwrites the first, and only the most recently created filter continues publishing data to ErrorCount in the MyApp/Errors namespace"
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "CloudWatch Logs metric filters do not enforce uniqueness of metric name and namespace combinations. If two filters publish to the same namespace and metric name without distinguishing dimensions, their data points merge into a single time series. Alarms or dashboards consuming that metric will see combined counts from both log groups with no way to separate the sources. CloudWatch does not reject duplicate metric names, does not auto-add the log group as a dimension, and does not overwrite earlier filters. The fix is to use unique metric names or add a custom dimension identifying the source log group.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-014",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "Multiple third-party security tools send findings to AWS Security Hub, and the same vulnerability is reported multiple times by the same tool in rapid succession. Which Security Hub mechanism prevents the same finding from creating duplicate records?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Security Hub applies SHA-256 hashing to the finding title and description fields to detect and discard semantically identical findings from the same product"
+      },
+      {
+        "label": "B",
+        "text": "Security Hub uses the compound key of ProductArn and Id; importing a finding with an existing ProductArn and Id combination updates the record rather than creating a duplicate"
+      },
+      {
+        "label": "C",
+        "text": "Security Hub insight filters that deduplicate findings by resource ARN and severity label within a rolling 24-hour aggregation window"
+      },
+      {
+        "label": "D",
+        "text": "Security Hub enforces a per-product rate limit of one finding per resource per hour, automatically suppressing duplicates submitted faster than that rate"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Security Hub uses the compound key of ProductArn (the finding provider ARN) and Id (the provider unique finding identifier) to deduplicate findings at ingestion. If a BatchImportFindings call submits a finding whose ProductArn and Id already exist, Security Hub updates the existing finding record with the new data rather than creating a new entry. This allows tools to refresh finding severity or status without flooding the console. Insight filters are for aggregation and analysis, not ingestion-time deduplication. Security Hub does not hash finding content or enforce per-resource hourly rate limits for deduplication.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-015",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A compliance team asks whether the AWS Config configuration recorder can be limited to recording only specific resource types in a region, or whether it must always record every supported resource type. What is the correct statement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The configuration recorder always records every supported resource type in the region with no option to restrict recording to a defined subset of types"
+      },
+      {
+        "label": "B",
+        "text": "The configuration recorder scope is fixed at account creation and can only be changed by AWS Support via a service limit adjustment request"
+      },
+      {
+        "label": "C",
+        "text": "The configuration recorder records all resources globally across all regions from a single recorder created in the account home region"
+      },
+      {
+        "label": "D",
+        "text": "The configuration recorder supports an all-supported-resources mode and a specific-resource-types mode that records only the resource types explicitly listed in the recorder configuration"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The AWS Config configuration recorder supports two modes: all-supported-resources, which automatically records every supported resource type in the region, and a custom mode where you specify an explicit list of resource types to record. Organizations use the custom mode to reduce Config costs by excluding non-critical resource types or to focus compliance recording on specific services. Each region requires its own configuration recorder; there is no single global recorder. The recorder scope is fully customer-configurable without AWS Support involvement.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t4-016",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A developer asks why CloudTrail requires a separate data event selector to capture S3 GetObject calls while Lambda CreateFunction calls appear automatically in management events. What correctly explains the distinction between CloudTrail management events and data events?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Management events capture only AWS Management Console actions, while data events capture all programmatic API calls made via the AWS CLI or SDKs regardless of service"
+      },
+      {
+        "label": "B",
+        "text": "Management events are limited to IAM and account-level API calls, whereas data events cover all service-specific API calls including EC2 and RDS operations"
+      },
+      {
+        "label": "C",
+        "text": "Management events record control-plane operations that configure AWS resources and are enabled by default, while data events record resource-level API calls on data within a resource and must be explicitly enabled due to high volume and added cost"
+      },
+      {
+        "label": "D",
+        "text": "Management events are free and capped at 10,000 events per trail per day, while data events are unlimited but charged per event from the first call"
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "CloudTrail separates events into management events (control-plane actions: CreateBucket, RunInstances, CreateRole) and data events (data-plane actions on resources: S3 GetObject/PutObject, Lambda InvokeFunction, DynamoDB GetItem). Management events are recorded by default at no extra per-event charge for one free trail per region. Data events generate very high volumes and are disabled by default, incurring additional charges when enabled. This design lets customers control cost while ensuring control-plane actions are always auditable. The other options mischaracterize the distinction by invocation source, by service scope, or with incorrect pricing descriptions.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  }
+]

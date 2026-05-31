@@ -1,0 +1,1352 @@
+[
+  {
+    "id": "aws-cp-03-001",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon S3"
+      },
+      {
+        "label": "B",
+        "text": "Amazon EC2"
+      },
+      {
+        "label": "C",
+        "text": "Amazon ECS"
+      },
+      {
+        "label": "D",
+        "text": "AWS Lambda"
+      }
+    ],
+    "correct": "B",
+    "explanation": "Amazon Elastic Compute Cloud (Amazon EC2) provides scalable computing capacity in the AWS Cloud. You use EC2 to launch as many or as few virtual servers (instances) as you need, configure security and networking, and manage storage.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-technology-services-01",
+    "active": true,
+    "stem": "Which AWS service provides resizable compute capacity in the cloud, allowing you to launch virtual servers?",
+    "type": "single",
+    "tags": [
+      "EC2",
+      "compute",
+      "virtual servers",
+      "IaaS"
+    ]
+  },
+  {
+    "id": "aws-cp-03-002",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EBS"
+      },
+      {
+        "label": "B",
+        "text": "Amazon S3"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EFS"
+      },
+      {
+        "label": "D",
+        "text": "AWS Storage Gateway"
+      }
+    ],
+    "correct": "B",
+    "explanation": "Amazon Simple Storage Service (Amazon S3) is an object storage service built to store and retrieve any amount of data from anywhere. It offers industry-leading durability, availability, and scalability, making it the standard choice for backups, static hosting, and media storage.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-technology-services-02",
+    "active": true,
+    "stem": "Which AWS service is designed specifically for highly durable object storage, making it ideal for storing backups, static website files, and media assets?",
+    "type": "single",
+    "tags": [
+      "S3",
+      "object storage",
+      "backups",
+      "durability"
+    ]
+  },
+  {
+    "id": "aws-cp-03-003",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Elastic Beanstalk"
+      },
+      {
+        "label": "B",
+        "text": "AWS Lambda"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EC2"
+      },
+      {
+        "label": "D",
+        "text": "Amazon EKS"
+      }
+    ],
+    "correct": "B",
+    "explanation": "AWS Lambda is a serverless, event-driven compute service that lets you run code for virtually any type of application or backend service without provisioning or managing servers. You pay only for the exact milliseconds of execution time.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-technology-services-01",
+    "active": true,
+    "stem": "Which service enables you to run your code without provisioning or managing any servers, paying only for the compute time you consume?",
+    "type": "single",
+    "tags": [
+      "Lambda",
+      "serverless",
+      "compute",
+      "event-driven"
+    ]
+  },
+  {
+    "id": "aws-cp-03-004",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "To provide a content delivery network for distributing web content globally"
+      },
+      {
+        "label": "B",
+        "text": "To create an isolated virtual network in the AWS Cloud where you can launch resources"
+      },
+      {
+        "label": "C",
+        "text": "To automatically monitor and block malicious network traffic"
+      },
+      {
+        "label": "D",
+        "text": "To establish a dedicated, private network connection from your on-premises data center to AWS"
+      }
+    ],
+    "correct": "B",
+    "explanation": "Amazon VPC lets you provision a logically isolated section of the AWS Cloud where you can launch AWS resources in a virtual network that you define. You have complete control over your virtual networking environment, including IP address ranges, subnets, and route tables.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-technology-services-03",
+    "active": true,
+    "stem": "What is the primary function of Amazon Virtual Private Cloud (Amazon VPC)?",
+    "type": "single",
+    "tags": [
+      "VPC",
+      "networking",
+      "isolation",
+      "subnets"
+    ]
+  },
+  {
+    "id": "aws-cp-03-005",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon ElastiCache"
+      },
+      {
+        "label": "B",
+        "text": "Amazon DynamoDB"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Redshift"
+      },
+      {
+        "label": "D",
+        "text": "Amazon RDS"
+      }
+    ],
+    "correct": "D",
+    "explanation": "Amazon Relational Database Service (Amazon RDS) is a managed service that makes it easy to set up, operate, and scale a relational database in the cloud. It supports engines like Amazon Aurora, PostgreSQL, MySQL, MariaDB, Oracle, and SQL Server.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-technology-services-04",
+    "active": true,
+    "stem": "Which managed AWS database service is explicitly designed for relational database engines like MySQL, PostgreSQL, and Oracle?",
+    "type": "single",
+    "tags": [
+      "RDS",
+      "database",
+      "relational",
+      "SQL"
+    ]
+  },
+  {
+    "id": "aws-cp-03-006",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Route 53"
+      },
+      {
+        "label": "B",
+        "text": "AWS Global Accelerator"
+      },
+      {
+        "label": "C",
+        "text": "Amazon API Gateway"
+      },
+      {
+        "label": "D",
+        "text": "Amazon CloudFront"
+      }
+    ],
+    "correct": "A",
+    "explanation": "Amazon Route 53 is a highly available and scalable cloud Domain Name System (DNS) web service. It translates human-readable domain names (like www.example.com) into the numeric IP addresses that computers use to connect to each other.",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-technology-services-03",
+    "active": true,
+    "stem": "Which AWS service is a highly available and scalable Domain Name System (DNS) web service used to route end users to Internet applications?",
+    "type": "single",
+    "tags": [
+      "Route 53",
+      "DNS",
+      "networking",
+      "domain names"
+    ]
+  },
+  {
+    "id": "aws-cp-03-007",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager"
+      },
+      {
+        "label": "B",
+        "text": "AWS Config"
+      },
+      {
+        "label": "C",
+        "text": "AWS OpsWorks"
+      },
+      {
+        "label": "D",
+        "text": "AWS CloudFormation"
+      }
+    ],
+    "correct": "D",
+    "explanation": "AWS CloudFormation gives developers and systems administrators an easy way to create and manage a collection of related AWS resources, provisioning and updating them in an orderly and predictable fashion using templates (Infrastructure as Code).",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-technology-services-05",
+    "active": true,
+    "stem": "A developer wants to model, provision, and manage AWS infrastructure using code instead of manually creating resources in the console. Which service should they use?",
+    "type": "single",
+    "tags": [
+      "CloudFormation",
+      "IaC",
+      "infrastructure as code",
+      "provisioning"
+    ]
+  },
+  {
+    "id": "aws-cp-03-008",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Step Functions"
+      },
+      {
+        "label": "B",
+        "text": "Amazon SNS"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EventBridge"
+      },
+      {
+        "label": "D",
+        "text": "Amazon SQS"
+      }
+    ],
+    "correct": "D",
+    "explanation": "Amazon Simple Queue Service (SQS) is a fully managed message queuing service that enables you to decouple and scale microservices, distributed systems, and serverless applications. It stores messages until a consuming application processes them.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-technology-services-06",
+    "active": true,
+    "stem": "Which service allows you to decouple application components by providing a fully managed message queuing service?",
+    "type": "single",
+    "tags": [
+      "SQS",
+      "queuing",
+      "decoupling",
+      "messaging"
+    ]
+  },
+  {
+    "id": "aws-cp-03-009",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS CloudTrail"
+      },
+      {
+        "label": "B",
+        "text": "Amazon CloudWatch"
+      },
+      {
+        "label": "C",
+        "text": "AWS Audit Manager"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Inspector"
+      }
+    ],
+    "correct": "B",
+    "explanation": "Amazon CloudWatch is a monitoring and observability service built for DevOps engineers, developers, and IT managers. It provides data and actionable insights to monitor your applications, respond to system-wide performance changes, and optimize resource utilization.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-technology-services-07",
+    "active": true,
+    "stem": "Which AWS service is used to collect, monitor, and analyze operational metrics, logs, and events from your AWS resources?",
+    "type": "single",
+    "tags": [
+      "CloudWatch",
+      "monitoring",
+      "metrics",
+      "observability"
+    ]
+  },
+  {
+    "id": "aws-cp-03-010",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Storage Gateway"
+      },
+      {
+        "label": "B",
+        "text": "AWS Direct Connect"
+      },
+      {
+        "label": "C",
+        "text": "AWS Snowball"
+      },
+      {
+        "label": "D",
+        "text": "AWS Outposts"
+      }
+    ],
+    "correct": "C",
+    "explanation": "AWS Snowball is a secure, ruggedized physical device used to transport large amounts of data into and out of the AWS Cloud. It circumvents the long transfer times and security concerns associated with sending massive datasets over the internet.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-technology-services-02",
+    "active": true,
+    "stem": "A company needs to transfer 50 terabytes of data from their on-premises data center to AWS. Their internet connection is slow and the transfer would take months. Which physical AWS device can they request to securely transport this data?",
+    "type": "single",
+    "tags": [
+      "Snowball",
+      "data transfer",
+      "migration",
+      "physical device"
+    ]
+  },
+  {
+    "id": "aws-cp-03-011",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Aurora"
+      },
+      {
+        "label": "B",
+        "text": "Amazon RDS for PostgreSQL"
+      },
+      {
+        "label": "C",
+        "text": "Amazon DynamoDB"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Neptune"
+      }
+    ],
+    "correct": "C",
+    "explanation": "Amazon DynamoDB is a fully managed, serverless, key-value NoSQL database designed to run high-performance applications at any scale. It offers built-in security, continuous backups, automated multi-Region replication, in-memory caching, and data export tools.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-technology-services-04",
+    "active": true,
+    "stem": "Which of the following is a fully managed, serverless key-value and document database that delivers single-digit millisecond performance at any scale?",
+    "type": "single",
+    "tags": [
+      "DynamoDB",
+      "NoSQL",
+      "database",
+      "key-value"
+    ]
+  },
+  {
+    "id": "aws-cp-03-012",
+    "domain": "Cloud Technology and Services",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Lightsail"
+      },
+      {
+        "label": "B",
+        "text": "AWS Elastic Beanstalk"
+      },
+      {
+        "label": "C",
+        "text": "AWS Fargate"
+      },
+      {
+        "label": "D",
+        "text": "AWS Lambda"
+      },
+      {
+        "label": "E",
+        "text": "Amazon EC2"
+      }
+    ],
+    "correct": [
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Lambda and AWS Fargate are both serverless compute engines. Lambda runs functions triggered by events, while Fargate is a serverless compute engine for running containers without having to manage servers or clusters of EC2 instances.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "E": ""
+    },
+    "module_ref": "aws-cp-technology-services-01",
+    "active": true,
+    "stem": "Which TWO AWS compute services are considered serverless, requiring no infrastructure provisioning or OS management? (Select TWO.)",
+    "type": "multiple",
+    "tags": [
+      "serverless",
+      "compute",
+      "Lambda",
+      "Fargate"
+    ]
+  },
+  {
+    "id": "aws-cp-03-013",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to deliver its static website content to users around the world with low latency. Which AWS service should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Global Accelerator"
+      },
+      {
+        "label": "B",
+        "text": "Amazon S3 Transfer Acceleration"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EC2 in multiple Regions"
+      },
+      {
+        "label": "D",
+        "text": "Amazon CloudFront"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Route 53"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "Amazon CloudFront is a content delivery network (CDN) that caches content at edge locations around the world, reducing latency for end users regardless of their location.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudfront",
+      "cdn",
+      "edge-locations",
+      "low-latency"
+    ]
+  },
+  {
+    "id": "aws-cp-03-014",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's application has unpredictable traffic spikes. They need a service that automatically distributes incoming traffic across multiple EC2 instances. Which AWS service does this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Route 53"
+      },
+      {
+        "label": "B",
+        "text": "Amazon SQS is a fully managed message queuing service that enables you to decouple and scale microservices, distributed systems, and serverless applications."
+      },
+      {
+        "label": "C",
+        "text": "Amazon CloudWatch collects monitoring and operational data in the form of logs, metrics, and events from AWS resources and applications."
+      },
+      {
+        "label": "D",
+        "text": "AWS Auto Scaling"
+      },
+      {
+        "label": "E",
+        "text": "Elastic Load Balancing (ELB)"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "Amazon SQS is a fully managed message queuing service that enables you to decouple and scale microservices, distributed systems, and serverless applications.",
+      "C": "Amazon CloudWatch collects monitoring and operational data in the form of logs, metrics, and events from AWS resources and applications.",
+      "D": ""
+    },
+    "explanation": "Elastic Load Balancing automatically distributes incoming application traffic across multiple targets such as EC2 instances, improving availability and fault tolerance.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "elb",
+      "load-balancing",
+      "high-availability",
+      "traffic-distribution"
+    ]
+  },
+  {
+    "id": "aws-cp-03-015",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs to automatically add more EC2 instances when CPU utilization exceeds 70%, and remove them when traffic decreases. Which AWS service provides this capability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Auto Scaling"
+      },
+      {
+        "label": "B",
+        "text": "Elastic Load Balancing"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EC2 Spot Instances"
+      },
+      {
+        "label": "D",
+        "text": "AWS Elastic Beanstalk"
+      },
+      {
+        "label": "E",
+        "text": "Amazon CloudWatch"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS Auto Scaling monitors your applications and automatically adjusts capacity to maintain steady, predictable performance at the lowest possible cost.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "auto-scaling",
+      "elasticity",
+      "ec2",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-03-016",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company stores files in Amazon S3. They access most files frequently in the first 30 days, but rarely after that. Which S3 storage class minimizes cost for the older files while keeping them accessible?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Glacier Deep Archive is optimized for data retained for 7 to 10 years with retrieval times of 12 hours or more, far too slow for any regular access pattern."
+      },
+      {
+        "label": "B",
+        "text": "S3 Standard provides millisecond access for frequently accessed objects but costs more in storage fees than S3 Standard-IA for data accessed only once a month."
+      },
+      {
+        "label": "C",
+        "text": "S3 Standard-Infrequent Access (S3 Standard-IA)"
+      },
+      {
+        "label": "D",
+        "text": "S3 Intelligent-Tiering automatically moves objects based on access patterns but adds a monitoring charge per object, which may outweigh savings for predictable access."
+      },
+      {
+        "label": "E",
+        "text": "S3 One Zone-IA stores data in a single Availability Zone at a lower cost than Standard-IA but without the multi-AZ resilience required for recoverable data."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "S3 Glacier Deep Archive is optimized for data retained for 7 to 10 years with retrieval times of 12 hours or more, far too slow for any regular access pattern.",
+      "B": "S3 Standard provides millisecond access for frequently accessed objects but costs more in storage fees than S3 Standard-IA for data accessed only once a month.",
+      "D": "S3 Intelligent-Tiering automatically moves objects based on access patterns but adds a monitoring charge per object, which may outweigh savings for predictable access.",
+      "E": "S3 One Zone-IA stores data in a single Availability Zone at a lower cost than Standard-IA but without the multi-AZ resilience required for recoverable data."
+    },
+    "explanation": "S3 Standard-IA is designed for data that is accessed less frequently but requires rapid access when needed. It has lower storage costs than S3 Standard with a per-retrieval fee.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "s3",
+      "storage-classes",
+      "standard-ia",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-03-017",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A developer needs persistent block storage to attach to an EC2 instance for a database. Which AWS service should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EBS"
+      },
+      {
+        "label": "B",
+        "text": "AWS Storage Gateway"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EFS"
+      },
+      {
+        "label": "D",
+        "text": "Amazon FSx"
+      },
+      {
+        "label": "E",
+        "text": "Amazon S3"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon EBS (Elastic Block Store) provides persistent block-level storage volumes that can be attached to EC2 instances and used like a hard drive for databases and other workloads.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "ebs",
+      "block-storage",
+      "ec2",
+      "database"
+    ]
+  },
+  {
+    "id": "aws-cp-03-018",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company has multiple EC2 instances running a content management system. They need a shared file system that all instances can access simultaneously. Which AWS service should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EFS"
+      },
+      {
+        "label": "B",
+        "text": "AWS Snowball"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EBS"
+      },
+      {
+        "label": "D",
+        "text": "Amazon RDS"
+      },
+      {
+        "label": "E",
+        "text": "Amazon S3"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon EFS (Elastic File System) is a scalable, fully managed NFS file system that can be mounted concurrently by many EC2 instances, making it ideal for shared workloads.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "efs",
+      "shared-file-system",
+      "ec2",
+      "nfs"
+    ]
+  },
+  {
+    "id": "aws-cp-03-019",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants a dedicated, private network connection from their on-premises data center to AWS to avoid using the public internet. Which service provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon CloudFront"
+      },
+      {
+        "label": "B",
+        "text": "AWS Transit Gateway"
+      },
+      {
+        "label": "C",
+        "text": "AWS VPN"
+      },
+      {
+        "label": "D",
+        "text": "Amazon VPC Peering"
+      },
+      {
+        "label": "E",
+        "text": "AWS Direct Connect"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Direct Connect provides a dedicated private network connection between your on-premises data center and AWS, offering more consistent network performance than the public internet.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "direct-connect",
+      "hybrid",
+      "networking",
+      "on-premises"
+    ]
+  },
+  {
+    "id": "aws-cp-03-020",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to send notifications to thousands of subscribers via email and SMS when a critical system event occurs. Which AWS service is best suited for this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon SQS"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Kinesis"
+      },
+      {
+        "label": "C",
+        "text": "Amazon SES"
+      },
+      {
+        "label": "D",
+        "text": "AWS EventBridge"
+      },
+      {
+        "label": "E",
+        "text": "Amazon SNS"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Amazon SNS (Simple Notification Service) is a pub/sub messaging service that can fan out messages to large numbers of subscribers via email, SMS, HTTP, and other protocols simultaneously.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "sns",
+      "notifications",
+      "pub-sub",
+      "messaging"
+    ]
+  },
+  {
+    "id": "aws-cp-03-021",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A developer wants to deploy a web application without managing the underlying infrastructure such as servers, OS patching, or capacity provisioning. Which AWS service automates this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Elastic Beanstalk automatically handles deployment, capacity provisioning, load balancing, and auto-scaling so developers only upload application code."
+      },
+      {
+        "label": "B",
+        "text": "Amazon ECS is a container orchestration service that requires you to build Docker images, configure task definitions, and manage cluster infrastructure."
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudFormation provisions infrastructure using templates but does not deploy or manage application code or runtime environments automatically."
+      },
+      {
+        "label": "D",
+        "text": "AWS OpsWorks is a configuration management service using Chef or Puppet that requires significant DevOps expertise to configure and operate."
+      },
+      {
+        "label": "E",
+        "text": "Amazon EC2 provides raw virtual server instances where you are responsible for the OS, runtime, application deployment, and all infrastructure management."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Amazon ECS is a container orchestration service that requires you to build Docker images, configure task definitions, and manage cluster infrastructure.",
+      "C": "AWS CloudFormation provisions infrastructure using templates but does not deploy or manage application code or runtime environments automatically.",
+      "D": "AWS OpsWorks is a configuration management service using Chef or Puppet that requires significant DevOps expertise to configure and operate.",
+      "E": "Amazon EC2 provides raw virtual server instances where you are responsible for the OS, runtime, application deployment, and all infrastructure management."
+    },
+    "explanation": "AWS Elastic Beanstalk is a PaaS that handles deployment, capacity provisioning, load balancing, auto-scaling, and application health monitoring automatically, so developers can focus on code.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "elastic-beanstalk",
+      "paas",
+      "deployment",
+      "managed-service"
+    ]
+  },
+  {
+    "id": "aws-cp-03-022",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs to run complex analytical queries on petabytes of structured data in a data warehouse. Which AWS service is designed for this use case?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Aurora"
+      },
+      {
+        "label": "B",
+        "text": "Amazon RDS"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Redshift"
+      },
+      {
+        "label": "D",
+        "text": "Amazon DynamoDB"
+      },
+      {
+        "label": "E",
+        "text": "Amazon ElastiCache"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon Redshift is a fully managed, petabyte-scale data warehouse optimized for fast SQL analytics across large datasets using columnar storage and massively parallel processing.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "redshift",
+      "data-warehouse",
+      "analytics",
+      "sql"
+    ]
+  },
+  {
+    "id": "aws-cp-03-023",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's RDS MySQL database is being overwhelmed by repeated read queries for the same data. They want to reduce load on the RDS database by storing frequently accessed data in memory. Which AWS service should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon S3"
+      },
+      {
+        "label": "B",
+        "text": "Amazon DynamoDB Accelerator (DAX)"
+      },
+      {
+        "label": "C",
+        "text": "Amazon RDS Read Replicas"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Redshift"
+      },
+      {
+        "label": "E",
+        "text": "Amazon ElastiCache"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Amazon ElastiCache is a fully managed in-memory caching service (supporting Redis and Memcached) that reduces database load by serving frequently accessed data from memory.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "elasticache",
+      "caching",
+      "performance",
+      "database"
+    ]
+  },
+  {
+    "id": "aws-cp-03-024",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs AWS infrastructure in their own on-premises data center to meet latency and data residency requirements. Which AWS service makes this possible?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon VPC"
+      },
+      {
+        "label": "B",
+        "text": "AWS Outposts"
+      },
+      {
+        "label": "C",
+        "text": "AWS Local Zones"
+      },
+      {
+        "label": "D",
+        "text": "AWS Direct Connect"
+      },
+      {
+        "label": "E",
+        "text": "AWS Wavelength"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS Outposts delivers AWS-managed hardware and software to your on-premises location, allowing you to run AWS services locally for low-latency and data residency requirements.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "outposts",
+      "hybrid",
+      "on-premises",
+      "data-residency"
+    ]
+  },
+  {
+    "id": "aws-cp-03-025",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A data science team needs to build, train, and deploy machine learning models quickly without managing infrastructure. Which AWS service is purpose-built for this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Rekognition"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Comprehend"
+      },
+      {
+        "label": "C",
+        "text": "AWS Lambda"
+      },
+      {
+        "label": "D",
+        "text": "Amazon SageMaker"
+      },
+      {
+        "label": "E",
+        "text": "AWS Deep Learning AMIs"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "Amazon SageMaker is a fully managed service that provides tools to build, train, and deploy machine learning models at scale without managing the underlying infrastructure.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "sagemaker",
+      "machine-learning",
+      "ai",
+      "managed-service"
+    ]
+  },
+  {
+    "id": "aws-cp-03-026",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A developer needs to grant an EC2 instance permission to read objects from an S3 bucket. What is the AWS best practice for doing this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Attach an IAM role to the EC2 instance with the appropriate S3 permissions"
+      },
+      {
+        "label": "B",
+        "text": "Hard-code the AWS access key ID and secret access key in the application code"
+      },
+      {
+        "label": "C",
+        "text": "Store AWS access keys in the application's environment variables on the EC2 instance"
+      },
+      {
+        "label": "D",
+        "text": "Make the S3 bucket public so the EC2 instance can access it without credentials"
+      },
+      {
+        "label": "E",
+        "text": "Create an IAM user and store the credentials in a config file on the instance"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Attaching an IAM role to an EC2 instance provides temporary, automatically rotated credentials via the instance metadata service \u2014 the safest way to grant AWS service permissions.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "iam",
+      "roles",
+      "ec2",
+      "security",
+      "best-practice"
+    ]
+  },
+  {
+    "id": "aws-cp-03-027",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A development team needs a fully managed source control service to host their Git repositories on AWS. Which service should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS CodeDeploy"
+      },
+      {
+        "label": "B",
+        "text": "AWS CodeBuild"
+      },
+      {
+        "label": "C",
+        "text": "AWS CodePipeline"
+      },
+      {
+        "label": "D",
+        "text": "AWS Cloud9"
+      },
+      {
+        "label": "E",
+        "text": "AWS CodeCommit"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS CodeCommit is a fully managed source control service that hosts secure Git repositories, eliminating the need to manage your own source control infrastructure.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "codecommit",
+      "source-control",
+      "git",
+      "developer-tools"
+    ]
+  },
+  {
+    "id": "aws-cp-03-028",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to run containerized applications using Kubernetes on AWS without managing the Kubernetes control plane. Which service should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EC2 with Docker"
+      },
+      {
+        "label": "B",
+        "text": "AWS Batch"
+      },
+      {
+        "label": "C",
+        "text": "AWS Fargate"
+      },
+      {
+        "label": "D",
+        "text": "Amazon ECS"
+      },
+      {
+        "label": "E",
+        "text": "Amazon EKS"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Amazon EKS (Elastic Kubernetes Service) is a fully managed Kubernetes service that runs the Kubernetes control plane for you, so you only manage the worker nodes.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "eks",
+      "kubernetes",
+      "containers",
+      "managed-service"
+    ]
+  },
+  {
+    "id": "aws-cp-03-029",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "multiple",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs to choose a managed database service for a new application. Which TWO of the following are managed relational database services on AWS? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon DynamoDB"
+      },
+      {
+        "label": "B",
+        "text": "Amazon ElastiCache"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Redshift"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Aurora"
+      },
+      {
+        "label": "E",
+        "text": "Amazon RDS"
+      }
+    ],
+    "correct": [
+      "D",
+      "E"
+    ],
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Amazon RDS supports multiple relational database engines (MySQL, PostgreSQL, Oracle, SQL Server, MariaDB). Amazon Aurora is AWS's high-performance relational database compatible with MySQL and PostgreSQL. Both are managed relational database services.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "rds",
+      "aurora",
+      "relational-database",
+      "managed-service"
+    ]
+  },
+  {
+    "id": "aws-cp-03-030",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "multiple",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A solutions architect is designing a highly available web application. Which TWO components should they include to distribute traffic and handle demand increases? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon CloudTrail"
+      },
+      {
+        "label": "B",
+        "text": "Elastic Load Balancing"
+      },
+      {
+        "label": "C",
+        "text": "Amazon CloudWatch"
+      },
+      {
+        "label": "D",
+        "text": "AWS Config"
+      },
+      {
+        "label": "E",
+        "text": "AWS Auto Scaling"
+      }
+    ],
+    "correct": [
+      "B",
+      "E"
+    ],
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Elastic Load Balancing distributes incoming traffic across multiple instances for high availability. AWS Auto Scaling automatically adjusts the number of instances based on demand. Together they form the core of a scalable, highly available architecture.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "elb",
+      "auto-scaling",
+      "high-availability",
+      "architecture"
+    ]
+  }
+]

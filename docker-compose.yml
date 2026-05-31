@@ -36,6 +36,15 @@ services:
       - DATABASE_URL=${DATABASE_URL:-postgresql://archon:archon_dev@db:5432/archon_academy}
       - ACADEMY_SECRET_KEY=${ACADEMY_SECRET_KEY:-change-me-for-production}
       - CONTENT_ROOT=/app/content
+      - ARCHONPRO_PORTAL_URL=${ARCHONPRO_PORTAL_URL:-http://localhost:3002}
+      - EMAIL_PROVIDER=${EMAIL_PROVIDER:-console}
+      - EMAIL_FROM=${EMAIL_FROM:-noreply@archonpro.net}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY:-}
+      - STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET:-whsec_dev_test_secret}
+      - STRIPE_PRICE_INDIVIDUAL_MONTHLY=${STRIPE_PRICE_INDIVIDUAL_MONTHLY:-}
+      - STRIPE_PRICE_INSTITUTIONAL=${STRIPE_PRICE_INSTITUTIONAL:-}
+      - ARCHON_OPEN_ACCESS=${ARCHON_OPEN_ACCESS:-true}
+      - DEV_UNLOCK_ALL=${DEV_UNLOCK_ALL:-true}
     volumes:
       - ./academy/content:/app/content:ro
     depends_on:
@@ -52,7 +61,9 @@ services:
     env_file:
       - .env
     environment:
-      - VITE_API_URL=${VITE_API_URL}
+      - VITE_API_URL=
+      - BACKEND_URL=http://backend:8000
+      - FRONTEND_PORT=${FRONTEND_PORT:-3000}
     depends_on:
       - backend
     restart: unless-stopped
@@ -66,12 +77,42 @@ services:
     env_file:
       - .env
     environment:
-      # Vite proxy target — the backend service name within the Docker network.
-      # Requests from the browser hit localhost:3001 and Vite forwards them here.
       - BACKEND_URL=http://backend:8000
       - ACADEMY_PORT=${ACADEMY_PORT:-3001}
     depends_on:
       - backend
+    restart: unless-stopped
+
+  portal:
+    build:
+      context: ./portal
+      dockerfile: Dockerfile
+    ports:
+      - "${PORTAL_PORT:-3002}:3002"
+    env_file:
+      - .env
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - PORTAL_PORT=${PORTAL_PORT:-3002}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  license-cron:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=${DATABASE_URL:-postgresql://archon:archon_dev@db:5432/archon_academy}
+      - SKIP_SEEDS=true
+    command: ["python", "cron_license.py", "--loop"]
+    depends_on:
+      db:
+        condition: service_healthy
+      backend:
+        condition: service_started
     restart: unless-stopped
 
 volumes:

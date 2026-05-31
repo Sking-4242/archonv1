@@ -31,6 +31,48 @@ HA only works if failures are detected and traffic is redirected quickly. ALB he
 
 HA = redundancy across failure domains (AZs, regions) + automated failure detection + automatic traffic redirection. Eliminate every SPOF. Quantify your availability target and design the redundancy level to meet it. AWS managed services provide built-in HA; for EC2-based workloads, you must architect it explicitly. Health checks at every layer are the mechanism that makes redundancy work.
 
+## Examples
+
+A regional online retailer runs their product catalog on a single EC2 instance in us-east-1. When that instance's disk fails, the store goes dark until the team manually launches a replacement — a classic single point of failure. After learning HA principles, they move to an Auto Scaling Group across two AZs behind an ALB. The next disk failure is invisible to customers: the ALB stops routing to the unhealthy instance within seconds, and the ASG replaces it automatically. This is textbook SPOF elimination using redundancy and health checks.
+
+A mid-size SaaS company calculates that their payment service must maintain four-nines availability (99.99% = 52.6 minutes of downtime per year). They're currently running Multi-AZ RDS (each AZ at 99.95%), which in parallel yields approximately 99.9998% availability for the data tier — well above their target. But their application layer sits on a single EC2 instance. Applying the series multiplication formula, the combined availability drops to roughly 99.9%. Adding a second AZ for the application tier brings the series product back above four nines. This example shows how availability math forces architects to quantify, not just guess.
+
+A global fintech company serving 40 countries uses Route 53 latency-based routing with health checks to split traffic between us-east-1 and eu-west-1. Each region has its own ALB, ASG, and Aurora cluster. Route 53 health checks poll each region's ALB every 10 seconds; if us-east-1 health checks fail, Route 53 automatically shifts all DNS resolution to eu-west-1 within 30–60 seconds. This multi-layer approach — health checks at the DNS layer, the load balancer layer, and the instance layer — illustrates how HA requires automated detection and redirection at every tier, not just redundant hardware.
+
+## Think About It
+
+1. Why is a single NAT Gateway a SPOF even if your EC2 instances are spread across multiple AZs? What would you do to eliminate that SPOF, and what does it cost you?
+2. A system has three components in series, each with 99.9% availability. What is the overall system availability? What would happen to that number if one of those components were upgraded to 99.99%?
+3. Your team argues that because RDS Multi-AZ handles automatic failover, you no longer need health checks on the application tier. Why is this reasoning flawed?
+4. How would you decide whether to use AWS Global Accelerator versus Route 53 failover routing for cross-region HA? What trade-offs does each approach involve?
+5. What trade-offs do you accept when you rely exclusively on AWS managed services (Aurora, DynamoDB, S3) for HA rather than designing your own redundancy with EC2?
+
+## Quick Check
+
+**Q1.** A system has two independent components in parallel, each with 99% availability. What is the combined availability?
+- A) 99%
+- B) 99.99%
+- C) 98%
+- D) 100%
+
+**Answer: B** — Parallel availability = 1 - (1 - 0.99)^2 = 1 - 0.0001 = 99.99%.
+
+**Q2.** Which AWS service provides DNS-level automated failover between regions?
+- A) Application Load Balancer
+- B) CloudWatch Alarms
+- C) Route 53 with health checks
+- D) AWS Global Accelerator
+
+**Answer: C** — Route 53 health checks monitor endpoints and automatically update DNS routing when a health check fails, enabling region-level failover.
+
+**Q3.** What mechanism makes redundancy actually work during an instance failure?
+- A) Adding more AZs
+- B) Increasing instance size
+- C) Automated health checks that detect failure and redirect traffic
+- D) Manual monitoring by the operations team
+
+**Answer: C** — Redundancy without automated health detection relies on human reaction time; automated health checks at every layer are what convert redundant infrastructure into true high availability.
+
 ## What's Next
 
 Next up: Disaster Recovery — RPO, RTO, and DR strategies from backup-restore to multi-site active-active.

@@ -68,6 +68,25 @@ class TestEstimate:
         assert cost > 0
         assert "Aurora" in desc
 
+    def test_gcp_gce_estimate(self):
+        cost, desc = _estimate("gcp_gce", {"machine_type": "e2-medium"})
+        assert cost == pytest.approx(24.46, abs=0.05)
+        assert "GCE" in desc
+
+    def test_gcp_cloudsql_estimate(self):
+        cost, desc = _estimate("gcp_cloudsql", {"tier": "db-f1-micro"})
+        assert cost == pytest.approx(10.95, abs=0.05)
+        assert "Cloud SQL" in desc
+
+    def test_gcp_gcs_flat_price(self):
+        cost, desc = _estimate("gcp_gcs", {})
+        assert cost == pytest.approx(20.0, abs=0.01)
+
+    def test_gcp_vpc_free(self):
+        cost, desc = _estimate("gcp_vpc", {})
+        assert cost is None
+        assert "No charge" in desc
+
 
 # ─── _action_label tests ──────────────────────────────────────────────────────
 
@@ -206,3 +225,21 @@ class TestCostPlanJSON:
         d = report.to_dict()
         for key in ("pricingAsOf", "addedMonthly", "removedMonthly", "netDelta", "totalAfter", "lineItems"):
             assert key in d
+
+    def test_gcp_instance_in_plan(self):
+        report = cost_plan_json(_plan([
+            _rc("google_compute_instance", "google_compute_instance.web", ["create"],
+                after={"machine_type": "e2-medium"}),
+        ]))
+        assert len(report.line_items) == 1
+        item = report.line_items[0]
+        assert item.canvas_type == "gcp_gce"
+        assert item.monthly_cost == pytest.approx(24.46, abs=0.05)
+
+    def test_gcp_bucket_in_plan(self):
+        report = cost_plan_json(_plan([
+            _rc("google_storage_bucket", "google_storage_bucket.data", ["create"], after={}),
+        ]))
+        item = report.line_items[0]
+        assert item.canvas_type == "gcp_gcs"
+        assert item.monthly_cost == pytest.approx(20.0, abs=0.01)

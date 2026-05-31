@@ -1,0 +1,794 @@
+[
+  {
+    "id": "scs-d3-t6-001",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security team is using an AWS WAF Web ACL with the AWS Managed Rules Common Rule Set. After a rule update, a legitimate application endpoint starts receiving 403 responses due to a false positive. The team cannot afford downtime while investigating. Which action immediately stops the false positive with the least operational risk while preserving overall protection?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Pin the managed rule group to the previous static version using the version override setting, then open an AWS Support case to report the false positive to AWS."
+      },
+      {
+        "label": "B",
+        "text": "Add a managed rule group exclusion for the specific triggering rule by overriding that individual rule to Count mode while keeping all other rules in Block mode."
+      },
+      {
+        "label": "C",
+        "text": "Switch the entire AWS Managed Rules Common Rule Set to Count mode so no requests are blocked while the team investigates the specific rule causing the false positive."
+      },
+      {
+        "label": "D",
+        "text": "Remove the AWS Managed Rules Common Rule Set from the Web ACL entirely and replace it with a custom rule group that mirrors only the rules that were not causing issues."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS WAF allows you to override a single rule within a managed rule group to Count mode using rule action overrides, which stops that specific rule from blocking while all other rules continue to enforce. This is the most surgical fix. Option A disables blocking for the entire rule group, removing broad protection. Option B pins the version but does not immediately unblock the affected endpoint if the false positive was present in the older version too. Option C is high-effort and loses the benefit of AWS-maintained rule updates.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "waf",
+      "managed-rules",
+      "false-positive"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-002",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company has two VPCs in the same AWS Region connected via VPC peering. VPC-A contains an application tier on EC2 instances; VPC-B contains a database tier. A security engineer wants to restrict database access so that only the application security group in VPC-A can reach port 5432 in VPC-B. Which inbound rule in VPC-B's database security group achieves this correctly?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add an inbound rule allowing TCP 5432 sourced from the application security group ID in VPC-A, because same-region VPC peering supports cross-VPC security group references."
+      },
+      {
+        "label": "B",
+        "text": "Add an inbound rule allowing TCP 5432 sourced from the application security group ID in VPC-A, because inter-region peering also supports cross-VPC security group references."
+      },
+      {
+        "label": "C",
+        "text": "Add an inbound rule allowing TCP 5432 from the CIDR block of VPC-A, because cross-VPC security group referencing is not supported over VPC peering connections."
+      },
+      {
+        "label": "D",
+        "text": "Configure a NACL on the VPC-B database subnet allowing TCP 5432 from VPC-A's CIDR, because security groups cannot filter traffic that crosses a peering connection."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Within the same AWS Region, a security group in one VPC can be referenced as the source in another VPC's security group rule when those VPCs are connected via VPC peering. This is more precise than CIDR-based rules because it scopes access to the specific security group rather than the entire VPC CIDR. Option A is incorrect \u2014 same-region cross-VPC SG references are supported. Option B is incorrect because cross-VPC SG referencing is only supported for same-region peering, not inter-region. Option D mischaracterizes security group capabilities across peering.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "security-groups",
+      "vpc-peering"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-003",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An incident response team is investigating a potential data exfiltration event on an EC2 instance protected by AWS Network Firewall. They need the exact destination IP, port, and matched rule details of traffic that was blocked by the firewall. Which Network Firewall logging type provides this forensic information?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable both flow and alert logging; flow logs show all accepted connections while alert logs provide the rule name, matched signature, and action for blocked traffic."
+      },
+      {
+        "label": "B",
+        "text": "Enable flow logging only; alert logs are generated solely for ALERT rule actions and not for DROP actions, so flow logs are the only source that captures all blocked traffic metadata."
+      },
+      {
+        "label": "C",
+        "text": "Enable flow logging; flow logs capture source and destination IP, port, and protocol for all traffic flows including blocked ones, providing complete forensic detail."
+      },
+      {
+        "label": "D",
+        "text": "Enable alert logging; alert logs are generated when traffic matches a stateful or stateless rule with an alert or drop action and include rule match details and connection metadata."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Network Firewall alert logs are generated when traffic matches a stateful rule with an alert or drop action, and they include rule match details such as signature metadata, source and destination IP and port, and the action taken \u2014 making them the correct source for forensic investigation of blocked traffic. Flow logs record connection-level metadata for all traffic but do not include matched rule details or payload signatures. Option C is partially correct but alert logs are the specific answer for blocked traffic with rule match context. Option D incorrectly states DROP actions do not generate alert logs.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "network-firewall",
+      "logging",
+      "forensics"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-004",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A large enterprise uses AWS Transit Gateway to interconnect 30 VPCs. Production VPCs must have no routable path to development VPCs under any circumstances. The network team wants to enforce this isolation at the Transit Gateway layer. Which Transit Gateway design achieves hard routing isolation between production and development environments?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a single Transit Gateway route table with blackhole routes for all development VPC CIDRs, so production VPCs cannot route traffic to those address ranges."
+      },
+      {
+        "label": "B",
+        "text": "Create two Transit Gateway route tables \u2014 one for production attachments and one for development attachments \u2014 and propagate routes only within each respective table."
+      },
+      {
+        "label": "C",
+        "text": "Enable Transit Gateway inter-route-table routing by peering the production and development route tables, then apply prefix list filters to block cross-environment CIDRs."
+      },
+      {
+        "label": "D",
+        "text": "Tag each VPC attachment with an Environment tag and create a Transit Gateway policy table that uses tag-based conditions to deny cross-environment routing automatically."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Transit Gateway route table isolation is the standard pattern: create separate route tables for production and development, associate each VPC attachment with only the appropriate table, and configure route propagation so each attachment propagates routes only into its own table. This guarantees no route to the opposite environment exists in either table. Option A uses blackhole routes but requires manual maintenance and doesn't scale as VPCs are added. Option C describes peering the route tables, which reintroduces connectivity. Option D describes policy tables using tag conditions, which is not a supported Transit Gateway feature for routing isolation.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "transit-gateway",
+      "route-table",
+      "isolation"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-005",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An S3 VPC endpoint is deployed in a private subnet to allow EC2 instances to access a read-only reference data bucket. Security policy requires that instances can only download objects \u2014 they must not be able to upload, delete, or list bucket contents through this endpoint. Which configuration enforces this constraint most directly?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Attach an endpoint policy allowing s3:GetObject and add a bucket policy denying all other actions, because VPC endpoint policies alone cannot restrict individual S3 API operations."
+      },
+      {
+        "label": "B",
+        "text": "Attach an endpoint policy to the VPC endpoint that allows only s3:GetObject on the target bucket ARN for all principals, implicitly denying all other S3 actions through this endpoint."
+      },
+      {
+        "label": "C",
+        "text": "Create an IAM role allowing only s3:GetObject and attach it to the EC2 instances; VPC endpoint policies are informational metadata and do not enforce access control decisions."
+      },
+      {
+        "label": "D",
+        "text": "Attach a bucket policy on the S3 bucket that denies s3:PutObject, s3:DeleteObject, and s3:ListBucket for requests using the aws:SourceVpce condition key matching the endpoint ID."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "A VPC endpoint policy acts as a resource-based policy that restricts which API actions can be performed through the endpoint. By specifying only s3:GetObject in the Allow statement, all other S3 actions are implicitly denied for any traffic going through the endpoint, regardless of the IAM identity's permissions. Option A uses a bucket policy which works per-bucket but can be bypassed if the instance reaches S3 via another path. Option C incorrectly states that endpoint policies cannot restrict individual API operations \u2014 they can. Option D is incorrect \u2014 endpoint policies are enforced, not informational.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "vpc-endpoint",
+      "s3",
+      "endpoint-policy"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-006",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security administrator wants to use AWS Firewall Manager to centrally manage WAF Web ACLs across all accounts in an AWS Organization. After designating the Firewall Manager admin account, policy creation fails with an error indicating prerequisites are not satisfied. Which two prerequisites must be in place for Firewall Manager to enforce policies?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Organizations must have all features enabled (not consolidated billing only), and AWS Config must be enabled in each member account and Region where policies will apply."
+      },
+      {
+        "label": "B",
+        "text": "AWS IAM Identity Center must be configured for the organization, and AWS Config must be enabled so Firewall Manager can evaluate resource compliance across member accounts."
+      },
+      {
+        "label": "C",
+        "text": "AWS Organizations must have service control policies enabled, and Amazon GuardDuty must be enabled in the organization so Firewall Manager can correlate threat findings."
+      },
+      {
+        "label": "D",
+        "text": "AWS Shield Advanced must be subscribed in the admin account, and AWS Security Hub must be enabled organization-wide for Firewall Manager to read account inventory."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Firewall Manager requires two hard prerequisites: (1) AWS Organizations must have all features enabled, not just consolidated billing, so Firewall Manager can manage resources across member accounts; and (2) AWS Config must be enabled in each account and Region where policies will be enforced, because Firewall Manager relies on Config to discover and track resources for compliance evaluation. Shield Advanced is only required for Shield policy types, not WAF policies. GuardDuty and IAM Identity Center are not Firewall Manager prerequisites.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "firewall-manager",
+      "prerequisites",
+      "aws-config"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-007",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An EC2 instance uses an instance store volume for a high-throughput temporary processing workload. The security team raises a concern about data remanence if the instance is terminated or the underlying host hardware is reused. Which statement accurately describes the data security properties of EC2 instance store volumes compared to EBS volumes?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Instance store data persists across reboots but is erased on stop or terminate; AWS KMS can encrypt instance store volumes by enabling EBS encryption defaults in the account."
+      },
+      {
+        "label": "B",
+        "text": "Instance store data is not persisted across stop or terminate events, and the storage is not managed by KMS; AWS scrubs the underlying storage before reallocating it to another customer."
+      },
+      {
+        "label": "C",
+        "text": "Instance store data is automatically encrypted at rest using an AWS-managed KMS key, but the key is deleted when the instance stops, preventing data recovery after restart."
+      },
+      {
+        "label": "D",
+        "text": "Instance store volumes have the same encryption options as EBS but are physically attached to the host, making them inaccessible only during live host maintenance events."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "EC2 instance store volumes are ephemeral: data is lost when the instance is stopped or terminated (it does survive a reboot). Unlike EBS, instance store volumes are not managed by AWS KMS, so customers cannot enforce encryption-at-rest via KMS key policies or account-level EBS encryption defaults. AWS does scrub instance store storage before reassigning it to a different customer to prevent data exposure across customers. Option A incorrectly claims KMS manages instance store encryption. Option C incorrectly states KMS can encrypt instance store volumes through EBS defaults. Option D incorrectly equates instance store encryption capabilities with EBS.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "instance-store",
+      "ebs",
+      "encryption"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-008",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A cloud governance team wants to enforce IMDSv2 (token-based metadata service) on all new EC2 instances across every account in an AWS Organization, preventing launches where IMDSv1 is still permitted. Which mechanism enforces this requirement at the organization level before instances are created?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy an EventBridge rule that triggers a Lambda function on ec2:RunInstances events to inspect and update metadata options, enforcing IMDSv2 within seconds after the instance starts."
+      },
+      {
+        "label": "B",
+        "text": "Enable the EC2 account-level IMDSv2 default setting in each member account using AWS Systems Manager Automation to push the configuration change organization-wide."
+      },
+      {
+        "label": "C",
+        "text": "Create an AWS Config rule with an SSM Automation remediation that calls ModifyInstanceMetadataOptions to set HttpTokens to required on any non-compliant instance detected after launch."
+      },
+      {
+        "label": "D",
+        "text": "Apply an SCP that denies ec2:RunInstances when the condition ec2:MetadataHttpTokens is not equal to required, blocking any launch where IMDSv1 remains permitted."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "An SCP using the condition key ec2:MetadataHttpTokens with a StringNotEquals condition set to 'required' on the ec2:RunInstances action prevents any principal in the organization from launching an instance unless IMDSv2 is explicitly required at launch time. This is a preventive control that acts before the instance exists. Option A is a reactive detective control \u2014 it detects and remediates after launch but doesn't prevent a window where IMDSv1 instances are running. Option C is also reactive with a race window between launch and remediation. Option D sets an account default but can be overridden per-instance at launch time and doesn't prevent overrides.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "imdsv2",
+      "scp",
+      "metadata-service"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-009",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security engineer discovers that an application behind an Application Load Balancer may be vulnerable to HTTP request smuggling attacks due to ambiguous Content-Length and Transfer-Encoding header handling. The ALB serves both HTTP/1.1 and HTTP/2 clients. Which ALB configuration most directly mitigates HTTP desync vulnerabilities?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy AWS Shield Advanced to absorb volumetric components of smuggling attacks and add a WAF rate-based rule to limit requests per source IP to slow active exploitation."
+      },
+      {
+        "label": "B",
+        "text": "Configure the ALB to serve HTTP/2 only by disabling HTTP/1.1 listener support, eliminating the protocol version mismatch that is the root cause of request smuggling."
+      },
+      {
+        "label": "C",
+        "text": "Enable ALB access logging and create a WAF rule to detect and block requests with conflicting Content-Length and Transfer-Encoding headers before they reach the backend target."
+      },
+      {
+        "label": "D",
+        "text": "Set the ALB desync mitigation mode to Strictest so the ALB rejects ambiguous HTTP requests that could exploit desync vulnerabilities, returning 400 errors to the sender."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Application Load Balancers have a desync mitigation mode setting with three options: Monitor, Defensive (default), and Strictest. Setting the mode to Strictest causes the ALB to close connections and return a 400 for any HTTP request that is ambiguous or malformed in ways that could enable request smuggling, providing the strongest prevention. Option A relies on WAF custom rules but WAF does not have native logic to parse HTTP desync conditions. Option C is not a supported ALB configuration for disabling HTTP/1.1 and would not address all smuggling attack vectors. Option D addresses availability issues rather than the desync vulnerability itself.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "alb",
+      "desync",
+      "http-smuggling"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-010",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A network architect is comparing NAT Gateway and NAT Instance for outbound internet connectivity in a private subnet. The security team requires stateful inbound filtering on return traffic before it reaches instances in the private subnet. Which statement accurately describes the filtering capabilities of each option?",
+    "options": [
+      {
+        "label": "A",
+        "text": "NAT Gateway supports security group attachment for stateful inbound filtering on return traffic; NAT Instance relies solely on NACLs for filtering, which are stateless."
+      },
+      {
+        "label": "B",
+        "text": "Neither NAT Gateway nor NAT Instance supports security group filtering; both rely on subnet NACLs to control return traffic from the internet in private subnet architectures."
+      },
+      {
+        "label": "C",
+        "text": "NAT Gateway does not support security group attachment and can only be influenced via subnet NACLs; NAT Instance supports security group attachment, enabling stateful port-level filtering."
+      },
+      {
+        "label": "D",
+        "text": "Both NAT Gateway and NAT Instance support security group attachment; the difference is that NAT Gateway security groups are AWS-managed and not directly customer-configurable."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "NAT Gateway is a fully managed AWS service and does not support security group attachment \u2014 its only network-layer control mechanism is the NACL on the subnet where it resides, and NACLs are stateless. A NAT Instance is an EC2 instance with source/destination check disabled and IP forwarding enabled, so it natively supports security group attachment for stateful port-level filtering of return traffic. Customers needing stateful filtering on NAT must use a NAT Instance or a more capable network appliance. Option A reverses the capabilities of the two options. Option B incorrectly claims NAT Gateway supports security groups. Option D is incorrect about NAT Instance.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "nat-gateway",
+      "nat-instance",
+      "security-groups"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-011",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A web application security team wants AWS WAF to return a branded HTML error page with a helpdesk contact URL when requests are blocked, instead of the default 403 response body. The solution must be entirely managed in the WAF Web ACL without any changes to the application or origin infrastructure. Which WAF feature enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a WAF rule group with a custom response that sets HTTP status 403 and inserts an x-amzn-waf-blocked response header; the application reads this header and renders the branded page."
+      },
+      {
+        "label": "B",
+        "text": "Host the error page in S3 and configure ALB listener rules to redirect 403 responses to the S3 static website URL using a fixed-response action on the load balancer."
+      },
+      {
+        "label": "C",
+        "text": "Define a custom response body in the WAF Web ACL containing the HTML content, then reference that body in each blocking rule's custom response configuration for direct client delivery."
+      },
+      {
+        "label": "D",
+        "text": "Deploy a CloudFront Function on the viewer-response event to intercept 403 responses from WAF and rewrite the response body to the branded HTML before returning it to the client."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS WAF supports custom response bodies defined directly in the Web ACL. When a blocking rule is configured with a custom response referencing a defined body, WAF returns the specified HTTP status code and the HTML payload directly to the client, without forwarding the request to the origin. This requires no application changes, no Lambda, and no CloudFront modifications. Option A inserts a header but does not replace the response body and requires the application to render the page. Option C requires a CloudFront Function, adding code and operational overhead. Option D requires ALB-layer changes and uses a redirect rather than a direct custom response.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "waf",
+      "custom-response",
+      "blocked-requests"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-012",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "Amazon GuardDuty generates an EC2 finding indicating potential malware activity on a running instance. A security engineer wants to use GuardDuty Malware Protection to scan the instance's EBS volumes for malware without installing an agent or interrupting the running workload. Which statement accurately describes how GuardDuty Malware Protection performs this scan?",
+    "options": [
+      {
+        "label": "A",
+        "text": "GuardDuty Malware Protection deploys a lightweight scanning agent on the EC2 instance via SSM Run Command, performs an in-memory and on-disk scan, then removes the agent automatically after completion."
+      },
+      {
+        "label": "B",
+        "text": "GuardDuty Malware Protection creates snapshots of the EC2 instance's EBS volumes, mounts them in an isolated AWS-managed account, and scans the volume contents without affecting the running instance."
+      },
+      {
+        "label": "C",
+        "text": "GuardDuty Malware Protection analyzes VPC flow logs and DNS query logs for the instance's network traffic to identify known malware command-and-control patterns without accessing EBS storage."
+      },
+      {
+        "label": "D",
+        "text": "GuardDuty Malware Protection pauses the EC2 instance, attaches a forensic EBS volume to it, boots from a trusted AMI for scanning, then resumes the instance after the scan finishes."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "GuardDuty Malware Protection for EC2 is entirely agentless. When triggered by a GuardDuty finding, it automatically creates EBS snapshots of the affected instance's volumes, copies them into an isolated AWS-managed scanning environment, and scans the volume data using malware signatures. The running instance is not interrupted or modified in any way, and there is no agent installation. Options A and C describe incorrect mechanisms involving agents or instance interruption. Option D describes network-based detection, which is unrelated to EBS volume scanning.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "guardduty",
+      "malware-protection",
+      "ebs-scanning"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-013",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security team wants CloudFront to add HTTP security headers \u2014 including Strict-Transport-Security, X-Content-Type-Options, and X-Frame-Options \u2014 to all responses delivered to browsers, without modifying the origin application code. Which CloudFront feature achieves this with the lowest operational overhead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Update the origin application server configuration to emit the required security headers in all HTTP responses; CloudFront forwards all origin response headers to clients by default."
+      },
+      {
+        "label": "B",
+        "text": "Configure a CloudFront Response Headers Policy that specifies the desired security headers and attach it to the distribution cache behavior for automatic header injection."
+      },
+      {
+        "label": "C",
+        "text": "Deploy a Lambda@Edge function on the origin-response event to programmatically add the security headers to responses before CloudFront caches and forwards them to clients."
+      },
+      {
+        "label": "D",
+        "text": "Create a CloudFront Function on the viewer-response event to inject the required security headers into every response before it reaches the client browser."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudFront Response Headers Policies are a native, no-code configuration feature that allows you to specify a set of HTTP security headers and attach the policy to a cache behavior. CloudFront then automatically appends those headers to all responses it delivers, regardless of what the origin returns. This requires no code changes and no Lambda functions. Option A (CloudFront Functions) and Option D (Lambda@Edge) both work functionally but require writing and maintaining code, adding operational overhead. Option C requires modifying the application, which the requirement explicitly prohibits.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "cloudfront",
+      "security-headers",
+      "response-headers-policy"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-014",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company has three VPCs: VPC-A is peered with VPC-B, and VPC-B is peered with VPC-C. An engineer expects that instances in VPC-A can reach instances in VPC-C through VPC-B. After verifying route tables and security groups appear correct, connectivity still fails. What is the fundamental reason this architecture does not work as expected?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The VPC-B instances acting as the transit path must have source/destination check disabled; without this setting, VPC-B instances drop forwarded packets from VPC-A destined for VPC-C."
+      },
+      {
+        "label": "B",
+        "text": "VPC-B route tables must include specific routes for VPC-A and VPC-C CIDRs pointing to each peering connection, which have not been added, causing VPC-B to silently drop transit traffic."
+      },
+      {
+        "label": "C",
+        "text": "VPC peering requires all three VPCs to share the same CIDR range for traffic to flow transitively through the intermediate VPC acting as a routing hub."
+      },
+      {
+        "label": "D",
+        "text": "VPC peering is non-transitive; AWS does not route traffic from VPC-A across two peering connections through VPC-B to reach VPC-C, regardless of route table configuration."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "VPC peering is explicitly non-transitive in AWS. Even with VPC-A peered to VPC-B and VPC-B peered to VPC-C, AWS does not route packets from VPC-A across two separate peering connections to reach VPC-C. This is an architectural constraint, not a configuration problem. To connect VPC-A directly to VPC-C, a direct peering connection between them or a Transit Gateway must be used. Option C describes a route table scenario that applies to other architectures but does not overcome the transitive routing limitation \u2014 AWS blocks this at the network level regardless of routing entries. Options A and D describe unrelated constraints.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "vpc-peering",
+      "transitive-routing",
+      "transit-gateway"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-015",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A hybrid architecture connects an on-premises data center to AWS via Direct Connect. On-premises applications need to resolve DNS names in a private Route 53 hosted zone, and AWS workloads in a VPC need to resolve on-premises server hostnames using the corporate DNS server. Which Route 53 Resolver configuration enables both resolution directions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a Route 53 private hosted zone associated with the on-premises network and enable Route 53 Resolver Query Logging, which automatically enables bidirectional DNS forwarding."
+      },
+      {
+        "label": "B",
+        "text": "Create a Route 53 Resolver outbound endpoint only and configure bidirectional forwarding rules that handle both inbound queries from on-premises and outbound queries from VPC instances."
+      },
+      {
+        "label": "C",
+        "text": "Create a Route 53 Resolver inbound endpoint so on-premises resolvers can forward queries for the private hosted zone to AWS; create an outbound endpoint with forwarding rules to send VPC DNS queries to the on-premises DNS server."
+      },
+      {
+        "label": "D",
+        "text": "Enable DNS resolution and DNS hostnames on the VPC, then configure the on-premises DNS server to query the VPC's base CIDR plus two resolver address directly without any Resolver endpoints."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Route 53 Resolver uses two distinct endpoint types for hybrid DNS. An inbound endpoint creates ENIs in the VPC that on-premises DNS resolvers can forward queries to, enabling on-premises systems to resolve Route 53 private hosted zone records. An outbound endpoint creates ENIs that Route 53 Resolver uses to forward queries to on-premises DNS servers when matching forwarding rules exist, enabling VPC workloads to resolve corporate hostnames. Both endpoint types are required for full bidirectional hybrid DNS. Option B incorrectly claims a single outbound endpoint handles both directions. Option C bypasses Resolver endpoints and is not recommended for private hosted zone resolution. Option D misrepresents Query Logging as a DNS forwarding mechanism.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "route53-resolver",
+      "hybrid-dns",
+      "inbound-outbound-endpoints"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-016",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A compliance team wants to use an AWS Config managed rule to continuously detect security groups that allow unrestricted inbound access on common sensitive ports including SSH, RDP, and database ports, without writing a custom Lambda function. Which AWS Config managed rule is designed for this purpose?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The restricted-common-ports rule checks whether security groups have inbound rules that allow unrestricted access from 0.0.0.0/0 or ::/0 on a configurable list of sensitive ports."
+      },
+      {
+        "label": "B",
+        "text": "The security-group-attached-to-eni rule evaluates whether any security group on a network interface permits inbound access from the public internet on any port number."
+      },
+      {
+        "label": "C",
+        "text": "The sg-restricted-ssh rule evaluates all security groups for unrestricted SSH, RDP, and database port access organization-wide and auto-remediates non-compliant rules via SSM Automation."
+      },
+      {
+        "label": "D",
+        "text": "The vpc-sg-open-only-to-authorized-ports rule evaluates whether security groups allow inbound traffic only from CIDR ranges specified in an authorized IP parameter, flagging all other source ranges."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The AWS Config managed rule restricted-common-ports evaluates security groups for inbound rules that allow unrestricted access (0.0.0.0/0 or ::/0) on a configurable list of ports. The default list covers common sensitive ports including 20, 21, 22, 3306, 3389, and 4333, and the list is customizable via rule parameters. The rule reports non-compliant security groups but does not automatically remediate them. Option A describes vpc-sg-open-only-to-authorized-ports, a different rule focused on whether CIDRs are in an allowed list. Option C incorrectly claims auto-remediation capability and describes a single-port rule. Option D describes a rule about ENI attachment status, not port restrictions.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "aws-config",
+      "security-groups",
+      "restricted-common-ports"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-017",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A Kubernetes team configures an Amazon EKS cluster with private-only API endpoint access (public endpoint disabled). A developer reports they cannot run kubectl commands from their corporate laptop connected via site-to-site VPN to the AWS VPC. Network routing and security groups appear correct. What is the most likely cause and the appropriate resolution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Private EKS endpoints are accessible only via AWS Direct Connect and not site-to-site VPN; the connectivity type must be upgraded to Direct Connect for kubectl to function correctly."
+      },
+      {
+        "label": "B",
+        "text": "Private EKS endpoints are only reachable from EC2 bastion hosts inside the cluster VPC itself; even with VPN routing, kubectl traffic cannot be sourced from outside the VPC network boundary."
+      },
+      {
+        "label": "C",
+        "text": "The private EKS endpoint DNS name resolves to a private VPC IP; Route 53 Resolver inbound endpoints are needed so the on-premises DNS resolver can resolve the private hostname across the VPN."
+      },
+      {
+        "label": "D",
+        "text": "The kubectl client uses port 8443 by default, which is blocked by the VPN tunnel firewall policy; reconfigure the site-to-site VPN to permit port 443 from the corporate network to the EKS endpoint."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "When an EKS cluster has a private-only endpoint, the API server DNS name resolves to a private IP address within the VPC. For a developer on a corporate network connected via site-to-site VPN to access the endpoint, two things must work: the VPN must route traffic to the VPC CIDR, and DNS must resolve the private endpoint hostname to its VPC-internal IP. Route 53 Resolver inbound endpoints allow the on-premises DNS resolver to forward queries to Route 53 across the VPN for the private hosted zone, enabling proper name resolution. Without DNS resolution, kubectl cannot reach the endpoint even when routing is correct. Option A is overly restrictive \u2014 VPN with DNS works. Option C is incorrect about the port. Option D is incorrect \u2014 VPN connectivity is fully supported.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "eks",
+      "private-endpoint",
+      "vpn",
+      "dns"
+    ]
+  },
+  {
+    "id": "scs-d3-t6-018",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A Lambda function deployed inside a VPC private subnet with no internet access serves as the rotation function for an AWS Secrets Manager secret. Secret rotation begins failing with a connection timeout error. No code changes or IAM permission changes have been made. What is the most likely cause and the correct resolution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The Lambda execution role is missing the secretsmanager:RotateSecret permission; adding this permission to the role policy and redeploying the function restores rotation connectivity."
+      },
+      {
+        "label": "B",
+        "text": "Secrets Manager rotation Lambda functions must run outside a VPC; the function must be reconfigured with no VPC attachment so it can reach the Secrets Manager public endpoint."
+      },
+      {
+        "label": "C",
+        "text": "The private subnet NACL is blocking outbound port 443 to Secrets Manager; an outbound NACL rule must be added allowing TCP 443 to the regional Secrets Manager IP address range."
+      },
+      {
+        "label": "D",
+        "text": "A Secrets Manager VPC interface endpoint is required in the VPC so the rotation Lambda can call the Secrets Manager API through the private AWS network without needing internet access."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "When a Secrets Manager rotation Lambda runs inside a VPC private subnet with no internet access (no NAT gateway), it cannot reach the public Secrets Manager API endpoint. The solution is to create an AWS PrivateLink interface VPC endpoint for Secrets Manager, which routes the Lambda's API calls to Secrets Manager through the private AWS network without requiring any internet path. Option A addresses a permissions issue, but the question states IAM permissions are unchanged and the error is a connection timeout, not an authorization error. Option B is incorrect \u2014 Lambda rotation functions can and should run inside a VPC for isolation; removing VPC attachment reduces security. Option D is impractical because Secrets Manager does not publish a fixed IP range suitable for NACL management.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "secrets-manager",
+      "vpc-endpoint",
+      "rotation-lambda"
+    ]
+  }
+]

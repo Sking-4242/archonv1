@@ -1,0 +1,953 @@
+[
+  {
+    "id": "aws-saa-t5-03-001",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses DynamoDB with a table that has a partition key of DeviceID and sort key of Timestamp. The table receives 100,000 writes per second from 10,000 distinct devices (average 10 writes/second per device). CloudWatch shows ProvisionedThroughputExceededExceptions on 0.1% of writes. No single device accounts for more than 0.5% of traffic. The table has 5,000 WCU provisioned. What is the most likely cause and correct fix?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Some writes are to items larger than 1 KB \u2014 each extra KB requires additional WCU; enable DynamoDB compression"
+      },
+      {
+        "label": "B",
+        "text": "The table needs 100,000 WCU provisioned \u2014 increase capacity"
+      },
+      {
+        "label": "C",
+        "text": "The writes are evenly distributed but the 5,000 WCU is insufficient \u2014 enable DynamoDB Auto Scaling to automatically provision up to 100,000 WCU."
+      },
+      {
+        "label": "D",
+        "text": "DynamoDB provisioned capacity has a per-partition limit of 1,000 WCU \u2014 with even distribution across 10,000 devices, the table needs sufficient partitions"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "The math: 100,000 writes/second for 1 KB items = 100,000 WCU needed. The table has only 5,000 WCU provisioned. With even distribution (no hot partitions), this is a straightforward capacity shortfall. DynamoDB Auto Scaling adjusts provisioned capacity between configured min and max based on actual utilization (target: 70% by default). Set max to 120,000+ WCU to handle peaks. The per-partition limit (option D) is relevant for hot partition scenarios but doesn't apply here (evenly distributed writes). Compression isn't a DynamoDB feature. The throttling at 0.1% with 5K WCU on 100K writes/second is proportionate to the 95% under-provisioning.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "dynamodb",
+      "auto-scaling",
+      "wcu",
+      "provisioned-capacity",
+      "performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-002",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company runs a Spark-based data processing job daily that reads from S3 and writes aggregated results back to S3. The job uses an EMR cluster with 1 master and 10 core nodes. The job takes 4 hours. The data team wants to add 20 task nodes using Spot Instances to accelerate the job. A Spot interruption happens during the run. What is the impact and correct configuration to minimize it?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A Spot interruption terminates the entire EMR job \u2014 use On-Demand for all nodes"
+      },
+      {
+        "label": "B",
+        "text": "Task nodes hold HDFS replicas \u2014 losing task nodes causes data loss"
+      },
+      {
+        "label": "C",
+        "text": "EMR automatically checkpoints Spark jobs every 5 minutes \u2014 Spot interruptions lose at most 5 minutes of work"
+      },
+      {
+        "label": "D",
+        "text": "Spot interruption of a task node causes only that node's in-flight tasks to fail"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "EMR's architecture separates roles: Core nodes store HDFS data and run tasks; Task nodes ONLY run tasks (no HDFS data). When a Spot task node is interrupted: (1) YARN detects the node failure; (2) In-progress tasks on that node are marked failed; (3) Spark/YARN reschedules those tasks to surviving core or other task nodes. The overall job continues without interruption \u2014 just those specific tasks are re-run. This is built-in Spark/YARN fault tolerance. Core nodes should use On-Demand (they store HDFS data \u2014 losing them can cause HDFS corruption). EMR doesn't provide automatic Spark job checkpointing.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "emr",
+      "spot-instances",
+      "spark",
+      "task-nodes",
+      "fault-tolerance"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-003",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's web application serves 1 million users. User profile images are stored in S3 (average 50 KB each). The application makes individual GetObject calls for each profile image on page load. A profile page loads 20 images, requiring 20 sequential S3 API calls. Page load times are slow (2-3 seconds). What architectural change most reduces image load latency?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use S3 Batch Operations to pre-aggregate the 20 images into a single response"
+      },
+      {
+        "label": "B",
+        "text": "Serve images via CloudFront \u2014 images are cached at edge locations near users"
+      },
+      {
+        "label": "C",
+        "text": "Increase S3 request rate limits by adding prefixes to distribute requests across multiple prefixes"
+      },
+      {
+        "label": "D",
+        "text": "Enable S3 Transfer Acceleration to speed up GetObject calls"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudFront is the primary solution for static asset delivery performance. With 1 million users loading profile images: (1) Cache hit ratio for popular images approaches 99%+ \u2014 served from edge in <10ms vs. 100-200ms per S3 request. (2) CloudFront serves in parallel from the edge for the 20 images. (3) Edge locations near users eliminate geographic latency. Transfer Acceleration helps with uploads; for downloads, CloudFront is far more effective and cheaper. S3 Batch Operations processes objects in bulk (copy, tag, etc.) \u2014 it doesn't aggregate responses for web serving. S3 prefix distribution improves write performance, not read latency for typical traffic.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "cloudfront",
+      "s3",
+      "caching",
+      "image-delivery",
+      "performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-004",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company runs a containerized Python Flask application on ECS Fargate. The application processes mathematical models that are CPU-intensive (100% CPU during computation). Fargate tasks are configured with 4 vCPU and 8 GB memory. Tasks are running at 100% CPU for extended periods. The team wants to increase throughput by running computations in parallel. Which approach is most appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Decompose the computation into parallelizable units, run multiple concurrent Fargate tasks with 4 vCPU each, and use SQS"
+      },
+      {
+        "label": "B",
+        "text": "Enable Fargate Spot for cost savings and use the saved money to run more computations"
+      },
+      {
+        "label": "C",
+        "text": "Switch from Fargate to EC2-based ECS with hpc6a instances for HPC workloads"
+      },
+      {
+        "label": "D",
+        "text": "Increase task size to 16 vCPU (maximum Fargate) to run all computation in a single task"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "For CPU-bound workloads, horizontal scaling (multiple parallel tasks) outperforms vertical scaling (larger single task). Decompose the computation into independent work units queued in SQS; an ECS service with Auto Scaling processes units in parallel. This is Amdahl's Law in practice \u2014 if computation can be parallelized, N \u00d7 4 vCPU tasks outperform 1 \u00d7 16 vCPU task for the same work. Fargate maximum is 16 vCPU \u2014 vertical scaling has a hard ceiling. HPC6a instances require ECS on EC2 (not Fargate) and have specific use cases (HPC simulations, not general parallel computation). Fargate Spot saves money but doesn't increase throughput.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "fargate",
+      "ecs",
+      "parallel-computing",
+      "sqs",
+      "scaling"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-005",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "select-two",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses Kinesis Data Streams with 10 shards for real-time log processing. A Lambda consumer processes each shard. At 08:00 Monday, log volume doubles and each shard's batch takes 800ms to process. By 08:30, some shards show GetRecords.IteratorAgeMilliseconds of 45 seconds (45s behind real-time). What configuration changes reduce the processing lag? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase the Kinesis retention period from 24 hours to 7 days"
+      },
+      {
+        "label": "B",
+        "text": "Enable Lambda Kinesis Enhanced Fan-Out for dedicated 2 MB/s throughput per shard"
+      },
+      {
+        "label": "C",
+        "text": "Increase the number of Kinesis shards from 10 to 20 using UpdateShardCount"
+      },
+      {
+        "label": "D",
+        "text": "Enable Kinesis Enhanced Fan-Out on all existing consumers"
+      },
+      {
+        "label": "E",
+        "text": "Increase Lambda parallelization factor for Kinesis triggers (up to 10 concurrent Lambda invocations per shard)"
+      }
+    ],
+    "correct": [
+      "C",
+      "E"
+    ],
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Two approaches address the lag: (1) Increasing shards (UpdateShardCount from 10\u219220) splits the data load across more shards \u2014 each Lambda function processes less data per batch, reducing per-batch time and allowing it to keep up. (2) Parallelization factor: Lambda's Kinesis trigger supports up to 10 concurrent invocations per shard. With parallelization=10 and 10 shards, Lambda can run 100 concurrent functions processing different batches in parallel \u2014 dramatically increasing throughput per shard. Enhanced Fan-Out (option B/E) provides dedicated 2 MB/s read throughput per consumer but the current problem is PROCESSING lag (800ms per batch), not READ throughput. Retention period doesn't affect processing speed.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "kinesis",
+      "lambda",
+      "shards",
+      "parallelization",
+      "lag"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-006",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses RDS Aurora MySQL with a writer and 3 readers. One reader is for OLAP queries that often run for 10-30 minutes. The other two readers serve the application's read traffic. The OLAP reader is failing with 'wait/io/table/sql/handler' wait events, and the application readers are unaffected. What does this indicate and what is the correct action?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Aurora replicas share the storage layer \u2014 OLAP queries are causing I/O contention on the shared storage, impacting all readers"
+      },
+      {
+        "label": "B",
+        "text": "The OLAP reader is overloaded \u2014 scale up the reader instance"
+      },
+      {
+        "label": "C",
+        "text": "wait/io/table/sql/handler indicates disk I/O waits on the OLAP reader \u2014 the long-running queries are causing full table scans on large tables"
+      },
+      {
+        "label": "D",
+        "text": "The OLAP reader needs its own dedicated Aurora cluster (separate from the main cluster) to isolate I/O impact"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "wait/io/table/sql/handler is an InnoDB wait event indicating the query is waiting for row-level locking or sequential table reads (full table scan). Long-running OLAP queries that perform full table scans on large tables generate this wait event. The fix is query optimization: analyze slow query logs, use EXPLAIN to identify missing indexes, add composite indexes on filter/join columns used in OLAP queries. Aurora readers do share the distributed storage layer, but the I/O wait here is at the per-query level (waiting on row reads), not storage bandwidth contention. Application readers being unaffected confirms this is query-level, not storage-level.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "aurora",
+      "mysql",
+      "performance-insights",
+      "query-optimization",
+      "wait-events"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-007",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company stores time-series IoT sensor data in DynamoDB. The table has 5 billion items and grows by 50 million items per day. Data older than 30 days is no longer needed. Currently, the team runs a daily Lambda job that scans the table and deletes expired items. This job takes 8 hours and consumes significant RCU/WCU. What is the correct DynamoDB feature that eliminates this operational overhead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use DynamoDB Conditional Writes to prevent writing old data \u2014 conditional writes enforce optimistic locking but do not automatically delete items that have expired."
+      },
+      {
+        "label": "B",
+        "text": "Enable DynamoDB TTL (Time to Live) on a timestamp attribute \u2014 DynamoDB automatically deletes expired items in the background at no additional cost."
+      },
+      {
+        "label": "C",
+        "text": "Enable DynamoDB Streams and use Lambda to detect old items and delete them"
+      },
+      {
+        "label": "D",
+        "text": "Schedule daily DynamoDB exports to S3 and delete the DynamoDB table monthly"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Use DynamoDB Conditional Writes to prevent writing old data \u2014 conditional writes enforce optimistic locking but do not automatically delete items that have expired.",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "DynamoDB TTL automatically deletes items past their expiration timestamp attribute. Benefits: (1) Zero WCU consumption for TTL deletes (they're free); (2) Automatic background processing \u2014 no Lambda job needed; (3) Scales to any data volume; (4) Items are typically deleted within 48 hours of expiry. Enable TTL on the table, set the attribute to store expiry timestamp (current time + 30 days in epoch seconds). This eliminates the 8-hour scan-and-delete job entirely. DynamoDB Streams + Lambda recreates the same problem with added complexity. Conditional Writes prevent future writes from old sources but don't delete existing data.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "dynamodb",
+      "ttl",
+      "cost-optimization",
+      "data-lifecycle",
+      "iot"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-008",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's Lambda function needs to access a database in a VPC and also needs to access the public internet (to call a third-party API). The VPC has private subnets with a NAT Gateway. The Lambda function is VPC-attached and can access the database. However, calls to the third-party API are timing out. What is the issue?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The Lambda function's subnet route table doesn't have a route to the NAT Gateway"
+      },
+      {
+        "label": "B",
+        "text": "The Lambda function's security group doesn't allow outbound HTTPS (port 443)"
+      },
+      {
+        "label": "C",
+        "text": "VPC-attached Lambda requires an Elastic IP address for internet access"
+      },
+      {
+        "label": "D",
+        "text": "Lambda functions in a VPC cannot access the internet \u2014 they must use VPC endpoints"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "VPC-attached Lambda functions access the internet via the VPC's NAT Gateway (they're in private subnets, which don't have direct internet access). Common failure modes: (1) The private subnet's route table lacks a 0.0.0.0/0 \u2192 NAT Gateway route; (2) The NAT Gateway is in a private subnet instead of a public subnet; (3) The public subnet's route table lacks a 0.0.0.0/0 \u2192 Internet Gateway route; (4) NAT Gateway is in a different AZ than the Lambda function's subnets (works but incurs inter-AZ charges). Lambda doesn't need an Elastic IP \u2014 NAT Gateway provides the outbound IP. Security groups allowing port 443 outbound is typically the default.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "lambda",
+      "vpc",
+      "nat-gateway",
+      "internet-access",
+      "networking"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-009",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company has a multi-tier application. The presentation layer (CloudFront + S3) serves static content. The API layer (API Gateway + Lambda) handles business logic. The data layer uses DynamoDB. The team wants to reduce costs. CloudWatch shows the Lambda functions average 50ms execution time and use 512 MB memory. The functions are I/O-bound (waiting on DynamoDB responses). What optimization reduces Lambda costs?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Lambda Provisioned Concurrency to reduce execution duration"
+      },
+      {
+        "label": "B",
+        "text": "Switch Lambda architecture to arm64 (Graviton2) \u2014 provides 20% price-performance improvement for the same memory allocation"
+      },
+      {
+        "label": "C",
+        "text": "Increase Lambda memory to 1024 MB \u2014 more memory = more vCPU = faster execution despite I/O wait"
+      },
+      {
+        "label": "D",
+        "text": "Reduce Lambda memory to 128 MB \u2014 I/O-bound functions don't benefit from more vCPU; lower memory reduces cost per GB-second"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "For I/O-bound Lambda functions that spend most execution time waiting on DynamoDB responses rather than performing CPU computation, switching to arm64 (Graviton2) architecture provides approximately 20% better price-performance at the same memory allocation \u2014 ideal when the bottleneck is network I/O, not CPU. Increasing memory (which also increases CPU allocation) helps CPU-bound functions but provides less benefit when the function is primarily waiting on I/O. Provisioned Concurrency eliminates cold starts but does not reduce per-invocation cost for I/O-bound workloads. Reducing Lambda timeout does not reduce actual execution time \u2014 it only terminates long-running invocations early.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "lambda",
+      "graviton",
+      "arm64",
+      "cost-optimization",
+      "i/o-bound"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-010",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses CloudFront with signed URLs to deliver premium video content. The signed URL has a 1-hour expiry. Users share the signed URL and others are accessing premium content for free. What CloudFront feature prevents URL sharing?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Reducing the signed URL expiry to 5 minutes limits how long a shared URL remains valid but does not prevent a user who already received the URL from sharing it."
+      },
+      {
+        "label": "B",
+        "text": "Use CloudFront signed cookies instead of signed URLs \u2014 signed cookies require the browser to send a valid cookie on each request"
+      },
+      {
+        "label": "C",
+        "text": "CloudFront geographic restrictions block users in specific countries but cannot prevent a user within an allowed country from sharing a valid signed URL with others."
+      },
+      {
+        "label": "D",
+        "text": "CloudFront access logs can detect shared URLs after the fact for audit purposes but cannot revoke URLs in real time or prevent the initial act of URL sharing."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Reducing the signed URL expiry to 5 minutes limits how long a shared URL remains valid but does not prevent a user who already received the URL from sharing it.",
+      "C": "CloudFront geographic restrictions block users in specific countries but cannot prevent a user within an allowed country from sharing a valid signed URL with others.",
+      "D": "CloudFront access logs can detect shared URLs after the fact for audit purposes but cannot revoke URLs in real time or prevent the initial act of URL sharing."
+    },
+    "explanation": "Signed cookies bind the authentication token to the browser's cookie jar \u2014 to share access, a user would need to share their browser cookies (much less likely than sharing a URL). Signed cookies are also typically set with HttpOnly and Secure flags, making them JavaScript-inaccessible. CloudFront signed cookies protect an entire website/application session rather than individual URLs. Reducing URL expiry to 5 minutes makes sharing less practical but degrades UX for legitimate users. Geographic restrictions don't prevent URL sharing. Access logs detect but don't prevent sharing.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "cloudfront",
+      "signed-cookies",
+      "signed-urls",
+      "content-protection"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-011",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A data lake on S3 contains 500 TB in Apache ORC format partitioned by year/month/day. An Athena query filtering on a 7-day range scans 50 TB instead of the expected ~10 TB for 7 days. Investigation shows the Athena query plan is not pruning partitions. The Glue Data Catalog table is correctly defined. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ORC format doesn't support partition pruning \u2014 convert to Parquet"
+      },
+      {
+        "label": "B",
+        "text": "Athena cannot prune more than 1,000 partitions \u2014 the 7-day range has more than 1,000 files"
+      },
+      {
+        "label": "C",
+        "text": "The query's WHERE clause uses date functions (e.g., WHERE date_trunc('day', event_time) >= '2024-01-01') instead of directly filtering the."
+      },
+      {
+        "label": "D",
+        "text": "The Glue Crawler hasn't been run recently enough to register the latest partitions"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Athena partition pruning works by matching WHERE clause predicates against partition column values in the Glue Data Catalog. When a WHERE clause wraps the partition column in a function (date_trunc, TO_DATE, CAST, etc.), Athena cannot statically determine which partitions to skip \u2014 it must scan all partitions. Fix: use literal comparisons against partition columns directly: WHERE year='2024' AND month='01' AND day BETWEEN '01' AND '07'. ORC fully supports partition pruning. Athena handles millions of partitions. Missing recent partitions would cause query failures, not excess scanning.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "athena",
+      "partition-pruning",
+      "predicate-pushdown",
+      "glue",
+      "orc"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-012",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company runs a microservices architecture. Service A calls Service B. Service B is calling a downstream database. The database is having issues and returning slow responses. Service B is still returning HTTP 200 but with high latency (30 seconds). Service A has a 5-second timeout. Service A receives timeout errors and logs show it's retrying 3 times. What cascade failure pattern is occurring and what is the correct fix?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Retry storms: Service A's 3 retries of 30-second calls means each Service A request occupies threads for up."
+      },
+      {
+        "label": "B",
+        "text": "Service B should return HTTP 503 instead of HTTP 200 to signal degradation to Service A"
+      },
+      {
+        "label": "C",
+        "text": "The database should use read replicas to reduce latency"
+      },
+      {
+        "label": "D",
+        "text": "Service A is experiencing connection pool exhaustion \u2014 increase Service A's connection pool size"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Retry storms are a classic distributed systems failure mode: (1) DB is slow \u2192 Service B is slow (30s); (2) Service A timeout at 5s triggers 3 retries = 3 \u00d7 5s = 15s per upstream request; (3) Service A's concurrent requests accumulate (each holding a thread for 15s while retrying); (4) Service A's thread pool exhausts \u2014 cascading failure. Solution: circuit breaker (open when B is consistently slow, stop sending requests), exponential backoff + jitter (prevent retry storms), bounded retries (max 1-2 retries, not 3), and return 503 from Service B (accurate failure signal). Connection pool exhaustion is a symptom, not the root cause.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "resilience",
+      "retry-storm",
+      "circuit-breaker",
+      "cascade-failure",
+      "microservices"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-013",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses Amazon Redshift for a data warehouse. A new analyst runs a query that joins three large tables without using any filter conditions (full table scans on all three). The query runs for 6 hours and consumes all cluster resources. Other users cannot run their queries. Which Redshift feature should the administrator configure to prevent this from happening?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable automatic table optimization to create sort keys that speed up the query"
+      },
+      {
+        "label": "B",
+        "text": "Configure a Redshift WLM queue with a query timeout for the analyst group"
+      },
+      {
+        "label": "C",
+        "text": "Enable Redshift concurrency scaling to add additional capacity for the long query"
+      },
+      {
+        "label": "D",
+        "text": "Use Redshift Spectrum to offload the long query to S3"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Redshift WLM (Workload Management) allows defining query queues with: (1) Memory allocation; (2) Concurrency limits; (3) Query timeout \u2014 queries exceeding the timeout are automatically terminated. Configure the analyst users to use a queue with a reasonable timeout (e.g., 1 hour for ad-hoc queries). This prevents runaway queries from starving other users. Concurrency scaling adds cluster capacity but doesn't prevent a 6-hour resource-consuming query \u2014 it just adds more nodes for other users. Redshift Spectrum processes queries on S3 data, not Redshift-internal tables. Auto table optimization improves performance over time but doesn't prevent resource starvation from poorly written queries.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "redshift",
+      "wlm",
+      "query-timeout",
+      "workload-management",
+      "analytics"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-014",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses Amazon OpenSearch Service for log analysis. Log entries are indexed with a mapping that includes a 'message' field as text and a 'host' field as keyword. A query doing an exact match on 'message' returns no results, but the data is visible in the index. Why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The OpenSearch cluster is undersized \u2014 add more data nodes for query capacity"
+      },
+      {
+        "label": "B",
+        "text": "OpenSearch doesn't support exact matching on text fields \u2014 use full-text search only"
+      },
+      {
+        "label": "C",
+        "text": "The 'message' field needs to be reindexed with keyword type for exact matching"
+      },
+      {
+        "label": "D",
+        "text": "The 'message' field is analyzed (tokenized) \u2014 exact phrase queries against analyzed text fields require match_phrase query."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "This is a fundamental OpenSearch/Elasticsearch indexing concept: 'text' type fields are ANALYZED \u2014 the field value is tokenized (split into words, lowercased, stemmed, etc.) before indexing. A 'term' query for an exact phrase won't match because the stored tokens are individual words, not the full phrase. Solutions: (1) Use 'match_phrase' query for analyzed text; (2) Add a 'keyword' sub-field (multi-field mapping: message.keyword) for exact matching; (3) Use 'match' query for full-text search. The 'host' field is keyword \u2014 exact term queries work. This data visibility vs. query mismatch is a classic OpenSearch misunderstanding.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "opensearch",
+      "text-analysis",
+      "mapping",
+      "query",
+      "keyword"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-015",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company builds a real-time recommendation engine. User events (page views, purchases, clicks) stream through Kinesis at 50,000 events/second. The recommendation model needs to process events within 500ms to update recommendations. The model logic is complex (gradient boosting). Lambda execution time would be 2-3 seconds. Which compute option processes events within the 500ms requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Lambda with Provisioned Concurrency to eliminate cold starts and reduce latency"
+      },
+      {
+        "label": "B",
+        "text": "Use AWS SageMaker real-time inference endpoints called from Lambda for each event"
+      },
+      {
+        "label": "C",
+        "text": "Use Kinesis Data Analytics (Apache Flink) with the model embedded as a user-defined function"
+      },
+      {
+        "label": "D",
+        "text": "Use ECS Fargate with a consumer fleet reading from Kinesis, running the model in-process"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Lambda's 2-3 second execution time exceeds the 500ms requirement \u2014 even with Provisioned Concurrency (which eliminates cold starts but not the 2-3s model execution time). ECS Fargate with long-running consumer processes: (1) No cold start overhead; (2) Model loaded in memory across container lifetime (no per-invocation initialization); (3) Fast in-process inference; (4) Horizontal scaling handles 50K events/second. Kinesis Data Analytics Flink is powerful for streaming but embedding a gradient boosting model as a UDF is complex and may still be slow. SageMaker real-time inference adds network latency per call (50-200ms) on top of Lambda's 2-3s \u2192 still exceeds 500ms.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "ecs",
+      "fargate",
+      "kinesis",
+      "real-time",
+      "ml-inference"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-016",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses EC2 Auto Scaling with a target tracking policy (CPU target: 70%). During a flash sale, CPU spikes from 20% to 95% in 30 seconds. Auto Scaling takes 3 minutes to provision new instances. During the 3 minutes, the application is degraded. The team has already implemented all caching possible. What additional approach minimizes the impact of future flash sales?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use predictive scaling based on historical flash sale patterns \u2014 pre-launch instances before predicted traffic spikes"
+      },
+      {
+        "label": "B",
+        "text": "Switching to step scaling with aggressive scale-out thresholds reacts faster than simple scaling but still relies on metric alarms and cannot pre-provision capacity ahead of demand."
+      },
+      {
+        "label": "C",
+        "text": "Using a larger instance type increases per-instance capacity and may absorb some spikes, but a single oversized instance still risks exhaustion during extreme flash sale demand."
+      },
+      {
+        "label": "D",
+        "text": "Implementing scale-out alarms with a 0-second evaluation period is not a valid CloudWatch configuration; evaluation periods have a minimum of 10 seconds and alarms have inherent latency."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Switching to step scaling with aggressive scale-out thresholds reacts faster than simple scaling but still relies on metric alarms and cannot pre-provision capacity ahead of demand.",
+      "C": "Using a larger instance type increases per-instance capacity and may absorb some spikes, but a single oversized instance still risks exhaustion during extreme flash sale demand.",
+      "D": "Implementing scale-out alarms with a 0-second evaluation period is not a valid CloudWatch configuration; evaluation periods have a minimum of 10 seconds and alarms have inherent latency."
+    },
+    "explanation": "Predictive scaling uses ML to analyze historical traffic patterns and pre-launches instances before predicted demand \u2014 it schedules scale-out events before the actual traffic spike. For regular flash sales (recurring events with historical data), predictive scaling is perfect. This eliminates the 3-minute reactive lag entirely. Step scaling with aggressive thresholds still reacts AFTER the spike starts. Larger instance types reduce instance count but don't improve scale-out speed. A 0-second alarm evaluation period isn't possible in CloudWatch (minimum is 1 evaluation period = 1 minute for 1-minute metrics).",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "auto-scaling",
+      "predictive-scaling",
+      "flash-sale",
+      "capacity-planning"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-017",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company processes financial data in batches using AWS Glue. Each Glue job reads from S3 (Parquet, 500 GB), performs aggregations, and writes back to S3. The jobs run nightly. Glue job duration has been increasing from 45 minutes to 2.5 hours over 6 months as data grows. Glue DPU count is fixed at 20 G.2X. What investigation steps and fixes are most appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase DPU count to 100 G.2X and monitor if duration improves proportionally"
+      },
+      {
+        "label": "B",
+        "text": "Enable Glue job profiling (Spark UI via Glue) to identify bottlenecks \u2014 if shuffle-heavy operations (groupBy."
+      },
+      {
+        "label": "C",
+        "text": "Move the data to Redshift and run the aggregations there instead of Glue"
+      },
+      {
+        "label": "D",
+        "text": "Rewrite the Glue job in Python shell instead of Spark for better single-node performance"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Before blindly adding DPUs, diagnose the bottleneck using the Spark UI (available via Glue job bookmarks and CloudWatch). Common Glue performance issues: (1) Shuffle bottleneck (groupBy/join operations): increasing DPUs and tuning spark.sql.shuffle.partitions; (2) S3 listing overhead (many small files): compact files or use partition pruning; (3) Memory pressure: switch to larger DPU types. Blindly scaling DPUs (option A) may not improve proportionally if the job is not compute-bound. Python shell doesn't support distributed processing for 500 GB datasets. Moving to Redshift is a significant architecture change that may not address the root performance issue.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "glue",
+      "spark",
+      "performance-tuning",
+      "profiling",
+      "etl"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-018",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses AWS Fargate for a web API. API Gateway \u2192 Lambda \u2192 Fargate (for long-running computation). During load testing, the Fargate tasks take 8 seconds to start (cold start). The Lambda function has a 29-second timeout (API Gateway maximum). Under load, task startup consumes most of the budget. What reduces Fargate cold start time?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use multi-stage Docker builds to reduce image size \u2014 smaller images pull faster, reducing startup time"
+      },
+      {
+        "label": "B",
+        "text": "Enable Fargate Spot for faster provisioning"
+      },
+      {
+        "label": "C",
+        "text": "Use larger Fargate task sizes (16 vCPU) \u2014 larger tasks start faster"
+      },
+      {
+        "label": "D",
+        "text": "Use ECS Service with minimum healthy percent=100 and a pool of pre-started Fargate tasks"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "The architectural fix for Fargate 'cold start' is to use a persistent task fleet with a queue-based work distribution pattern: a pool of Fargate tasks (ECS Service, min=N) run continuously and poll SQS for work. Lambda enqueues computation requests and returns immediately (async). Fargate tasks process from the queue \u2014 no startup time per request. This is the correct long-running compute pattern. Larger task sizes don't start faster. Fargate Spot has similar startup times. Smaller Docker images reduce pull time by 1-2 seconds, not 8 seconds. The 8-second startup includes ENI provisioning, image pull, and container init \u2014 a warm pool is the architectural solution.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "fargate",
+      "cold-start",
+      "ecs",
+      "sqs",
+      "architecture"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-019",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company runs an Aurora Serverless v2 cluster for development workloads. The cluster has been idle for 2 hours. A developer triggers a new query and experiences 10-second latency for the first request. What is the cause and how can it be mitigated?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The developer's VPN connection is causing latency \u2014 switch to a direct connection"
+      },
+      {
+        "label": "B",
+        "text": "Aurora Serverless v2 requires a warm-up query on cluster restart \u2014 run SHOW STATUS first"
+      },
+      {
+        "label": "C",
+        "text": "Aurora Serverless v2 does not pause to 0 ACUs (unlike v1) \u2014 the minimum ACU is 0.5"
+      },
+      {
+        "label": "D",
+        "text": "Aurora Serverless v2 pauses to 0 ACUs when idle and takes ~30 seconds to resume \u2014 this is the expected cold start; it cannot be mitigated"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Critical Aurora Serverless distinction: v1 can pause to 0 ACUs (zero cost when idle, ~30-60 second resume latency). v2 does NOT pause to 0 \u2014 minimum is 0.5 ACU, always running (no pause/resume cold start). At 0.5 ACU, the cluster has minimal CPU allocated. The first query after inactivity triggers scale-up from 0.5 to the needed ACU level \u2014 this can cause brief latency as Aurora provisions additional capacity. Mitigation: increase minimum ACU to match the lowest expected query load (e.g., minimum=2 ACU). The 10-second latency for a dev workload at 0.5 ACU minimum is characteristic of scale-up from minimum.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "aurora",
+      "serverless-v2",
+      "cold-start",
+      "acu",
+      "performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-020",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company wants to implement a read-through cache for DynamoDB using DAX. The application reads items frequently (70% of requests are reads to the same 1,000 items). The cache hit ratio is only 40% after deploying DAX. Investigation shows the cache is being evicted frequently. The DAX cluster uses dax.r4.large (13.5 GB memory). What is the most likely cause and fix?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The application is issuing queries against many different partition key values, causing frequent cache evictions"
+      },
+      {
+        "label": "B",
+        "text": "DAX uses a global eviction policy \u2014 reduce the DynamoDB table size to improve cache hit ratio"
+      },
+      {
+        "label": "C",
+        "text": "DAX doesn't support read-through caching for more than 100 items \u2014 use ElastiCache instead"
+      },
+      {
+        "label": "D",
+        "text": "Increase the DAX TTL from the default 5 minutes to 24 hours"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "40% cache hit ratio with 70% reads to the same 1,000 items suggests items ARE being evicted before they can be reused. Possible causes: (1) The application mixes DAX GetItem (item cache) with Query/Scan \u2014 Query results go to DAX's query cache (separate, smaller pool); if queries return different item sets, the item cache is underutilized. (2) Items larger than expected fill the 13.5 GB cache quickly. Fix: ensure hot items are accessed via GetItem (DAX item cache has LRU eviction). A dax.r4.xlarge (30.5 GB) would also help by providing more cache capacity. DAX absolutely supports caching thousands of items. Increasing TTL extends how long items stay in cache.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "dax",
+      "dynamodb",
+      "caching",
+      "eviction",
+      "performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-021",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company has an API that returns large JSON responses (average 500 KB). CloudFront is configured as a CDN with the default behavior. API Gateway shows high data transfer costs even with CloudFront's high cache hit ratio. Investigating reveals CloudFront is fetching from origin frequently because each API response includes a Vary: Accept-Encoding header, causing CloudFront to cache separate versions for different Accept-Encoding header values. What configuration resolves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure CloudFront to normalize the Accept-Encoding header \u2014 CloudFront consolidates Accept-Encoding header variants"
+      },
+      {
+        "label": "B",
+        "text": "Remove Accept-Encoding from the API Gateway responses \u2014 this disables compression"
+      },
+      {
+        "label": "C",
+        "text": "Increase the CloudFront TTL to reduce origin fetches"
+      },
+      {
+        "label": "D",
+        "text": "Disable CloudFront compression to prevent the Vary header from being set"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudFront's Accept-Encoding normalization feature: without it, CloudFront creates separate cache entries for each Accept-Encoding header value variation sent by different clients (gzip, br, deflate, gzip;q=0.9, etc.). With normalization enabled, CloudFront consolidates Accept-Encoding to 'gzip' (or 'br') before checking the cache \u2014 multiple Accept-Encoding variants map to the same cache entry, dramatically improving cache hit ratio. Removing Accept-Encoding disables compression (bad for performance). Disabling CloudFront compression has the same effect. Increasing TTL doesn't help if the cache key is fragmented across many Accept-Encoding variants.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "cloudfront",
+      "accept-encoding",
+      "compression",
+      "cache-key",
+      "performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t5-03-022",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses AWS Glue Crawlers to catalog S3 data for Athena queries. The crawler runs hourly. A data pipeline loads new daily partitions at 02:00 AM. At 08:00 AM, analysts query Athena and find that yesterday's data is missing (new partition not in the catalog). The crawler hasn't run since 07:30 AM. What is the most reliable fix that doesn't require waiting for the hourly crawler?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase the Glue Crawler frequency to every 5 minutes"
+      },
+      {
+        "label": "B",
+        "text": "Use MSCK REPAIR TABLE in Athena after each data load to discover new partitions"
+      },
+      {
+        "label": "C",
+        "text": "Switch to Glue Partition Projection \u2014 eliminate the crawler entirely by configuring Athena to infer partitions from S3 prefixes automatically"
+      },
+      {
+        "label": "D",
+        "text": "Trigger the Glue Crawler immediately when data lands in S3 using S3 Event Notifications \u2192 Lambda \u2192 StartCrawler API"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Glue Partition Projection is the most robust solution: configure the Athena/Glue table with partition projection settings (defining partition column names, types, and value ranges/patterns). Athena calculates partition locations directly from query predicates without consulting the Glue Data Catalog \u2014 no crawler, no MSCK REPAIR TABLE, no latency. Partitions appear immediately as data lands in S3. Event-triggered crawler (option A) adds latency (crawler warmup, crawl time). 5-minute crawls increase costs and AWS Glue API load. MSCK REPAIR TABLE works but requires manual execution after each load and is slow for large partition counts.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "glue",
+      "partition-projection",
+      "athena",
+      "s3",
+      "data-catalog"
+    ]
+  }
+]

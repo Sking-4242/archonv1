@@ -1,0 +1,674 @@
+[
+  {
+    "id": "scs-d2-t3-001",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company enables CloudTrail Insights on their trail. An Insights event is generated showing an unusual spike in iam:CreateRole calls. What does this event specifically indicate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudTrail detected that the iam:CreateRole calls were made without MFA, violating the account's security policy."
+      },
+      {
+        "label": "B",
+        "text": "The rate of iam:CreateRole calls significantly deviated from the established baseline for that API, which CloudTrail Insights learned from the prior 7 days of activity."
+      },
+      {
+        "label": "C",
+        "text": "The iam:CreateRole API calls all resulted in errors, indicating a brute-force attempt to create roles with restricted naming patterns."
+      },
+      {
+        "label": "D",
+        "text": "The CreateRole API calls were made from an IP address flagged by GuardDuty's threat intelligence lists as malicious."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail Insights analyzes write management API call rates and identifies events where the rate significantly deviates from the account's 7-day baseline. An Insights event for iam:CreateRole means the creation rate was anomalously high compared to the normal pattern.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "insights",
+      "anomaly-detection",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-002",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses a single CloudTrail organization trail. They want to ensure that CloudTrail management events in all member accounts are delivered even during regional service disruptions affecting the CloudTrail delivery to S3. What CloudTrail feature helps ensure no management events are lost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudTrail stores events durably in its own service storage for 90 days regardless of delivery destination; events are never lost due to S3 delivery failures."
+      },
+      {
+        "label": "B",
+        "text": "CloudTrail event queuing, which buffers events in the trail's own durable queue when S3 delivery is unavailable and replays them when connectivity is restored."
+      },
+      {
+        "label": "C",
+        "text": "Enable multi-region trail replication in CloudTrail settings, which automatically replicates the trail to a secondary region."
+      },
+      {
+        "label": "D",
+        "text": "CloudTrail CloudWatch Logs delivery as a secondary destination; events are delivered to both S3 and CloudWatch Logs so that a disruption to one does not cause event loss."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail stores event history in its own service for 90 days (accessible via the Event History console and API) regardless of whether S3 or CloudWatch Logs delivery succeeds. S3 delivery failures cause delayed delivery, not event loss, as CloudTrail retries.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "event-history",
+      "durability"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-003",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security analyst needs to correlate GuardDuty findings with VPC Flow Log data to identify whether an alerted EC2 instance established outbound connections to specific external IPs. Which query approach is most efficient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Amazon Detective, which automatically correlates GuardDuty findings with VPC Flow Log data and visualizes network connections for the involved resources in a timeline view."
+      },
+      {
+        "label": "B",
+        "text": "Enable GuardDuty VPC Flow Logs integration; GuardDuty automatically stores the relevant flow records for each finding in a dedicated S3 prefix."
+      },
+      {
+        "label": "C",
+        "text": "Use CloudWatch Logs Insights to search both the GuardDuty log group and the VPC Flow Logs log group simultaneously with a cross-log-group query."
+      },
+      {
+        "label": "D",
+        "text": "Write Athena queries manually joining the GuardDuty findings export S3 bucket with the VPC Flow Logs S3 prefix on the instance IP field."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Amazon Detective is specifically designed for this correlation use case. It ingests GuardDuty findings and VPC Flow Logs, builds a behavior graph, and provides a visual timeline of network connections for alerted resources, making correlation fast without manual query writing.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "amazon-detective",
+      "vpc-flow-logs",
+      "guardduty",
+      "correlation"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-004",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A CloudWatch Logs metric filter is designed to detect KMS key deletion events. The filter pattern is: { $.eventName = 'ScheduleKeyDeletion' }. The alarm consistently does not fire even though keys are being scheduled for deletion. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The metric filter JSON pattern syntax is incorrect; the correct pattern uses double quotes without the dollar sign prefix for event field names."
+      },
+      {
+        "label": "B",
+        "text": "The CloudTrail trail does not have KMS data event logging enabled; ScheduleKeyDeletion is a data event rather than a management event."
+      },
+      {
+        "label": "C",
+        "text": "CloudTrail is not configured to deliver KMS management events to the CloudWatch Logs log group where the metric filter is attached."
+      },
+      {
+        "label": "D",
+        "text": "KMS API events are delivered to CloudTrail but are routed to a separate KMS-specific log group, not the CloudTrail log group where the metric filter is configured."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "ScheduleKeyDeletion is a KMS management event. For the CloudWatch metric filter to fire, CloudTrail must be delivering log events to the specific CloudWatch Logs log group where the filter is defined. If the trail's CloudWatch Logs integration is not configured or is pointing to a different log group, the filter never sees the events.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "cloudwatch",
+      "kms",
+      "metric-filter"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-005",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An organization wants to monitor all API calls made from the AWS console versus those made programmatically via the CLI or SDK. Which CloudTrail field distinguishes these two sources?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The requestParameters.isConsoleRequest boolean field, which is set to true for all management console API calls."
+      },
+      {
+        "label": "B",
+        "text": "The userIdentity.invokedBy field identifies the console versus SDK originator for all management API calls."
+      },
+      {
+        "label": "C",
+        "text": "The userAgent field; console calls contain 'aws-internal' or 'signin.amazonaws.com', while CLI calls contain 'aws-cli' and SDK calls contain the SDK name and version."
+      },
+      {
+        "label": "D",
+        "text": "The sourceIPAddress field; console calls originate from amazonaws.com while CLI/SDK calls show the client's public IP address."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The userAgent field in CloudTrail events identifies the tool used to make the API call. Console calls have user agents like 'aws-internal' or contain 'console'. The AWS CLI sets its own user agent string (aws-cli/version), as do the various SDKs. This is the reliable field for distinguishing access methods.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "useragent",
+      "console-vs-cli"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-006",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security team needs to retain CloudWatch Logs from a Lambda function for 7 years to satisfy compliance requirements. By default, how long does CloudWatch Logs retain data, and what must be configured to meet the retention requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudWatch Logs retains data indefinitely by default; configure an S3 lifecycle rule on the Lambda deployment bucket to archive logs to Glacier after 1 year."
+      },
+      {
+        "label": "B",
+        "text": "CloudWatch Logs retains data for 30 days by default; the Lambda function must be configured to write logs directly to S3 rather than CloudWatch Logs."
+      },
+      {
+        "label": "C",
+        "text": "CloudWatch Logs retains data for 90 days by default; configure a log group retention policy of 7 years (2557 days) and export logs to S3 using a log export job or Kinesis Firehose for durable long-term storage."
+      },
+      {
+        "label": "D",
+        "text": "CloudWatch Logs retains data for 1 year by default; a log group retention policy and cross-region replication to a secondary region satisfies 7-year requirements."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "CloudWatch Logs retains log data indefinitely if no retention policy is set (not 90 days). However, for cost-efficient 7-year retention, set a log group retention policy and export to S3/Glacier. Without an explicit policy, logs are retained forever but at CloudWatch pricing.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudwatch-logs",
+      "retention",
+      "lambda",
+      "compliance"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-007",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to detect when an IAM user's access key has not been used for 90 days. Which service and feature provides this detection with the least operational overhead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor checks for inactive IAM access keys and provides a report, but does not trigger automated alerts."
+      },
+      {
+        "label": "B",
+        "text": "AWS Config with the access-keys-rotated managed rule, which checks whether access keys have been rotated within a specified number of days."
+      },
+      {
+        "label": "C",
+        "text": "IAM credential report combined with a Lambda function that runs weekly to check LastUsedDate for each key and alerts when the date exceeds 90 days."
+      },
+      {
+        "label": "D",
+        "text": "AWS Security Hub with the IAM.3 control, which automatically flags access keys that have not been used in more than 90 days as FAILED findings."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Security Hub's IAM.3 control (from the AWS Foundational Security Best Practices standard) automatically checks for IAM user access keys unused for more than 90 days and produces FAILED findings. This requires no custom Lambda or scheduled jobs.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "security-hub",
+      "iam",
+      "access-key",
+      "unused-credentials"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-008",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security engineer wants to ensure that CloudTrail logs cannot be stopped by anyone in a set of production accounts, but operational teams in those accounts need full EC2 and S3 access. Which control meets this requirement without impacting operational tasks?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an SCP at the OU level that explicitly denies cloudtrail:StopLogging and cloudtrail:DeleteTrail for all principals; this does not affect EC2 or S3 service permissions."
+      },
+      {
+        "label": "B",
+        "text": "Configure CloudTrail with an S3 bucket in a separate locked account and deny s3:PutBucketPolicy on that bucket; operators cannot stop logging if the delivery bucket is protected."
+      },
+      {
+        "label": "C",
+        "text": "Enable AWS Config with the cloudtrail-enabled rule and configure automated remediation to re-enable CloudTrail if it is stopped by any principal."
+      },
+      {
+        "label": "D",
+        "text": "Attach an IAM permission boundary to all operational roles limiting them from calling cloudtrail:StopLogging; boundaries do not affect EC2 or S3 permissions."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "An SCP denying cloudtrail:StopLogging and cloudtrail:DeleteTrail at the OU level prevents anyone in those accounts from stopping CloudTrail regardless of their IAM permissions. SCPs do not affect permissions for unrelated services like EC2 or S3.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "scp",
+      "cloudtrail",
+      "organizations",
+      "preventive"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-009",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company has Lambda@Edge functions deployed globally via CloudFront. They want to capture execution logs for security analysis. Where do Lambda@Edge logs appear and how should they be collected centrally?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lambda@Edge does not support CloudWatch Logs; execution logs must be written explicitly to DynamoDB by the function code."
+      },
+      {
+        "label": "B",
+        "text": "Lambda@Edge logs are written to CloudWatch Logs in the AWS region that processed each request; use cross-region Kinesis streaming or S3 export to centralize them."
+      },
+      {
+        "label": "C",
+        "text": "Lambda@Edge logs are stored in CloudFront access logs in S3 alongside request logs; they cannot be sent to CloudWatch Logs."
+      },
+      {
+        "label": "D",
+        "text": "Lambda@Edge logs are delivered to CloudWatch Logs in the us-east-1 region only, regardless of where the edge function executes."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Lambda@Edge functions execute in multiple AWS regions (the regions closest to CloudFront edge locations). Logs are written to CloudWatch Logs in whichever region processed each request. Central collection requires cross-region log streaming (CloudWatch Logs to Kinesis or S3).",
+    "module_ref": "scs-m2",
+    "tags": [
+      "lambda-at-edge",
+      "cloudwatch-logs",
+      "cloudfront",
+      "centralized-logging"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-010",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A CloudWatch alarm is in INSUFFICIENT_DATA state for a metric filter monitoring CloudTrail logs. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "No data points have been published to the metric yet \u2014 either CloudTrail has not delivered logs to the CloudWatch Logs log group or the filter has not matched any events."
+      },
+      {
+        "label": "B",
+        "text": "The alarm period is shorter than the CloudTrail log delivery delay; alarms require a period of at least 15 minutes for CloudTrail-based metrics."
+      },
+      {
+        "label": "C",
+        "text": "The CloudWatch alarm was created before the metric filter, and CloudWatch requires a 24-hour initialization period before transitioning from INSUFFICIENT_DATA."
+      },
+      {
+        "label": "D",
+        "text": "The alarm threshold is set too low and has been breached immediately, causing CloudWatch to skip the OK state and go directly to INSUFFICIENT_DATA."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "INSUFFICIENT_DATA means CloudWatch has not received enough data points to evaluate the alarm. For CloudTrail-based metric filters, this happens when no matching events have been published to the metric within the evaluation period \u2014 either because no events occurred or logs are not being delivered to CloudWatch.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudwatch",
+      "metric-filter",
+      "alarm",
+      "cloudtrail"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-011",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to detect when any S3 bucket in the account has ACLs that grant cross-account access. The check must run continuously and generate findings in Security Hub. Which combination achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Amazon Macie on all buckets; Macie's bucket inventory automatically identifies cross-account ACLs and sends findings to Security Hub."
+      },
+      {
+        "label": "B",
+        "text": "Enable the AWS Config s3-bucket-acl-prohibited managed rule; it flags all S3 buckets with any ACL including cross-account grants."
+      },
+      {
+        "label": "C",
+        "text": "Create an AWS Config custom rule using a Lambda function that evaluates S3 bucket ACLs for external grants and reports noncompliance to Security Hub."
+      },
+      {
+        "label": "D",
+        "text": "Enable IAM Access Analyzer with S3 as a resource type; Access Analyzer generates findings for buckets with policies or ACLs that grant access to external accounts and integrates with Security Hub."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "IAM Access Analyzer analyzes resource-based policies and ACLs to identify cross-account access. It has native S3 bucket analysis and integrates with Security Hub to publish findings. It provides continuous monitoring without custom code.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "iam-access-analyzer",
+      "s3",
+      "security-hub",
+      "cross-account"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-012",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company streams application logs to CloudWatch Logs and needs to archive logs older than 30 days to S3 Glacier for 7 years. What is the most operationally efficient approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a CloudWatch Logs export task that runs daily to export the previous day's logs to S3, then apply an S3 lifecycle policy to transition objects to Glacier after 30 days."
+      },
+      {
+        "label": "B",
+        "text": "Enable CloudWatch Logs automatic archiving to Glacier in the log group retention settings; CloudWatch natively transitions logs to Glacier after the specified period."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Backup with a CloudWatch Logs backup plan; AWS Backup automatically archives CloudWatch log groups to cold storage after the specified retention window."
+      },
+      {
+        "label": "D",
+        "text": "Configure a CloudWatch Logs subscription filter to stream all new log events to Kinesis Data Firehose, which delivers to S3; apply an S3 lifecycle rule transitioning objects to Glacier after 30 days."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Streaming to Kinesis Firehose via a subscription filter is real-time and fully automated. Firehose delivers to S3 continuously; S3 lifecycle rules handle Glacier transition. This avoids the operational overhead of scheduling daily export tasks.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudwatch-logs",
+      "kinesis-firehose",
+      "s3",
+      "glacier",
+      "log-archival"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-013",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security operations center needs to detect when an IAM user logs into the AWS console from a new, previously unseen IP address. Which service can perform this behavioral anomaly detection natively without custom code?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon CloudWatch anomaly detection, applied to a metric filter counting console logins, which detects when the login count exceeds the predicted band."
+      },
+      {
+        "label": "B",
+        "text": "Amazon GuardDuty, which monitors CloudTrail and builds baselines of IAM user login behavior, generating findings when logins occur from anomalous IPs."
+      },
+      {
+        "label": "C",
+        "text": "AWS Config, which records IAM user login configuration changes and flags when a new source IP address is first seen for a given user's login sessions."
+      },
+      {
+        "label": "D",
+        "text": "AWS Security Hub, which aggregates login findings from CloudTrail and flags console logins from new IP addresses using its built-in anomaly detection engine."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "GuardDuty monitors CloudTrail and builds behavioral baselines for IAM principals. It generates findings like UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B when a login occurs from an IP not seen before for that user, with no custom code required.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "guardduty",
+      "behavioral-detection",
+      "iam",
+      "console-login"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-014",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants all ELB access logs, CloudFront access logs, and VPC Flow Logs stored in a single centralized S3 bucket with standardized prefixes. Access to this bucket from the logging services must be allowed without using a bucket ACL. How should the bucket policy be configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add a bucket ACL granting s3:PutObject to the ELB and CloudFront service accounts; VPC Flow Logs use a separate IAM role that needs s3:PutObject."
+      },
+      {
+        "label": "B",
+        "text": "Use an S3 Access Point for each log source with a separate policy per source; access points allow per-service permissions without modifying the bucket policy."
+      },
+      {
+        "label": "C",
+        "text": "Configure a bucket policy that allows s3:PutObject from the ELB service principal (elasticloadbalancing.amazonaws.com), the CloudFront log delivery service (delivery.logs.amazonaws.com), and the VPC Flow Logs service principal (vpc-flow-logs.amazonaws.com), scoped to the appropriate key prefixes."
+      },
+      {
+        "label": "D",
+        "text": "Grant the bucket public write access and rely on bucket versioning to prevent log tampering from unauthorized principals."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "All three logging services deliver to S3 using service principals. A single bucket policy with Allow statements for each service principal (scoped by prefix using condition keys) enables delivery without ACLs. ELB requires s3:PutObject and s3:GetBucketAcl; CloudFront uses delivery.logs.amazonaws.com.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "s3",
+      "bucket-policy",
+      "elb",
+      "cloudfront",
+      "vpc-flow-logs"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-015",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses AWS Config to record all configuration changes. A compliance team asks whether Config records changes to items like S3 object contents or DynamoDB table data. What is the accurate answer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config records all API activity including data-plane operations like S3 object writes and DynamoDB PutItem calls as configuration changes."
+      },
+      {
+        "label": "B",
+        "text": "AWS Config records changes to AWS resource configurations (metadata, settings, relationships) \u2014 not data-plane operations like object contents or database records. CloudTrail data events capture those operations."
+      },
+      {
+        "label": "C",
+        "text": "AWS Config records S3 bucket configuration changes but also captures object-level metadata such as object sizes and encryption status for each stored object."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config can be extended with custom rules to monitor DynamoDB table data contents and flag records matching specific patterns."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Config is a resource configuration service \u2014 it tracks settings, attributes, and relationships of AWS resources (bucket policies, instance types, security group rules). It does not record the data stored in S3 buckets or DynamoDB tables. CloudTrail data events cover API-level data operations.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "aws-config",
+      "scope",
+      "cloudtrail",
+      "data-events"
+    ]
+  },
+  {
+    "id": "scs-d2-t3-016",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company needs to prove to an auditor that no privileged actions (such as iam:CreateUser or ec2:AuthorizeSecurityGroupIngress) were taken outside of an approved change management window. What is the most reliable way to produce this evidence?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Audit Manager with a custom control that maps to the change management requirement; Audit Manager collects CloudTrail evidence automatically for the control period."
+      },
+      {
+        "label": "B",
+        "text": "Use CloudWatch Logs Insights to search the CloudTrail log group for privileged events, filtered by eventTime to show only activity outside approved change windows."
+      },
+      {
+        "label": "C",
+        "text": "Export IAM credential reports for the relevant time period to show that no privileged users had active access keys outside the change window."
+      },
+      {
+        "label": "D",
+        "text": "Export CloudTrail logs from the change window periods and use Athena to query for the specified API call event names, filtering by the timestamp field to include only events outside the approved windows."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Athena querying CloudTrail logs in S3 is the most reliable audit-evidence method: queries are precise, reproducible, and can be exported. Filtering by eventName IN ('iam:CreateUser', 'ec2:AuthorizeSecurityGroupIngress',...) and eventTime outside the approved window provides court-admissible evidence.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "athena",
+      "audit",
+      "change-management"
+    ]
+  }
+]

@@ -1,0 +1,7 @@
+name: Config
+description: Default issue template chooser
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Choose a template below. For questions, open a [Discussion](https://github.com/Sking-4242/archonv1/discussions) if enabled, or refer to [GETTING_STARTED.md](../GETTING_STARTED.md).

@@ -31,6 +31,48 @@ Right-sizing: match instance types to actual workload (CloudWatch metrics show C
 
 Cost optimization is continuous: measure, allocate, optimize, repeat. Tag everything for attribution. Use Cost Explorer and Budgets for visibility. Trusted Advisor identifies low-hanging fruit. The four levers: right-size, purchase strategically, eliminate waste, and optimize architecture. Cost should be a first-class architecture requirement, not an afterthought.
 
+## Examples
+
+A mid-sized e-commerce startup receives their first $40,000 AWS bill and has no idea which product feature or team caused a sudden spike. When they enable resource tagging — adding `Environment`, `Team`, and `Application` tags to every resource and activating those as Cost Allocation Tags — they discover that a new recommendation engine running on oversized EC2 instances accounts for 35% of spend. This is the most beginner-friendly illustration of why tagging is the foundation of cost management: without attribution, optimization is guesswork.
+
+A SaaS company runs a reporting service on `m5.4xlarge` instances that show consistent CPU utilization of 8–12% in CloudWatch. Using Cost Explorer's rightsizing recommendations, their platform engineer downsizes the fleet to `m5.large`, cutting that service's compute cost by 70% with no performance impact. This is right-sizing in practice — the consumption model only saves money when you match resources to actual demand, not theoretical peaks.
+
+A fintech company adopts a FinOps practice where every team's sprint planning includes a review of their tagged AWS spend from the previous two weeks. When the data engineering team's CUR query shows that a forgotten EMR cluster ran idle over a holiday weekend, the cost is immediately attributed, ownership is clear, and they add an automatic cluster termination policy. This scenario illustrates how the Well-Architected Cost Pillar's emphasis on "measuring overall efficiency" changes team behavior — cost becomes a shared engineering metric, not just a finance concern.
+
+## Think About It
+
+1. Why might total AWS spend be a misleading metric for measuring whether your cloud costs are under control? What metric would be more meaningful, and how would you calculate it?
+2. A company insists they don't need tagging because they only have one AWS account and one product. What specific problem will they run into in 18 months, and how does tagging prevent it?
+3. Trusted Advisor flags an EC2 instance as underutilized based on CPU. What information would you want before acting on that recommendation, and what could go wrong if you right-size without that context?
+4. What trade-offs exist between using managed services (which often cost more per unit of compute) versus self-managed infrastructure? Under what workload or team conditions does each approach win on total cost of ownership?
+5. How would you decide which of the four cost levers — right-sizing, purchasing options, eliminating waste, or architecture optimization — to tackle first for a new engineering team that has just moved to AWS?
+
+## Quick Check
+
+**Q1.** Which AWS feature allows you to filter billing data by team or application, turning a single large invoice into per-team cost reports?
+- A) AWS Budgets alert thresholds
+- B) Cost Allocation Tags enabled in the Billing console
+- C) CloudWatch cost metrics
+- D) Reserved Instance utilization reports
+
+**Answer: B** — Cost Allocation Tags, once activated in the Billing console, surface as filterable dimensions in Cost Explorer and the Cost and Usage Report, enabling per-team or per-application cost attribution.
+
+**Q2.** According to the AWS Well-Architected Cost Optimization Pillar, why should you favor managed services even when their per-unit cost is higher than self-managed alternatives?
+- A) Managed services always have lower latency
+- B) Managed services qualify for additional AWS discounts automatically
+- C) Developer and operational time has a real cost that per-unit pricing comparisons ignore
+- D) Managed services are exempt from data transfer charges
+
+**Answer: C** — The pillar explicitly calls out "avoiding undifferentiated heavy lifting" — managing your own infrastructure consumes engineering time that has a cost, making managed services frequently cheaper in total cost of ownership even at a higher unit price.
+
+**Q3.** What is the most granular source of AWS billing data, and how is it typically queried for custom analytics?
+- A) AWS Budgets reports, queried via the Budgets API
+- B) Cost Explorer exports, queried in QuickSight
+- C) The Cost and Usage Report (CUR), delivered to S3 and queried with Athena
+- D) Trusted Advisor findings, exported to CloudWatch Logs
+
+**Answer: C** — The Cost and Usage Report is the authoritative, line-item billing dataset that Cost Explorer itself is derived from; it lands in S3 and is commonly analyzed with Athena SQL queries for custom FinOps reporting.
+
 ## What's Next
 
 Next up: Reserved Instances, Savings Plans, and Spot Instances — purchasing strategies.

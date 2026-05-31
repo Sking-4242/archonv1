@@ -1,0 +1,535 @@
+[
+  {
+    "id": "scs-d6-t1-001",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants a managed service that aggregates security findings from GuardDuty, Inspector, and Macie into a single dashboard with a security score. Which AWS service satisfies this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Security Hub, which collects findings from multiple AWS security services and assigns a security score based on enabled standards."
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor, which checks your AWS environment against best practices across cost, performance, and security categories."
+      },
+      {
+        "label": "C",
+        "text": "Amazon CloudWatch, which collects metrics from AWS services and displays them on customizable dashboards for visibility."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config, which tracks resource configuration changes and evaluates resources against defined compliance rules."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Security Hub aggregates findings from GuardDuty, Inspector, Macie, and other services. It evaluates your environment against security standards and provides an overall security score.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "security-hub",
+      "findings-aggregation",
+      "security-score"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-002",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A team wants to automatically detect when an S3 bucket becomes publicly accessible and revert it to private. Which AWS service evaluates resource configurations continuously and can trigger automated remediation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config, which records configuration changes and can invoke Systems Manager Automation documents to remediate noncompliant resources."
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor, which provides real-time guidance on best practices but requires manual action to remediate issues."
+      },
+      {
+        "label": "C",
+        "text": "Amazon GuardDuty, which detects threats using log analysis but does not evaluate resource configuration compliance."
+      },
+      {
+        "label": "D",
+        "text": "Amazon Inspector, which scans EC2 instances and container images for software vulnerabilities and network exposures."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Config continuously monitors resource configurations. Config Rules flag noncompliant resources, and remediation actions (using SSM Automation) can automatically fix violations such as making a public S3 bucket private.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "aws-config",
+      "remediation",
+      "s3-compliance"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-003",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An enterprise is setting up a multi-account AWS environment. They want a consistent baseline of security controls, logging, and guardrails applied automatically to all new accounts. Which service is designed for this purpose?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Control Tower, which automates the setup of a landing zone with pre-configured guardrails, logging, and account vending for multi-account environments."
+      },
+      {
+        "label": "B",
+        "text": "AWS Service Catalog, which lets administrators create approved product portfolios but is not designed for account baseline governance."
+      },
+      {
+        "label": "C",
+        "text": "AWS Systems Manager, which manages operational tasks across instances but does not handle multi-account landing zone setup."
+      },
+      {
+        "label": "D",
+        "text": "AWS Organizations, which groups accounts into OUs and allows SCP attachment but does not automate baseline configuration or account provisioning."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Control Tower sets up a landing zone with pre-built guardrails, centralized logging (CloudTrail, Config), and account factory for provisioning new accounts with security baselines already applied.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "control-tower",
+      "landing-zone",
+      "multi-account"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-004",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security team needs to prevent any IAM user in member accounts from disabling AWS Config. They want this restriction enforced at the organization level. What is the correct approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS CloudTrail to log all Config API calls and create a Lambda function that re-enables Config if it is turned off."
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS Config aggregator so findings are visible centrally, and rely on Security Hub alerts to detect if Config is disabled."
+      },
+      {
+        "label": "C",
+        "text": "Attach an SCP to the root or relevant OUs that explicitly denies the config:StopConfigurationRecorder and config:DeleteConfigurationRecorder actions."
+      },
+      {
+        "label": "D",
+        "text": "Create an IAM policy in each member account that denies Config-related actions and attach it to all IAM users manually."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "SCPs applied at the organization root or OU level override any permissions in member accounts. An SCP denying config:StopConfigurationRecorder and config:DeleteConfigurationRecorder prevents any principal in those accounts from disabling Config.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "scp",
+      "aws-config",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-005",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A compliance officer wants evidence that AWS services used by the company meet specific regulatory standards such as SOC 2 and ISO 27001. Where can this documentation be obtained at no additional cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Artifact, which provides on-demand access to AWS compliance reports, certifications, and agreements at no charge."
+      },
+      {
+        "label": "B",
+        "text": "AWS Audit Manager, which collects evidence from AWS services but does not provide the underlying AWS compliance certifications."
+      },
+      {
+        "label": "C",
+        "text": "AWS Trusted Advisor, which offers best-practice checks but does not host regulatory compliance documentation or certifications."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config conformance packs, which map resources to compliance frameworks but do not provide official AWS audit reports."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Artifact is a self-service portal where customers can access AWS compliance reports (SOC 1/2/3, ISO certifications, PCI DSS AOC, etc.) and accept agreements like BAAs, all at no additional cost.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "aws-artifact",
+      "compliance-reports",
+      "audit"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-006",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security engineer wants to continuously collect evidence for audits \u2014 such as CloudTrail logs, Config snapshots, and IAM policy exports \u2014 mapped to specific compliance controls. Which AWS service automates this evidence collection?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon CloudWatch, which collects operational metrics and logs but is not designed to map evidence to audit control frameworks."
+      },
+      {
+        "label": "B",
+        "text": "AWS Artifact, which provides pre-built compliance reports from AWS but does not collect evidence specific to your account's resource configurations."
+      },
+      {
+        "label": "C",
+        "text": "AWS Audit Manager, which continuously collects evidence from AWS services and maps it to compliance frameworks like PCI DSS and HIPAA."
+      },
+      {
+        "label": "D",
+        "text": "AWS Security Hub, which aggregates security findings but does not generate audit-ready evidence reports mapped to compliance controls."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Audit Manager automates evidence collection by pulling data from AWS services (CloudTrail, Config, Security Hub) and mapping it to control frameworks such as PCI DSS, HIPAA, and NIST, producing audit-ready reports.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "audit-manager",
+      "evidence-collection",
+      "compliance"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-007",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An organization uses AWS Firewall Manager to enforce WAF rules across all accounts. A new account is added to AWS Organizations. What must be true for Firewall Manager policies to apply automatically to the new account?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The new account must be within the scope of the Firewall Manager policy's OU or account inclusion criteria and have AWS Config enabled."
+      },
+      {
+        "label": "B",
+        "text": "The new account must manually subscribe to Firewall Manager by accepting an invitation from the administrator account."
+      },
+      {
+        "label": "C",
+        "text": "The new account must have GuardDuty enabled before Firewall Manager can deploy WAF rules to its resources."
+      },
+      {
+        "label": "D",
+        "text": "Firewall Manager applies only to accounts that existed before the policy was created and does not cover new accounts automatically."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Firewall Manager automatically applies policies to new accounts that fall within the defined scope (OU, tags, or all accounts). AWS Config must be enabled in those accounts as a prerequisite for Firewall Manager to function.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "firewall-manager",
+      "waf",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-008",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to define and enforce tagging standards across all AWS resources in all accounts. Non-compliant resources should be flagged automatically. Which service provides this capability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS CloudFormation StackSets, which can deploy tagged resources but do not continuously monitor existing resources for tag compliance."
+      },
+      {
+        "label": "B",
+        "text": "AWS Cost Explorer, which can display resources by tag but does not enforce tagging policies or flag non-compliance."
+      },
+      {
+        "label": "C",
+        "text": "AWS Config with the required-tags managed rule, which checks whether specified tags are present on resources and marks non-compliant ones."
+      },
+      {
+        "label": "D",
+        "text": "IAM tag-based conditions, which can restrict actions based on tags but do not detect or report resources that are missing required tags."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The AWS Config managed rule `required-tags` evaluates whether resources have specified tag keys and values. Non-compliant resources are flagged in the Config dashboard, enabling enforcement of tagging standards.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "aws-config",
+      "tagging",
+      "compliance"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-009",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security team needs to view a consolidated list of all Security Hub findings across 20 AWS accounts from a single management account. What must be configured to achieve this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Export Security Hub findings from each account to a shared S3 bucket and use Athena to query the combined dataset."
+      },
+      {
+        "label": "B",
+        "text": "Use CloudWatch cross-account dashboards to pull Security Hub metrics from each account into a central monitoring view."
+      },
+      {
+        "label": "C",
+        "text": "Enable Security Hub in all accounts and configure a delegated administrator account to aggregate findings from all member accounts."
+      },
+      {
+        "label": "D",
+        "text": "Create IAM cross-account roles in each member account and query Security Hub APIs from the management account using those roles."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Security Hub supports a delegated administrator model. When a delegated admin account is configured within AWS Organizations, it automatically receives aggregated findings from all member accounts where Security Hub is enabled.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "security-hub",
+      "delegated-admin",
+      "multi-account"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-010",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A developer asks which type of security control prevents a misconfiguration from occurring, rather than detecting it after it happens. What term describes this type of control?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A corrective control, which takes action to restore normal state after a security incident or misconfiguration is discovered."
+      },
+      {
+        "label": "B",
+        "text": "A responsive control, which investigates the root cause of a misconfiguration and documents remediation steps for future reference."
+      },
+      {
+        "label": "C",
+        "text": "A detective control, which identifies and alerts on misconfigurations or events after they have already occurred in the environment."
+      },
+      {
+        "label": "D",
+        "text": "A preventive control, which blocks or restricts actions before they can result in a misconfiguration or security violation."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Preventive controls stop unwanted actions before they happen \u2014 examples include SCPs, IAM deny policies, and S3 Block Public Access. Detective controls (like GuardDuty and Config) identify issues after they occur.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "control-types",
+      "preventive",
+      "detective"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-011",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to ensure that all EC2 instances launched in any account use only approved AMIs from a specific list. Which combination of services enforces this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor scans for non-approved AMIs, and CloudWatch alarms notify the team when an unapproved AMI is launched."
+      },
+      {
+        "label": "B",
+        "text": "AWS License Manager tracks AMI usage across accounts and blocks launches automatically when an unapproved AMI is detected."
+      },
+      {
+        "label": "C",
+        "text": "IAM permission boundaries in each account that restrict ec2:RunInstances to specific users, preventing unauthorized AMI usage."
+      },
+      {
+        "label": "D",
+        "text": "An SCP at the organization level that denies ec2:RunInstances unless the image ID matches the approved AMI list, combined with AWS Config to audit existing instances."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "An SCP with a Deny on ec2:RunInstances using a StringNotEquals condition on ec2:ImageID prevents launches with non-approved AMIs at the organization level. AWS Config provides ongoing compliance auditing.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "scp",
+      "ami",
+      "ec2-governance"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-012",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A governance team needs to assess how well their AWS environment aligns with the CIS AWS Foundations Benchmark. Which Security Hub feature provides this automated assessment?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Inspector, which scans for vulnerabilities in compute resources but does not assess account-level CIS Benchmark controls."
+      },
+      {
+        "label": "B",
+        "text": "AWS Config conformance packs, which can approximate CIS controls but do not provide the same integrated scoring as Security Hub."
+      },
+      {
+        "label": "C",
+        "text": "Security Hub security standards, which include the CIS AWS Foundations Benchmark and automatically check controls against your environment."
+      },
+      {
+        "label": "D",
+        "text": "AWS Trusted Advisor, which evaluates your environment against best practices but does not map to the CIS Benchmark specifically."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Security Hub includes built-in security standards including the CIS AWS Foundations Benchmark and AWS Foundational Security Best Practices. It runs automated checks and produces a compliance score per standard.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "security-hub",
+      "cis-benchmark",
+      "security-standards"
+    ]
+  },
+  {
+    "id": "scs-d6-t1-013",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's Control Tower landing zone uses an SCP that prevents member accounts from leaving the organization. A developer attempts to leave the organization from a member account but receives an access denied error. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The AWS Organizations service requires the management account administrator to approve any leave request from a member account."
+      },
+      {
+        "label": "B",
+        "text": "The developer's IAM user lacks the organizations:LeaveOrganization permission in their IAM policy within the member account."
+      },
+      {
+        "label": "C",
+        "text": "AWS Control Tower enables MFA delete on member accounts, requiring multi-factor authentication before the account can leave the organization."
+      },
+      {
+        "label": "D",
+        "text": "An SCP attached to the OU containing the member account denies the organizations:LeaveOrganization action, overriding any IAM permissions."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "SCPs act as guardrails that can deny actions even if an IAM policy in the account would otherwise allow them. A Control Tower guardrail SCP denying organizations:LeaveOrganization prevents any principal in member accounts from performing this action.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "scp",
+      "control-tower",
+      "organizations"
+    ]
+  }
+]

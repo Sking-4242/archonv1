@@ -51,6 +51,52 @@ This layering maps directly to the AWS Shared Responsibility Model, which we cov
 
 IaaS, PaaS, and SaaS represent increasing levels of abstraction and decreasing levels of management responsibility. EC2 is IaaS — you manage the OS and above. Lambda and RDS are PaaS — you manage only code and data. SaaS products like WorkMail deliver finished applications. Choosing the right model means balancing control against operational overhead. On the CCP exam, you'll often be asked to classify AWS services into these categories.
 
+## Examples
+
+A small digital agency building client websites represents a straightforward PaaS use case. Their developers push code to AWS Elastic Beanstalk and let AWS handle the rest — provisioning EC2 instances, configuring load balancers, running health checks, and swapping in new versions with zero downtime. The agency has no sysadmin on staff and no interest in learning Linux administration. PaaS gives them a production-grade deployment pipeline without the operational overhead of IaaS, and they're productive on day one.
+
+A financial services company migrating a legacy risk-calculation platform illustrates why IaaS is sometimes the right answer even when more managed options exist. Their platform runs on a custom-compiled version of a Linux kernel with specific memory settings and security modules that no PaaS environment supports. They lift the system to EC2, maintaining full control over the OS and configuration, and accept the operational burden in exchange for the flexibility to run software that could not exist in a PaaS or SaaS model. The migration saves them data center costs without requiring an expensive rewrite.
+
+Consider a company evaluating whether to build their own video conferencing tool versus buying Zoom (SaaS). Building it themselves on IaaS or PaaS would require months of engineering, ongoing maintenance, global CDN infrastructure, and real-time protocol expertise. Zoom — which itself runs on AWS — handles all of that and delivers the finished product for a monthly per-seat fee. The company's competitive advantage is not video conferencing software, so SaaS is the obvious choice. The insight here is that the right service model depends on whether the capability is differentiating for your business.
+
+## Think About It
+
+1. AWS Lambda is often described as "serverless," but it's actually PaaS — you deploy code and AWS manages the execution environment. Why do you think AWS markets it differently from Elastic Beanstalk, even though both are PaaS? What does the distinction reveal about how customers think about operational responsibility?
+
+2. If a company uses Amazon RDS (managed database), they don't patch the database engine — AWS does. But if there's a data breach because of a misconfigured security group (their responsibility), who is liable? How does the service model affect your security posture, not just your operational burden?
+
+3. As you move from IaaS to PaaS to SaaS, you gain convenience but lose customization. Describe a scenario where a company started with SaaS, hit a wall because of customization limits, and had to move back toward IaaS or PaaS. What does this "reverse migration" cost?
+
+4. Many organizations run all three models simultaneously — EC2 for legacy apps (IaaS), Lambda for new microservices (PaaS), and Salesforce for CRM (SaaS). What governance and security challenges does this multi-model reality create that a purely IaaS shop wouldn't face?
+
+5. The shared responsibility model says security is "in" the cloud versus "of" the cloud. How does that division shift as you move from EC2 (IaaS) to RDS (PaaS) to WorkMail (SaaS)? Which model gives the customer the smallest attack surface to manage?
+
+## Quick Check
+
+**Q1.** A company deploys their application to Amazon EC2 and is responsible for patching the operating system. Which service model does this represent?
+- A) SaaS
+- B) PaaS
+- C) IaaS
+- D) FaaS
+
+**Answer: C** — EC2 is IaaS: AWS manages the physical infrastructure and hypervisor, but the customer is responsible for the operating system and everything above it, including patching.
+
+**Q2.** Which of the following best describes the customer's responsibility when using a SaaS product?
+- A) Managing the operating system and runtime
+- B) Managing application code and deployment
+- C) Managing data (and sometimes user configuration)
+- D) Managing physical servers and networking
+
+**Answer: C** — With SaaS, the provider manages everything from infrastructure through the application itself. The customer typically only controls their own data and user-level settings.
+
+**Q3.** AWS Elastic Beanstalk and AWS Lambda are both examples of which service model?
+- A) IaaS
+- B) PaaS
+- C) SaaS
+- D) DaaS
+
+**Answer: B** — Both are PaaS: developers deploy code (or functions), and AWS manages the underlying infrastructure, OS, runtime, and scaling, freeing developers from operational tasks.
+
 ## What's Next
 
 Next, we cover cloud deployment models: public cloud, private cloud, hybrid cloud, and community cloud — and when each applies.

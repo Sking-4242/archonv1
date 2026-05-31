@@ -1,0 +1,589 @@
+[
+  {
+    "id": "scs-d6-t5-001",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team designates the security account as the delegated administrator for Security Hub in AWS Organizations. After delegation, the team expects all existing member accounts to automatically have Security Hub enabled. Member accounts do not show Security Hub findings. What is the most likely reason?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Security Hub requires a service-linked role in each member account before delegation can propagate findings to the administrator."
+      },
+      {
+        "label": "B",
+        "text": "Delegated administration only applies to newly created accounts; existing accounts must be manually enabled through the Security Hub console or API."
+      },
+      {
+        "label": "C",
+        "text": "Auto-enable must be turned on in the delegated administrator account; without it, existing member accounts are not automatically enrolled."
+      },
+      {
+        "label": "D",
+        "text": "The management account must first enable Security Hub before the delegated administrator account can enroll member accounts."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "When you designate a delegated administrator for Security Hub, the auto-enable setting controls whether existing and new member accounts are automatically enrolled. If auto-enable is not activated, existing accounts remain unenrolled and their findings do not appear in the administrator account. You must explicitly toggle auto-enable or add accounts individually.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "security-hub",
+      "delegated-administrator",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-002",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An organization uses Control Tower Account Factory for Terraform (AFT) to provision new accounts. A pipeline run fails because the AFT customization stage cannot assume the target account role. The AFT management account role and the target account AWSAFTExecution role both exist. What should the engineer verify first?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Verify that the Terraform state bucket in the AFT management account has a bucket policy granting the target account read access."
+      },
+      {
+        "label": "B",
+        "text": "Verify that Control Tower has finished account enrollment before AFT triggers the customization pipeline for the new account."
+      },
+      {
+        "label": "C",
+        "text": "Verify that the AWSAFTExecution role in the target account trusts the AFT management account pipeline role ARN in its trust policy."
+      },
+      {
+        "label": "D",
+        "text": "Verify that the AFT management account role has a trust policy allowing the CodePipeline service principal to assume it during the pipeline run."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AFT customization relies on cross-account role assumption. The AWSAFTExecution role in each provisioned account must explicitly trust the AFT management account pipeline role ARN. If that trust relationship is missing or references the wrong ARN, the customization stage cannot assume the role and fails. This is the first thing to confirm before investigating pipeline service principals or Terraform state access.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "control-tower",
+      "aft",
+      "account-factory",
+      "iac"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-003",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An AWS Organizations hierarchy has Root, OU-A, OU-B nested under OU-A, and Account-X in OU-B. A SCP attached to OU-A denies ec2:TerminateInstances. A separate SCP attached to OU-B explicitly allows ec2:TerminateInstances. An IAM administrator in Account-X attempts to terminate an instance. What is the result?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The action fails because an explicit deny at any level of the SCP hierarchy overrides any allow lower in the same hierarchy."
+      },
+      {
+        "label": "B",
+        "text": "The action fails because SCPs use an implicit deny by default and the explicit allow on OU-B has no effect without a matching IAM policy."
+      },
+      {
+        "label": "C",
+        "text": "The action succeeds because an allow SCP always takes precedence over a deny SCP when both target the same action."
+      },
+      {
+        "label": "D",
+        "text": "The action succeeds because the allow SCP on OU-B is closer in the hierarchy and overrides the parent deny."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "SCP evaluation follows the same explicit-deny-wins rule as IAM policies. A deny SCP on a parent OU propagates to all child OUs and accounts. An explicit allow SCP on a child OU cannot override an explicit deny from a parent. Account-X inherits the deny from OU-A, so ec2:TerminateInstances is blocked regardless of the allow SCP on OU-B.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "scp",
+      "organizations",
+      "ou-hierarchy",
+      "policy-evaluation"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-004",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A central security account runs an AWS Config aggregator collecting data from all member accounts. After adding a new source account, the aggregator shows no data from it even though the Config recorder is running in the source account. What additional step is required?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The source account must grant authorization to the aggregator account through the Config console or PutAggregationAuthorization API."
+      },
+      {
+        "label": "B",
+        "text": "The source account must add the aggregator account as a delegated administrator in AWS Organizations."
+      },
+      {
+        "label": "C",
+        "text": "Enable AWS Config aggregation in the management account and add the source account to the aggregator source list."
+      },
+      {
+        "label": "D",
+        "text": "Create a cross-account IAM role in the source account that trusts the Config service principal in the aggregator account."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "For individual-account aggregation outside of AWS Organizations, each source account must explicitly authorize the aggregator account via PutAggregationAuthorization. Without this authorization, the aggregator cannot pull configuration data even if the Config recorder is active. Organizations-based aggregation bypasses this requirement but requires the aggregator to be in the management or delegated admin account.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "config-aggregator",
+      "authorization",
+      "multi-account"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-005",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A Security Hub analyst creates a custom action button to send a finding to a ticketing system via EventBridge. After creating the custom action in Security Hub, the analyst clicks it on a finding but no events appear in EventBridge. What is the most likely missing configuration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The custom action ARN must be added to a Security Hub insight filter so that matching findings are automatically forwarded to EventBridge."
+      },
+      {
+        "label": "B",
+        "text": "An SNS topic subscription must be created to relay Security Hub custom action events before EventBridge can receive them."
+      },
+      {
+        "label": "C",
+        "text": "An EventBridge rule with source aws.securityhub and detail-type Security Hub Findings - Custom Action must be created to route events to the ticketing target."
+      },
+      {
+        "label": "D",
+        "text": "Security Hub must have the native EventBridge integration enabled in the Security Hub settings page to forward custom action events."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Security Hub custom actions publish events to the default EventBridge event bus with source aws.securityhub and detail-type 'Security Hub Findings - Custom Action'. An EventBridge rule with that matching pattern must exist and reference the desired target. Creating the custom action in Security Hub is not sufficient \u2014 the EventBridge rule is a separate required step.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "security-hub",
+      "custom-action",
+      "eventbridge",
+      "workflow"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-006",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A compliance team is building an Audit Manager custom framework for a new internal control standard. They want each control set to automatically collect evidence from both AWS Config rule evaluations and Security Hub findings. Which approach correctly maps evidence sources in Audit Manager custom controls?",
+    "options": [
+      {
+        "label": "A",
+        "text": "In each control, specify data source type AWS Config for Config rules and Security Hub for findings; Audit Manager collects evidence automatically from both per assessment cadence."
+      },
+      {
+        "label": "B",
+        "text": "Create a Lambda function that queries Config and Security Hub then uploads evidence using the Audit Manager BatchImportEvidenceToAssessmentControl API."
+      },
+      {
+        "label": "C",
+        "text": "Configure an EventBridge rule to forward Config compliance changes and Security Hub findings to an Audit Manager assessment S3 bucket."
+      },
+      {
+        "label": "D",
+        "text": "Use only AWS managed evidence sources; custom frameworks cannot reference Config rules or Security Hub findings as data sources."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Audit Manager custom frameworks support specifying data sources at the individual control level. You set the data source type to AWS Config, referencing specific rule names, or to Security Hub, referencing control IDs or finding filters. Audit Manager then automatically collects and attaches evidence on the assessment schedule without requiring Lambda functions or manual uploads.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "audit-manager",
+      "custom-framework",
+      "config",
+      "security-hub",
+      "compliance"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-007",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A networking team wants to share a Transit Gateway with spoke accounts inside the same AWS Organization without requiring cross-account IAM permissions in the spoke accounts. What is the correct sharing mechanism?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create cross-account IAM roles in each spoke account granting ec2:AttachToTransitGateway, trusting the Transit Gateway owner account ARN."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Resource Access Manager (RAM) to share the Transit Gateway at the Organizations or OU level, allowing spoke accounts to attach VPCs without cross-account IAM roles."
+      },
+      {
+        "label": "C",
+        "text": "Create a VPC peering connection from each spoke VPC to the Transit Gateway owner account VPC to enable transitive routing between accounts."
+      },
+      {
+        "label": "D",
+        "text": "Enable resource sharing in the management account and use Service Control Policies to allow spoke accounts to describe the shared Transit Gateway."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS RAM is the correct mechanism for sharing resources like Transit Gateways across accounts without cross-account IAM roles. When sharing at the Organizations or OU level, member accounts can see and use the shared resource automatically. VPC peering is not applicable to Transit Gateways, and cross-account IAM roles are not required for RAM-shared resource attachment.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "ram",
+      "transit-gateway",
+      "resource-sharing",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-008",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "Control Tower has a preventive guardrail enabled to block public S3 bucket creation across all enrolled accounts. An audit reveals a public bucket exists in a member account. No SCP exceptions were granted. A detective guardrail flagged the bucket. What is the most plausible explanation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The bucket was created before the preventive guardrail was enabled; SCPs do not retroactively remove or block pre-existing non-compliant resources."
+      },
+      {
+        "label": "B",
+        "text": "The preventive guardrail SCP did not propagate to the member account because the account resides in a nested OU requiring separate guardrail attachment."
+      },
+      {
+        "label": "C",
+        "text": "Preventive guardrails are implemented as Config rules and do not block resource creation; they only flag noncompliant resources after the fact."
+      },
+      {
+        "label": "D",
+        "text": "The member account IAM administrator role has an explicit allow policy that takes precedence over the SCP guardrail for S3 bucket operations."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Preventive guardrails in Control Tower are implemented as SCPs and block future non-compliant actions. However, they do not retroactively remove or modify resources that existed before the guardrail was applied or before the account was enrolled in the relevant OU. Detective guardrails (Config rules) then surface these pre-existing violations. The bucket's existence indicates it predates enforcement, not that the SCP failed.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "control-tower",
+      "guardrail",
+      "preventive",
+      "detective",
+      "scp"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-009",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "Before deploying a new SCP that denies s3:DeleteBucket across all production accounts, a security engineer wants to validate which principals would be affected without deploying the policy. Which approach best achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use the IAM Policy Simulator by selecting an IAM principal in the target account and providing the draft SCP JSON as an additional context policy to evaluate effective permissions."
+      },
+      {
+        "label": "B",
+        "text": "Create the SCP in Organizations in a draft state and run SimulatePrincipalPolicy against accounts in the target OU to test effective permissions before activating it."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Access Analyzer policy validation to scan the SCP JSON for syntax errors and confirm the deny statement is correctly formed."
+      },
+      {
+        "label": "D",
+        "text": "Apply the SCP to a non-production OU that mirrors the production configuration, verify behavior there, then apply findings to the production OU."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The IAM Policy Simulator supports simulating the effect of SCPs by including the SCP JSON as an additional policy in the simulation context. This lets engineers test what actions would be denied for specific principals without deploying the SCP. Option B describes a feature that does not exist (Organizations draft SCP state). Option C involves actual deployment. Access Analyzer validates syntax but does not simulate runtime permission evaluation.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "scp",
+      "policy-simulator",
+      "organizations",
+      "testing"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-010",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A Security Hub administrator tracks analyst triage activity via workflow status. An analyst reviews a finding, contacts the resource owner, then confirms remediation is complete. Which workflow status sequence correctly represents this scenario?",
+    "options": [
+      {
+        "label": "A",
+        "text": "NEW \u2192 NOTIFIED \u2192 RESOLVED"
+      },
+      {
+        "label": "B",
+        "text": "NEW \u2192 RESOLVED \u2192 NOTIFIED \u2192 SUPPRESSED"
+      },
+      {
+        "label": "C",
+        "text": "NEW \u2192 NOTIFIED \u2192 SUPPRESSED \u2192 RESOLVED"
+      },
+      {
+        "label": "D",
+        "text": "NEW \u2192 SUPPRESSED \u2192 NOTIFIED \u2192 RESOLVED"
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Security Hub finding workflow statuses are analyst-driven. A finding starts as NEW. When the analyst contacts the resource owner, the status moves to NOTIFIED. Once remediation is confirmed, it moves to RESOLVED. SUPPRESSED is used when a finding is intentionally excluded from active metrics and is not a required step in a standard triage-to-resolution workflow. The correct sequence is NEW \u2192 NOTIFIED \u2192 RESOLVED.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "security-hub",
+      "workflow-status",
+      "finding-lifecycle",
+      "triage"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-011",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A healthcare company migrating to AWS must have a HIPAA Business Associate Agreement (BAA) in place before storing Protected Health Information. Where must the BAA be accepted and what is the scope of that acceptance?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Submit a support ticket to AWS Enterprise Support requesting a BAA; AWS Legal countersigns and applies the agreement to designated accounts within five business days."
+      },
+      {
+        "label": "B",
+        "text": "Accept the BAA through AWS Marketplace for each HIPAA-eligible service separately; acceptance applies per service per account."
+      },
+      {
+        "label": "C",
+        "text": "The BAA activates automatically when you enable AWS Config and tag the account with DataClassification=PHI in account settings."
+      },
+      {
+        "label": "D",
+        "text": "Accept the BAA in AWS Artifact under Agreements using an authorized IAM user or root; the acceptance covers the entire AWS account for all HIPAA-eligible services."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Artifact is the self-service portal for compliance documents and agreements. The HIPAA BAA is accepted in the Agreements section of AWS Artifact. Once accepted, it covers the account for all HIPAA-eligible AWS services \u2014 there is no per-service acceptance. The acceptance requires an IAM principal with the artifact:AcceptAgreement permission or the root user.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "artifact",
+      "baa",
+      "hipaa",
+      "compliance",
+      "agreements"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-012",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team uses AWS Firewall Manager to enforce a WAF ACL on all internet-facing Application Load Balancers across accounts in a specific OU. Resources tagged Environment=Dev must be excluded. Which Firewall Manager scope configuration achieves this in a single policy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Set policy scope to all accounts and create a separate SCP that prevents WAF associations on resources tagged Environment=Dev."
+      },
+      {
+        "label": "B",
+        "text": "Set the policy scope to include the target OU and add a resource tag exclusion for Environment=Dev; Firewall Manager skips tagged resources within that OU scope."
+      },
+      {
+        "label": "C",
+        "text": "Apply the policy to the OU and rely on WAF managed rule group scope-down statements to exclude Dev-tagged resources from evaluation."
+      },
+      {
+        "label": "D",
+        "text": "Create two policies: one including the OU and a second explicitly excluding accounts with Dev resources; Firewall Manager merges them at evaluation time."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Firewall Manager policy scope natively supports OU-level targeting combined with resource tag inclusion or exclusion filters. Setting the scope to the target OU and adding a tag exclusion for Environment=Dev causes Firewall Manager to apply the WAF ACL to all ALBs in that OU except those with the exclusion tag. This is the native single-policy mechanism and does not require SCPs, multiple policies, or WAF scope-down statements.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "firewall-manager",
+      "policy-scope",
+      "tag-exclusion",
+      "waf",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t5-013",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An AWS Config rule triggers automatic remediation via a Systems Manager Automation document. Certain legacy resources must never be auto-remediated. The team cannot modify the Config rule or the SSM document. What is the correct approach to prevent auto-remediation for only those resources?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a Config remediation exception for each resource using PutRemediationExceptions; Config still flags them as noncompliant but will not invoke auto-remediation."
+      },
+      {
+        "label": "B",
+        "text": "Tag each legacy resource with AWS_CONFIG_REMEDIATION_EXCEPTION=true so the SSM Automation document checks the tag and skips execution."
+      },
+      {
+        "label": "C",
+        "text": "Add a resource-level exception in the Config console to mark each legacy resource as compliant, preventing the remediation action from triggering."
+      },
+      {
+        "label": "D",
+        "text": "Apply an SCP denying ssm:StartAutomationExecution for the specific resource ARNs to prevent the remediation document from running against them."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Config supports remediation exceptions via the PutRemediationExceptions API or the Exceptions tab in the console for a rule. Adding an exception causes Config to continue evaluating and reporting the resource as noncompliant for audit visibility while skipping auto-remediation for that resource. This does not require marking resources compliant, SCP changes, or custom tag logic embedded in SSM documents.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "config",
+      "remediation-exception",
+      "auto-remediation",
+      "legacy-resources"
+    ]
+  }
+]

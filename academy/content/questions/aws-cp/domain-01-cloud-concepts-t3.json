@@ -1,0 +1,1042 @@
+[
+  {
+    "id": "aws-cp-01-t3-001",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company runs its own data center and is responsible for purchasing hardware, hiring facilities staff, and managing power and cooling. After migrating to AWS, which cost categories are eliminated?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Hardware procurement, data center facilities, and undifferentiated infrastructure operations"
+      },
+      {
+        "label": "B",
+        "text": "Network bandwidth costs between AWS services"
+      },
+      {
+        "label": "C",
+        "text": "Software licensing and application development costs"
+      },
+      {
+        "label": "D",
+        "text": "All costs, since AWS provides free compute for the first year"
+      },
+      {
+        "label": "E",
+        "text": "Only cooling and power costs \u2014 hardware is still purchased"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "On AWS, customers stop spending on physical hardware purchases, data center leases, power, cooling, and the staff required to operate physical infrastructure. These undifferentiated tasks are handled by AWS so customers can focus on their applications.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "cloud-economics",
+      "data-center",
+      "opex",
+      "capex"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-002",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An architect is reviewing a production system that stopped working when a single database server failed. Which cloud design principle would have prevented this outage?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable encryption \u2014 protect the database with KMS"
+      },
+      {
+        "label": "B",
+        "text": "Design for failure \u2014 assume components will fail and build redundancy"
+      },
+      {
+        "label": "C",
+        "text": "Implement elasticity \u2014 add more capacity when load increases"
+      },
+      {
+        "label": "D",
+        "text": "Use managed services \u2014 migrate to a fully managed database"
+      },
+      {
+        "label": "E",
+        "text": "Apply cost optimization \u2014 use Spot Instances for the database"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "The 'design for failure' principle assumes that any component can fail at any time. By building redundant components (multi-AZ database, standby replicas), the system continues running even when a single component fails.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "design-for-failure",
+      "redundancy",
+      "high-availability",
+      "architecture"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-003",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A retail company's on-premises infrastructure handles average daily traffic well but is overwhelmed during the holiday shopping season. Their on-premises team must provision for peak capacity all year long. Which cloud characteristic solves this most directly?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Elasticity \u2014 automatically scale resources up during peak and down after"
+      },
+      {
+        "label": "B",
+        "text": "High availability \u2014 multiple servers are always running"
+      },
+      {
+        "label": "C",
+        "text": "Durability \u2014 data is protected against loss during peak traffic"
+      },
+      {
+        "label": "D",
+        "text": "Security \u2014 traffic spikes don't compromise data integrity"
+      },
+      {
+        "label": "E",
+        "text": "Reliability \u2014 systems recover quickly when they fail"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Elasticity lets you provision capacity for peak demand (holiday shopping) and release it when demand drops, so you pay only for what you actually use \u2014 rather than maintaining peak capacity year-round.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "elasticity",
+      "auto-scaling",
+      "seasonal-traffic",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-004",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A logistics company wants to launch a new application in a new country within weeks. Traditionally, expanding internationally requires purchasing hardware and leasing data center space, which takes months. Which cloud advantage enables rapid international expansion?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Economies of scale \u2014 AWS pricing decreases globally over time"
+      },
+      {
+        "label": "B",
+        "text": "Trade fixed expense for variable expense"
+      },
+      {
+        "label": "C",
+        "text": "Go global in minutes \u2014 deploy to AWS Regions worldwide"
+      },
+      {
+        "label": "D",
+        "text": "Stop spending money on data center operations"
+      },
+      {
+        "label": "E",
+        "text": "Stop guessing capacity \u2014 use only what you need"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS has Regions in every major geography. Deploying to a new Region takes minutes via CloudFormation or the console \u2014 replacing the months needed to procure hardware and build a local data center presence.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "global-reach",
+      "regions",
+      "cloud-advantages",
+      "international"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-005",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A startup chooses AWS over building its own data center. By using AWS, what shift occurs in how they think about infrastructure investment?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Infrastructure becomes a long-term capital investment, similar to buying property"
+      },
+      {
+        "label": "B",
+        "text": "Infrastructure is treated as a variable operating expense that scales with the business"
+      },
+      {
+        "label": "C",
+        "text": "Infrastructure costs are fixed and predictable regardless of usage"
+      },
+      {
+        "label": "D",
+        "text": "Infrastructure is free because AWS provides startup credits indefinitely"
+      },
+      {
+        "label": "E",
+        "text": "Infrastructure decisions are fully delegated to AWS with no customer input"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Moving to AWS converts infrastructure from capital expenditure (purchasing assets that depreciate) to variable operational expenditure (paying only for what you consume). This aligns infrastructure costs with business growth and eliminates idle capacity spending.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "opex",
+      "capex",
+      "variable-expense",
+      "cloud-economics"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-006",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An application stores customer data that must legally remain within Germany. The architecture team selects the eu-central-1 (Frankfurt) Region. What guarantee does this Region selection provide?",
+    "options": [
+      {
+        "label": "A",
+        "text": "All third-party services used will also stay in Germany, because AWS automatically enforces data residency for every dependency."
+      },
+      {
+        "label": "B",
+        "text": "AWS will audit the application on the customer's behalf and certify GDPR compliance as part of the standard enterprise support agreement."
+      },
+      {
+        "label": "C",
+        "text": "AWS guarantees sub-millisecond latency for German users by placing compute resources in the eu-central-1 Region near Frankfurt."
+      },
+      {
+        "label": "D",
+        "text": "Data stored in eu-central-1 will not leave that Region unless the customer explicitly."
+      },
+      {
+        "label": "E",
+        "text": "The application is automatically compliant with GDPR by virtue of running in an AWS Region within the European Union."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "All third-party services used will also stay in Germany, because AWS automatically enforces data residency for every dependency.",
+      "B": "AWS will audit the application on the customer's behalf and certify GDPR compliance as part of the standard enterprise support agreement.",
+      "C": "AWS guarantees sub-millisecond latency for German users by placing compute resources in the eu-central-1 Region near Frankfurt.",
+      "E": "The application is automatically compliant with GDPR by virtue of running in an AWS Region within the European Union."
+    },
+    "explanation": "AWS does not move data out of a Region you deploy to without your explicit configuration. Selecting eu-central-1 ensures data stays in Germany at the AWS infrastructure level \u2014 required for data residency compliance.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "data-residency",
+      "regions",
+      "gdpr",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-007",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "What is the purpose of AWS Edge Locations, and how do they differ from AWS Regions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Edge Locations are smaller points of presence used to cache content closer to users (CloudFront)"
+      },
+      {
+        "label": "B",
+        "text": "Edge Locations host EC2 instances for low-latency compute; Regions host only storage services"
+      },
+      {
+        "label": "C",
+        "text": "Edge Locations and Regions serve identical purposes but in different geographic areas"
+      },
+      {
+        "label": "D",
+        "text": "Edge Locations are used only for on-premises connectivity; Regions are for cloud workloads"
+      },
+      {
+        "label": "E",
+        "text": "Edge Locations are where AWS data centers are located; Regions are for content delivery"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS has 30+ Regions for deploying full infrastructure stacks (EC2, RDS, etc.) and 400+ Edge Locations used by CloudFront and Route 53 to cache content and resolve DNS close to end users globally.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "edge-locations",
+      "regions",
+      "cloudfront",
+      "global-infrastructure"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-008",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A hospital's application must continue running even during a major infrastructure event that takes down an entire city block. How should this application be architected on AWS?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable CloudTrail in all Regions to ensure visibility during an outage"
+      },
+      {
+        "label": "B",
+        "text": "Deploy to a single large EC2 instance in one data center with redundant EBS volumes"
+      },
+      {
+        "label": "C",
+        "text": "Deploy to a single AZ with multiple EC2 instances for redundancy"
+      },
+      {
+        "label": "D",
+        "text": "Use Amazon S3 for all compute needs since it is automatically multi-AZ"
+      },
+      {
+        "label": "E",
+        "text": "Deploy across multiple Availability Zones within a Region \u2014 each AZ has independent power."
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Each AWS Availability Zone has physically separate power, cooling, and networking from other AZs \u2014 typically miles apart. Distributing an application across multiple AZs means a localized disaster (fire, power failure) affecting one AZ does not impact the others.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "availability-zones",
+      "fault-tolerance",
+      "physical-isolation",
+      "high-availability"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-009",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's security team is responsible for patching software on their Amazon EC2 instances. According to the Shared Responsibility Model, what aspect of the same EC2 deployment is AWS responsible for?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The application code running on the instances"
+      },
+      {
+        "label": "B",
+        "text": "The firewall rules configured in security groups"
+      },
+      {
+        "label": "C",
+        "text": "The physical host hardware, virtualization layer, and global network infrastructure"
+      },
+      {
+        "label": "D",
+        "text": "The IAM policies granting access to the instances"
+      },
+      {
+        "label": "E",
+        "text": "The data stored on EBS volumes attached to the instances"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS manages all physical infrastructure: the servers, networking hardware, storage hardware, and the virtualization software (hypervisor) that EC2 runs on. The customer manages everything above the hypervisor \u2014 OS, applications, data, and network configurations.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "shared-responsibility",
+      "aws-responsibility",
+      "ec2",
+      "hypervisor"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-010",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A SaaS company uses Amazon Lambda and DynamoDB. Under the Shared Responsibility Model, which security task is entirely AWS's responsibility for these services?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Writing secure code in Lambda functions"
+      },
+      {
+        "label": "B",
+        "text": "Securing the data stored in DynamoDB tables"
+      },
+      {
+        "label": "C",
+        "text": "Configuring VPC endpoint policies for DynamoDB access"
+      },
+      {
+        "label": "D",
+        "text": "Patching and securing the underlying infrastructure and runtimes that"
+      },
+      {
+        "label": "E",
+        "text": "Enabling DynamoDB encryption with customer-managed KMS keys"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "For managed and serverless services, AWS's responsibility extends further up the stack. AWS patches Lambda runtime environments, secures the DynamoDB service infrastructure, and manages the physical hardware \u2014 tasks the customer has no access or ability to perform.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "shared-responsibility",
+      "serverless",
+      "lambda",
+      "dynamodb",
+      "managed-services"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-011",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's engineering team spends 60% of their time on server maintenance, OS patching, and capacity planning. After migrating to managed AWS services, how does this change?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS provides a dedicated team to manage the infrastructure on the customer's behalf"
+      },
+      {
+        "label": "B",
+        "text": "The team can redirect their time to building features because AWS handles the undifferentiated infrastructure tasks"
+      },
+      {
+        "label": "C",
+        "text": "The team must monitor AWS service health to detect outages proactively"
+      },
+      {
+        "label": "D",
+        "text": "The workload is the same \u2014 managed services still require patching by the customer"
+      },
+      {
+        "label": "E",
+        "text": "The team must hire AWS-certified staff to maintain the managed services"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS managed services handle undifferentiated heavy lifting (OS patching, hardware, scaling, availability). This frees engineering teams to focus on work that differentiates their business \u2014 building features, improving the product, and serving customers.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "managed-services",
+      "undifferentiated-heavy-lifting",
+      "productivity",
+      "cloud-advantages"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-012",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company deploying on AWS wants to implement infrastructure as code to ensure consistent environments across dev, staging, and production. Which approach aligns with this goal?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Trusted Advisor to copy configuration from one environment to another"
+      },
+      {
+        "label": "B",
+        "text": "Export production resource configurations as JSON and share them with the team"
+      },
+      {
+        "label": "C",
+        "text": "Copy production settings to staging manually after each change"
+      },
+      {
+        "label": "D",
+        "text": "Define all infrastructure in CloudFormation templates or CDK constructs, version-controlled in Git, and applied."
+      },
+      {
+        "label": "E",
+        "text": "Manually configure each environment in the AWS Console and document the steps in a runbook"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "Infrastructure as code uses declarative templates (CloudFormation) or code (CDK) stored in Git. A CI/CD pipeline applies them consistently to all environments, eliminating manual steps and environment drift.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "infrastructure-as-code",
+      "cloudformation",
+      "cicd",
+      "environment-consistency"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-013",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "Which AWS service enables customers to interact with multiple AWS services programmatically using consistent APIs, SDKs, and CLI tools \u2014 forming the foundation for automation and infrastructure as code?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor provides real-time guidance to help you provision resources following AWS best practices across cost, security, and performance."
+      },
+      {
+        "label": "B",
+        "text": "AWS CloudFormation lets you model and provision AWS and third-party resources in your cloud environment using infrastructure-as-code templates."
+      },
+      {
+        "label": "C",
+        "text": "AWS CLI and AWS SDKs backed by the AWS API"
+      },
+      {
+        "label": "D",
+        "text": "The AWS Management Console is a web-based interface that provides a graphical view of your AWS resources and allows point-and-click management."
+      },
+      {
+        "label": "E",
+        "text": "Amazon CloudWatch collects monitoring and operational data in the form of logs, metrics, and events from AWS resources and applications."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "AWS Trusted Advisor provides real-time guidance to help you provision resources following AWS best practices across cost, security, and performance.",
+      "B": "AWS CloudFormation lets you model and provision AWS and third-party resources in your cloud environment using infrastructure-as-code templates.",
+      "D": "The AWS Management Console is a web-based interface that provides a graphical view of your AWS resources and allows point-and-click management.",
+      "E": "Amazon CloudWatch collects monitoring and operational data in the form of logs, metrics, and events from AWS resources and applications."
+    },
+    "explanation": "The AWS API is the foundation for all interaction with AWS services. The CLI and SDKs (Python/Boto3, Java, Node.js, etc.) provide language-native access to these APIs, enabling automation, scripting, and IaC tooling to build on top.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "aws-api",
+      "cli",
+      "sdk",
+      "automation",
+      "programmatic-access"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-014",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A well-architected application on AWS is designed so that component A does not directly call component B. Instead, component A writes to a queue, and B reads from it. Which design principle does this implement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "High availability"
+      },
+      {
+        "label": "B",
+        "text": "Defense in depth"
+      },
+      {
+        "label": "C",
+        "text": "Loose coupling"
+      },
+      {
+        "label": "D",
+        "text": "Immutable infrastructure"
+      },
+      {
+        "label": "E",
+        "text": "Serverless-first"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Loose coupling decouples components by introducing an intermediary (queue, event bus, API) so they don't directly depend on each other's availability. If component B is down, A keeps writing to the queue \u2014 messages are not lost.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "loose-coupling",
+      "sqs",
+      "architecture",
+      "design-principles"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-015",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company runs a workload on AWS and has signed up for a Reserved Instance but their usage varies significantly. Some months the RI is fully utilized; other months their actual usage is far less than the reserved capacity. What happens to unused RI capacity?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS provides a credit for unused RI capacity that can be applied against future Reserved Instance purchases within the same account."
+      },
+      {
+        "label": "B",
+        "text": "AWS automatically applies unused RI capacity to other eligible instances in the same account that match the RI's instance type, Region, and tenancy."
+      },
+      {
+        "label": "C",
+        "text": "AWS refunds the unused portion of Reserved Instances at the end of each month on a pro-rated basis if usage falls below the reserved commitment level."
+      },
+      {
+        "label": "D",
+        "text": "Unused RI capacity from one month rolls over and is automatically applied to usage in the following month until the term expires."
+      },
+      {
+        "label": "E",
+        "text": "Unused RI capacity is not refunded \u2014 you pay for the full 1- or 3-year commitment regardless of whether you actually use the reserved capacity."
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "AWS provides a credit for unused RI capacity that can be applied against future Reserved Instance purchases within the same account.",
+      "B": "AWS automatically applies unused RI capacity to other eligible instances in the same account that match the RI's instance type, Region, and tenancy.",
+      "C": "AWS refunds the unused portion of Reserved Instances at the end of each month on a pro-rated basis if usage falls below the reserved commitment level.",
+      "D": "Unused RI capacity from one month rolls over and is automatically applied to usage in the following month until the term expires."
+    },
+    "explanation": "A Reserved Instance is a billing commitment \u2014 you pay for the reserved capacity whether or not you use it. This is why RIs are best suited to workloads with predictable, steady utilization. Variable workloads may benefit more from Savings Plans.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "reserved-instances",
+      "commitment",
+      "billing",
+      "cloud-economics"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-016",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "Which deployment model is being used when a company runs its customer-facing web application on AWS but keeps its core banking system on on-premises mainframes?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Community cloud deployment"
+      },
+      {
+        "label": "B",
+        "text": "Multi-cloud deployment"
+      },
+      {
+        "label": "C",
+        "text": "Hybrid cloud deployment"
+      },
+      {
+        "label": "D",
+        "text": "All-in cloud deployment"
+      },
+      {
+        "label": "E",
+        "text": "Private cloud deployment"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Hybrid cloud combines on-premises (or private cloud) infrastructure with public cloud services. The web tier running on AWS while the mainframe stays on-premises is a classic hybrid architecture.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "hybrid-cloud",
+      "deployment-models",
+      "on-premises",
+      "public-cloud"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-017",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's architecture review board asks why the dev team is provisioning 3x more EC2 instances than needed 'just in case' traffic grows. Which AWS advantage specifically makes this practice unnecessary?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Stop guessing capacity \u2014 provision the right amount and scale dynamically when demand changes"
+      },
+      {
+        "label": "B",
+        "text": "Global reach \u2014 traffic can be shifted to other regions if needed"
+      },
+      {
+        "label": "C",
+        "text": "High availability \u2014 extra instances automatically act as standby capacity"
+      },
+      {
+        "label": "D",
+        "text": "Economies of scale \u2014 more instances means more discounts"
+      },
+      {
+        "label": "E",
+        "text": "Trade fixed for variable expense \u2014 the extra instances are now variable cost"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS Auto Scaling eliminates the need to over-provision by automatically adding capacity when demand grows and removing it when demand drops. There is no need to guess and hold idle instances 'just in case.'",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "capacity-planning",
+      "auto-scaling",
+      "over-provisioning",
+      "cloud-advantages"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-018",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A systems architect describes a workload where each component can be replaced without the others knowing, as long as the interface contract is maintained. What AWS Well-Architected concept does this describe?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Loose coupling through well-defined interfaces ensures components interact only via stable APIs, so changes to one component do not break others."
+      },
+      {
+        "label": "B",
+        "text": "Defense in depth applies multiple overlapping security layers so that if one control fails, additional controls continue to protect the system."
+      },
+      {
+        "label": "C",
+        "text": "Fault tolerance keeps a system operating correctly even when individual components fail, ensuring continuous availability without manual intervention."
+      },
+      {
+        "label": "D",
+        "text": "Scalability is the ability to handle increasing load by adding resources, either vertically through larger instances or horizontally through more instances."
+      },
+      {
+        "label": "E",
+        "text": "Using services instead of servers means leveraging AWS managed offerings so you focus on application logic rather than maintaining underlying infrastructure."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Defense in depth applies multiple overlapping security layers so that if one control fails, additional controls continue to protect the system.",
+      "C": "Fault tolerance keeps a system operating correctly even when individual components fail, ensuring continuous availability without manual intervention.",
+      "D": "Scalability is the ability to handle increasing load by adding resources, either vertically through larger instances or horizontally through more instances.",
+      "E": "Using services instead of servers means leveraging AWS managed offerings so you focus on application logic rather than maintaining underlying infrastructure."
+    },
+    "explanation": "Loose coupling through well-defined interfaces (APIs, events, queues) means components depend only on each other's interface \u2014 not their internal implementation. Components can be replaced, upgraded, or scaled independently as long as the interface contract is maintained.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "loose-coupling",
+      "interfaces",
+      "microservices",
+      "well-architected"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-019",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to evaluate if their AWS architecture meets best practices across operational excellence, security, reliability, performance efficiency, and cost optimization. Which AWS tool guides this evaluation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Well-Architected Tool"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Inspector"
+      },
+      {
+        "label": "C",
+        "text": "AWS Config"
+      },
+      {
+        "label": "D",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "E",
+        "text": "AWS Security Hub"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "The AWS Well-Architected Tool guides customers through structured workload reviews against the six pillars of the Well-Architected Framework: Operational Excellence, Security, Reliability, Performance Efficiency, Cost Optimization, and Sustainability.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "well-architected",
+      "architecture-review",
+      "best-practices",
+      "six-pillars"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-020",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company needs high availability for its application hosted on EC2. Which statement best describes what 'high availability' means in an AWS context?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The application is designed to minimize downtime by operating through component failures"
+      },
+      {
+        "label": "B",
+        "text": "The application data is backed up to S3 every hour"
+      },
+      {
+        "label": "C",
+        "text": "AWS guarantees 100% uptime for all EC2 instances"
+      },
+      {
+        "label": "D",
+        "text": "The application is replicated to every AWS Region simultaneously"
+      },
+      {
+        "label": "E",
+        "text": "The application never experiences any latency under any conditions"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "High availability means the system remains operational through failures. Multi-AZ deployments with load balancers achieve this \u2014 if one AZ fails, traffic automatically reroutes to healthy instances in other AZs with minimal downtime.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "high-availability",
+      "multi-az",
+      "uptime",
+      "resilience"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-021",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "multiple",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company is conducting an AWS training session on the Shared Responsibility Model. Which TWO statements correctly describe the division of responsibilities for Amazon S3? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS is responsible for the physical security of the data centers where S3 data is stored"
+      },
+      {
+        "label": "B",
+        "text": "AWS is responsible for the content of objects stored in the customer's S3 buckets"
+      },
+      {
+        "label": "C",
+        "text": "The customer is responsible for the durability of S3 \u2014 ensuring data is replicated"
+      },
+      {
+        "label": "D",
+        "text": "The customer is responsible for configuring S3 bucket policies and access controls"
+      },
+      {
+        "label": "E",
+        "text": "AWS is responsible for the network equipment connecting S3 to the internet"
+      }
+    ],
+    "correct": [
+      "A",
+      "D"
+    ],
+    "distractors": {
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "For S3: AWS manages the physical infrastructure, replication, and service durability. The customer manages bucket policies, ACLs, encryption settings, lifecycle rules, and the data itself \u2014 all the 'in the cloud' controls.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "shared-responsibility",
+      "s3",
+      "customer-responsibility",
+      "aws-responsibility"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t3-022",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "multiple",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company is evaluating the six pillars of the AWS Well-Architected Framework. Which TWO pillars focus specifically on keeping costs low and systems running reliably? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cost Optimization"
+      },
+      {
+        "label": "B",
+        "text": "Performance Efficiency"
+      },
+      {
+        "label": "C",
+        "text": "Reliability"
+      },
+      {
+        "label": "D",
+        "text": "Security"
+      },
+      {
+        "label": "E",
+        "text": "Operational Excellence"
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "distractors": {
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Cost Optimization focuses on avoiding unnecessary costs and maximizing value from spend. Reliability focuses on ensuring workloads perform their intended functions correctly and consistently, including recovery from failures.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "well-architected",
+      "cost-optimization",
+      "reliability",
+      "six-pillars"
+    ]
+  }
+]

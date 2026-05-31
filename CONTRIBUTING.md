@@ -36,15 +36,53 @@ pip install -e ".[dev]" --break-system-packages
 pytest tests/ -q
 ```
 
-All 89 tests must pass. Do not submit a PR with failing tests.
+All **441** tests must pass (**1** skipped on Windows for the bash pre-commit hook). Do not submit a PR with failing tests.
+
+### Run backend lint and tests
+
+```bash
+cd backend
+pip install -r requirements.txt -r requirements-dev.txt
+export DATABASE_URL=sqlite:///./test.db   # Windows: set DATABASE_URL=sqlite:///./test.db
+ruff check app/
+black --check app/
+pytest -q
+```
 
 ### Run frontend lint
 
 ```bash
 cd frontend
-npm install
+npm ci
 npm run lint
+npm run format:check
 ```
+
+### Run Academy lint
+
+```bash
+cd academy
+npm ci
+npm run lint
+npm run format:check
+```
+
+---
+
+## Continuous integration
+
+Every push and pull request to `master` runs `.github/workflows/ci.yml`:
+
+| Job | What it checks |
+|---|---|
+| **Frontend lint** | ESLint + Prettier (`frontend/`) |
+| **Academy lint** | ESLint + Prettier (`academy/`) |
+| **archon-cli test** | Full pytest suite (`441` passed, `1` skipped) |
+| **GitOps workflow smoke** | `archon-cli validate` and `cost` with `--format github` on `sample_plan.json` |
+| **Portal build** | Vite production build (`portal/`) |
+| **Backend lint + test** | Ruff, Black, pytest (`backend/tests/`) |
+
+Reproduce CI locally before opening a PR: run the commands above in each package directory.
 
 ---
 
@@ -56,7 +94,7 @@ These are enforced, not suggestions.
 - Functional React components only. No class components.
 - Zustand for all shared state. No prop drilling.
 - No hardcoded values — URLs, ports, API keys, model names all come from environment variables.
-- All new validation rules go in `validationStore.js` (canvas engine) and `archon-cli/archon_cli/validate.py` (CLI engine). A rule added to one must be added to the other.
+- All new validation rules go in provider-specific rule modules (`gcpValidationRules.js`, `azureValidationRules.js`, `onpremValidationRules.js`) and matching CLI modules (`gcp_validate.py`, `azure_validate.py`, `onprem_validate.py`). A rule added to one must be added to the other.
 
 **Backend**
 - All routes in `routers/`. All business logic in `services/`. Nothing in `main.py` except app setup and router registration.
@@ -101,7 +139,7 @@ If you have a feature idea that does not fit the current scope, open an issue to
 1. Open an issue first for anything non-trivial. Describe the problem and your proposed solution.
 2. Fork the repo and create a branch from `main`.
 3. Make your changes. Keep PRs focused — one logical change per PR.
-4. Ensure `pytest tests/ -q` passes and `npm run lint` is clean.
+4. Ensure all CI checks pass locally (see **Continuous integration** above).
 5. Write a clear PR description: what changed, why, and how to test it.
 6. Reference the issue number in the PR description.
 
@@ -126,7 +164,7 @@ For Azure, GCP, and On-Prem, the corresponding `*Palette.js`, `*ComponentConfig.
 
 A rule must exist in both the frontend store and the CLI engine.
 
-**Frontend** (`frontend/src/store/validationStore.js`):
+**Frontend** — add the rule to the provider module (`frontend/src/store/gcpValidationRules.js`, `azureValidationRules.js`, `onpremValidationRules.js`, or inline AWS rules in `validationStore.js`):
 
 ```js
 {
@@ -141,7 +179,7 @@ A rule must exist in both the frontend store and the CLI engine.
 },
 ```
 
-**CLI** (`archon-cli/archon_cli/validate.py`): add a `Finding(...)` block in the appropriate `_config_findings()`, `_topology_findings()`, or `_sg_findings()` function, matching the same `rule_id`.
+**CLI** — add a matching finding in the provider module (`archon-cli/archon_cli/gcp_validate.py`, `azure_validate.py`, `onprem_validate.py`, or AWS rules in `validate.py`).
 
 **Compliance** (`archon-cli/archon_cli/compliance.py`): if the rule maps to one or more standards, add an entry to `COMPLIANCE_MAP`.
 

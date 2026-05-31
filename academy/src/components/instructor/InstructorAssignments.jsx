@@ -41,14 +41,22 @@ export default function InstructorAssignments() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h1 className="text-xl font-semibold text-gray-900">Assignments</h1>
-        <button
-          onClick={() => setShowForm((v) => !v)}
-          className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
-        >
-          {showForm ? "Cancel" : "+ New Assignment"}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate("/instructor/assistant?task=assignment")}
+            className="border border-blue-200 text-blue-700 hover:bg-blue-50 text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            Design with AI
+          </button>
+          <button
+            onClick={() => setShowForm((v) => !v)}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors"
+          >
+            {showForm ? "Cancel" : "+ New Assignment"}
+          </button>
+        </div>
       </div>
 
       {/* Create form */}

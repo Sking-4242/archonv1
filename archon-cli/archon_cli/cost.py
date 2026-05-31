@@ -16,6 +16,8 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from archon_cli.azure_tf_map import AZURE_TF_TYPE_MAP
+
 # ─── Load bundled pricing DB ──────────────────────────────────────────────────
 
 def _load_pricing_db() -> dict:
@@ -38,6 +40,9 @@ _DB: dict = _load_pricing_db()
 _FREE_TYPES: set[str] = set(_DB.get("free_types", []))
 _EC2_HOURLY: dict[str, float] = _DB.get("ec2_hourly", {})
 _RDS_HOURLY: dict[str, float] = _DB.get("rds_hourly", {})
+_GCE_HOURLY: dict[str, float] = _DB.get("gce_hourly", {})
+_CLOUDSQL_HOURLY: dict[str, float] = _DB.get("cloudsql_hourly", {})
+_AZURE_VM_HOURLY: dict[str, float] = _DB.get("azure_vm_hourly", {})
 _HOURS: int = _DB.get("hours_per_month", 730)
 _FLAT: dict[str, dict] = _DB.get("flat_prices", {})
 
@@ -129,6 +134,78 @@ _TF_TYPE_MAP: dict[str, str] = {
     "aws_codecommit_repository": "codecommit",
     "aws_cloudformation_stack": "cloudformation",
     "aws_cloudformation_stack_set": "cloudformation",
+    # GCP — Networking
+    "google_compute_network": "gcp_vpc",
+    "google_compute_subnetwork": "gcp_subnet",
+    "google_compute_firewall": "gcp_firewall",
+    "google_compute_global_forwarding_rule": "gcp_lb",
+    "google_compute_forwarding_rule": "gcp_lb",
+    "google_compute_backend_service": "gcp_lb",
+    "google_compute_url_map": "gcp_lb",
+    "google_compute_target_http_proxy": "gcp_lb",
+    "google_compute_target_https_proxy": "gcp_lb",
+    "google_compute_security_policy": "gcp_armor",
+    "google_dns_managed_zone": "gcp_dns",
+    "google_compute_router_nat": "gcp_nat",
+    "google_compute_vpn_gateway": "gcp_vpn",
+    "google_compute_ha_vpn_gateway": "gcp_vpn",
+    "google_compute_interconnect_attachment": "gcp_interconnect",
+    "google_compute_global_address": "gcp_lb",
+    "google_compute_network_endpoint_group": "gcp_network_endpoint_grp",
+    "google_compute_service_attachment": "gcp_private_sc",
+    "google_compute_backend_bucket": "gcp_cdn",
+    # GCP — Compute
+    "google_compute_instance": "gcp_gce",
+    "google_compute_instance_group_manager": "gcp_mig",
+    "google_container_cluster": "gcp_gke",
+    "google_container_node_pool": "gcp_gke",
+    "google_cloud_run_v2_service": "gcp_cloud_run",
+    "google_cloudfunctions2_function": "gcp_cloud_functions",
+    "google_cloudfunctions_function": "gcp_cloud_functions",
+    "google_app_engine_standard_app_version": "gcp_app_engine",
+    "google_cloud_batch_job": "gcp_cloud_batch",
+    "google_composer_environment": "gcp_cloud_composer",
+    # GCP — Storage
+    "google_storage_bucket": "gcp_gcs",
+    "google_filestore_instance": "gcp_filestore",
+    "google_compute_disk": "gcp_persistent_disk",
+    "google_backup_dr_backup_plan": "gcp_backup",
+    # GCP — Database
+    "google_sql_database_instance": "gcp_cloudsql",
+    "google_alloydb_cluster": "gcp_alloydb",
+    "google_spanner_instance": "gcp_spanner",
+    "google_firestore_database": "gcp_firestore",
+    "google_bigtable_instance": "gcp_bigtable",
+    "google_redis_instance": "gcp_memorystore",
+    "google_datastore_index": "gcp_datastore",
+    # GCP — Security
+    "google_project_iam_binding": "gcp_iam",
+    "google_project_iam_member": "gcp_iam",
+    "google_service_account": "gcp_iam",
+    "google_secret_manager_secret": "gcp_secret_manager",
+    "google_kms_key_ring": "gcp_kms",
+    "google_kms_crypto_key": "gcp_kms",
+    "google_scc_source": "gcp_scc",
+    "google_certificate_manager_certificate": "gcp_certificate_manager",
+    # GCP — Integration
+    "google_pubsub_topic": "gcp_pubsub",
+    "google_pubsub_subscription": "gcp_pubsub",
+    "google_dataflow_job": "gcp_dataflow",
+    "google_cloud_tasks_queue": "gcp_tasks",
+    "google_cloud_scheduler_job": "gcp_scheduler",
+    "google_workflows_workflow": "gcp_workflows",
+    # GCP — Analytics / AI / Monitoring / DevOps
+    "google_bigquery_dataset": "gcp_bigquery",
+    "google_dataproc_cluster": "gcp_dataproc",
+    "google_looker_instance": "gcp_looker",
+    "google_vertex_ai_endpoint": "gcp_vertex_ai",
+    "google_vertex_ai_dataset": "gcp_automl",
+    "google_logging_project_sink": "gcp_logging",
+    "google_monitoring_alert_policy": "gcp_monitoring",
+    "google_cloudbuild_trigger": "gcp_cloud_build",
+    "google_artifact_registry_repository": "gcp_artifact_registry",
+    "google_sourcerepo_repository": "gcp_source_repo",
+    **AZURE_TF_TYPE_MAP,
 }
 
 
@@ -159,6 +236,33 @@ def _estimate(canvas_type: str, values: dict[str, Any]) -> tuple[float, str] | t
         ic = values.get("instance_class") or "db.t3.medium"
         h = _RDS_HOURLY.get(ic, _RDS_HOURLY.get("db.t3.medium", 0.068))
         return round(h * _HOURS, 2), f"Aurora {ic}"
+
+    # GCE — look up by machine type
+    if ctype == "gcp_gce":
+        mt = (values.get("machine_type") or "e2-medium").lower()
+        if "/" in mt:
+            mt = mt.rsplit("/", 1)[-1]
+        h = _GCE_HOURLY.get(mt, _GCE_HOURLY.get("e2-medium", 0.0335))
+        return round(h * _HOURS, 2), f"GCE {mt}"
+
+    # Azure VM — look up by size SKU
+    if ctype == "azure_vm":
+        size = values.get("size") or "Standard_B1s"
+        h = _AZURE_VM_HOURLY.get(size, _AZURE_VM_HOURLY.get("Standard_B1s", 0.0104))
+        return round(h * _HOURS, 2), f"Azure VM {size}"
+
+    # Cloud SQL — look up by tier / settings tier
+    if ctype == "gcp_cloudsql":
+        tier = values.get("tier")
+        if not tier:
+            settings = values.get("settings")
+            if isinstance(settings, list) and settings:
+                settings = settings[0]
+            if isinstance(settings, dict):
+                tier = settings.get("tier")
+        tier = (tier or "db-f1-micro").lower()
+        h = _CLOUDSQL_HOURLY.get(tier, _CLOUDSQL_HOURLY.get("db-f1-micro", 0.015))
+        return round(h * _HOURS, 2), f"Cloud SQL {tier}"
 
     # Everything else — flat price table
     entry = _FLAT.get(ctype)

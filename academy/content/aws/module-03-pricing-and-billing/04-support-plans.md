@@ -37,6 +37,48 @@ TAMs are the key differentiator for Enterprise plans — a named AWS expert who 
 
 The five support plans progress from Basic (free, documentation only) to Enterprise ($15k+/month, dedicated TAM, 15-minute critical response). For development and testing use Developer; for production use Business at minimum; for mission-critical workloads consider Enterprise On-Ramp or Enterprise. On the CCP exam, know the response time SLAs and the key feature that distinguishes each tier.
 
+## Examples
+
+A freelance developer builds hobby projects and side experiments on AWS. They ask technical questions infrequently, and when they do, they're happy to search AWS documentation and the re:Post forums. Basic Support costs them nothing and covers their needs — community answers, documentation, and billing support if a charge ever looks wrong. For this user, upgrading to Developer Support would add real cost with marginal benefit, since their workloads carry no SLA or business risk.
+
+A retail company runs its e-commerce platform on AWS and handles real customer orders around the clock. One Sunday night, their production RDS database starts throwing errors and order processing stalls. They are on Business Support, which gives them 24/7 access to a Cloud Support Engineer via phone. Within 40 minutes of calling, a support engineer has identified the issue — a parameter group misconfiguration — and walked them through the fix. Had they been on Developer Support, they would have waited until business hours Monday for an email response. For production workloads with revenue impact, Business Support's 1-hour critical response SLA is the practical minimum.
+
+A Fortune 500 bank migrates its core transaction processing systems to AWS and negotiates Enterprise Support. They are assigned a dedicated Technical Account Manager who joins their architecture review calls, flags risks before they become incidents, and coordinates AWS's Infrastructure Event Management team ahead of their annual peak trading period. During a major product launch, the TAM orchestrates pre-scaled capacity and has a direct escalation path to AWS service teams. The bank's engineers value the TAM not primarily for faster ticket resolution, but for the proactive guidance that prevents tickets from being needed in the first place.
+
+## Think About It
+
+1. Business Support costs $100/month minimum, or 10%/7%/5% of your AWS charges. For a company spending $5,000/month on AWS, that's $500/month in support costs alone. How would you make the case to a CFO that this cost is justified compared to relying on Developer Support?
+2. The key differentiator of Enterprise plans is the dedicated Technical Account Manager. What kinds of problems is a TAM well-positioned to solve that a standard support ticket system cannot — and what does that tell you about where the real risk lies in large-scale AWS deployments?
+3. If you were launching a startup's first production application on AWS with a $300/month infrastructure budget, which support plan would you choose, and what factors would drive you to upgrade later?
+4. AWS Trusted Advisor checks are limited to 7 core checks on Basic and Developer plans, but all 535+ checks on Business and above. What categories of problems might you miss if you're only seeing 7 checks — and how could those blind spots affect security or cost?
+5. Support plan response time SLAs guarantee initial response, not resolution time. How should this distinction affect how you design your own operational runbooks and escalation procedures?
+
+## Quick Check
+
+**Q1.** A company needs 24/7 phone access to AWS Cloud Support Engineers for their production workload. What is the minimum support plan they must purchase?
+- A) Basic
+- B) Developer
+- C) Business
+- D) Enterprise On-Ramp
+
+**Answer: C** — Business Support is the first tier to include 24/7 phone, chat, and email access to Cloud Support Engineers, along with a 1-hour SLA for production system down scenarios.
+
+**Q2.** Which support plan feature is exclusive to Enterprise and Enterprise On-Ramp tiers?
+- A) Access to AWS Trusted Advisor
+- B) 24/7 technical support via email
+- C) Technical Account Manager (TAM)
+- D) Access to AWS Health Dashboard
+
+**Answer: C** — Technical Account Managers (dedicated or from a pool) are only available at the Enterprise On-Ramp and Enterprise tiers, providing proactive architectural guidance that goes beyond reactive support.
+
+**Q3.** What is the maximum response time SLA for a "production system impaired" case on the Business support plan?
+- A) 15 minutes
+- B) 1 hour
+- C) 4 hours
+- D) 12 hours
+
+**Answer: C** — Business Support guarantees a 4-hour initial response for production system impaired cases, and 1 hour for production system down cases.
+
 ## What's Next
 
 Next: Cost Explorer and AWS Budgets — the tools for understanding and controlling your actual AWS spending.

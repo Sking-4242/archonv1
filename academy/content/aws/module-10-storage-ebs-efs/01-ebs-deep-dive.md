@@ -35,6 +35,48 @@ EBS encryption uses AES-256 and AWS KMS. When you encrypt a volume, all data at 
 
 EBS is per-AZ persistent block storage for EC2. Use gp3 as the default; io2 for databases needing guaranteed IOPS; st1 for sequential throughput; sc1 for cold archival. Multi-Attach enables shared block storage clusters. Enable encryption by default — it's free from a performance perspective.
 
+## Examples
+
+A small e-commerce startup runs its web application on a single EC2 instance and needs reliable storage for a PostgreSQL database. They choose a gp3 volume configured at 3,000 IOPS and 125 MB/s — the default baseline — which comfortably handles their traffic at a lower cost than gp2 without having to over-provision volume size just to unlock IOPS. This is the textbook beginner case: gp3 as the sensible default for a general-purpose workload.
+
+A fintech company runs a high-transaction Oracle database processing thousands of trades per second. They provision an io2 Block Express volume sized at 200 GB with 100,000 IOPS (the maximum 500:1 ratio). The sub-millisecond latency and 99.999% durability guarantee mean that even a brief storage hiccup would cost real money — io2 is the right choice precisely because it offers guaranteed performance that gp3 cannot. Encryption is enabled at the account level so every volume is protected without any developer action required.
+
+A financial services firm needs a high-availability OLTP cluster where two active EC2 instances must write to shared block storage simultaneously. They attach a single io2 volume to both instances using Multi-Attach, and their application uses GFS2 (a cluster-aware filesystem) to coordinate concurrent writes. This is not a common pattern — EFS or a managed database is often simpler — but Multi-Attach is the correct tool when the application already manages its own cluster locking and block-level shared storage is a hard requirement.
+
+## Think About It
+
+1. Why does gp3 allow you to configure IOPS and throughput independently of volume size, while gp2 tied them together — and what practical problem does this solve for a team that needs high IOPS on a small dataset?
+2. What would happen if you attached an io2 Multi-Attach volume to multiple instances but used a standard filesystem like ext4 instead of a cluster-aware one? Why is the filesystem choice as important as the volume type?
+3. How would you decide between upgrading to io2 and scaling your application horizontally to reduce the per-instance database load? What trade-offs in cost, complexity, and failure modes would you weigh?
+4. EBS encryption has no measurable latency penalty because the Nitro card handles it in hardware. What does this tell you about the default posture your organization should take on encryption — and what objections to encryption by default are actually invalid?
+5. st1 and sc1 volumes cannot be used as boot volumes. Why do you think that constraint exists, and how would it affect your architecture if you needed to run a Kafka broker on an instance?
+
+## Quick Check
+
+**Q1.** A team is provisioning a new EBS volume for a general-purpose web application. Which volume type should they choose by default?
+- A) gp2
+- B) io1
+- C) gp3
+- D) st1
+
+**Answer: C** — gp3 is the recommended default; it costs 20% less than gp2, starts at a higher baseline, and allows independent IOPS/throughput configuration.
+
+**Q2.** What is the maximum IOPS:GB ratio supported by io2 volumes?
+- A) 3:1
+- B) 50:1
+- C) 500:1
+- D) 1000:1
+
+**Answer: C** — io2 supports up to 500 IOPS per GB, so a 200 GB volume can be provisioned with up to 100,000 IOPS.
+
+**Q3.** Which of the following statements about EBS encryption is correct?
+- A) Encryption adds significant latency because the CPU handles it in software
+- B) Encrypted snapshots are always shared automatically when you share the volume
+- C) Encryption covers data at rest, data in transit, and all snapshots from that volume
+- D) You must encrypt each new volume manually; there is no account-level default
+
+**Answer: C** — EBS encryption is comprehensive: it protects data at rest, in transit between instance and volume, and in all snapshots and volumes derived from those snapshots.
+
 ## What's Next
 
 Next up: EBS Snapshots — point-in-time backups, fast snapshot restore, and cross-region copy.

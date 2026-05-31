@@ -2,6 +2,7 @@ import { useState } from "react";
 import useArchiveStore from "../store/archiveStore";
 import useSettingsStore from "../store/settingsStore";
 import useProviderStore from "../store/providerStore";
+import LandingAccountBar from "./LandingAccountBar";
 import { TEMPLATES, TEMPLATES_BY_PROVIDER } from "../utils/templates";
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -684,23 +685,33 @@ function TemplatesGallery({ onLoadTemplate }) {
 
 // ── Root ──────────────────────────────────────────────────────────────────────
 
-export default function LandingPage({ onNewCanvas, onLoadArchive, onOpenTemplates, onImportTF, onLoadTemplate }) {
+export default function LandingPage({
+  onNewCanvas,
+  onLoadArchive,
+  onOpenTemplates,
+  onImportTF,
+  onLoadTemplate,
+  onOpenAccount,
+}) {
   return (
     <div className="h-screen bg-gray-100 flex flex-col">
       {/* Header */}
       <header className="flex items-center justify-between px-8 py-4 bg-white border-b border-gray-200 shadow-sm flex-shrink-0">
         <div className="flex items-center gap-3">
           <span className="text-xl font-bold text-indigo-600 tracking-widest">ARCHON</span>
-          <span className="text-gray-400 text-xs">v0.3.0</span>
+          <span className="text-gray-400 text-xs">Professional</span>
         </div>
-        <button
-          onClick={() =>
-            document.getElementById("templates-gallery")?.scrollIntoView({ behavior: "smooth" })
-          }
-          className="text-sm px-4 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 transition-colors"
-        >
-          Browse Templates ↓
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() =>
+              document.getElementById("templates-gallery")?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="hidden sm:inline text-sm px-4 py-2 rounded-lg border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 transition-colors"
+          >
+            Browse Templates ↓
+          </button>
+          {onOpenAccount && <LandingAccountBar onOpenAccount={onOpenAccount} />}
+        </div>
       </header>
 
       {/* Scrollable body */}

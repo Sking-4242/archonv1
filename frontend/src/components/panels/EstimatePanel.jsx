@@ -3,6 +3,7 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 import { fetchEstimate } from "../../api/estimate";
+import FinOpsSection from "./FinOpsSection";
 import useGraphStore from "../../store/graphStore";
 import useProviderStore from "../../store/providerStore";
 import useUsageStore from "../../store/usageStore";
@@ -586,6 +587,13 @@ export default function EstimatePanel({ graph, onClose }) {
                 In Cost Explorer: Reports &#8594; Monthly costs by service &#8594; Download CSV
               </div>
             </div>
+
+            <FinOpsSection
+              graph={graph}
+              csvActual={csvActual}
+              buildUsageParams={buildUsageParams}
+              disabled={status !== "done"}
+            />
 
             <p className="text-xs text-gray-400 border-t border-gray-100 pt-3">
               <span className="font-medium">Note: </span>

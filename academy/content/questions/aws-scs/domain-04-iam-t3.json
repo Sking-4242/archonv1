@@ -1,0 +1,590 @@
+[
+  {
+    "id": "scs-d4-t3-001",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A Lambda function's execution role has an inline policy that grants s3:* on a specific bucket. A second managed policy is attached granting s3:GetObject on all buckets. The function tries to call s3:DeleteObject on the specific bucket. What is the result?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The call fails with an ambiguous deny because two policies with conflicting permissions result in an access denied by default."
+      },
+      {
+        "label": "B",
+        "text": "The call succeeds because AWS evaluates all policies for the role and the inline policy grants s3:* (which includes DeleteObject) on that specific bucket."
+      },
+      {
+        "label": "C",
+        "text": "The call is denied because inline policies and managed policies are evaluated separately; the more restrictive policy always takes precedence."
+      },
+      {
+        "label": "D",
+        "text": "The call is denied because the managed policy limits S3 access to GetObject and the inline policy's broader permissions are overridden by the managed policy."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "IAM evaluates all policies attached to a principal together. The inline policy grants s3:* on the specific bucket, which includes s3:DeleteObject. There is no explicit Deny anywhere. The result is an Allow from the inline policy, so the call succeeds.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "iam",
+      "inline-policy",
+      "managed-policy",
+      "policy-evaluation"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-002",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company needs to give a third-party vendor read access to specific S3 objects for 24 hours. The vendor does not have an AWS account. What is the simplest approach that avoids creating permanent IAM credentials?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Generate a pre-signed S3 URL for each required object with a 24-hour expiration; the vendor uses the URL to download the object without AWS credentials."
+      },
+      {
+        "label": "B",
+        "text": "Create an IAM role with a trust policy for the vendor's IP address and provide temporary STS credentials via the console."
+      },
+      {
+        "label": "C",
+        "text": "Create a temporary IAM user for the vendor, attach a read policy, and delete the user after 24 hours; this avoids long-lived credentials."
+      },
+      {
+        "label": "D",
+        "text": "Temporarily make the S3 bucket public with an IP restriction to the vendor's IP address and re-enable Block Public Access after 24 hours."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Pre-signed S3 URLs provide time-limited access to specific objects without requiring AWS credentials. They expire automatically at the specified time, making them perfect for temporary third-party access without IAM user management or bucket public access changes.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "s3",
+      "presigned-url",
+      "temporary-access",
+      "third-party"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-003",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security team reviews an IAM role used by a data pipeline. The role has been granted kms:Decrypt on a KMS key. The team wants to verify whether the role has actually used this permission in the last 90 days. Which IAM feature provides this information?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudTrail event history filter for the role's ARN; this shows all API calls made by the role including KMS operations in the last 90 days."
+      },
+      {
+        "label": "B",
+        "text": "IAM Access Analyzer policy generation, which analyzes CloudTrail and shows which specific actions were called by the role over the analysis period."
+      },
+      {
+        "label": "C",
+        "text": "IAM last accessed information, which shows the last time each service was accessed by the role's credentials at the service level, including KMS."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config IAM role activity report, which tracks all KMS API calls made by each IAM role over a configurable retention window."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "IAM Access Analyzer policy generation analyzes CloudTrail logs and generates a precise list of which actions the role actually called during the review period. Option A (last accessed information) shows last-used dates per service but not specific action-level detail like kms:Decrypt vs kms:Encrypt.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "iam-access-analyzer",
+      "policy-generation",
+      "kms",
+      "least-privilege"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-004",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses IAM Identity Center with a permission set that includes the PowerUserAccess managed policy. A security engineer wants to add an additional restriction that prevents users with this permission set from creating IAM roles. What is the cleanest approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Modify the PowerUserAccess policy in the member account to remove iam:CreateRole; changes to managed policies persist within the permission set."
+      },
+      {
+        "label": "B",
+        "text": "Create a separate permission set without iam:CreateRole and require affected users to use the new permission set instead of the one with PowerUserAccess."
+      },
+      {
+        "label": "C",
+        "text": "Create an SCP at the OU level denying iam:CreateRole for all principals; this removes the permission from everyone including the Identity Center users."
+      },
+      {
+        "label": "D",
+        "text": "Add a customer-managed policy to the permission set that includes an explicit Deny for iam:CreateRole; this Deny overrides the Allow in PowerUserAccess."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "IAM Identity Center permission sets support adding customer-managed policies alongside the AWS managed policy. Adding a policy with an explicit Deny on iam:CreateRole takes precedence over the Allow in PowerUserAccess. AWS managed policies cannot be modified directly.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "identity-center",
+      "permission-set",
+      "deny",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-005",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A developer attempts to call sts:AssumeRole to assume a role in Account B from Account A. The call fails with AccessDenied. The role's trust policy in Account B lists Account A's root ARN as a trusted principal. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The developer's IAM principal in Account A does not have an IAM policy that explicitly allows sts:AssumeRole for the role ARN in Account B."
+      },
+      {
+        "label": "B",
+        "text": "The role in Account B does not have a permission policy attached; roles without permission policies cannot be assumed."
+      },
+      {
+        "label": "C",
+        "text": "Cross-account role assumption requires the role in Account B to have MFA enabled; the developer is not using MFA."
+      },
+      {
+        "label": "D",
+        "text": "The trust policy lists the root ARN, which only allows the root user to assume the role; the developer is not the root user of Account A."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "When a trust policy trusts an account root ARN, it delegates the authorization decision to Account A's IAM policies. The developer's IAM principal in Account A still needs an IAM policy that explicitly allows sts:AssumeRole for the target role ARN \u2014 the trust policy alone does not grant access.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "sts",
+      "cross-account",
+      "trust-policy",
+      "assume-role"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-006",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security engineer wants to ensure that all IAM roles in an account have a maximum session duration of no more than 1 hour to limit the blast radius of compromised credentials. How can this be enforced programmatically?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an AWS Config custom rule using a Lambda function that checks the MaxSessionDuration attribute of all IAM roles and flags those with a value greater than 3600 seconds."
+      },
+      {
+        "label": "B",
+        "text": "Use an SCP that denies iam:CreateRole unless the request includes a MaxSessionDuration parameter of 3600 or less."
+      },
+      {
+        "label": "C",
+        "text": "Set the account-level IAM default session duration to 1 hour in the IAM console; this applies to all new and existing roles automatically."
+      },
+      {
+        "label": "D",
+        "text": "Attach a permission boundary to all roles that includes a condition limiting aws:TokenIssueTime to 1 hour from the current time."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Config custom rules can check IAM role properties including MaxSessionDuration. A Lambda evaluator that flags roles with MaxSessionDuration > 3600 provides continuous detection. There is no SCP condition that enforces session duration at role creation time.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "iam",
+      "session-duration",
+      "aws-config",
+      "custom-rule"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-007",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An organization implements the principle of least privilege and wants to limit S3 access for a role to only the us-east-1 region. Which condition key restricts S3 API calls to a specific region?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The aws:SourceRegion condition key restricts API calls to those originating from the specified region where the caller's credentials were issued."
+      },
+      {
+        "label": "B",
+        "text": "S3 is a global service; regional restrictions cannot be applied to S3 API calls using condition keys."
+      },
+      {
+        "label": "C",
+        "text": "The s3:LocationConstraint condition key can restrict bucket operations to a specific region in the bucket policy."
+      },
+      {
+        "label": "D",
+        "text": "The aws:RequestedRegion condition key can restrict which region an API call targets; adding StringEquals aws:RequestedRegion us-east-1 in a Deny statement blocks calls to all other regions."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "aws:RequestedRegion is the global condition key that specifies the AWS region where the requested service is located. A Deny with StringNotEquals aws:RequestedRegion us-east-1 blocks S3 API calls targeting any region other than us-east-1, even though S3 is accessible globally.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "iam",
+      "aws-requested-region",
+      "s3",
+      "region-restriction"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-008",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company has a security policy requiring all human IAM user accounts to be disabled after 60 days of inactivity. Which approach automates this enforcement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Schedule a Lambda function weekly that downloads the IAM credential report, parses password_last_used and access_key_last_used dates, and calls iam:UpdateLoginProfile (disable password) and iam:UpdateAccessKey (deactivate key) for inactive users."
+      },
+      {
+        "label": "B",
+        "text": "Enable IAM Access Analyzer with the inactive-users check; Access Analyzer automatically disables inactive IAM users after the configured threshold."
+      },
+      {
+        "label": "C",
+        "text": "Configure an IAM password policy with a maximum password age of 60 days; after 60 days, passwords expire and users cannot log in until they reset."
+      },
+      {
+        "label": "D",
+        "text": "Use Security Hub's IAM.8 control, which automatically deactivates IAM user accounts that have not logged in for 60 days."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "There is no native AWS service that automatically disables inactive IAM users. The standard pattern is a scheduled Lambda that reads the IAM credential report (password_last_used, access_key_last_used), calculates inactivity periods, and calls the IAM API to disable credentials for users exceeding the threshold.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "iam",
+      "credential-report",
+      "inactive-users",
+      "lambda"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-009",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A role's trust policy uses a condition that requires the aws:PrincipalOrgID to match the organization's ID. What does this condition ensure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Only resources tagged with the organization's ID tag can assume the role; untagged resources are denied by the OrgID condition."
+      },
+      {
+        "label": "B",
+        "text": "Only principals from AWS accounts that are members of the organization can assume the role, preventing assumption from external AWS accounts."
+      },
+      {
+        "label": "C",
+        "text": "Only the AWS Organizations management account can assume the role; member accounts are excluded by the OrgID condition."
+      },
+      {
+        "label": "D",
+        "text": "Only IAM users (not roles) from the organization can assume the role; service principals from other accounts are blocked."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The aws:PrincipalOrgID condition key checks whether the principal making the request belongs to the specified AWS Organization. Using this in a trust policy Deny (for external accounts) or Allow ensures only internal organization accounts can assume the role, regardless of the specific account ID.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "iam",
+      "principal-org-id",
+      "trust-policy",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-010",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security team discovers that a junior developer has iam:PassRole permissions along with ec2:RunInstances. Why is this combination a privilege escalation risk?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The developer can modify another user's IAM role permissions by passing a new role policy document via the EC2 console."
+      },
+      {
+        "label": "B",
+        "text": "The developer can pass their own credentials into an EC2 instance profile, gaining persistent access to their own permissions from EC2."
+      },
+      {
+        "label": "C",
+        "text": "The developer can launch EC2 instances with a highly privileged IAM role attached; the instances then have that role's permissions, effectively granting the developer indirect access to those permissions."
+      },
+      {
+        "label": "D",
+        "text": "The developer can use ec2:RunInstances to create instances that automatically generate new IAM users with administrator access."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "iam:PassRole + ec2:RunInstances is a classic privilege escalation path. The developer passes a highly privileged role (e.g., AdministratorAccess) to a new EC2 instance, then SSHs in and calls the metadata endpoint to obtain that role's temporary credentials, gaining permissions beyond their own.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "iam",
+      "passrole",
+      "privilege-escalation",
+      "ec2"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-011",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An application uses Amazon Cognito for user authentication. Authenticated users need temporary AWS credentials to access specific S3 objects. Which Cognito feature provides this capability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cognito resource server scopes, which include S3 bucket access grants that are directly evaluated by the S3 service for authenticated requests."
+      },
+      {
+        "label": "B",
+        "text": "Cognito Sync, which synchronizes user attributes including S3 access tokens across devices for authenticated Cognito users."
+      },
+      {
+        "label": "C",
+        "text": "Cognito Identity Pools (Federated Identities), which exchanges Cognito User Pool tokens for temporary AWS credentials via STS, scoped to an IAM role for authenticated users."
+      },
+      {
+        "label": "D",
+        "text": "Cognito User Pools, which issues JWT tokens that can be exchanged directly for S3 pre-signed URLs without AWS credentials."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Cognito Identity Pools exchange tokens from Cognito User Pools, SAML, or social IdPs for temporary STS credentials. The credentials are scoped to an IAM role defined for authenticated users, which can include specific S3 permissions. This is the web identity federation pattern for mobile/web apps.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "cognito",
+      "identity-pools",
+      "federation",
+      "s3"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-012",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security engineer audits an IAM policy and finds an Allow with Action: '*' and Resource: '*' on an IAM role. IAM Access Analyzer reports no external access findings. Should the policy be considered safe?",
+    "options": [
+      {
+        "label": "A",
+        "text": "No; a wildcard policy automatically triggers a Security Hub finding which will appear as a FAILED control regardless of Access Analyzer results."
+      },
+      {
+        "label": "B",
+        "text": "Yes; wildcard permissions are acceptable for service roles as long as they are not accessible by external AWS accounts or public principals."
+      },
+      {
+        "label": "C",
+        "text": "Yes; if Access Analyzer shows no external access findings, the policy is confirmed to be scoped appropriately and does not grant overly broad permissions."
+      },
+      {
+        "label": "D",
+        "text": "No; Access Analyzer checks for external access (cross-account or public), not for over-privileged internal access. The wildcard policy violates least privilege and should be scoped down regardless of Access Analyzer findings."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "IAM Access Analyzer specifically detects external access (cross-account or public resource sharing). It does not evaluate whether internal permissions violate least privilege. A wildcard Allow on all actions and resources is an over-privileged policy that should be remediated regardless of Access Analyzer findings.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "iam-access-analyzer",
+      "least-privilege",
+      "wildcard-policy",
+      "audit"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-013",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses ABAC to manage access to DynamoDB tables tagged with Project and Environment tags. A developer's session tags include Project=atlas and Environment=prod. A DynamoDB table is tagged Project=atlas but has no Environment tag. The policy uses StringEquals to match both tags. What is the access result?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Access is granted with read-only permissions; ABAC policies default to read access when only some tags match the session attributes."
+      },
+      {
+        "label": "B",
+        "text": "Access is granted because the Project tag matches; partial tag matches are treated as Allow when at least one condition key is satisfied."
+      },
+      {
+        "label": "C",
+        "text": "The call results in an error rather than a deny because the ABAC condition references a tag that does not exist on the resource."
+      },
+      {
+        "label": "D",
+        "text": "Access is denied because the StringEquals condition for Environment does not match \u2014 the resource has no Environment tag, so the condition evaluates to false and there is no Allow."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "IAM condition evaluation requires ALL conditions in a policy statement to be true for the statement to apply. If the resource is missing the Environment tag, the StringEquals condition for Environment evaluates to false (null != prod). With no matching Allow, the request is implicitly denied.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "abac",
+      "iam",
+      "dynamodb",
+      "condition-evaluation"
+    ]
+  },
+  {
+    "id": "scs-d4-t3-014",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's security policy requires that service-to-service API calls within the same AWS account use IAM roles rather than static credentials. An application team stores database passwords as environment variables in Lambda functions. What is the recommended remediation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Encrypt the environment variable values with AWS KMS using the Lambda environment variable encryption feature; this satisfies the static credential prohibition."
+      },
+      {
+        "label": "B",
+        "text": "Rotate the database password every 30 days via an automated Lambda function and update the environment variable programmatically; frequent rotation mitigates the risk of static credentials."
+      },
+      {
+        "label": "C",
+        "text": "Use Lambda layers to store encrypted credentials outside the function code; the layer is decrypted by the Lambda runtime using the execution role."
+      },
+      {
+        "label": "D",
+        "text": "Store the database password in AWS Secrets Manager, grant the Lambda execution role secretsmanager:GetSecretValue, and retrieve the secret at runtime using the SDK \u2014 eliminating static credentials entirely."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Storing credentials in environment variables \u2014 even encrypted \u2014 is still a static credential pattern. The correct remediation is Secrets Manager: the Lambda execution role (an IAM role, not static credentials) allows the function to retrieve the current secret at runtime without any hardcoded values.",
+    "module_ref": "scs-m4",
+    "tags": [
+      "lambda",
+      "secrets-manager",
+      "static-credentials",
+      "iam-role"
+    ]
+  }
+]

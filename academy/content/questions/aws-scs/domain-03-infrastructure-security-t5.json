@@ -1,0 +1,799 @@
+[
+  {
+    "id": "scs-d3-t5-001",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An IoT platform uses API Gateway with mutual TLS (mTLS) authentication. Devices present client certificates issued by an internal CA. A security audit finds that compromised certificates from decommissioned devices are still being accepted because the CRL is not enforced. Which configuration change enforces certificate revocation at API Gateway without replacing the entire trust store?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a Lambda authorizer that calls ACM Private CA's GetCertificate API to validate each certificate's serial number against a manually maintained deny list."
+      },
+      {
+        "label": "B",
+        "text": "Upload an updated truststore bundle to S3 that excludes the revoked certificate's issuing CA, then redeploy the custom domain name in API Gateway."
+      },
+      {
+        "label": "C",
+        "text": "Enable certificate pinning on the API Gateway custom domain by referencing the specific device certificate thumbprint in the truststore PEM file."
+      },
+      {
+        "label": "D",
+        "text": "Remove the decommissioned device certificates from the truststore PEM file stored in S3, update the API Gateway custom domain to reference the new truststore version."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "API Gateway mTLS uses a truststore PEM file stored in S3. To revoke specific leaf certificates without removing the entire CA, you update the PEM file to exclude those specific certificates and update the custom domain to reference the new S3 object version. Option A removes the entire CA which would break all devices issued by that CA. Option B describes certificate pinning, which binds to a specific cert rather than managing revocation. Option D is a workaround but not a native API Gateway revocation mechanism and adds latency to every request.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "mtls",
+      "api-gateway",
+      "certificate-revocation"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-002",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A network team deploys AWS Network Firewall in a centralized inspection VPC connected via Transit Gateway. After enabling the firewall, return traffic from internet-bound flows is dropped intermittently. The firewall policy is correct and the routes are in place. Which root cause and fix addresses this asymmetric routing problem?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The inspection VPC lacks a NAT gateway in the firewall subnet, so return traffic cannot be translated back to the originating spoke VPC CIDR."
+      },
+      {
+        "label": "B",
+        "text": "Transit Gateway appliance mode is not enabled on the inspection VPC attachment, causing return flows to be routed to a different Availability Zone endpoint than the original flow."
+      },
+      {
+        "label": "C",
+        "text": "The firewall subnet route table is missing a default route to the internet gateway; add 0.0.0.0/0 pointing to the IGW in the firewall subnet route table."
+      },
+      {
+        "label": "D",
+        "text": "The Network Firewall stateful rule group is using strict rule ordering instead of action order, causing asymmetric policy evaluation on return packets."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Network Firewall is a stateful appliance. In a Transit Gateway centralized model, both directions of a flow must traverse the same Network Firewall endpoint. Without TGW appliance mode enabled on the inspection VPC attachment, return traffic may be sent to a different AZ's firewall endpoint, breaking stateful inspection. Enabling appliance mode forces symmetric routing so both directions use the same endpoint. The other options describe unrelated misconfigurations that would cause different symptoms.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "network-firewall",
+      "transit-gateway",
+      "appliance-mode"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-003",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A platform team is implementing zero-trust service-to-service communication using VPC Lattice. Service A must only be accessible to Service B, not to Service C, even though all three run in the same VPC. The team wants to enforce this at the VPC Lattice layer rather than with security groups. Which configuration achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a VPC Lattice resource policy on the service network that restricts access by VPC ID, allowing only the VPC containing Service B to send requests."
+      },
+      {
+        "label": "B",
+        "text": "Create a VPC Lattice service network auth policy that uses aws:PrincipalArn to allow only the IAM role assigned to Service B's compute resource, denying all other principals."
+      },
+      {
+        "label": "C",
+        "text": "Attach the VPC Lattice service to Service B's VPC only and not to Service C's VPC, relying on network segmentation to prevent Service C from reaching the endpoint."
+      },
+      {
+        "label": "D",
+        "text": "Use a VPC Lattice listener rule with a condition matching Service B's private IP address range to allow traffic while blocking Service C's subnet CIDR."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "VPC Lattice auth policies support IAM-based authorization using Signature Version 4 signed requests. By setting an auth policy on the VPC Lattice service that allows only the IAM role (or principal ARN) associated with Service B, you achieve cryptographic identity-based zero-trust access control regardless of network topology. Option B relies on network association, not identity. Option C restricts by VPC which would affect all services in that VPC. Option D uses IP-based rules which are not reliable for identity and are not how VPC Lattice listener rules work for authZ.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "vpc-lattice",
+      "zero-trust",
+      "auth-policy"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-004",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A DevOps team migrates their EKS workloads from IRSA (IAM Roles for Service Accounts) to EKS Pod Identity. A security engineer notes that EKS Pod Identity does not require configuring an OIDC identity provider in IAM. What is the underlying mechanism that allows EKS Pod Identity to work without an IAM OIDC provider, and what security advantage does this offer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EKS Pod Identity embeds IAM role credentials directly into pod environment variables via a mutating webhook, avoiding the need for any external token exchange."
+      },
+      {
+        "label": "B",
+        "text": "EKS Pod Identity uses an AWS-managed agent (eks-pod-identity-agent) on each node that calls the EKS Auth API to exchange a pod's service account token for AWS credentials, keeping the trust entirely within AWS."
+      },
+      {
+        "label": "C",
+        "text": "EKS Pod Identity uses Kubernetes network policies to restrict the IMDS endpoint per pod, effectively isolating each pod's credential scope without IAM federation."
+      },
+      {
+        "label": "D",
+        "text": "EKS Pod Identity uses the EC2 instance profile of the underlying node to vend credentials, inheriting node-level permissions rather than pod-level permissions."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "EKS Pod Identity works through the eks-pod-identity-agent DaemonSet that runs on each node. When a pod needs credentials, the agent intercepts the request and calls the EKS Auth AssumeRoleForPodIdentity API using the pod's projected service account token. This keeps the entire trust chain within AWS-managed infrastructure, eliminating the need to manage an OIDC provider in IAM and reducing the operational surface area. The trust relationship is defined on the IAM role referencing the EKS service rather than an external OIDC issuer URL, removing a class of OIDC misconfiguration risks.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "eks",
+      "pod-identity",
+      "irsa"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-005",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A WAF engineer wants to distinguish between legitimate browsers and automated bots without blocking all non-browser traffic. The application requires that suspected bots complete a silent browser integrity check before proceeding, with a CAPTCHA presented only for higher-confidence bot signals. Which WAF rule action configuration achieves this two-tier bot mitigation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure Bot Control managed rule group in targeted mode with the CAPTCHA action on all rules, relying on user solve rates to differentiate bot types."
+      },
+      {
+        "label": "B",
+        "text": "Apply the Challenge action to suspicious requests for a silent JavaScript-based browser check, and escalate to the CAPTCHA action only for requests that fail the challenge or match higher-confidence bot rules."
+      },
+      {
+        "label": "C",
+        "text": "Use a rate-based rule with the BLOCK action for requests exceeding 100 per 5 minutes, and a separate managed rule group for known bot signatures with the COUNT action."
+      },
+      {
+        "label": "D",
+        "text": "Use a Label match rule on the awswaf:managed:aws:bot-control:bot:verified label to allow verified bots, and BLOCK all other traffic lacking a WAF token."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS WAF supports a tiered bot mitigation strategy using the Challenge action (silent JavaScript puzzle that requires a real browser) and the CAPTCHA action (interactive human puzzle). Challenge is used first for low-confidence suspicious signals; if the browser passes, the request continues. CAPTCHA is reserved for higher-confidence bot signals. This two-tier approach minimizes friction for real users while effectively detecting headless browsers. Option A uses rate limiting which doesn't distinguish bot types. Option C applies CAPTCHA to all suspicious traffic, degrading real user experience. Option D only handles verified bots, not unknown bots.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "waf",
+      "bot-mitigation",
+      "challenge-captcha"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-006",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company deploys AWS Outposts in a colocation facility shared with other tenants. The security team is concerned about physical network access to the Outpost LAN. Which statement accurately describes the security boundary for AWS Outposts network traffic and the customer's responsibility?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Outposts uses AWS-managed VLANs to isolate tenant traffic at the colocation facility, so neighboring tenants cannot access the Outpost LAN without AWS authorization."
+      },
+      {
+        "label": "B",
+        "text": "The customer is responsible for physically securing the Outpost rack and the local network (LAN) to which it connects, because Outposts traffic on the local network is not encrypted by AWS by default."
+      },
+      {
+        "label": "C",
+        "text": "AWS encrypts all data on Outposts using hardware-level MACsec on the service link, so the customer has no responsibility for securing traffic on the local LAN."
+      },
+      {
+        "label": "D",
+        "text": "AWS manages the physical security of the Outpost hardware and the LAN CIDR routing, so the customer's only responsibility is configuring security groups on Outpost-hosted instances."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Under the AWS shared responsibility model for Outposts, AWS is responsible for the hardware and software of the Outpost itself, but the customer is responsible for physical security of the rack and the local network environment. Traffic traversing the customer-managed LAN between the Outpost and customer equipment is not encrypted by AWS, meaning a physical adversary with LAN access could intercept unencrypted traffic. Customers should secure the facility, use private VLANs, and consider MACsec or encryption at the application layer for sensitive data on the local network. AWS does not manage the colocation LAN infrastructure.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "outposts",
+      "physical-security",
+      "shared-responsibility"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-007",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team is replacing CloudFront Origin Access Identity (OAI) with Origin Access Control (OAC) for an S3 origin. During the migration, they notice OAC supports signing requests using AWS SigV4, while OAI used a special CloudFront principal. Which security improvement does OAC provide over OAI that is not available with OAI?",
+    "options": [
+      {
+        "label": "A",
+        "text": "OAC replaces the S3 bucket policy principal with an account-level IAM role, enabling cross-account origin access without modifying the S3 bucket policy."
+      },
+      {
+        "label": "B",
+        "text": "OAC integrates with S3 Object Lock to prevent CloudFront from serving objects that are in a WORM-locked state, adding a compliance enforcement layer."
+      },
+      {
+        "label": "C",
+        "text": "OAC allows CloudFront to access S3 buckets in all AWS Regions including opt-in Regions and supports SSE-KMS encrypted S3 objects without additional configuration."
+      },
+      {
+        "label": "D",
+        "text": "OAC enforces TLS 1.3 for all requests from CloudFront to the S3 origin, whereas OAI only supported TLS 1.2, reducing protocol downgrade risk."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Origin Access Control (OAC) supports all AWS Regions including opt-in Regions (OAI did not support all opt-in Regions), supports all S3 operations, and critically supports SSE-KMS encrypted S3 buckets natively. With OAI, serving SSE-KMS encrypted objects required granting the OAI principal access to the KMS key. OAC uses SigV4 signing which works with KMS-encrypted objects out of the box. Options B and C describe capabilities that do not reflect how OAC actually works. Option D is not a feature of OAC.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "cloudfront",
+      "oac",
+      "oai",
+      "s3-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-008",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A VPC is configured in dual-stack mode with both IPv4 and IPv6 CIDRs. EC2 instances in a private subnet have IPv6 addresses. The security team wants to allow IPv6 internet egress from these instances but prevent any inbound IPv6 connections from the internet. Which gateway configuration enforces this posture for IPv6?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Attach an egress-only internet gateway to the VPC and add a route for ::/0 pointing to the egress-only internet gateway in the private subnet route table."
+      },
+      {
+        "label": "B",
+        "text": "Attach an internet gateway to the VPC and configure security groups to block all inbound IPv6 traffic while allowing outbound IPv6, relying on stateful tracking to permit return traffic."
+      },
+      {
+        "label": "C",
+        "text": "Configure a NAT gateway to translate IPv6 traffic to IPv4 before it reaches the internet gateway, preventing direct IPv6 internet connectivity for the instances."
+      },
+      {
+        "label": "D",
+        "text": "Use a VPC prefix list for IPv6 in an outbound security group rule allowing ::/0, and a separate network ACL denying all inbound IPv6 from ::/0 on all ports."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "An egress-only internet gateway is designed specifically for IPv6 and allows outbound-only IPv6 traffic from VPC instances to the internet while blocking all inbound IPv6 connections. This is the IPv6 equivalent of a NAT gateway for IPv4. Option A using a regular IGW with security groups would allow inbound if security groups are misconfigured and does not architecturally prevent inbound IPv6 connections. Option C is incorrect because NAT gateways do not support IPv6. Option D relies on NACLs which, while they can block inbound, does not provide the cleaner architectural guarantee that an egress-only IGW provides.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "ipv6",
+      "egress-only-igw",
+      "vpc"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-009",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's application faces volumetric UDP and TCP SYN flood attacks. The security team debates whether to route traffic through AWS Global Accelerator or CloudFront for DDoS mitigation. Which statement correctly distinguishes their DDoS protection capabilities for this threat type?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Both services offer identical DDoS protection because they both terminate at the same AWS edge infrastructure and share the same AWS Shield mitigation pipeline."
+      },
+      {
+        "label": "B",
+        "text": "Global Accelerator should be avoided for DDoS scenarios because it exposes static Anycast IPs that can be targeted directly, whereas CloudFront IP addresses rotate dynamically."
+      },
+      {
+        "label": "C",
+        "text": "Global Accelerator provides always-on Layer 3 and Layer 4 DDoS protection through AWS Shield Standard at the edge, absorbing volumetric attacks before they reach the origin, while CloudFront provides Layer 7 HTTP/S protection."
+      },
+      {
+        "label": "D",
+        "text": "CloudFront provides Layer 3 and Layer 4 DDoS mitigation at edge PoPs, making it more effective than Global Accelerator for volumetric UDP flood attacks."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Global Accelerator provides Layer 3 and Layer 4 DDoS protection through its Anycast infrastructure and AWS Shield Standard/Advanced integration. It absorbs volumetric network-layer attacks like UDP floods and SYN floods at the edge before they reach your origin. CloudFront primarily operates at Layer 7 (HTTP/HTTPS) and provides WAF integration for application-layer attacks, but is not optimized for non-HTTP UDP traffic. For volumetric L3/L4 attacks on UDP-based applications, Global Accelerator is the appropriate choice. The two services complement each other for different attack vectors.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "global-accelerator",
+      "cloudfront",
+      "ddos",
+      "shield"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-010",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "During a red team exercise, an attacker who compromised an EC2 instance uses the EC2 Serial Console to maintain persistent access even after the team rotated SSH keys and removed IAM credentials. The security team wants to eliminate this access vector organization-wide. Which action prevents future EC2 Serial Console access across all accounts in the organization?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a security group rule denying all inbound traffic on port 22 to prevent serial console SSH connections from reaching the EC2 instance."
+      },
+      {
+        "label": "B",
+        "text": "Revoke all IAM policies containing ec2:GetSerialConsoleAccessStatus and audit CloudTrail for historical serial console usage before disabling."
+      },
+      {
+        "label": "C",
+        "text": "Disable EC2 Serial Console access in the EC2 account settings for each region in each account by calling the DisableSerialConsoleAccess API, and enforce this with a Config rule."
+      },
+      {
+        "label": "D",
+        "text": "Create a Service Control Policy (SCP) denying ec2:SendSerialConsoleSSHPublicKey for all principals, attached at the organization root, to block serial console access across all member accounts."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "EC2 Serial Console access is controlled at both the account level and the IAM permission level. To enforce organization-wide prevention, an SCP denying ec2:SendSerialConsoleSSHPublicKey at the organization root prevents any IAM principal in any member account from using the serial console, regardless of individual account settings. Option B requires per-account per-region action and can be re-enabled; an SCP provides non-bypassable guardrails. Option C is incorrect because the serial console does not use standard network paths or security groups. Option D only addresses discovery, not prevention.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "ec2-serial-console",
+      "scp",
+      "lateral-movement"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-011",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An S3 VPC endpoint (gateway type) is deployed in a VPC. The security team wants to ensure that EC2 instances using this endpoint can only access a specific set of approved S3 buckets, not any S3 bucket in any account. Where must the restriction be configured, and what is the mechanism?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a security group on the VPC endpoint to allow outbound HTTPS only to the IP address ranges of the approved S3 buckets published in the AWS IP ranges JSON."
+      },
+      {
+        "label": "B",
+        "text": "Create an IAM permission boundary on all EC2 instance roles that restricts S3 actions to only the approved bucket ARNs, preventing access to unapproved buckets via any path."
+      },
+      {
+        "label": "C",
+        "text": "Add a bucket policy on each approved S3 bucket that denies access unless the request originates from the specific VPC endpoint ID using the aws:sourceVpce condition key."
+      },
+      {
+        "label": "D",
+        "text": "Attach an endpoint policy to the VPC endpoint that allows s3:GetObject and s3:PutObject only for the specific approved bucket ARNs, restricting all other S3 bucket access through the endpoint."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "A VPC endpoint policy is a resource-based policy attached directly to the VPC endpoint that controls which AWS resources, actions, and principals can use the endpoint. By restricting the endpoint policy to allow S3 actions only on specific bucket ARNs, you ensure that any traffic flowing through the endpoint, regardless of IAM permissions, can only reach those approved buckets. Option A (bucket policies with aws:sourceVpce) restricts which endpoints can access a bucket, not which buckets are accessible from the endpoint. Option C is incorrect because gateway-type VPC endpoints do not have security groups. Option D using permission boundaries is a useful defense-in-depth but does not restrict routing through the endpoint itself.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "vpc-endpoint",
+      "endpoint-policy",
+      "s3"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-012",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A platform team wants to prevent container images with CRITICAL severity CVEs from being deployed to production EKS clusters. They use Amazon ECR for image storage. Which combination of services and configurations enforces this deployment gate automatically?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Security Hub aggregation to collect ECR findings and create a Lambda function that calls the EKS API to cordon nodes running images with CRITICAL CVEs."
+      },
+      {
+        "label": "B",
+        "text": "Enable ECR basic scanning on all repositories and configure a CloudWatch Events rule to send SNS notifications when CRITICAL findings are detected, requiring manual approval before deployment."
+      },
+      {
+        "label": "C",
+        "text": "Configure an ECR lifecycle policy to delete image tags with CRITICAL findings automatically, preventing the image from being pulled by EKS nodes."
+      },
+      {
+        "label": "D",
+        "text": "Enable ECR enhanced scanning (powered by Inspector) with a scan-on-push policy, then configure an OPA Gatekeeper admission controller policy in EKS that rejects pod deployments if the image has Inspector findings of CRITICAL severity."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Enforcing a deployment gate for CRITICAL CVEs requires both detection and enforcement. ECR enhanced scanning (Inspector) continuously scans images and produces detailed vulnerability findings at push time. The enforcement gate is implemented as a Kubernetes admission controller (e.g., OPA Gatekeeper or Kyverno) that queries ECR/Inspector findings at deploy time and rejects pods referencing images with CRITICAL vulnerabilities. This creates an automated, policy-as-code gate. Option B is manual. Option C using lifecycle policies deletes images, which is destructive and doesn't integrate cleanly with deployment workflows. Option D reacts after deployment rather than preventing it.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "ecr",
+      "image-scanning",
+      "eks",
+      "admission-controller"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-013",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team enables GuardDuty EKS Runtime Monitoring. An alert fires indicating a container in the production cluster executed a shell binary and then attempted to write to /etc/passwd. Which characteristic of EKS Runtime Monitoring enables this detection compared to GuardDuty EKS Audit Log monitoring?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EKS Runtime Monitoring integrates with Amazon Inspector to correlate CVE data with running processes, enabling it to detect exploitation of specific vulnerabilities in real time."
+      },
+      {
+        "label": "B",
+        "text": "EKS Audit Log monitoring only covers the AWS API control plane, while Runtime Monitoring analyzes VPC Flow Logs to detect anomalous container network egress patterns."
+      },
+      {
+        "label": "C",
+        "text": "EKS Audit Log monitoring analyzes Kubernetes control plane API calls, while Runtime Monitoring uses an eBPF-based security agent on each node to capture process-level syscall events inside running containers."
+      },
+      {
+        "label": "D",
+        "text": "EKS Runtime Monitoring monitors Kubernetes network policies and detects when a container's outbound connections violate the policy, triggering alerts on filesystem write attempts."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "GuardDuty EKS Audit Log monitoring analyzes the Kubernetes API server audit logs \u2014 control plane events like pod creation, RBAC changes, and kubectl commands. EKS Runtime Monitoring deploys a lightweight eBPF-based security agent (aws-guardduty-agent) as a DaemonSet on cluster nodes. This agent captures process execution, file system access, and network events at the kernel syscall level within containers, enabling detection of in-container behaviors like shell execution and sensitive file modification that would be invisible to API-level monitoring. Options B, C, and D misrepresent the underlying mechanism.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "guardduty",
+      "eks-runtime-monitoring",
+      "ebpf"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-014",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company deploys AWS Verified Access to provide zero-trust network access to internal web applications. They want access decisions to factor in both user identity (from an OIDC provider) and device health posture (managed devices with a specific certificate). How should the Verified Access trust provider be configured to enforce both conditions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a Verified Access endpoint-level policy using Cedar syntax that combines user group membership from IAM Identity Center with device operating system version from a custom OIDC attribute."
+      },
+      {
+        "label": "B",
+        "text": "Create two separate Verified Access trust providers \u2014 one OIDC provider for user identity and one device trust provider (using Jamf or CrowdStrike integration), then reference both in the Verified Access group policy."
+      },
+      {
+        "label": "C",
+        "text": "Use an IAM Identity Center trust provider to authenticate users, then configure a Lambda authorizer in Verified Access to call a device management API for posture checks."
+      },
+      {
+        "label": "D",
+        "text": "Configure a single OIDC trust provider that includes device posture claims in the JWT token by integrating with a device management platform that injects device attributes into the identity token."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Verified Access supports attaching multiple trust providers to a single Verified Access group. You configure one OIDC-based trust provider for user identity (or IAM Identity Center) and one device trust provider from a supported partner (Jamf, CrowdStrike, etc.). The Verified Access group policy (written in Cedar) can then reference claims from both trust providers in a single policy, allowing conditions like 'user is in engineering group AND device compliance score is above threshold.' This is the native architecture. Options B and C describe workarounds that don't reflect Verified Access's built-in multi-provider capability. Option D describes writing the policy correctly but misidentifies the configuration needed.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "verified-access",
+      "zero-trust",
+      "device-posture"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-015",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security engineer is configuring Secrets Manager automatic rotation for an RDS database credential. The database is a single-tenant RDS instance. The engineer must choose between the single user rotation strategy and the alternating users strategy. Which trade-off correctly characterizes when the alternating users strategy is preferable?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Alternating users strategy is preferable when the application cannot tolerate any credential change downtime, because it maintains two valid database users and rotates between them, ensuring a valid credential always exists during rotation."
+      },
+      {
+        "label": "B",
+        "text": "Single user strategy is preferable when the application needs to audit which specific rotation cycle generated a given credential, as alternating users creates ambiguity in the audit trail."
+      },
+      {
+        "label": "C",
+        "text": "Single user strategy is preferable for high-security environments because it immediately invalidates the previous credential upon rotation, reducing the window in which a leaked credential remains valid."
+      },
+      {
+        "label": "D",
+        "text": "Alternating users strategy is required when using RDS Proxy, because RDS Proxy does not support single-user rotation and requires two distinct database users for connection pooling."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The alternating users strategy creates and rotates between two database users (e.g., appuser1 and appuser2). During rotation, the new password is set on the standby user while the current user remains active. Applications can continue connecting without interruption. Once rotation completes, the application switches to the newly rotated user. This strategy is preferable for applications requiring zero-downtime rotation or where a brief period with no valid credential would cause connection failures. The single user strategy updates the password on the same user, which creates a window where the old password is invalid before applications refresh. Option C is incorrect \u2014 RDS Proxy supports both strategies.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "secrets-manager",
+      "rotation",
+      "rds"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-016",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A container running on an EC2 instance (not ECS or EKS) is found to have accessed the EC2 Instance Metadata Service (IMDS) and retrieved the IAM role credentials of the underlying instance. The security team wants to prevent containers from accessing IMDS while preserving IMDS access for the instance itself. Which IMDSv2 configuration change mitigates this container escape vector?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a host-level iptables rule to drop packets destined for 169.254.169.254 from the container network namespace, blocking IMDS access at the kernel level."
+      },
+      {
+        "label": "B",
+        "text": "Set the IMDSv2 hop limit to 1 on the EC2 instance. This ensures that responses to IMDS requests cannot traverse more than one network hop, preventing containerized processes from reaching the metadata endpoint."
+      },
+      {
+        "label": "C",
+        "text": "Enable the ec2:MetadataHttpEndpoint condition in an IAM policy denying all container IAM roles from calling any EC2 IMDS endpoint to restrict metadata access by identity."
+      },
+      {
+        "label": "D",
+        "text": "Disable IMDSv1 and require IMDSv2 with a PUT-then-GET token exchange, which prevents containers from making the required PUT request to obtain a session token."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The IMDSv2 hop limit controls how many network hops a request to IMDS can traverse. When set to 1 (the default for new instances launched via console), only the EC2 instance itself (one hop) can reach the metadata endpoint. Containers running inside the instance use a virtual network interface that adds an additional network hop (TTL decrement), so their IMDS requests arrive with TTL=0 and are dropped. Setting the hop limit to 1 is the recommended approach to prevent container-to-IMDS escape. Option B requiring IMDSv2 is a good practice but doesn't block containers if they can make HTTP requests to 169.254.169.254. Option C works but is a manual workaround. Option D misrepresents how IMDS IAM controls work.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "imds",
+      "imdsv2",
+      "hop-limit",
+      "container-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-017",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A SaaS provider exposes their service through AWS PrivateLink. A customer account creates a VPC endpoint targeting the provider's endpoint service. The customer notices that DNS resolution for the service's private DNS name is not working in their VPC. What are the two most likely causes of this DNS resolution failure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The SaaS provider has not yet accepted the endpoint connection request from the customer account, so the endpoint remains in a pending state and DNS is not activated."
+      },
+      {
+        "label": "B",
+        "text": "The PrivateLink endpoint does not support private DNS for cross-account connections; the customer must use the regional endpoint DNS name (vpce-xxxx.region.vpce.amazonaws.com) instead."
+      },
+      {
+        "label": "C",
+        "text": "The customer has not enabled Private DNS on the VPC endpoint, or the VPC does not have enableDnsHostnames and enableDnsSupport set to true, both of which are required for private DNS to resolve."
+      },
+      {
+        "label": "D",
+        "text": "The customer VPC is missing a Route 53 private hosted zone for the SaaS provider's domain, and the resolver inbound endpoint has not been configured to forward queries to the provider."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "For private DNS names to resolve correctly with a PrivateLink interface endpoint, two conditions must both be true: (1) Private DNS must be enabled on the VPC endpoint configuration, and (2) the VPC must have both enableDnsHostnames and enableDnsSupport set to true. If either is missing, the private DNS name will not resolve and the endpoint will only be reachable via its generated DNS name. Option B describes a separate issue (acceptance) that would put the endpoint in pending state, preventing connection entirely but not just DNS. Option C mischaracterizes how PrivateLink private DNS works \u2014 it does not require manual Route 53 configuration. Option D is false; private DNS is supported for cross-account endpoints.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "privatelink",
+      "vpc-endpoint",
+      "dns"
+    ]
+  },
+  {
+    "id": "scs-d3-t5-018",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security engineer is hardening ECS task definitions for a financial services application. The application's container only needs to read its configuration from a mounted volume and write logs to stdout. Which combination of task definition security settings provides the strongest container isolation posture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Set privileged to false and configure the task IAM role with least-privilege permissions; rely on ECS-managed network isolation and the VPC security group to prevent container escape."
+      },
+      {
+        "label": "B",
+        "text": "Set readonlyRootFilesystem to true, set privileged to false, add a linuxParameters block dropping the NET_RAW and SYS_ADMIN capabilities, and mount a tmpfs volume for /tmp if the application needs temporary write space."
+      },
+      {
+        "label": "C",
+        "text": "Enable SELinux labels on the container by setting the seLinuxOptions in linuxParameters and configure the container to run as a non-root user via the user field, without modifying filesystem or capability settings."
+      },
+      {
+        "label": "D",
+        "text": "Use an ECS task definition with the FARGATE launch type only, since Fargate automatically enforces readonlyRootFilesystem and drops all Linux capabilities without manual configuration."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Defense-in-depth for ECS container security requires multiple layers: readonlyRootFilesystem prevents the container process from writing to the container filesystem (stopping malware persistence), privileged: false prevents the container from gaining additional host kernel capabilities, and explicitly dropping capabilities like NET_RAW (used for packet crafting/ARP spoofing) and SYS_ADMIN (used for many privilege escalation techniques) reduces the attack surface. Mounting tmpfs for /tmp allows legitimate temporary writes without a writable root filesystem. Option B relies on network controls but does nothing about in-container privilege escalation. Option C uses SELinux but omits filesystem and capability hardening. Option D is incorrect \u2014 Fargate does not automatically set readonlyRootFilesystem or drop all capabilities.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security",
+      "ecs",
+      "container-security",
+      "linux-capabilities",
+      "hardening"
+    ]
+  }
+]

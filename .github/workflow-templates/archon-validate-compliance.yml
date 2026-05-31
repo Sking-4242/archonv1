@@ -60,7 +60,7 @@ jobs:
           archon-cli validate plan.json \
             --format github \
             --standard "$ARCHON_STANDARD" \
-            > validate-report.md
+            -o validate-report.md
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
           cat validate-report.md
 

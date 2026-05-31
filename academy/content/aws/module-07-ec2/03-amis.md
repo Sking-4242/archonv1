@@ -35,6 +35,48 @@ Launch Templates are required for advanced EC2 features: Spot Instance diversifi
 
 AMIs are OS and software templates for launching EC2 instances. Sources: AWS-provided (Amazon Linux, Windows), Marketplace (vendor software), community, or your own custom AMIs. Use EC2 Image Builder to automate AMI creation and patching. Launch Templates capture the full instance launch configuration with versioning — required for Auto Scaling Groups and advanced Spot configurations.
 
+## Examples
+
+A small SaaS company deploys its web application by SSHing into a fresh Amazon Linux instance, running a bash script to install dependencies and clone the repo, then manually configuring the app. It works — until an Auto Scaling event launches a new instance and the startup script fails silently, leaving a broken node in the load balancer pool. They switch to a Golden AMI workflow: bake the fully configured app into a custom AMI, and ASG launches produce pre-configured, immediately healthy instances with no startup scripts. Boot time drops from 4 minutes to 45 seconds.
+
+A security-conscious healthcare company needs HIPAA-compliant base images on all EC2 instances — OS hardening, CloudWatch Agent, SSM Agent, and a vulnerability scanner pre-installed. They set up an EC2 Image Builder pipeline that triggers weekly, applies OS patches, runs a CIS benchmark test suite, and distributes the resulting AMI to all three of their AWS Regions. Every new instance in every Region starts from a tested, patched, compliant image — with no manual intervention and a full audit trail in Image Builder's console.
+
+A platform engineering team at a large retailer manages 14 microservices, each with slightly different runtime dependencies. Rather than maintaining 14 separate AMI pipelines, they create a single hardened base AMI and layer service-specific configuration via Launch Template user data scripts. Each microservice has its own Launch Template that references the shared base AMI and injects a short cloud-init script for service-specific setup. When the base AMI is updated (e.g., a kernel patch), all 14 Launch Templates pick it up automatically because the AMI ID is resolved via SSM Parameter Store — not hardcoded.
+
+## Think About It
+
+1. Why are AMIs Region-specific rather than global? What would the implications be for a multi-Region architecture if you forgot to copy an updated AMI before a deployment?
+2. What are the trade-offs between baking everything into a Golden AMI versus using a minimal base AMI and running configuration at startup via user data? Under what conditions would each approach break down?
+3. Launch Templates support versioning, but Launch Configurations (now deprecated) did not. Why does versioning matter for operational safety — specifically in the context of Auto Scaling Groups?
+4. If a community AMI is free and already has the software you need pre-installed, why might a security team reject it? What controls would you put in place if you had to use it?
+5. How would you design an AMI update rollout strategy for a fleet of 500 running EC2 instances without causing downtime?
+
+## Quick Check
+
+**Q1.** A team creates a custom AMI in us-east-1 and tries to launch instances from it in eu-west-1, but the AMI is not available. What must they do?
+- A) Create a new AMI from scratch in eu-west-1
+- B) Copy the AMI from us-east-1 to eu-west-1
+- C) Change the AMI's Region setting in the console
+- D) Use a Launch Template to make it Region-agnostic
+
+**Answer: B** — AMIs are Region-specific; to use an AMI in a different Region you must explicitly copy it there, which replicates the underlying EBS snapshot.
+
+**Q2.** Which service automates the building, testing, and distribution of custom AMIs on a schedule?
+- A) AWS CodeBuild
+- B) AWS Systems Manager Patch Manager
+- C) EC2 Image Builder
+- D) AWS Config
+
+**Answer: C** — EC2 Image Builder provides a managed pipeline for creating, testing, and distributing AMIs automatically, eliminating the need to manually build and maintain Golden AMIs.
+
+**Q3.** What is the key advantage of Launch Templates over the older Launch Configurations?
+- A) Launch Templates support more instance types
+- B) Launch Templates are free; Launch Configurations cost extra
+- C) Launch Templates support versioning and are required for advanced features like Spot diversification
+- D) Launch Templates automatically choose the cheapest instance type
+
+**Answer: C** — Launch Templates support versioning (enabling rollback) and are required for advanced EC2 features including Spot Instance diversification, EC2 Fleet, and Auto Scaling Groups with multiple instance types.
+
 ## What's Next
 
 Next: EC2 pricing models — when to use on-demand, reserved, spot, and dedicated options for different workload characteristics.

@@ -1,0 +1,758 @@
+[
+  {
+    "id": "aws-saa-t1-04-001",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs 20 EC2 instances continuously for a predictable, steady-state workload that will run for at least 3 years. They are currently paying On-Demand rates. What purchasing option provides the maximum cost savings?",
+    "options": [
+      {
+        "label": "A",
+        "text": "On-Demand with automatic scaling to 0 overnight"
+      },
+      {
+        "label": "B",
+        "text": "1-year Partial Upfront Reserved Instances"
+      },
+      {
+        "label": "C",
+        "text": "3-year All Upfront Reserved Instances or Compute Savings Plan"
+      },
+      {
+        "label": "D",
+        "text": "Spot Instances \u2014 up to 90% savings"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "For steady-state, committed workloads over 3 years, All Upfront 3-year Reserved Instances or 3-year Compute Savings Plans provide the maximum discount (up to 72%). Spot Instances can be interrupted \u2014 unsuitable for continuous production. 1-year commitments save ~40% \u2014 less than 3-year. Scaling to 0 overnight only helps if the workload actually stops.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "reserved-instances",
+      "savings-plans",
+      "cost-optimization",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-002",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A startup has unpredictable workloads that spike occasionally for hours at a time. They cannot predict when spikes will occur. Which EC2 purchasing model is most cost-effective for these spikes?",
+    "options": [
+      {
+        "label": "A",
+        "text": "On-Demand Instances for all capacity including spikes provides maximum flexibility but pays full price for every instance even during predictable baseline periods."
+      },
+      {
+        "label": "B",
+        "text": "Dedicated Hosts for compliance requirements provide physical server isolation but cost significantly more than shared tenancy and are unsuitable as a cost-savings strategy."
+      },
+      {
+        "label": "C",
+        "text": "Reserved Instances purchased for peak capacity would waste money during low-traffic periods since the reservation covers capacity that sits idle most of the time."
+      },
+      {
+        "label": "D",
+        "text": "Spot Instances for the spike capacity, with the primary On-Demand pool handling baseline \u2014 interruptions during spikes are tolerable since core capacity remains."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "On-Demand Instances for all capacity including spikes provides maximum flexibility but pays full price for every instance even during predictable baseline periods.",
+      "B": "Dedicated Hosts for compliance requirements provide physical server isolation but cost significantly more than shared tenancy and are unsuitable as a cost-savings strategy.",
+      "C": "Reserved Instances purchased for peak capacity would waste money during low-traffic periods since the reservation covers capacity that sits idle most of the time."
+    },
+    "explanation": "A blended strategy works best: Reserved Instances or Savings Plans cover the predictable baseline (maximum savings), and Spot Instances fill unpredictable spikes (up to 90% savings, but interruptible). If Spot is unavailable, On-Demand fills the gap. Purchasing Reserved Instances for peak wastes money on idle capacity outside of spikes. On-Demand for everything misses the baseline RI savings.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "spot-instances",
+      "reserved-instances",
+      "cost-optimization",
+      "blended-purchasing"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-003",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company stores 500 TB of log data in S3 Standard. The data is analyzed within the first 30 days after creation and then rarely accessed. They want to minimize storage costs. What S3 lifecycle policy configuration is most cost-effective?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Delete all data after 30 days"
+      },
+      {
+        "label": "B",
+        "text": "Enable S3 Intelligent-Tiering for all objects from day 1"
+      },
+      {
+        "label": "C",
+        "text": "Keep all data in S3 Standard indefinitely"
+      },
+      {
+        "label": "D",
+        "text": "Transition objects to S3 Standard-IA after 30 days."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "A lifecycle policy transitions data from Standard (expensive, hot) to Standard-IA (cheaper, infrequent access) after 30 days of inactivity, then to Glacier (very cheap, archival) for long-term retention. This matches the access pattern and minimizes storage cost. Keeping everything in Standard wastes money. Deleting data isn't an option if it must be retained. Intelligent-Tiering adds monitoring fees but is better for truly unknown access patterns.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "s3",
+      "lifecycle",
+      "storage-classes",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-004",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company currently uses 10 EC2 m5.4xlarge On-Demand instances for a workload that runs 8 hours per day on weekdays only. They are paying for 24/7 availability. What is the most cost-effective approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Spot Instances for all 10 instances"
+      },
+      {
+        "label": "B",
+        "text": "Migrate to Lambda for 8-hour execution"
+      },
+      {
+        "label": "C",
+        "text": "Use EventBridge Scheduler (or Lambda cron) to start instances at."
+      },
+      {
+        "label": "D",
+        "text": "Purchase Reserved Instances for all 10 instances"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Running 8 hours/day \u00d7 5 days/week = 40 hours/week out of 168 total = 24% utilization. Stopping instances outside working hours eliminates ~76% of compute cost. Instance scheduling (EventBridge Scheduler or Lambda) automates this. Reserved Instances reduce hourly rate but don't eliminate idle hours. Spot could be interrupted during business hours. Lambda has time limits and isn't suitable for 8-hour continuous workloads.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "instance-scheduling",
+      "cost-optimization",
+      "ec2",
+      "dev-test"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-005",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses S3 to store user-uploaded files. Some files are accessed frequently for the first week, then never accessed again. Others are accessed regularly for months. The access pattern is unpredictable per file. What S3 storage class automatically optimizes cost for this access pattern?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Standard with manual lifecycle policies"
+      },
+      {
+        "label": "B",
+        "text": "S3 Glacier"
+      },
+      {
+        "label": "C",
+        "text": "S3 Intelligent-Tiering"
+      },
+      {
+        "label": "D",
+        "text": "S3 One Zone-IA"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "S3 Intelligent-Tiering automatically moves objects between access tiers based on their actual access frequency \u2014 no need to predict or manually manage transitions. Frequently accessed objects stay in the Standard tier; infrequently accessed objects move to the Infrequent Access tier; rarely accessed objects move to Archive tiers. There's no retrieval fee for non-archive tiers. When access pattern is unknown or variable per file, Intelligent-Tiering is the right choice.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "s3",
+      "intelligent-tiering",
+      "storage-classes",
+      "variable-access"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-006",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company currently manages their own MySQL database on EC2. They are considering moving to Amazon RDS MySQL. What cost components does the company ELIMINATE by moving to RDS?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Storage costs \u2014 RDS storage is free"
+      },
+      {
+        "label": "B",
+        "text": "Database license costs (for MySQL) and operational labor for OS"
+      },
+      {
+        "label": "C",
+        "text": "Data transfer costs between the database and application"
+      },
+      {
+        "label": "D",
+        "text": "All EC2 compute costs \u2014 RDS instances are free"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "MySQL is open-source so there's no license cost either way. But moving to RDS eliminates: time spent on OS patching (AWS patches the underlying OS), manual backup management (automated backups are built in), manual failover setup (Multi-AZ is a single checkbox), and operational overhead of database administration. RDS does have storage, compute, and data transfer costs \u2014 it eliminates labor costs, not infrastructure costs.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "rds",
+      "managed-service",
+      "tco",
+      "operational-cost"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-007",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses AWS Lambda for all compute. Their Lambda functions run for an average of 500ms and are invoked 10 million times per month. At the current memory configuration of 1,024 MB, they are overpaying. A performance test shows 256 MB of memory is sufficient. How does reducing memory to 256 MB affect Lambda cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lambda only charges per invocation, not memory"
+      },
+      {
+        "label": "B",
+        "text": "Cost decreases by 75% for compute \u2014 Lambda charges GB-seconds (memory \u00d7 duration),"
+      },
+      {
+        "label": "C",
+        "text": "Cost increases because slower execution at lower memory offsets the memory savings"
+      },
+      {
+        "label": "D",
+        "text": "No change \u2014 Lambda charges a flat rate per invocation"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Lambda pricing = (number of invocations \u00d7 invocation fee) + (GB-seconds \u00d7 price per GB-second). GB-seconds = (memory in GB) \u00d7 (duration in seconds). Reducing from 1,024 MB (1 GB) to 256 MB (0.25 GB) reduces compute cost by 75% assuming duration stays the same. If the function needs 256 MB to run correctly at the same speed, this is a direct 75% compute cost reduction.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "lambda",
+      "cost-optimization",
+      "right-sizing",
+      "memory"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-008",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company is designing a new application. The storage requirements are 10 TB of frequently accessed data and 100 TB of archival data accessed once per year. What is the most cost-effective storage architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Store all 110 TB in S3 Standard"
+      },
+      {
+        "label": "B",
+        "text": "Store 10 TB on EBS and 100 TB on S3 Standard-IA"
+      },
+      {
+        "label": "C",
+        "text": "Store all data in DynamoDB for fast access"
+      },
+      {
+        "label": "D",
+        "text": "Store 10 TB in S3 Standard and 100 TB in S3 Glacier Deep."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "S3 Glacier Deep Archive is the lowest-cost S3 storage class (~$1/TB/month) designed for data accessed once or twice per year with retrieval times of 12-48 hours. Storing 100 TB of archival data there vs. S3 Standard saves approximately $2,100/month. Frequently accessed data stays in S3 Standard for immediate access. EBS is not cost-effective for 10 TB of data and can't scale to 100 TB easily.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "s3",
+      "glacier",
+      "storage-classes",
+      "archival"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-009",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company is choosing between running a containerized application on Amazon ECS with EC2 launch type vs. AWS Fargate. What is the primary cost advantage of Fargate over EC2 for variable, unpredictable workloads?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Fargate instances are larger than equivalent EC2 instances"
+      },
+      {
+        "label": "B",
+        "text": "Fargate charges only for the vCPU and memory used during task."
+      },
+      {
+        "label": "C",
+        "text": "Fargate is always cheaper than EC2 regardless of workload type"
+      },
+      {
+        "label": "D",
+        "text": "Fargate includes free data transfer"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Fargate charges for the exact vCPU and memory consumed during task execution \u2014 billing starts when the task starts and stops when it ends. With ECS on EC2, you pay for the EC2 instances 24/7 regardless of task utilization. For variable workloads with significant idle time, Fargate eliminates idle compute costs. For consistently high utilization, EC2 with Reserved Instances can be cheaper.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "fargate",
+      "ecs",
+      "serverless",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-010",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs development and test EC2 instances that are only used Monday-Friday 9 AM to 6 PM. These instances are currently reserved. What purchasing strategy change would save the most money?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Migrate development to a smaller instance type with Reserved Instances"
+      },
+      {
+        "label": "B",
+        "text": "Purchase a Savings Plan instead of Reserved Instances"
+      },
+      {
+        "label": "C",
+        "text": "Do not renew the Reserved Instances and use On-Demand."
+      },
+      {
+        "label": "D",
+        "text": "Convert to Spot Instances for the development workloads"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Dev/test instances used only 45 hours/week (9 AM\u20136 PM, Mon\u2013Fri) out of 168 weekly hours = 27% utilization. On-Demand with a scheduler costs ~27% of 24/7 On-Demand pricing. Reserved Instances charge 24/7 regardless of actual usage. If the dev instances are off 73% of the time, RI commitment wastes ~73% of the reserved spend. Scheduler + On-Demand is optimal for low-utilization schedules.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "cost-optimization",
+      "instance-scheduling",
+      "dev-test",
+      "reserved-instances"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-011",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company is deploying a microservices application. Each service calls other services over HTTP. Currently all services are on EC2. The team is considering AWS Lambda + API Gateway as a replacement. Under which condition is serverless (Lambda + API Gateway) MORE cost-effective than EC2?",
+    "options": [
+      {
+        "label": "A",
+        "text": "When the service requires more than 15 minutes of processing time"
+      },
+      {
+        "label": "B",
+        "text": "When the service runs continuously at high load 24/7"
+      },
+      {
+        "label": "C",
+        "text": "When the service has low or highly variable traffic."
+      },
+      {
+        "label": "D",
+        "text": "When the service needs GPU processing"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Lambda's per-invocation billing means zero cost during idle periods. For services with low average throughput or highly variable traffic (e.g., internal APIs called occasionally), Lambda + API Gateway can be dramatically cheaper than an always-on EC2 instance. For services with consistently high traffic and long execution times, EC2 (especially with Reserved Instances) is usually cheaper. Lambda has a 15-minute max runtime and no GPU support.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "lambda",
+      "serverless",
+      "cost-comparison",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-012",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to reduce S3 costs. They have 1 PB of data in S3 Standard. After analyzing access logs, 90% of objects have not been accessed in over a year. They need these objects available within 12 hours if needed. Which storage class minimizes cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Glacier Flexible Retrieval provides retrieval times of 1 to 5 minutes (Expedited), 3 to 5 hours (Standard), or 5 to 12 hours (Bulk) at very low storage cost."
+      },
+      {
+        "label": "B",
+        "text": "S3 Standard-IA provides millisecond retrieval for infrequently accessed data at lower storage cost than S3 Standard but with a per-retrieval fee and minimum 30-day storage."
+      },
+      {
+        "label": "C",
+        "text": "S3 Intelligent-Tiering automatically moves objects between access tiers based on usage patterns but adds a monitoring charge per object that may outweigh savings for few objects."
+      },
+      {
+        "label": "D",
+        "text": "S3 Glacier Deep Archive offers the lowest storage cost for data retained for 7 to 10 years but requires 12 hours or more for retrieval, unsuitable for occasional access."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "S3 Standard-IA provides millisecond retrieval for infrequently accessed data at lower storage cost than S3 Standard but with a per-retrieval fee and minimum 30-day storage.",
+      "C": "S3 Intelligent-Tiering automatically moves objects between access tiers based on usage patterns but adds a monitoring charge per object that may outweigh savings for few objects.",
+      "D": "S3 Glacier Deep Archive offers the lowest storage cost for data retained for 7 to 10 years but requires 12 hours or more for retrieval, unsuitable for occasional access."
+    },
+    "explanation": "S3 Glacier Flexible Retrieval provides retrieval times of 1-12 hours (Bulk: up to 12 hours, Standard: 3-5 hours, Expedited: 1-5 minutes) at ~$4/TB/month vs. S3 Standard's ~$23/TB/month. Since 12-hour retrieval is acceptable, Glacier Flexible Retrieval meets the requirement at ~83% lower cost. Glacier Deep Archive provides even lower cost but retrieval takes up to 48 hours, exceeding the 12-hour requirement.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "s3",
+      "glacier",
+      "storage-classes",
+      "archival"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-013",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses AWS CloudFront. Their technical team suggests that increasing the CloudFront cache TTL would reduce costs. Why is this true?",
+    "options": [
+      {
+        "label": "A",
+        "text": "TTL setting has no impact on costs"
+      },
+      {
+        "label": "B",
+        "text": "Higher TTL reduces CloudFront edge storage costs"
+      },
+      {
+        "label": "C",
+        "text": "CloudFront charges per cache miss \u2014 higher TTL means fewer charges"
+      },
+      {
+        "label": "D",
+        "text": "Higher TTL means objects are served from edge cache longer"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "When TTL is short, objects expire quickly and CloudFront fetches fresh copies from the origin frequently \u2014 each origin fetch costs compute (EC2/ALB serving the request) and data transfer (origin to CloudFront). Higher TTL increases the cache hit ratio, reducing origin fetches and their associated costs. CloudFront charges for data transfer TO users from edge, but origin-to-CloudFront transfer is also a cost. Higher cache hit ratio = lower origin costs.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "cloudfront",
+      "cache-ttl",
+      "cost-optimization",
+      "cache-hit-ratio"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-014",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company has workloads that run continuously 24/7 on EC2 (baseline) plus additional capacity needed 2 months per year during seasonal peaks. What combination minimizes total annual cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Spot Instances for baseline and On-Demand for peaks"
+      },
+      {
+        "label": "B",
+        "text": "Reserved Instances for baseline capacity + On-Demand or Spot"
+      },
+      {
+        "label": "C",
+        "text": "Reserved Instances for peak capacity to guarantee availability"
+      },
+      {
+        "label": "D",
+        "text": "On-Demand for everything"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The optimal strategy: Reserved Instances or Savings Plans for the predictable, continuous baseline (40-72% savings vs On-Demand). For seasonal peaks (2 months/year), On-Demand or Spot fills the additional capacity without committing to full-year RI rates. Purchasing RIs for peak capacity wastes 10 months of RI spend on unused capacity. Spot for baseline is risky (interruptions can affect steady-state operations).",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "reserved-instances",
+      "on-demand",
+      "cost-optimization",
+      "hybrid-purchasing"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-015",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses Amazon DynamoDB. They originally provisioned 1,000 RCUs and 1,000 WCUs for their table. Actual usage is highly unpredictable \u2014 sometimes 50 RCUs, sometimes 5,000 RCUs. They are overpaying for provisioned capacity. What DynamoDB billing mode change optimizes cost for this access pattern?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch to DynamoDB On-Demand capacity mode \u2014 pay per request."
+      },
+      {
+        "label": "B",
+        "text": "Reduce provisioned capacity to 50 RCU/WCU and accept throttling"
+      },
+      {
+        "label": "C",
+        "text": "Enable DynamoDB Auto Scaling with min 50, max 5,000"
+      },
+      {
+        "label": "D",
+        "text": "Use DynamoDB DAX to reduce read consumption"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "DynamoDB On-Demand mode charges per read/write request with no capacity planning. For highly unpredictable traffic, On-Demand eliminates wasted provisioned capacity spend. Auto Scaling (option C) also helps but has minimum provisioned capacity and scaling lag. On-Demand is simpler and scales instantly. DAX reduces read load but doesn't change the DynamoDB billing mode.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "dynamodb",
+      "on-demand",
+      "cost-optimization",
+      "capacity"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-016",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs a data processing pipeline that produces output stored in S3. The output files are accessed heavily for 7 days then never accessed again. They want to automatically delete files after 90 days and transition them to cheaper storage after 7 days. Which S3 feature automates this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Versioning"
+      },
+      {
+        "label": "B",
+        "text": "S3 Event Notifications"
+      },
+      {
+        "label": "C",
+        "text": "S3 Lifecycle policies"
+      },
+      {
+        "label": "D",
+        "text": "S3 Cross-Region Replication"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "S3 Lifecycle policies automate object transitions and expirations. Configure: transition to Standard-IA after 7 days (or to Glacier for very cheap storage), and expire (delete) objects after 90 days. This runs automatically on the schedule with no operational intervention. CRR copies objects. Event Notifications trigger on object events. Versioning preserves versions.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "s3",
+      "lifecycle",
+      "automation",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-017",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses multiple AWS services: EC2, Lambda, ECS on Fargate. They want a single commitment-based discount that applies to all three compute services without needing to specify instance types. Which purchasing option provides this flexibility?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EC2 Instance Savings Plan"
+      },
+      {
+        "label": "B",
+        "text": "EC2 Standard Reserved Instances"
+      },
+      {
+        "label": "C",
+        "text": "Compute Savings Plan"
+      },
+      {
+        "label": "D",
+        "text": "Convertible Reserved Instances"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Compute Savings Plans apply across EC2 (any instance family, size, region, OS), AWS Fargate, and Lambda. This is the most flexible savings plan and is the only commitment-based option that spans all three compute services. EC2 Reserved Instances and EC2 Instance Savings Plans only cover EC2. Convertible RIs are only for EC2 and still require exchange processes to change instance type.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "compute-savings-plans",
+      "ec2",
+      "fargate",
+      "lambda"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-04-018",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses AWS for dev, test, and production environments. Their production environment requires high availability and runs 24/7. Their dev and test environments are used only during business hours. What is the most cost-effective purchasing strategy across all environments?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Spot Instances for production and On-Demand for dev/test"
+      },
+      {
+        "label": "B",
+        "text": "Reserved Instances for all environments"
+      },
+      {
+        "label": "C",
+        "text": "Savings Plans or Reserved Instances for production baseline +"
+      },
+      {
+        "label": "D",
+        "text": "On-Demand for all environments for maximum flexibility"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Production: RIs or Savings Plans maximize savings for 24/7 continuous workloads. Dev/test: scheduled start/stop with On-Demand eliminates waste during nights and weekends (~65% of hours). Reserved Instances for dev/test wastes capacity when instances are stopped. Spot for production introduces interruption risk. On-Demand for everything misses the 40-72% production savings from commitment-based pricing.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "cost-optimization",
+      "reserved-instances",
+      "dev-test",
+      "instance-scheduling"
+    ]
+  }
+]

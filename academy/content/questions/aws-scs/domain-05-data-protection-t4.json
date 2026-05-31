@@ -1,0 +1,722 @@
+[
+  {
+    "id": "scs-d5-t4-001",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer needs to grant an IAM principal in the same account access to a KMS customer managed key. The engineer adds a statement to the key policy that explicitly allows the principal kms:Decrypt. No IAM policy is attached to the principal. Can the principal decrypt data?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Yes, because a key policy alone is sufficient to grant access without a corresponding IAM policy."
+      },
+      {
+        "label": "B",
+        "text": "No, because key policies alone cannot grant access \u2014 an IAM policy must also allow the action."
+      },
+      {
+        "label": "C",
+        "text": "No, because kms:Decrypt requires both a key policy statement and a Service Control Policy allowance."
+      },
+      {
+        "label": "D",
+        "text": "Yes, but only if the principal is an IAM role rather than an IAM user."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "KMS key policies are resource-based policies that can stand alone. When a key policy explicitly grants a permission to an IAM principal, that permission is effective without any IAM identity-based policy. IAM policies are only required when the key policy delegates access control to IAM (e.g., the 'Enable IAM User Permissions' statement). If the key policy directly names the principal, no IAM policy is needed.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "kms",
+      "key-policy",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-002",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A compliance team requires that all S3 object encryption events be recorded in an audit trail for regulatory review. Which server-side encryption option satisfies this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SSE-KMS, because each encryption and decryption operation is logged as a KMS API call in CloudTrail."
+      },
+      {
+        "label": "B",
+        "text": "SSE-C, because customer-managed key operations are tracked in S3 server access logs."
+      },
+      {
+        "label": "C",
+        "text": "SSE-S3 (AES-256), because S3 logs all encryption events to CloudTrail automatically."
+      },
+      {
+        "label": "D",
+        "text": "SSE-S3 (AES-256), because it uses a dedicated audit key that generates CloudWatch metrics."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "SSE-KMS causes AWS to call KMS GenerateDataKey and Decrypt APIs for each object operation. These KMS API calls are recorded in AWS CloudTrail, providing a detailed audit trail of who accessed which objects and when. SSE-S3 uses keys managed entirely within S3 without invoking KMS, so no KMS CloudTrail events are generated. SSE-C is managed externally and does not produce KMS audit records.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "s3",
+      "sse-kms",
+      "sse-s3",
+      "cloudtrail",
+      "audit"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-003",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An organization issues TLS certificates using AWS Certificate Manager Private CA. The subordinate CA certificate has a 5-year validity period. An administrator issues an end-entity certificate requesting 10-year validity. What is the effective validity of the issued certificate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "5 years, because an issued certificate cannot be valid longer than its issuing CA certificate."
+      },
+      {
+        "label": "B",
+        "text": "10 years, because the end-entity certificate validity overrides the issuing CA validity period."
+      },
+      {
+        "label": "C",
+        "text": "10 years, because ACM Private CA automatically extends the CA validity to match issued certificates."
+      },
+      {
+        "label": "D",
+        "text": "7.5 years, because ACM Private CA averages the CA and end-entity validity periods automatically."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "An end-entity certificate issued by a CA cannot have a validity period that exceeds the validity period of the issuing CA certificate. If the CA certificate expires in 5 years, any certificate it issues will also expire at or before that time, regardless of the requested validity. ACM Private CA enforces this constraint. Administrators should plan CA certificate lifetimes to accommodate the expected lifetime of all end-entity certificates they will issue.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "acm",
+      "private-ca",
+      "certificate-validity"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-004",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security team wants to encrypt a DynamoDB table and retain full control over the encryption key, including the ability to rotate it, audit its usage in CloudTrail, and disable it if needed. Which encryption option should they choose?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS managed key (aws/dynamodb), because it supports manual rotation and audit logging."
+      },
+      {
+        "label": "B",
+        "text": "AWS owned key, because customers can configure key policies directly on AWS owned keys."
+      },
+      {
+        "label": "C",
+        "text": "Customer managed key (CMK) in KMS, because it provides full control, audit logging, and the ability to disable the key."
+      },
+      {
+        "label": "D",
+        "text": "AWS owned key, because it provides automatic rotation and full customer visibility in CloudTrail."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "A customer managed key (CMK) in AWS KMS gives the customer full control: they can define key policies, rotate the key, audit usage via CloudTrail, and disable or delete the key. AWS owned keys are fully managed by AWS \u2014 customers cannot view, manage, rotate, or audit them. AWS managed keys provide some CloudTrail visibility but customers cannot control rotation schedules or key policies. CMKs are the only option that meets all stated requirements.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "dynamodb",
+      "kms",
+      "cmk",
+      "encryption-at-rest"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-005",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A team in Account A stores database credentials in AWS Secrets Manager. A Lambda function in Account B needs to retrieve the secret. What is the correct mechanism to enable cross-account access?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add a resource-based policy to the secret in Account A granting Account B's principal secretsmanager:GetSecretValue."
+      },
+      {
+        "label": "B",
+        "text": "Copy the secret value to Account B's Secrets Manager and reference it locally from the Lambda function."
+      },
+      {
+        "label": "C",
+        "text": "Enable VPC peering between Account A and Account B so the Lambda can access the private endpoint directly."
+      },
+      {
+        "label": "D",
+        "text": "Create an IAM role in Account A with secretsmanager:GetSecretValue and have Account B assume it via sts:AssumeRole."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Secrets Manager supports resource-based policies attached directly to a secret. By adding a resource policy on the secret in Account A that grants the Account B principal (e.g., the Lambda execution role ARN) the secretsmanager:GetSecretValue action, cross-account access is enabled. The Lambda function in Account B must also have an IAM policy permitting the call. Copying secrets introduces drift; VPC peering alone does not grant IAM permissions.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "secrets-manager",
+      "cross-account",
+      "resource-policy"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-006",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A financial institution must store regulatory archive records in S3 Glacier such that they cannot be deleted or altered for 7 years, even by the root account. Which feature enforces this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Versioning combined with MFA Delete enabled on the bucket to protect archive records."
+      },
+      {
+        "label": "B",
+        "text": "S3 Glacier Vault Lock with a compliance policy specifying a 7-year archive rule, locked to prevent future changes."
+      },
+      {
+        "label": "C",
+        "text": "S3 Object Lock in Compliance mode with a vault access policy restricting deletions."
+      },
+      {
+        "label": "D",
+        "text": "S3 Object Lock in Governance mode with a 7-year retention period applied to each object."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "S3 Glacier Vault Lock allows you to deploy and lock a vault access policy. Once the policy is locked (after a 24-hour validation window), it cannot be changed or deleted \u2014 not even by AWS. This creates immutable WORM (Write Once Read Many) compliance archives. In contrast, S3 Object Lock Governance mode can be overridden by privileged users. Vault Lock's locked state is the mechanism that prevents even the root account from altering the policy.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "s3-glacier",
+      "vault-lock",
+      "compliance",
+      "immutability"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-007",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A developer uses a KMS asymmetric key pair to verify digital signatures. The developer calls GetPublicKey to retrieve the public key. Which statement about this key pair is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The public key is generated locally by the client SDK and the private key is stored in KMS."
+      },
+      {
+        "label": "B",
+        "text": "The public key can be downloaded and used outside KMS; the private key never leaves the KMS HSM."
+      },
+      {
+        "label": "C",
+        "text": "The private key is exported in encrypted form and must be decrypted using a wrapping key before use."
+      },
+      {
+        "label": "D",
+        "text": "Both the public and private keys can be exported from KMS for use in external applications."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "KMS asymmetric keys are generated inside FIPS 140-2 validated HSMs. The public key can be retrieved via the GetPublicKey API and used in external applications for encryption or signature verification. The private key never leaves the KMS HSM in plaintext \u2014 all private key operations (Sign, Decrypt) must be performed by calling KMS directly. This design ensures the private key is protected by the HSM at all times.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "kms",
+      "asymmetric-key",
+      "hsm",
+      "public-key"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-008",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security team compares Amazon Macie's automated discovery feature with creating a sensitive data discovery job. What is the key coverage difference between the two?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Automated discovery scans only new objects; discovery jobs are required to scan objects that already exist in a bucket."
+      },
+      {
+        "label": "B",
+        "text": "Automated discovery provides broad, continuous sampling across buckets; discovery jobs allow targeted, comprehensive scanning of specific buckets or objects."
+      },
+      {
+        "label": "C",
+        "text": "Automated discovery scans every object in every bucket daily; discovery jobs are limited to a single bucket."
+      },
+      {
+        "label": "D",
+        "text": "Discovery jobs use machine learning models; automated discovery uses only regex-based pattern matching."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Amazon Macie automated discovery continuously and automatically evaluates S3 buckets using statistical sampling \u2014 it provides broad coverage but does not guarantee every object is inspected. Sensitive data discovery jobs are manually configured runs that allow you to specify exact buckets, prefixes, or object criteria and perform exhaustive scanning of those targets. For compliance requirements needing comprehensive coverage of specific data, discovery jobs are the appropriate choice.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "macie",
+      "sensitive-data",
+      "discovery-job",
+      "automated-discovery"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-009",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A database administrator wants to enable Transparent Data Encryption (TDE) on an Oracle RDS instance and retain control of the TDE master key in a dedicated hardware security module. What is required?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable SSE-KMS on the RDS instance and assign a customer managed key for Oracle TDE key storage."
+      },
+      {
+        "label": "B",
+        "text": "Store the Oracle TDE master key in AWS Secrets Manager and reference it from the RDS parameter group."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS CloudHSM as the key store for Oracle TDE on RDS, since Oracle TDE on RDS requires CloudHSM for key management."
+      },
+      {
+        "label": "D",
+        "text": "Enable Oracle TDE in the RDS option group; keys are automatically stored in KMS with no additional configuration."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "For Oracle RDS instances, AWS requires AWS CloudHSM to store the TDE master encryption key when using Transparent Data Encryption. Unlike SQL Server TDE on RDS (which can use KMS), Oracle TDE on RDS is integrated with CloudHSM for key management. The customer must configure an AWS CloudHSM cluster and associate it with the RDS Oracle instance. This provides dedicated hardware-backed key storage with full customer control.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "rds",
+      "tde",
+      "oracle",
+      "cloudhsm"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-010",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company replicates SSE-KMS encrypted S3 objects from a source bucket in us-east-1 to a destination bucket in eu-west-1. The replication fails with an access denied error. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The replication IAM role lacks permission to use the destination bucket's KMS key to re-encrypt the replicated objects."
+      },
+      {
+        "label": "B",
+        "text": "SSE-KMS objects must be decrypted before replication and re-encrypted manually after copying."
+      },
+      {
+        "label": "C",
+        "text": "S3 replication does not support SSE-KMS encrypted objects and requires SSE-S3 instead."
+      },
+      {
+        "label": "D",
+        "text": "The source bucket's KMS key must be a multi-Region key for cross-region replication to function."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "When S3 replicates SSE-KMS encrypted objects, it decrypts the objects using the source KMS key and re-encrypts them using the destination KMS key. The S3 replication IAM role must have kms:GenerateDataKey and kms:Decrypt permissions on both the source and destination KMS keys. The most common cause of failure is that the replication role's key policy or IAM policy does not grant it access to the destination region's KMS key.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "s3",
+      "replication",
+      "sse-kms",
+      "cross-region"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-011",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A regulated organization needs to ensure that AWS Backup copies stored in a backup vault cannot be deleted by any user, including administrators, for a minimum retention period of 90 days. Which feature provides this guarantee?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable S3 Object Lock on the S3 bucket underlying the AWS Backup vault for immutable storage."
+      },
+      {
+        "label": "B",
+        "text": "Tag all recovery points with a retention tag and use an SCP to block deletion of tagged resources."
+      },
+      {
+        "label": "C",
+        "text": "Enable AWS Backup Vault Lock with a minimum retention period of 90 days to prevent deletion or modification of recovery points."
+      },
+      {
+        "label": "D",
+        "text": "Apply an AWS Backup vault access policy that denies backup:DeleteRecoveryPoint for all principals."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Backup Vault Lock prevents recovery points from being deleted or their retention periods shortened \u2014 even by the root account or AWS Support. Once enabled, Vault Lock enforces a minimum (and optionally maximum) retention period. During a grace period after activation, settings can be adjusted; after the grace period expires, the lock becomes permanent. This provides WORM-compliant backup storage for regulatory requirements.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "aws-backup",
+      "vault-lock",
+      "immutability",
+      "compliance"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-012",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A developer uses the AWS Encryption SDK with a KMS customer managed key to encrypt data locally before uploading to S3. Which encryption pattern does the SDK implement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Direct encryption, where the KMS CMK encrypts the plaintext data bytes directly via the Encrypt API."
+      },
+      {
+        "label": "B",
+        "text": "Envelope encryption, where the KMS CMK generates a data key that encrypts the data, and the CMK encrypts the data key."
+      },
+      {
+        "label": "C",
+        "text": "Asymmetric encryption, where the KMS public key encrypts the data and the private key handles decryption."
+      },
+      {
+        "label": "D",
+        "text": "Tokenization, where the SDK replaces sensitive fields with KMS-generated tokens in a lookup table."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The AWS Encryption SDK implements envelope encryption. The SDK calls KMS GenerateDataKey to obtain a plaintext data encryption key (DEK) and an encrypted copy of that DEK. The SDK uses the plaintext DEK to encrypt the actual data locally (with AES-GCM), then discards the plaintext DEK. The encrypted DEK is stored alongside the ciphertext in the encrypted message envelope. To decrypt, the SDK calls KMS Decrypt to recover the DEK, then decrypts the data locally.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "encryption-sdk",
+      "envelope-encryption",
+      "kms",
+      "client-side"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-013",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company deploys a KMS multi-Region key with a primary key in us-east-1 and a replica key in ap-southeast-1. Data is encrypted using the primary key. What is true about decrypting that data in ap-southeast-1?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The data can be decrypted in ap-southeast-1 using the replica key because multi-Region keys share the same key material."
+      },
+      {
+        "label": "B",
+        "text": "Decryption in ap-southeast-1 requires importing the primary region's key material into the replica key first."
+      },
+      {
+        "label": "C",
+        "text": "Multi-Region keys use different key material per region, so ciphertext from us-east-1 cannot be decrypted in ap-southeast-1."
+      },
+      {
+        "label": "D",
+        "text": "The ciphertext must be re-encrypted in us-east-1 before it can be decrypted by the replica key in ap-southeast-1."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "KMS multi-Region keys are a set of interoperable KMS keys across multiple AWS Regions that share the same key material and key ID prefix (mrk-). Because they share key material, ciphertext encrypted with the primary key in us-east-1 can be decrypted with the replica key in ap-southeast-1 without any re-encryption step. Each multi-Region key has a different key ARN per region but they are cryptographically equivalent, enabling low-latency decryption close to the consuming application.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "kms",
+      "multi-region-key",
+      "cross-region",
+      "key-material"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-014",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A team wants ACM to automatically renew public TLS certificates with no manual intervention. Which validation method supports fully automated renewal?",
+    "options": [
+      {
+        "label": "A",
+        "text": "HTTP validation, because ACM places a token file on the web server that is automatically refreshed at renewal time."
+      },
+      {
+        "label": "B",
+        "text": "DNS validation, because ACM can renew the certificate by verifying the persistent CNAME record without human action."
+      },
+      {
+        "label": "C",
+        "text": "Email validation, because AWS SES intercepts the approval email and auto-confirms it when integrated with ACM."
+      },
+      {
+        "label": "D",
+        "text": "Email validation, because ACM sends renewal emails to domain contacts who approve via a preconfigured rule."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "ACM supports DNS validation and email validation. DNS validation is preferred for automation: once you add the CNAME record that ACM provides to your DNS zone, ACM can verify domain ownership at any time and will automatically renew the certificate before expiry as long as the CNAME record remains in place. Email validation requires a human to click an approval link each time \u2014 including at renewal \u2014 making it unsuitable for fully automated certificate lifecycle management.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "acm",
+      "certificate-renewal",
+      "dns-validation",
+      "automation"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-015",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A developer shares a snapshot of an encrypted EBS volume with another AWS account. The receiving account cannot create a volume from the shared snapshot. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The receiving account must be in the same AWS Organization as the source account to access shared encrypted snapshots."
+      },
+      {
+        "label": "B",
+        "text": "The KMS key used to encrypt the snapshot was not shared with the receiving account, so it cannot decrypt the snapshot."
+      },
+      {
+        "label": "C",
+        "text": "The snapshot must be unencrypted before sharing; the receiving account then re-encrypts it after copying."
+      },
+      {
+        "label": "D",
+        "text": "EBS snapshots of encrypted volumes cannot be shared across AWS accounts regardless of configuration."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "When sharing an encrypted EBS snapshot, you must also grant the receiving account access to the KMS customer managed key that was used to encrypt the snapshot. This involves modifying the key policy to allow the receiving account's IAM principals to use the key. If the snapshot was encrypted with an AWS managed key (aws/ebs), it cannot be shared cross-account \u2014 you must first copy the snapshot using a customer managed key, then share both the snapshot and the CMK.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "ebs",
+      "snapshot",
+      "encryption",
+      "cross-account",
+      "kms"
+    ]
+  },
+  {
+    "id": "scs-d5-t4-016",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An auditor finds that an S3 bucket with Object Lock enabled still allows administrators with elevated privileges to delete objects before their retention period expires. Which Object Lock mode is the bucket using, and what permission enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Governance mode; any IAM administrator automatically inherits bypass rights without needing a specific permission."
+      },
+      {
+        "label": "B",
+        "text": "Compliance mode; administrators with s3:PutObjectRetention can reduce the retention period and then delete objects."
+      },
+      {
+        "label": "C",
+        "text": "Governance mode; principals with the s3:BypassGovernanceRetention permission can delete or modify governance-locked objects."
+      },
+      {
+        "label": "D",
+        "text": "Compliance mode; the s3:DeleteObjectVersion permission overrides the retention period for compliance-locked objects."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "S3 Object Lock has two retention modes. Governance mode allows users with the s3:BypassGovernanceRetention IAM permission (combined with the x-amz-bypass-governance-retention request header) to delete or overwrite protected objects before their retention period expires. Compliance mode is stricter \u2014 no user, including the root account, can delete or shorten the retention of a compliance-locked object until the retention period ends. The scenario describes Governance mode, where privileged bypass is by design.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "s3",
+      "object-lock",
+      "governance-mode",
+      "compliance-mode",
+      "retention"
+    ]
+  }
+]

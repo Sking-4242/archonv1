@@ -1,0 +1,968 @@
+[
+  {
+    "id": "aws-saa-t1-02-001",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs a critical web application on a single EC2 instance. If this instance fails, the application is unavailable. What is the simplest architecture change to improve availability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy at least 2 EC2 instances across 2 Availability"
+      },
+      {
+        "label": "B",
+        "text": "Enable CloudWatch monitoring on the single instance"
+      },
+      {
+        "label": "C",
+        "text": "Upgrade to a larger EC2 instance type"
+      },
+      {
+        "label": "D",
+        "text": "Create daily AMI snapshots of the instance"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Running multiple instances across at least two AZs eliminates the single point of failure. An ALB distributes traffic and removes unhealthy instances from the target group. If one AZ fails, the ALB routes to the other. Upgrading instance size doesn't add redundancy. CloudWatch monitors but doesn't add resilience. Snapshots help recovery (reduced RPO) but don't prevent downtime (don't improve RTO).",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "high-availability",
+      "alb",
+      "multi-az",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-002",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's application uses Amazon RDS MySQL. They need the database to automatically failover to a standby instance within 2 minutes if the primary fails, with no changes required to the application connection string. Which RDS feature provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "RDS Read Replicas"
+      },
+      {
+        "label": "B",
+        "text": "RDS Multi-AZ deployment"
+      },
+      {
+        "label": "C",
+        "text": "RDS Automated Backups"
+      },
+      {
+        "label": "D",
+        "text": "RDS Performance Insights"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "RDS Multi-AZ maintains a synchronous standby replica in a different AZ. On primary failure, RDS automatically promotes the standby and updates the DNS endpoint \u2014 the same connection string continues to work without application changes. Failover typically completes in 60-120 seconds. Read Replicas use asynchronous replication and are not automatic failover targets (by default). Automated Backups enable point-in-time recovery but don't prevent downtime.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "rds",
+      "multi-az",
+      "failover",
+      "high-availability"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-003",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses an Auto Scaling group for their web application. During peak hours, the ASG scales out to 20 instances. During off-peak hours, it scales in to 2. They want the ASG to proactively scale out 30 minutes before known peak periods (e.g., 9 AM weekdays). What scaling policy type enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Step scaling policy"
+      },
+      {
+        "label": "B",
+        "text": "Scheduled scaling action"
+      },
+      {
+        "label": "C",
+        "text": "Target tracking scaling policy"
+      },
+      {
+        "label": "D",
+        "text": "Simple scaling policy"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Scheduled scaling actions allow you to set the desired, minimum, and maximum capacity at specific times (e.g., set desired=15 at 8:30 AM weekdays). This pre-warms the fleet before demand arrives. Target tracking and step scaling are reactive \u2014 they respond to metrics after load has already increased. Simple scaling is also reactive and legacy.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "auto-scaling",
+      "scheduled-scaling",
+      "capacity-planning",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-004",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to route 10% of their production web traffic to a new version of their application for testing, while 90% continues to go to the stable version. Both versions are deployed as separate target groups behind an ALB. Which ALB routing feature enables this traffic split?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ALB weighted target groups"
+      },
+      {
+        "label": "B",
+        "text": "ALB path-based routing"
+      },
+      {
+        "label": "C",
+        "text": "ALB sticky sessions"
+      },
+      {
+        "label": "D",
+        "text": "ALB host-based routing"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "ALB weighted target groups allow you to assign weights to multiple target groups in a single listener rule. Setting weights of 90 and 10 routes traffic proportionally \u2014 90% to the stable version and 10% to the new version. This is the canary deployment pattern at the ALB layer. Path-based and host-based routing direct to target groups based on URL path or host header, not traffic percentages. Sticky sessions bind a user to a specific target.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "alb",
+      "weighted-routing",
+      "canary",
+      "deployment"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-005",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An application writes user session data to a local file on each EC2 instance. When Auto Scaling launches new instances, new users sometimes get routed to instances without their session data. What architectural change resolves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase the ASG's minimum capacity to prevent scale-in \u2014 this ensures instances stay running at all times but wastes capacity during low-traffic periods."
+      },
+      {
+        "label": "B",
+        "text": "Use EBS volumes to store session data"
+      },
+      {
+        "label": "C",
+        "text": "Externalize session state to Amazon ElastiCache Redis"
+      },
+      {
+        "label": "D",
+        "text": "Enable ALB sticky sessions to bind users to the same instance"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Increase the ASG's minimum capacity to prevent scale-in \u2014 this ensures instances stay running at all times but wastes capacity during low-traffic periods.",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Storing session data in a shared external store (ElastiCache Redis or Memcached) makes the EC2 instances stateless \u2014 any instance can serve any user because all session data is in the shared cache. This is the correct cloud-native pattern. Sticky sessions patch the symptom but fail on scale-in. Increasing minimum capacity wastes resources. EBS volumes are attached to individual instances and not shared across a fleet.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "elasticache",
+      "stateless",
+      "session-management",
+      "auto-scaling"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-006",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs an application that processes SQS messages. The processing occasionally fails and messages are retried. After 3 failed attempts, the company wants failed messages captured for investigation without blocking the main queue. What SQS feature enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An SQS FIFO queue preserves message order and deduplicates messages but does not automatically route failed messages to a separate queue for analysis."
+      },
+      {
+        "label": "B",
+        "text": "SQS long polling reduces API calls by waiting for messages to arrive but does not affect message failure handling or provide any dead-letter routing."
+      },
+      {
+        "label": "C",
+        "text": "SQS message delay postpones initial delivery of messages but does not help route repeatedly failed messages to a separate queue for investigation."
+      },
+      {
+        "label": "D",
+        "text": "SQS Dead Letter Queue with maxReceiveCount of 3 automatically moves messages that fail processing three times to a separate queue for inspection and replay."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "An SQS FIFO queue preserves message order and deduplicates messages but does not automatically route failed messages to a separate queue for analysis.",
+      "B": "SQS long polling reduces API calls by waiting for messages to arrive but does not affect message failure handling or provide any dead-letter routing.",
+      "C": "SQS message delay postpones initial delivery of messages but does not help route repeatedly failed messages to a separate queue for investigation."
+    },
+    "explanation": "A Dead Letter Queue receives messages that exceed the maxReceiveCount (number of failed receive attempts). After 3 failures, the message is moved to the DLQ for inspection and debugging without blocking the main queue. Long polling reduces empty receives. Message delay defers initial delivery. FIFO queues provide ordering and exactly-once processing but don't automatically capture failed messages.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "sqs",
+      "dlq",
+      "error-handling",
+      "resilience"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-007",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs an Amazon S3 bucket to replicate all objects to another bucket in a different AWS Region for disaster recovery. New objects uploaded to the source bucket should appear in the destination bucket within minutes. Which S3 feature provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Cross-Region Replication asynchronously copies objects to a bucket in a different Region, providing geographic redundancy for disaster recovery."
+      },
+      {
+        "label": "B",
+        "text": "S3 Transfer Acceleration speeds up uploads to a single S3 bucket by routing data through CloudFront edge locations, but does not create a copy in another Region."
+      },
+      {
+        "label": "C",
+        "text": "S3 Versioning preserves multiple versions of objects in the same bucket but does not replicate data to a second Region for geographic redundancy."
+      },
+      {
+        "label": "D",
+        "text": "S3 Intelligent-Tiering automatically moves objects between storage tiers based on access patterns to optimize cost but does not provide cross-region replication."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "S3 Transfer Acceleration speeds up uploads to a single S3 bucket by routing data through CloudFront edge locations, but does not create a copy in another Region.",
+      "C": "S3 Versioning preserves multiple versions of objects in the same bucket but does not replicate data to a second Region for geographic redundancy.",
+      "D": "S3 Intelligent-Tiering automatically moves objects between storage tiers based on access patterns to optimize cost but does not provide cross-region replication."
+    },
+    "explanation": "S3 Cross-Region Replication asynchronously copies new objects from a source bucket to a destination bucket in a different region. S3 Replication Time Control (RTC) can guarantee replication within 15 minutes. Versioning must be enabled on both buckets. Transfer Acceleration speeds uploads but doesn't replicate. Intelligent-Tiering manages storage costs. Versioning alone doesn't replicate to another region.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "s3",
+      "crr",
+      "replication",
+      "disaster-recovery"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-008",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses Route 53 to manage their domain. Their primary application is in us-east-1. If the primary application becomes unavailable, traffic should automatically route to a secondary deployment in eu-west-1. Which Route 53 routing policy achieves this active-passive failover?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Weighted routing policy distributes traffic between resources at a configured ratio but does not automatically shift all traffic to a healthy endpoint on failure."
+      },
+      {
+        "label": "B",
+        "text": "Latency routing policy directs users to the lowest-latency endpoint but does not perform health checks or fail over traffic when an endpoint becomes unhealthy."
+      },
+      {
+        "label": "C",
+        "text": "Failover routing policy with Route 53 health checks automatically routes all traffic to a secondary endpoint when the primary fails a health check."
+      },
+      {
+        "label": "D",
+        "text": "Geolocation routing policy routes users based on their geographic location but does not automatically detect endpoint health or perform failover."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Weighted routing policy distributes traffic between resources at a configured ratio but does not automatically shift all traffic to a healthy endpoint on failure.",
+      "B": "Latency routing policy directs users to the lowest-latency endpoint but does not perform health checks or fail over traffic when an endpoint becomes unhealthy.",
+      "D": "Geolocation routing policy routes users based on their geographic location but does not automatically detect endpoint health or perform failover."
+    },
+    "explanation": "Route 53 Failover routing designates one record as PRIMARY and one as SECONDARY. Route 53 health checks continuously evaluate the primary endpoint's health. When the health check fails, Route 53 automatically returns the secondary record. Weighted routing with 100/0 doesn't automatically switch on failure. Latency routing optimizes for performance, not failure detection. Geolocation routing is based on user location.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "route53",
+      "failover",
+      "health-checks",
+      "disaster-recovery"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-009",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's application backend uses Amazon SNS to notify multiple downstream services when an order is placed. One of the downstream services is often slow and causes delays. How can they prevent the slow service from affecting others?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Reduce SNS message retention period"
+      },
+      {
+        "label": "B",
+        "text": "Subscribe SQS queues to the SNS topic for each."
+      },
+      {
+        "label": "C",
+        "text": "Increase SNS delivery timeout"
+      },
+      {
+        "label": "D",
+        "text": "Use SNS FIFO for ordered delivery to slow services"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The SNS-to-SQS fan-out pattern decouples producers from consumers. SNS publishes to multiple SQS queues simultaneously. Each downstream service reads from its own SQS queue at its own rate \u2014 a slow service's queue grows but doesn't delay other consumers. Direct SNS delivery to HTTP endpoints is synchronous and timeouts affect the entire delivery. FIFO doesn't solve the slow consumer problem.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "sns",
+      "sqs",
+      "fan-out",
+      "decoupling"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-010",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs a stateless web application on EC2 with Auto Scaling. They want automatic scaling based on CPU usage \u2014 add an instance when average CPU > 70%, remove one when average CPU < 30%. Which Auto Scaling policy type is most appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Predictive scaling uses machine learning to forecast demand and proactively adds capacity before load arrives, but is less precise for variable and unpredictable traffic."
+      },
+      {
+        "label": "B",
+        "text": "Simple scaling triggers a single scaling action when an alarm fires and then waits for a cooldown, making it slow to respond to rapid traffic changes."
+      },
+      {
+        "label": "C",
+        "text": "Target tracking scaling sets a target metric value like 50% CPU and continuously adjusts capacity to maintain that target, providing smooth and responsive scaling."
+      },
+      {
+        "label": "D",
+        "text": "Scheduled scaling adjusts capacity at predetermined times based on known patterns but cannot react to unexpected traffic variations between scheduled changes."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Predictive scaling uses machine learning to forecast demand and proactively adds capacity before load arrives, but is less precise for variable and unpredictable traffic.",
+      "B": "Simple scaling triggers a single scaling action when an alarm fires and then waits for a cooldown, making it slow to respond to rapid traffic changes.",
+      "D": "Scheduled scaling adjusts capacity at predetermined times based on known patterns but cannot react to unexpected traffic variations between scheduled changes."
+    },
+    "explanation": "Target tracking is the simplest and recommended auto-scaling approach \u2014 you specify a target metric value (e.g., CPU at 50%) and the ASG automatically adds/removes instances to maintain that target. It handles both scale-out and scale-in. Simple scaling uses separate CloudWatch alarms with specific step sizes and has a cooldown period. Scheduled is time-based. Predictive uses ML but requires historical data.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "auto-scaling",
+      "target-tracking",
+      "cpu",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-011",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses Amazon Aurora MySQL. They have read-heavy workloads from reporting queries that are impacting production database performance. What Aurora feature allows them to offload read queries without impacting writes?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create Aurora Read Replicas and update the reporting application to connect."
+      },
+      {
+        "label": "B",
+        "text": "Enable Aurora Multi-AZ to distribute reads across AZs"
+      },
+      {
+        "label": "C",
+        "text": "Enable Aurora backtrack to redirect read queries"
+      },
+      {
+        "label": "D",
+        "text": "Use Aurora Serverless to auto-scale for read load"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Aurora Read Replicas share the same distributed storage layer as the primary but serve reads independently. The Aurora reader endpoint automatically load-balances connections across all available replicas. Routing reporting queries to the reader endpoint offloads the primary. Aurora Multi-AZ is for failover availability. Backtrack enables reverting to a previous state. Serverless auto-scales capacity but doesn't specifically separate read/write workloads.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "aurora",
+      "read-replicas",
+      "reader-endpoint",
+      "performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-012",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An e-commerce application experiences intermittent failures when the downstream payment service is unavailable. The upstream order service continues sending requests that fail immediately. What pattern prevents the order service from overwhelming the already-struggling payment service with failed requests?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase the request timeout to 60 seconds"
+      },
+      {
+        "label": "B",
+        "text": "Retry with exponential backoff and circuit breaker pattern"
+      },
+      {
+        "label": "C",
+        "text": "Cache the payment responses in ElastiCache"
+      },
+      {
+        "label": "D",
+        "text": "Add more order service instances to send more requests"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Exponential backoff reduces the frequency of retries, giving the failing service time to recover. A circuit breaker detects failure and stops sending requests temporarily ('open circuit'), preventing avalanche failures. Increasing timeout makes failures slower but doesn't help recovery. More instances send even more requests to the struggling service. Caching payment responses is not appropriate for financial transactions.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "circuit-breaker",
+      "retry",
+      "resilience",
+      "microservices"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-013",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company stores critical data in Amazon DynamoDB. They need the ability to restore the table to any point in time within the last 35 days. Which DynamoDB feature enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "DynamoDB Point-in-Time Recovery (PITR)"
+      },
+      {
+        "label": "B",
+        "text": "DynamoDB Global Tables"
+      },
+      {
+        "label": "C",
+        "text": "DynamoDB DAX"
+      },
+      {
+        "label": "D",
+        "text": "DynamoDB Streams with Lambda archiving to S3"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "DynamoDB PITR enables continuous backups and allows restoring the table to any second within the last 35-day window. When enabled, DynamoDB automatically takes backups. PITR restores to a new table, leaving the original intact. Global Tables replicate across regions for low-latency access and DR. Streams with Lambda can archive but requires custom implementation. DAX is a read cache.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "dynamodb",
+      "pitr",
+      "backup",
+      "recovery"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-014",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A media streaming company uses Amazon S3 to store video content. They want to ensure that if an S3 object is accidentally deleted, they can recover it quickly. Which S3 feature enables object recovery after deletion?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Replication copies objects to another bucket or Region but does not protect against accidental deletion within the source bucket where deletes are replicated."
+      },
+      {
+        "label": "B",
+        "text": "S3 Intelligent-Tiering automatically moves objects between cost tiers but does not prevent or protect against accidental or malicious deletion."
+      },
+      {
+        "label": "C",
+        "text": "S3 Lifecycle policies automatically transition or expire objects based on age rules but do not prevent accidental deletion or require MFA for delete operations."
+      },
+      {
+        "label": "D",
+        "text": "S3 Versioning with MFA Delete preserves all previous versions of objects and requires MFA authentication before permanently deleting versions or suspending versioning."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "S3 Replication copies objects to another bucket or Region but does not protect against accidental deletion within the source bucket where deletes are replicated.",
+      "B": "S3 Intelligent-Tiering automatically moves objects between cost tiers but does not prevent or protect against accidental or malicious deletion.",
+      "C": "S3 Lifecycle policies automatically transition or expire objects based on age rules but do not prevent accidental deletion or require MFA for delete operations."
+    },
+    "explanation": "S3 Versioning preserves all versions of every object. When an object is deleted without specifying a version ID, S3 adds a delete marker \u2014 the previous versions remain. Enabling MFA Delete adds additional protection by requiring MFA for permanent version deletions. Objects can be recovered by deleting the delete marker. Intelligent-Tiering manages storage costs. Replication copies to another bucket. Lifecycle policies automate transitions/expirations.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "s3",
+      "versioning",
+      "mfa-delete",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-015",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's RDS database is experiencing 'too many connections' errors during peak load because a Lambda function fleet opens a new database connection on every invocation. What is the recommended solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Amazon RDS Proxy between Lambda and RDS"
+      },
+      {
+        "label": "B",
+        "text": "Increase the RDS instance size to support more connections"
+      },
+      {
+        "label": "C",
+        "text": "Switch from RDS to DynamoDB"
+      },
+      {
+        "label": "D",
+        "text": "Reduce Lambda concurrent execution limit"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "RDS Proxy maintains a pool of database connections and multiplexes many Lambda invocations onto a smaller number of actual database connections. Thousands of Lambda invocations share the pool, staying within RDS connection limits. Increasing RDS size helps marginally but doesn't solve the per-invocation connection problem. Reducing Lambda concurrency degrades performance. Switching databases changes the entire data tier.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "rds-proxy",
+      "lambda",
+      "connection-pooling",
+      "serverless"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-016",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses AWS Elastic Beanstalk. They deploy a new version of their application and it introduces a critical bug. They need to roll back to the previous version within minutes. Which Elastic Beanstalk deployment option makes rollback fastest?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Immutable deployment"
+      },
+      {
+        "label": "B",
+        "text": "Rolling deployment"
+      },
+      {
+        "label": "C",
+        "text": "All at once deployment"
+      },
+      {
+        "label": "D",
+        "text": "Blue/green deployment"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Blue/green deployment spins up an entirely new environment (green) with the new version while keeping the old environment (blue) running. Rollback is instantaneous \u2014 just swap Route 53 or Elastic Beanstalk CNAME back to the old environment. Immutable deployment creates new instances but within the same environment. Rolling updates the same instances, so rollback requires redeploying the old version. All-at-once has no parallel environment for instant rollback.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "elastic-beanstalk",
+      "blue-green",
+      "rollback",
+      "deployment"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-017",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs a batch processing job nightly that takes 6 hours. They want the job to continue running even if individual EC2 instances fail mid-job. The job state is stored in S3 and the job can restart from a checkpoint. Which EC2 purchasing option allows the job to fail over gracefully while minimizing cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Reserved Instances guarantee capacity reservations at a significant discount but require a 1- or 3-year commitment that conflicts with burst-only batch workloads."
+      },
+      {
+        "label": "B",
+        "text": "On-Demand Instances with CloudWatch alarms for replacement provide reliable availability but charge full On-Demand pricing, missing the 70-90% Spot savings opportunity."
+      },
+      {
+        "label": "C",
+        "text": "Spot Instances with a Spot Fleet and checkpointing to S3 provide up to 90% cost savings while handling interruptions gracefully by resuming from saved checkpoints."
+      },
+      {
+        "label": "D",
+        "text": "Dedicated Hosts provide physical server isolation for licensing or compliance requirements but at a premium cost that far exceeds what batch jobs require."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Reserved Instances guarantee capacity reservations at a significant discount but require a 1- or 3-year commitment that conflicts with burst-only batch workloads.",
+      "B": "On-Demand Instances with CloudWatch alarms for replacement provide reliable availability but charge full On-Demand pricing, missing the 70-90% Spot savings opportunity.",
+      "D": "Dedicated Hosts provide physical server isolation for licensing or compliance requirements but at a premium cost that far exceeds what batch jobs require."
+    },
+    "explanation": "Spot Instances offer up to 90% cost savings. Since the batch job can checkpoint to S3 and restart, Spot interruptions are tolerable \u2014 a new Spot Instance picks up from the checkpoint. A Spot Fleet can replace interrupted instances automatically. On-Demand is reliable but expensive for 6-hour nightly jobs. Reserved Instances reduce cost but still require instance availability. Dedicated Hosts are for licensing, not resilience.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "spot-instances",
+      "batch",
+      "checkpointing",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-018",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to implement a loosely coupled, event-driven architecture where order creation events trigger multiple independent downstream processes (inventory update, notification, analytics) without the order service knowing about each consumer. Which AWS service is best suited?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon SNS topic with multiple subscribers fans out a single published message to all subscribers simultaneously, enabling parallel processing across multiple consumers."
+      },
+      {
+        "label": "B",
+        "text": "Amazon SQS FIFO queue preserves message order and deduplicates messages but delivers messages to only one consumer at a time, not to multiple independent consumers."
+      },
+      {
+        "label": "C",
+        "text": "Amazon Kinesis Data Streams supports multiple consumers reading the same stream but is designed for high-throughput ordered event streaming, adding unnecessary complexity."
+      },
+      {
+        "label": "D",
+        "text": "AWS Step Functions orchestrates sequential or parallel workflow steps but does not provide the fan-out messaging pattern needed to notify multiple independent consumers."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Amazon SQS FIFO queue preserves message order and deduplicates messages but delivers messages to only one consumer at a time, not to multiple independent consumers.",
+      "C": "Amazon Kinesis Data Streams supports multiple consumers reading the same stream but is designed for high-throughput ordered event streaming, adding unnecessary complexity.",
+      "D": "AWS Step Functions orchestrates sequential or parallel workflow steps but does not provide the fan-out messaging pattern needed to notify multiple independent consumers."
+    },
+    "explanation": "SNS is designed for the publish-subscribe (fan-out) pattern. The order service publishes one message to an SNS topic; SNS delivers it simultaneously to all subscribers (SQS queues, Lambda functions, HTTP endpoints) without the publisher knowing about individual consumers. This decouples producers from consumers. SQS FIFO is for ordered, exactly-once queuing to a single consumer pool. Kinesis is for high-throughput streaming. Step Functions orchestrates sequential workflows.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "sns",
+      "pub-sub",
+      "event-driven",
+      "loose-coupling"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-019",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses Amazon EFS for shared file storage accessed by 10 EC2 instances. They need to ensure the EFS file system remains available even if an entire AZ goes down. Which EFS configuration provides AZ-level resilience?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create one EFS mount target in each AZ"
+      },
+      {
+        "label": "B",
+        "text": "Create a separate EFS file system in each AZ and sync them"
+      },
+      {
+        "label": "C",
+        "text": "Enable EFS encryption for availability"
+      },
+      {
+        "label": "D",
+        "text": "Enable EFS One Zone storage class"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "EFS Standard storage class replicates data across multiple AZs automatically. By creating mount targets in each AZ, EC2 instances in any AZ can mount the file system via their local mount target. If one AZ fails, EC2 instances in other AZs continue accessing EFS through their own mount targets \u2014 the data is replicated and accessible. EFS One Zone keeps data in a single AZ (cheaper but not resilient to AZ failure). Encryption doesn't affect availability.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "efs",
+      "multi-az",
+      "mount-target",
+      "availability"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-020",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs their application to handle 10\u00d7 its normal traffic during holiday sales. They want capacity to be available immediately when the spike begins. The timing of the spike is predictable (starts December 20). What Auto Scaling approach ensures capacity is ready?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Rely on reactive scaling to catch up with demand"
+      },
+      {
+        "label": "B",
+        "text": "Manually launch instances on December 20"
+      },
+      {
+        "label": "C",
+        "text": "Target tracking scaling \u2014 set a low CPU threshold"
+      },
+      {
+        "label": "D",
+        "text": "Scheduled scaling action to increase desired capacity to the peak"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Scheduled scaling actions allow pre-emptive capacity increases. Setting a scheduled action to increase desired capacity several hours before December 20 ensures instances are warm and registered with the load balancer before demand hits. Reactive policies (target tracking, step scaling) respond after metrics spike \u2014 during the initial surge, there's latency while new instances are launching. Manual launch is error-prone.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "auto-scaling",
+      "scheduled-scaling",
+      "capacity",
+      "seasonal"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-021",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company uses AWS CloudFormation to manage infrastructure. After a stack update fails, they want to understand which specific resource caused the failure. Where should they look?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudFormation stack events provide detailed status messages for each resource creation, update, or deletion step, including specific error codes when resources fail."
+      },
+      {
+        "label": "B",
+        "text": "CloudTrail API call history shows who called which API at what time but does not provide the resource-level status messages emitted during CloudFormation stack operations."
+      },
+      {
+        "label": "C",
+        "text": "CloudWatch metrics for the stack show high-level operational metrics but do not contain the per-resource status messages generated during CloudFormation deployments."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config resource configuration history shows configuration changes over time but does not capture the deployment-time status messages from CloudFormation operations."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "CloudTrail API call history shows who called which API at what time but does not provide the resource-level status messages emitted during CloudFormation stack operations.",
+      "C": "CloudWatch metrics for the stack show high-level operational metrics but do not contain the per-resource status messages generated during CloudFormation deployments.",
+      "D": "AWS Config resource configuration history shows configuration changes over time but does not capture the deployment-time status messages from CloudFormation operations."
+    },
+    "explanation": "CloudFormation stack events provide a chronological log of each resource's status during a stack operation. Failed events include the logical resource ID, the physical resource ID, and the failure reason from the underlying service API. This is the primary debugging tool for CloudFormation failures. CloudTrail records API calls. CloudWatch metrics provide operational monitoring. Config tracks configuration changes.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "cloudformation",
+      "troubleshooting",
+      "stack-events",
+      "iac"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-022",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's application stores user-uploaded images in an S3 bucket in us-east-1. Users in Australia report slow upload speeds. They want to speed up uploads to S3 from globally distributed users without deploying additional regions. Which S3 feature addresses this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Multipart Upload"
+      },
+      {
+        "label": "B",
+        "text": "S3 Transfer Acceleration"
+      },
+      {
+        "label": "C",
+        "text": "S3 Cross-Region Replication"
+      },
+      {
+        "label": "D",
+        "text": "S3 Intelligent-Tiering"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "S3 Transfer Acceleration uses CloudFront edge locations as upload endpoints. Users upload to the nearest edge location; data is transferred over AWS's optimized backbone to the S3 bucket. This reduces upload latency significantly for distant users. CRR copies objects after upload but doesn't speed uploads. Intelligent-Tiering manages storage costs. Multipart Upload improves large file upload reliability but not geographic latency.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "s3",
+      "transfer-acceleration",
+      "global",
+      "latency"
+    ]
+  },
+  {
+    "id": "aws-saa-t1-02-023",
+    "domain": 2,
+    "domain_name": "Design Resilient Architectures",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs to implement a disaster recovery strategy. Their RPO is 4 hours and their RTO is 8 hours. They want minimal costs for the DR environment. Which DR strategy fits these requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Backup and restore \u2014 data backed up to S3 in secondary"
+      },
+      {
+        "label": "B",
+        "text": "Pilot light \u2014 minimal running infrastructure with data replicated"
+      },
+      {
+        "label": "C",
+        "text": "Multi-site active/active \u2014 full capacity in two regions"
+      },
+      {
+        "label": "D",
+        "text": "Warm standby \u2014 scaled-down version running in secondary region"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Backup and restore has the lowest cost: data is backed up to S3 (cheap) and infrastructure is built from scratch during a disaster. With 4-hour RPO and 8-hour RTO, there's time to restore backups and launch new infrastructure. Warm standby has lower RTO but ongoing running costs. Multi-site active/active meets any RTO/RPO but at highest cost. Pilot light maintains minimal running infrastructure \u2014 lower RTO but higher cost than backup/restore.",
+    "module_ref": "aws-saa/resilient",
+    "tags": [
+      "disaster-recovery",
+      "backup-restore",
+      "rpo",
+      "rto"
+    ]
+  }
+]

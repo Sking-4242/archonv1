@@ -1,7 +1,17 @@
+import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
+
+const MORE_LINKS = [
+  { label: "Teaching Assistant", path: "/instructor/assistant", desc: "AI copilot for labs, lessons, and class support" },
+  { label: "Lesson Plans", path: "/instructor/lesson-plans", desc: "Author and edit lesson content" },
+  { label: "Rubric Bank", path: "/instructor/rubric-bank", desc: "Reference rubric patterns" },
+  { label: "Announcements", path: "/instructor/announcements", desc: "Class announcements" },
+  { label: "Teams", path: "/instructor/teams", desc: "Student team groupings" },
+];
 
 export default function InstructorSettings() {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-6">
@@ -27,6 +37,23 @@ export default function InstructorSettings() {
               </span>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* More tools moved from primary nav */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6 space-y-3">
+        <h2 className="text-sm font-semibold text-gray-800">More tools</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {MORE_LINKS.map((link) => (
+            <button
+              key={link.path}
+              onClick={() => navigate(link.path)}
+              className="text-left border border-gray-200 rounded-lg px-4 py-3 hover:border-blue-300 transition-colors"
+            >
+              <div className="text-sm font-medium text-gray-900">{link.label}</div>
+              <div className="text-xs text-gray-400 mt-0.5">{link.desc}</div>
+            </button>
+          ))}
         </div>
       </div>
 

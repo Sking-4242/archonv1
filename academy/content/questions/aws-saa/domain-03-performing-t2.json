@@ -1,0 +1,926 @@
+[
+  {
+    "id": "aws-saa-t2-03-001",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's application reads from DynamoDB at 50,000 RCUs per second. DynamoDB costs are high. 80% of reads are for the same 100 'hot' items (e.g., featured products). The other 20% are for unique items per user. What caching strategy best reduces DynamoDB costs?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable DynamoDB On-Demand mode to reduce costs"
+      },
+      {
+        "label": "B",
+        "text": "Increase DynamoDB provisioned capacity to handle the load more efficiently"
+      },
+      {
+        "label": "C",
+        "text": "Use DynamoDB DAX with a cache hit optimization for hot items"
+      },
+      {
+        "label": "D",
+        "text": "Move the 100 hot items to ElastiCache and all other items to DynamoDB"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "DAX is an API-compatible in-memory cache for DynamoDB. Since 80% of reads hit 100 hot items, these will be cached in DAX with high hit rate \u2014 eliminating 80% of DynamoDB RCU consumption for those reads. On-Demand mode changes how capacity is billed but not the RCU rate. Increasing provisioned capacity costs more, not less. Moving hot items to ElastiCache requires application changes (different API); DAX is drop-in.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "dynamodb",
+      "dax",
+      "caching",
+      "hot-items"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-002",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs to process video uploads. When a video is uploaded to S3, a Lambda function should be triggered to transcode it to multiple resolutions. The transcoding takes up to 45 minutes per video. Lambda's maximum execution time is 15 minutes. What architecture handles this constraint?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase Lambda timeout beyond 15 minutes"
+      },
+      {
+        "label": "B",
+        "text": "S3 Event Notification \u2192 Lambda \u2192 triggers an AWS Batch job or ECS Fargate task."
+      },
+      {
+        "label": "C",
+        "text": "Use Lambda Provisioned Concurrency to allow longer execution"
+      },
+      {
+        "label": "D",
+        "text": "S3 Event Notification \u2192 Lambda \u2192 splits the video into 14-minute chunks and processes each concurrently"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Lambda's 15-minute maximum is a hard limit. For long-running tasks, Lambda should act as an orchestrator \u2014 it receives the S3 event and submits a job to AWS Batch or launches an ECS Fargate task, then returns. The Fargate task runs the 45-minute transcoding job to completion. Provisioned Concurrency pre-warms environments but doesn't extend the timeout. Splitting video into chunks adds complexity and may not work for all transcoding scenarios.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "lambda",
+      "fargate",
+      "ecs",
+      "long-running-job"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-003",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon Redshift. Their data analysts run ad-hoc queries simultaneously, causing cluster contention. Short queries from analysts are queued behind long-running ETL jobs. What Redshift feature prioritizes shorter queries over long-running ones?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Redshift workload management with query queues separates short ad-hoc analyst queries from long-running ETL jobs, preventing analysts from waiting behind batch workloads."
+      },
+      {
+        "label": "B",
+        "text": "Redshift Serverless for ad-hoc queries provisions compute separately from the main cluster but cannot share data with an existing provisioned Redshift cluster without Spectrum."
+      },
+      {
+        "label": "C",
+        "text": "Redshift Spectrum for ad-hoc queries runs SQL on data stored in S3 but requires data to be exported from the Redshift cluster first, adding latency and cost."
+      },
+      {
+        "label": "D",
+        "text": "Create a separate Redshift cluster for analysts which provides full isolation but doubles the infrastructure cost and requires synchronizing data between the two clusters."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Redshift Serverless for ad-hoc queries provisions compute separately from the main cluster but cannot share data with an existing provisioned Redshift cluster without Spectrum.",
+      "C": "Redshift Spectrum for ad-hoc queries runs SQL on data stored in S3 but requires data to be exported from the Redshift cluster first, adding latency and cost.",
+      "D": "Create a separate Redshift cluster for analysts which provides full isolation but doubles the infrastructure cost and requires synchronizing data between the two clusters."
+    },
+    "explanation": "Redshift WLM allows you to create multiple query queues with different priorities, concurrency settings, memory allocation, and query timeouts. By routing analyst queries to a separate high-priority queue and ETL jobs to a different queue, analysts get lower wait times. Short Query Acceleration (SQA) in WLM can further prioritize and accelerate short queries automatically. A separate cluster (option D) also works but is much more expensive.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "redshift",
+      "wlm",
+      "query-priority",
+      "analytics"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-004",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company runs a REST API on EC2 instances behind an ALB. The API has unpredictable traffic patterns with occasional peaks of 100,000 requests per second. They want to handle these peaks without pre-provisioning capacity and pay only for actual usage. What architecture achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use a larger EC2 instance type with more CPU cores"
+      },
+      {
+        "label": "B",
+        "text": "Migrate the API to Amazon API Gateway + AWS Lambda"
+      },
+      {
+        "label": "C",
+        "text": "Configure EC2 Auto Scaling with scheduled scaling to anticipate peaks"
+      },
+      {
+        "label": "D",
+        "text": "Use EC2 with Spot Fleet and target tracking auto scaling"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Serverless (API Gateway + Lambda) is ideal for unpredictable peaks: Lambda scales from 0 to thousands of concurrent invocations automatically without pre-provisioning. You pay per request and execution duration \u2014 no idle costs. At 100,000 RPS, Lambda handles this through automatic horizontal scaling. EC2 Spot scaling has a 1-5 minute lag before new instances are ready. Scheduled scaling requires knowing when peaks occur.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "api-gateway",
+      "lambda",
+      "serverless",
+      "auto-scaling"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-005",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company stores frequently accessed objects in Amazon S3 with a high GET request rate (millions per day). S3 GET costs are accumulating. Many GET requests are for the same objects. What caching layer reduces S3 GET costs while maintaining low latency for the end users?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable S3 Intelligent-Tiering to reduce storage costs automatically moves infrequently accessed objects to cheaper tiers but does not reduce the read latency experienced by global users."
+      },
+      {
+        "label": "B",
+        "text": "Use S3 Batch Operations to pre-fetch objects copies or transforms objects at scale but does not cache or distribute content closer to geographically distributed users."
+      },
+      {
+        "label": "C",
+        "text": "Deploy Amazon CloudFront in front of S3 \u2014 CloudFront caches S3 objects at edge locations"
+      },
+      {
+        "label": "D",
+        "text": "Enable S3 Transfer Acceleration speeds up direct S3 uploads and downloads through CloudFront edge locations but does not cache content for repeated global access."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Enable S3 Intelligent-Tiering to reduce storage costs automatically moves infrequently accessed objects to cheaper tiers but does not reduce the read latency experienced by global users.",
+      "B": "Use S3 Batch Operations to pre-fetch objects copies or transforms objects at scale but does not cache or distribute content closer to geographically distributed users.",
+      "D": "Enable S3 Transfer Acceleration speeds up direct S3 uploads and downloads through CloudFront edge locations but does not cache content for repeated global access."
+    },
+    "explanation": "CloudFront caches S3 objects at edge locations globally. High cache hit ratios (objects accessed repeatedly) mean most GETs are served from CloudFront cache without touching S3 \u2014 dramatically reducing S3 API request costs and improving latency. CloudFront data transfer to users replaces S3 data transfer fees (often at comparable or lower rates). Transfer Acceleration speeds uploads. Intelligent-Tiering optimizes storage, not GET costs.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "cloudfront",
+      "s3",
+      "caching",
+      "get-cost"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-006",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's application writes 500 GB of data nightly to S3. The next day, it reads all 500 GB for processing. The pattern repeats nightly. What EBS volume type would be appropriate if they instead needed local high-throughput storage during processing (before writing final results to S3)?",
+    "options": [
+      {
+        "label": "A",
+        "text": "sc1 (Cold HDD) is designed for infrequently accessed large data with the lowest EBS cost but provides much lower throughput than st1 for sequential workloads."
+      },
+      {
+        "label": "B",
+        "text": "Deploy Amazon CloudFront in front of S3 to cache S3 objects at CloudFront edge locations, serving global users with low latency without hitting the S3 origin each time."
+      },
+      {
+        "label": "C",
+        "text": "io2 Block Express delivers the maximum IOPS and sub-millisecond latency for transactional databases but is designed for random I/O patterns, not sequential log streaming."
+      },
+      {
+        "label": "D",
+        "text": "gp3 provides a configurable balance of IOPS and throughput for general workloads but cannot match the sequential throughput of st1 for large streaming use cases."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "sc1 (Cold HDD) is designed for infrequently accessed large data with the lowest EBS cost but provides much lower throughput than st1 for sequential workloads.",
+      "C": "io2 Block Express delivers the maximum IOPS and sub-millisecond latency for transactional databases but is designed for random I/O patterns, not sequential log streaming.",
+      "D": "gp3 provides a configurable balance of IOPS and throughput for general workloads but cannot match the sequential throughput of st1 for large streaming use cases."
+    },
+    "explanation": "500 GB of sequential read/write nightly is a classic st1 (Throughput Optimized HDD) use case. st1 is optimized for large sequential workloads with up to 500 MB/s throughput at lower cost than SSD options. Reading 500 GB at 500 MB/s takes ~17 minutes vs. hours on lower-throughput storage. io2 is optimized for high-IOPS random access (databases). gp3 is balanced general purpose. sc1 is for cold data with max 250 MB/s.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "ebs",
+      "st1",
+      "throughput",
+      "sequential"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-007",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to implement full-text search on their product catalog stored in DynamoDB. DynamoDB's query capabilities don't support full-text search. What architecture adds search capability without migrating away from DynamoDB?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable DynamoDB Streams \u2192 Lambda \u2192 index items in Amazon OpenSearch Service"
+      },
+      {
+        "label": "B",
+        "text": "Use DynamoDB PartiQL for full-text search queries"
+      },
+      {
+        "label": "C",
+        "text": "Export DynamoDB to S3 and use Athena for full-text search"
+      },
+      {
+        "label": "D",
+        "text": "Enable DynamoDB Global Tables \u2014 replicas support full-text search"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "DynamoDB Streams capture item changes in real time. A Lambda function processes the stream and indexes items in OpenSearch (Elasticsearch). Search queries run against OpenSearch for full-text search capabilities. Results (document IDs) are used to fetch complete items from DynamoDB. This keeps DynamoDB as the source of truth while adding search capability. Athena can search S3 exports but is not real-time. Global Tables replicate data, not add new query capabilities.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "dynamodb",
+      "opensearch",
+      "full-text-search",
+      "streams"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-008",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company runs a web application serving users globally. They use Amazon CloudFront with an S3 origin. Some users report that they see stale content even after the company updates objects in S3. How can the company ensure users see updated content immediately after S3 updates?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Disable CloudFront caching for all objects"
+      },
+      {
+        "label": "B",
+        "text": "Reduce the default CloudFront TTL to 0 seconds"
+      },
+      {
+        "label": "C",
+        "text": "Create a CloudFront invalidation for the updated object paths"
+      },
+      {
+        "label": "D",
+        "text": "Delete and recreate the S3 objects with different names"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "CloudFront invalidations purge specific object paths from all edge caches, forcing the next request to fetch fresh content from the origin. This is the standard mechanism for immediate cache updates. Setting TTL to 0 disables caching (every request goes to origin) \u2014 eliminates the CDN benefit. Renaming objects works but requires application changes. Disabling caching eliminates all CloudFront performance benefits.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "cloudfront",
+      "invalidation",
+      "cache-management",
+      "content-update"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-009",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon ElastiCache Redis for session storage. The Redis cluster has 3 nodes. If the primary node fails, sessions stored only in that node are lost. What Redis configuration prevents session data loss on primary failure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "All of the above contribute to session durability"
+      },
+      {
+        "label": "B",
+        "text": "Enable Redis persistence (AOF or RDB) and replicate to a replica node"
+      },
+      {
+        "label": "C",
+        "text": "Use Redis cluster mode with data sharding across nodes"
+      },
+      {
+        "label": "D",
+        "text": "Enable Redis Multi-AZ with automatic failover and use Redis replication groups"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Redis replication groups with Multi-AZ and automatic failover: each primary shard has a read replica in a different AZ. On primary failure, the replica is automatically promoted. Session data written to the primary is synchronously replicated to the replica before the write is acknowledged (if using WAIT) or shortly after (async). This prevents data loss on primary failure. Redis persistence (AOF/RDB) protects against node crashes to disk. Cluster mode with replication across shards is also durable.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "elasticache",
+      "redis",
+      "replication",
+      "failover"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-010",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company is designing a data lake architecture on AWS. Raw data from multiple sources lands in S3. Data scientists need to query this raw data with SQL while data engineers transform it into optimized formats for BI tools. Which services form the foundation of this architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "DynamoDB (storage) + Lambda (ETL) + Athena (queries)"
+      },
+      {
+        "label": "B",
+        "text": "S3 (storage) + Glue (cataloging and ETL) + Athena (ad-hoc SQL) + Redshift Spectrum."
+      },
+      {
+        "label": "C",
+        "text": "S3 (storage) + EMR (all processing) + Redshift (all queries)"
+      },
+      {
+        "label": "D",
+        "text": "RDS (relational storage) + Glue (ETL) + Redshift (SQL queries)"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The AWS data lake pattern: S3 is the storage layer (schema-on-read, any format). Glue Data Catalog stores schema metadata; Glue ETL transforms raw data into optimized formats (Parquet). Athena queries raw S3 data using Glue catalog. Redshift Spectrum queries formatted S3 data from Redshift for BI tools. This architecture is serverless, cost-effective, and separates storage from compute.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "data-lake",
+      "s3",
+      "glue",
+      "athena"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-011",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses EC2 instances with gp2 EBS volumes. As their database grows, they need more IOPS without increasing volume size. What is the most efficient way to increase IOPS on existing gp2 volumes?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create RAID 0 across multiple gp2 volumes"
+      },
+      {
+        "label": "B",
+        "text": "Snapshot the volume, restore it to a larger size, and add a second EBS volume"
+      },
+      {
+        "label": "C",
+        "text": "Attach additional gp2 volumes and configure LVM striping"
+      },
+      {
+        "label": "D",
+        "text": "Modify the gp2 volume to gp3 \u2014 gp3 allows independent IOPS configuration up to 16,000."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "gp3 volumes decouple IOPS from volume size \u2014 you can configure up to 16,000 IOPS independently of the volume size. Modifying gp2 to gp3 is online (no instance stop or detach required) and typically reduces cost (gp3 is ~20% cheaper at baseline and has independently configurable IOPS). RAID 0 across multiple volumes works but adds complexity and risk (one volume failure loses data). LVM is similarly complex.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "ebs",
+      "gp3",
+      "iops",
+      "storage-performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-012",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company processes user analytics events. Events must be available for processing within 1 second of generation. The event processing function needs to run SQL transformations on event windows (e.g., count events per user in the last 60 seconds). Which service handles this real-time windowed aggregation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Kinesis Data Streams with a custom Lambda consumer"
+      },
+      {
+        "label": "B",
+        "text": "Amazon SQS + Lambda for per-event processing"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Kinesis Data Analytics (now Apache Flink)"
+      },
+      {
+        "label": "D",
+        "text": "AWS Glue Streaming ETL jobs"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Kinesis Data Analytics for Apache Flink (formerly Kinesis Data Analytics SQL) provides streaming SQL with built-in windowed aggregations (tumbling, sliding, session windows). A 60-second count-per-user sliding window query is a standard streaming analytics pattern. Custom Lambda consumers lack window function support. SQS is for job queuing, not streaming analytics. Glue Streaming is more for ETL (transformation, not analytics).",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "kinesis",
+      "flink",
+      "streaming-analytics",
+      "windowed-aggregation"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-013",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's application stores user profile images in Amazon S3. When a user uploads a new profile image, the old image should be deleted and thumbnails generated. The company wants this processing to happen automatically without polling S3. What event-driven architecture achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudWatch Events scheduled rule to run image processing every minute"
+      },
+      {
+        "label": "B",
+        "text": "Athena query on S3 to detect new uploads"
+      },
+      {
+        "label": "C",
+        "text": "S3 Event Notification triggering a Lambda function on s3:ObjectCreated events"
+      },
+      {
+        "label": "D",
+        "text": "S3 Lifecycle policy to process images after 30 days"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "S3 Event Notifications fire immediately when objects are created, deleted, or transitioned. Routing PutObject events to Lambda provides event-driven processing without polling. The Lambda function deletes the old image (using a naming convention or DynamoDB to track current image) and generates thumbnails synchronously or via SQS fan-out. Lifecycle policies run on schedules, not events. Scheduled rules add latency and unnecessary processing.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "s3-events",
+      "lambda",
+      "event-driven",
+      "image-processing"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-014",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's application uses Amazon Aurora Serverless v2. They notice the database sometimes auto-scales from 0.5 ACUs to 64 ACUs in response to traffic spikes. The scale-up takes a few seconds and some requests timeout during scale-up. How can they reduce request timeouts during scale-up?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Aurora Multi-AZ to distribute scale-up load"
+      },
+      {
+        "label": "B",
+        "text": "Set the maximum ACUs to 8 to prevent large scale-up events"
+      },
+      {
+        "label": "C",
+        "text": "Set the minimum ACUs to a higher value (e.g."
+      },
+      {
+        "label": "D",
+        "text": "Switch to Aurora provisioned for no scaling delays"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Aurora Serverless v2 scales up incrementally. Starting from 0.5 ACUs, scaling to 64 ACUs during a sudden spike involves multiple scale-up steps and can take several seconds, during which requests may timeout. Setting a higher minimum ACU baseline (e.g., 8 ACUs) means the cluster starts each scale-up event from a higher baseline \u2014 fewer steps to reach the needed capacity, reducing scaling latency. Switching to provisioned eliminates serverless economics. Limiting maximum ACUs causes throttling. Multi-AZ adds AZ resilience.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "aurora-serverless",
+      "scaling",
+      "minimum-acu",
+      "performance"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-015",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs to provide their application with the ability to search, filter, and sort millions of product records with sub-100ms response times. The queries include full-text search on product descriptions, faceted filtering by category/price, and relevance ranking. Which service is best suited?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon DynamoDB with global secondary indexes"
+      },
+      {
+        "label": "B",
+        "text": "Amazon OpenSearch Service"
+      },
+      {
+        "label": "C",
+        "text": "Amazon RDS with full-text indexes"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Athena"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "OpenSearch (Elasticsearch) is purpose-built for search workloads: full-text search with relevance scoring, faceted filtering, sorting, and aggregations over millions of documents with sub-second latency. It supports complex search queries including match, fuzzy, range, and boolean queries. RDS full-text indexes are limited and don't scale to millions of records at sub-100ms. DynamoDB GSIs support indexed lookups but not full-text search or relevance ranking. Athena scans data \u2014 not optimized for sub-100ms interactive search.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "opensearch",
+      "search",
+      "full-text",
+      "faceted-search"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-016",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company runs containerized microservices on Amazon ECS. One service is responsible for high-frequency, low-latency inter-service communication (thousands of calls per second). The service mesh needs discovery, load balancing, and circuit breaking. Which AWS approach is most appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Route 53 service discovery with health checks for each service"
+      },
+      {
+        "label": "B",
+        "text": "Configure direct EC2-to-EC2 communication with hardcoded IP addresses"
+      },
+      {
+        "label": "C",
+        "text": "Route all inter-service traffic through an ALB"
+      },
+      {
+        "label": "D",
+        "text": "Use AWS App Mesh with Envoy proxy sidecars"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "AWS App Mesh is a service mesh that uses Envoy proxies (sidecars) to handle service-to-service traffic. It provides: traffic routing, service discovery, circuit breaking, retries, timeouts, and observability (tracing, metrics) without application code changes. For high-frequency inter-service communication, App Mesh's Envoy sidecar handles connection pooling and circuit breaking at the infrastructure layer. ALB adds latency for synchronous inter-service calls. Hardcoded IPs don't support dynamic service scaling. Route 53 health checks are too slow for per-request circuit breaking.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "ecs",
+      "app-mesh",
+      "service-mesh",
+      "envoy"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-017",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs a database for an IoT application with 50,000 connected devices each sending 1 KB of telemetry data every second. The application must handle 50,000 writes/second with low latency and scale automatically. Queries are simple key-value lookups by device ID and timestamp. Which database is most appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon RDS MySQL with read replicas"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Aurora MySQL Serverless"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Redshift"
+      },
+      {
+        "label": "D",
+        "text": "Amazon DynamoDB with on-demand capacity"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "DynamoDB with on-demand capacity handles 50,000 writes/second automatically \u2014 it scales to millions of requests per second. Device ID as partition key and timestamp as sort key supports time-range queries by device. No provisioning needed. RDS/Aurora scale writes vertically and have connection limits that would be exhausted by 50,000 simultaneous IoT devices. Redshift is an analytics warehouse, not an OLTP database for real-time IoT ingestion.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "dynamodb",
+      "iot",
+      "high-throughput",
+      "on-demand"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-018",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company runs Apache Spark jobs for large-scale data processing. Jobs run 2-3 hours and process 50 TB of data from S3. They want to minimize cost. Which AWS service and approach is most cost-effective?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Permanently running EMR cluster with Reserved Instances keeps cluster available at all times but incurs 24/7 costs for a workload that only runs for a few hours per day."
+      },
+      {
+        "label": "B",
+        "text": "AWS Glue PySpark job is serverless and cost-effective but Glue's managed Spark environment has less tuning flexibility than EMR for complex Spark optimization."
+      },
+      {
+        "label": "C",
+        "text": "Amazon Redshift with Spark connector requires loading data into Redshift first, adding a time-consuming and costly ETL step before the Spark transformation can run."
+      },
+      {
+        "label": "D",
+        "text": "Transient Amazon EMR cluster using Spot Instances for task nodes,"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Permanently running EMR cluster with Reserved Instances keeps cluster available at all times but incurs 24/7 costs for a workload that only runs for a few hours per day.",
+      "B": "AWS Glue PySpark job is serverless and cost-effective but Glue's managed Spark environment has less tuning flexibility than EMR for complex Spark optimization.",
+      "C": "Amazon Redshift with Spark connector requires loading data into Redshift first, adding a time-consuming and costly ETL step before the Spark transformation can run."
+    },
+    "explanation": "Transient EMR clusters (launched per job, terminated after) eliminate idle cluster costs. Using Spot Instances for task nodes (the non-master, non-core nodes that don't hold data) provides up to 90% compute cost reduction. If Spot is interrupted, EMR reschedules tasks. Permanent clusters with RIs waste capacity between jobs. Glue serverless Spark is simpler but typically 2-3x more expensive per DPU-hour than EMR Spot. Redshift doesn't run Spark natively.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "emr",
+      "spark",
+      "spot-instances",
+      "transient-cluster"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-019",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon Kinesis Data Streams. A consumer application is processing records from the stream. The consumer's processing rate has fallen behind the producer rate, and messages are approaching the 24-hour retention period. What is the most immediate solution to increase consumer throughput?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase the Kinesis retention period to 7 days"
+      },
+      {
+        "label": "B",
+        "text": "Increase the number of shards \u2014 each shard provides 2 MB/s."
+      },
+      {
+        "label": "C",
+        "text": "Switch to SQS for better throughput"
+      },
+      {
+        "label": "D",
+        "text": "Enable Enhanced Fan-Out to add more consumer applications"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Kinesis stream throughput scales linearly with shard count: each shard supports 2 MB/s reads and 1 MB/s writes. If the consumer is falling behind, increasing shards increases the number of parallelized partitions \u2014 more consumer threads/processes can read simultaneously. Enhanced Fan-Out (C) gives each registered consumer its own 2 MB/s per shard but requires adding new consumer applications; increasing shards benefits all existing consumers. Extending retention buys time but doesn't solve the underlying throughput gap.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "kinesis",
+      "shards",
+      "throughput",
+      "consumer-scaling"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-020",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon Neptune for a social network graph. As the graph grows to billions of edges, some traversal queries take 30+ seconds. The queries traverse 4-5 hops across the graph. What optimization reduces query time?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Rewrite expensive multi-hop traversals using Neptune's bulk loader to pre-compute common paths; or use Neptune ML to generate graph embeddings for similarity queries"
+      },
+      {
+        "label": "B",
+        "text": "Partition the graph data across multiple Neptune clusters"
+      },
+      {
+        "label": "C",
+        "text": "Migrate to Amazon Redshift for graph analytics"
+      },
+      {
+        "label": "D",
+        "text": "Add an ElastiCache Redis layer in front of Neptune"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "For frequently repeated multi-hop traversal queries, caching the results in ElastiCache significantly reduces Neptune load. Common traversals (e.g., 'friends of friends') can be cached with appropriate TTLs. Neptune doesn't have native query result caching. Pre-computing paths (option C) works for specific known patterns. Neptune ML helps with recommendation workloads. Redshift is not a graph database. Caching is the simplest and most broadly effective first optimization.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "neptune",
+      "graph",
+      "caching",
+      "elasticache"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-021",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses AWS Lambda with a 1 GB memory allocation. Their functions run for 500ms on average. A performance analysis shows that 400ms is network I/O wait time (waiting for DynamoDB responses). What is the most effective optimization to reduce cost without increasing latency?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Lambda Provisioned Concurrency to eliminate cold starts"
+      },
+      {
+        "label": "B",
+        "text": "Add DAX between Lambda and DynamoDB to reduce DynamoDB latency"
+      },
+      {
+        "label": "C",
+        "text": "Reduce Lambda memory to 256 MB \u2014 since 80% of execution time is."
+      },
+      {
+        "label": "D",
+        "text": "Switch Lambda to ARM/Graviton2 architecture for better CPU performance"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Lambda pricing is memory \u00d7 duration (GB-seconds). If the function is I/O-bound (waiting on network), reducing memory doesn't increase execution duration \u2014 it stays at ~500ms. Reducing from 1 GB to 256 MB reduces cost by 75%. DAX (option D) would also help by reducing the 400ms DynamoDB latency \u2014 potentially reducing total duration \u2014 but it adds infrastructure cost. Since the question asks about reducing cost with the described workload, right-sizing memory is the most direct answer.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "lambda",
+      "cost-optimization",
+      "right-sizing",
+      "io-bound"
+    ]
+  },
+  {
+    "id": "aws-saa-t2-03-022",
+    "domain": 3,
+    "domain_name": "Design High-Performing Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs to analyze clickstream data from their website. Data arrives at 100,000 events/second. They need to answer questions like 'what pages did users visit before converting?' using SQL. The raw data must be available for replay. What architecture best supports this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 (storage) + Batch processing with EMR every hour + Redshift (analysis)"
+      },
+      {
+        "label": "B",
+        "text": "Kinesis Data Streams \u2192 Lambda \u2192 DynamoDB (SQL queries via PartiQL)"
+      },
+      {
+        "label": "C",
+        "text": "Kinesis Data Streams (raw storage + replay) \u2192 Kinesis Data Firehose (delivery to S3)"
+      },
+      {
+        "label": "D",
+        "text": "SQS (raw storage) + Lambda (SQL processing) + RDS (storage)"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Kinesis Data Streams provides the replay capability (data retained up to 365 days, consumers can reset to any position). Firehose delivers to S3 (durable, cheap). Glue crawlers update the schema catalog. Athena provides ad-hoc SQL over the S3 data. This fully serverless pipeline handles 100K events/sec and enables both real-time and historical SQL analysis. SQS doesn't support replay. DynamoDB PartiQL is limited for analytical queries.",
+    "module_ref": "aws-saa/performing",
+    "tags": [
+      "kinesis",
+      "firehose",
+      "athena",
+      "clickstream"
+    ]
+  }
+]

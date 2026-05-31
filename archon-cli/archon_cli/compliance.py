@@ -457,6 +457,27 @@ COMPLIANCE_MAP: dict[str, list[str]] = {
     # PCI Req 6.6 — address new threats and vulnerabilities on public-facing web applications
     # HIPAA 164.312(e)(2)(i) — encryption of data in transit / application-layer protection
     # SOC2 CC6.6 — security measures against network threats
+
+    # ── GCP rules ─────────────────────────────────────────────────────────────
+    "gcp_cloudsql_public_ip": ["CIS", "PCI", "HIPAA", "NIST"],
+    "gcp_gcs_no_public_access_prevention": ["CIS", "NIST", "PCI", "SOC2"],
+    "gcp_gke_no_private_cluster": ["CIS", "NIST", "SOC2"],
+    "gcp_iam_public_binding": ["CIS", "NIST", "PCI", "SOC2"],
+    "gcp_fw_ssh_open": ["CIS", "NIST", "PCI"],
+    "gcp_fw_postgres_open": ["CIS", "NIST", "PCI", "HIPAA"],
+    "gcp_topology_lb_no_armor": ["PCI", "SOC2", "CIS"],
+
+    # ── Azure rules ───────────────────────────────────────────────────────────
+    "azure_sql_tde_disabled": ["CIS", "PCI", "HIPAA", "NIST"],
+    "azure_storage_public_access": ["CIS", "NIST", "PCI", "SOC2"],
+    "azure_aks_rbac_disabled": ["CIS", "NIST", "SOC2"],
+    "azure_keyvault_purge_protection_disabled": ["CIS", "NIST", "PCI"],
+    "azure_iam_public_principal": ["CIS", "NIST", "PCI", "SOC2"],
+    "azure_iam_owner_binding": ["CIS", "NIST", "SOC2"],
+    "azure_nsg_ssh_open": ["CIS", "NIST", "PCI"],
+    "azure_nsg_postgres_open": ["CIS", "NIST", "PCI", "HIPAA"],
+    "azure_internet_facing_vm": ["CIS", "PCI", "NIST"],
+    "azure_apim_no_waf": ["PCI", "SOC2", "CIS"],
 }
 
 

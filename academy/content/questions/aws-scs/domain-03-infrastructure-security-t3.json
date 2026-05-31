@@ -1,0 +1,757 @@
+[
+  {
+    "id": "scs-d3-t3-001",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An application deployed on ECS Fargate needs to access RDS in a private subnet. The ECS task and RDS are in the same VPC but different subnets. No internet access is required. What is the minimal network configuration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add an inbound rule to the RDS security group allowing the database port from the ECS task security group, and an outbound rule on the ECS task security group to the RDS security group."
+      },
+      {
+        "label": "B",
+        "text": "Attach an Interface Endpoint for RDS in the ECS subnet; this is required for Fargate tasks to connect to RDS without internet access."
+      },
+      {
+        "label": "C",
+        "text": "Create a VPC peering connection between the ECS subnet and the RDS subnet; VPC peering allows cross-subnet communication between tasks and databases."
+      },
+      {
+        "label": "D",
+        "text": "Place both ECS tasks and RDS in the same subnet so they share the same route table; no security group changes are needed for same-subnet communication."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Within the same VPC, subnets communicate via the VPC router without peering. The only configuration needed is security group rules: inbound on RDS allowing the DB port from the ECS task SG, and outbound on the ECS task SG allowing the DB port to the RDS SG.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "ecs",
+      "rds",
+      "security-groups",
+      "vpc"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-002",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company deploys a web application behind an ALB. They want to protect against common OWASP Top 10 attacks. AWS WAF is added. Which WAF managed rule group provides broad OWASP Top 10 coverage?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWSManagedRulesCommonRuleSet (CRS), which blocks common web exploits including SQL injection, XSS, and path traversal attacks from the OWASP Top 10."
+      },
+      {
+        "label": "B",
+        "text": "AWSManagedRulesKnownBadInputsRuleSet, which blocks specific known exploit payloads including Log4j and Spring4Shell vulnerabilities."
+      },
+      {
+        "label": "C",
+        "text": "AWSManagedRulesBotControlRuleSet, which blocks automated bots and scrapers that represent a significant portion of OWASP Top 10 threat actors."
+      },
+      {
+        "label": "D",
+        "text": "AWSManagedRulesAmazonIpReputationList, which blocks requests from IP addresses associated with botnets and known attackers."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The AWSManagedRulesCommonRuleSet (Core Rule Set) is designed to block common web exploits corresponding to OWASP Top 10 categories including injection attacks, XSS, broken access patterns via path traversal, and other web attack techniques.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "waf",
+      "owasp",
+      "managed-rules",
+      "alb"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-003",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An EC2 instance in a private subnet needs to call an AWS service API (e.g., Secrets Manager) without traversing the internet. The instance has no NAT Gateway. Which solution provides this access?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Attach an Elastic IP to the instance; the Elastic IP routes API calls to AWS service endpoints over the public internet."
+      },
+      {
+        "label": "B",
+        "text": "Create a Gateway VPC Endpoint for Secrets Manager; Gateway Endpoints support all AWS services through the VPC gateway infrastructure."
+      },
+      {
+        "label": "C",
+        "text": "Deploy a VPC Interface Endpoint for Secrets Manager in the subnet; the endpoint provides private connectivity to the Secrets Manager API using ENIs in the VPC."
+      },
+      {
+        "label": "D",
+        "text": "Deploy a NAT Instance in the same private subnet to forward API calls to the Secrets Manager public endpoint."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Interface Endpoints (AWS PrivateLink) create private ENIs in your VPC for supported services like Secrets Manager. Traffic stays on the AWS private network. Gateway Endpoints only support S3 and DynamoDB \u2014 not Secrets Manager.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "vpc-endpoint",
+      "interface-endpoint",
+      "secrets-manager",
+      "private-subnet"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-004",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's security policy requires that all S3 API calls from EC2 instances must go through a VPC Endpoint and never traverse the public internet. Which S3 bucket policy condition enforces this at the bucket level?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add an Allow for s3:* with condition aws:SourceVpce StringEquals the VPC Endpoint ID, allowing only requests from that specific endpoint."
+      },
+      {
+        "label": "B",
+        "text": "Add a Deny for s3:* with condition aws:SourceVpc StringNotEquals the VPC ID, which blocks all S3 access not originating from the specified VPC endpoint."
+      },
+      {
+        "label": "C",
+        "text": "Add a Deny for s3:* with condition aws:SecureTransport Boolean false, which ensures only HTTPS requests from any source are allowed."
+      },
+      {
+        "label": "D",
+        "text": "Add a Deny for s3:* with condition aws:VpcSourceIp StringNotEquals the VPC's CIDR range, blocking requests from IPs outside the VPC's private address space."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "A Deny with aws:SourceVpc StringNotEquals the VPC ID blocks all S3 requests not originating from the specified VPC's endpoint. This is broader than using the endpoint ID (option C) because it covers all endpoints in that VPC rather than one specific endpoint.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "s3",
+      "vpc-endpoint",
+      "bucket-policy",
+      "aws-source-vpc"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-005",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company runs an application on EC2 instances behind an ALB. They are under a DDoS attack that is exhausting the ALB's connection capacity. They have AWS Shield Standard. What additional action provides volumetric DDoS mitigation and direct AWS DRT support?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy CloudFront in front of the ALB; CloudFront's global PoP network absorbs volumetric attack traffic before it reaches the ALB."
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS WAF rate-based rules to limit requests per IP; WAF's rate limiting handles volumetric attacks without additional Shield enrollment."
+      },
+      {
+        "label": "C",
+        "text": "Enable AWS Network Firewall stateful rules to drop attack traffic at the VPC level before it reaches the ALB."
+      },
+      {
+        "label": "D",
+        "text": "Subscribe to AWS Shield Advanced, which provides enhanced protection against large-scale volumetric attacks, cost protection for scaling during attacks, and access to the AWS DRT team for attack response."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Shield Advanced provides enhanced DDoS protection, health-based detection, attack diagnostics, cost protection for AWS resources that scale during attacks, and 24/7 access to the AWS DDoS Response Team (DRT). Shield Standard lacks DRT access and advanced Layer 7 mitigation.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "shield-advanced",
+      "ddos",
+      "alb",
+      "drt"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-006",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security engineer is reviewing EC2 launch configurations and finds that some instances are configured with IMDSv1 enabled (hop limit 1). Which application vulnerability is specifically mitigated by enforcing IMDSv2?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SQL injection attacks against the application, since IMDSv2 restricts which database credentials can be retrieved from the metadata endpoint."
+      },
+      {
+        "label": "B",
+        "text": "Path traversal attacks that allow an attacker to read files from the EC2 instance file system by traversing the metadata directory structure."
+      },
+      {
+        "label": "C",
+        "text": "Server-side request forgery (SSRF) attacks, where a malicious request causes the application to forward a request to 169.254.169.254 and return IAM credentials to the attacker."
+      },
+      {
+        "label": "D",
+        "text": "XML External Entity (XXE) injection, where malicious XML inputs cause the application to make requests to the metadata endpoint."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "SSRF is the primary threat that IMDSv2 mitigates. In SSRF, a web vulnerability causes the application to make an HTTP GET request to 169.254.169.254, returning IAM credentials. IMDSv2 requires a PUT request first to obtain a token, which most SSRF vectors cannot perform.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "imdsv2",
+      "ssrf",
+      "ec2-metadata",
+      "security"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-007",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A team wants to restrict SSH access to EC2 instances to only specific engineers for a defined time window (just-in-time access) without maintaining persistent bastion hosts. Which combination of services achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use EC2 Instance Connect, which injects a one-time SSH public key into the instance's authorized_keys for 60 seconds, allowing the engineer's session to connect during that window."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Security Hub just-in-time access policies that open security group rules for approved engineers for a defined time window."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Systems Manager Session Manager with session logging enabled; engineers start sessions from the console or CLI without SSH keys or open ports, and sessions can be restricted to specific IAM principals."
+      },
+      {
+        "label": "D",
+        "text": "Create time-limited IAM roles that allow SSH-related EC2 actions and require MFA; the roles expire automatically after the access window."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "EC2 Instance Connect provides just-in-time SSH access by pushing a temporary public key to the instance for 60 seconds via the EC2 API. The engineer's SSH client connects during this window. Port 22 must be open from the EC2 Instance Connect service IP ranges \u2014 not from 0.0.0.0/0.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "ec2-instance-connect",
+      "just-in-time",
+      "ssh",
+      "bastion"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-008",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's compliance team requires that all inter-VPC traffic between production and development VPCs be inspected for protocol violations. Transit Gateway is used to connect the VPCs. Where should the inspection appliance be placed?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy the inspection appliance in the Transit Gateway's management account; TGW natively routes traffic through appliances registered in the management account."
+      },
+      {
+        "label": "B",
+        "text": "Use VPC Flow Logs on the TGW attachments combined with GuardDuty to inspect and block non-compliant inter-VPC traffic."
+      },
+      {
+        "label": "C",
+        "text": "Deploy the inspection appliance in each VPC and use security group rules to force all outbound traffic through the appliance before it reaches the TGW attachment."
+      },
+      {
+        "label": "D",
+        "text": "Deploy AWS Network Firewall in a dedicated inspection VPC attached to Transit Gateway; enable TGW appliance mode and configure routing to send all inter-VPC traffic through the inspection VPC."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The centralized inspection pattern uses a dedicated inspection VPC with Network Firewall. Transit Gateway routes all inter-VPC flows through the inspection VPC via route tables. Appliance mode on TGW ensures symmetric routing (both directions of a flow go through the same firewall endpoint).",
+    "module_ref": "scs-m3",
+    "tags": [
+      "network-firewall",
+      "transit-gateway",
+      "inspection",
+      "east-west"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-009",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An organization wants to enforce that all EC2 instances in a specific account use security groups that never allow SSH (port 22) from 0.0.0.0/0. Which AWS service provides continuous enforcement and can auto-remediate violations?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Inspector, which scans instances for open SSH ports and generates vulnerability findings for instances reachable on port 22 from the internet."
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor's security checks, which detect unrestricted SSH access and send weekly email summaries of noncompliant security groups."
+      },
+      {
+        "label": "C",
+        "text": "AWS Config with the restricted-ssh managed rule, which flags noncompliant security groups, combined with an automated remediation that revokes the offending ingress rule."
+      },
+      {
+        "label": "D",
+        "text": "An SCP that denies ec2:AuthorizeSecurityGroupIngress when the IP range is 0.0.0.0/0 and the port is 22; this prevents the rule from being added."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Config's restricted-ssh managed rule continuously monitors security groups for 0.0.0.0/0 on port 22. Automated remediation using an SSM Automation document can call ec2:RevokeSecurityGroupIngress to remove the offending rule automatically. The SCP (option B) is also valid but only prevents new violations.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "aws-config",
+      "security-groups",
+      "ssh",
+      "remediation"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-010",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company runs microservices on EKS and wants to restrict which pods can communicate with each other within the cluster. They do not want to modify application code. What Kubernetes-native feature enforces this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Kubernetes Network Policies, which use selectors to define which pods can send or receive traffic from other pods based on labels, namespaces, or CIDR blocks."
+      },
+      {
+        "label": "B",
+        "text": "EKS Pod Identity associations, which assign IAM roles to pods and include network restriction policies as part of the identity profile."
+      },
+      {
+        "label": "C",
+        "text": "EKS IRSA (IAM Roles for Service Accounts) controls which AWS API calls pods can make but does not restrict pod-to-pod network communication within the cluster."
+      },
+      {
+        "label": "D",
+        "text": "Amazon VPC security groups applied to each pod's ENI using the EKS security groups for pods feature, restricting traffic at the VPC level between pods."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Kubernetes Network Policies are the native mechanism for pod-to-pod traffic segmentation. They use label selectors to define ingress and egress rules. A CNI plugin that supports Network Policy (like VPC CNI with Calico or Cilium) must be installed for enforcement.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "eks",
+      "network-policy",
+      "pod-security",
+      "kubernetes"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-011",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An organization uses AWS Secrets Manager to store database credentials. They want to ensure that only their specific RDS instance can retrieve the secret, and no other service or user can. Which Secrets Manager resource policy condition enforces this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add an Allow statement restricted to the RDS instance's IAM role ARN and a Deny for all other principals in the Secrets Manager resource policy."
+      },
+      {
+        "label": "B",
+        "text": "Add a Deny statement with condition secretsmanager:ResourceTag/Name StringNotEquals the database name, restricting retrieval to the tagged resource."
+      },
+      {
+        "label": "C",
+        "text": "Enable Secrets Manager rotation with a Lambda function that rotates credentials hourly, making any retrieved credentials expire before unauthorized use."
+      },
+      {
+        "label": "D",
+        "text": "Use a VPC endpoint policy on the Secrets Manager Interface Endpoint that only allows calls from the RDS subnet's IP range."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Secrets Manager supports resource-based policies. An Allow for the specific RDS IAM role ARN and an explicit Deny for all other principals ensures that only the intended service can call secretsmanager:GetSecretValue on that secret.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "secrets-manager",
+      "resource-policy",
+      "rds",
+      "least-privilege"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-012",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security team discovers that a developer opened a security group rule allowing all traffic (0.0.0.0/0 on all ports) to an EC2 instance running a production database. What is the immediate risk and the fastest mitigation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The risk is unauthorized access to the database from the internet on any port; the immediate mitigation is to revoke the overly permissive security group rule and restrict inbound access to only the required ports from known sources."
+      },
+      {
+        "label": "B",
+        "text": "The risk is high AWS costs from data transfer on exposed ports; the mitigation is to add a WAF rule that limits inbound connections per IP."
+      },
+      {
+        "label": "C",
+        "text": "The risk is data exfiltration via the outbound all-traffic rule; the mitigation is to add a NACL deny rule on all outbound traffic from the database subnet."
+      },
+      {
+        "label": "D",
+        "text": "The risk is DDOS exposure on the database port; the mitigation is to enable AWS Shield Advanced for the instance's Elastic IP."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "An all-traffic allow rule from 0.0.0.0/0 exposes the database to the entire internet on every port. The immediate action is to revoke the rule (ec2:RevokeSecurityGroupIngress) and replace it with a rule scoped to only the necessary port (e.g., 5432) from known application security groups or IPs.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "security-groups",
+      "database-exposure",
+      "incident-response"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-013",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An organization wants Amazon Inspector to continuously scan all EC2 instances including newly launched ones without manual configuration per instance. What must be enabled for this to work?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure an EventBridge rule that triggers Inspector scans when ec2:RunInstances events are detected, ensuring new instances are scanned at launch."
+      },
+      {
+        "label": "B",
+        "text": "Create an Inspector assessment target using a tag that matches all EC2 instances; new instances must be tagged before Inspector will scan them."
+      },
+      {
+        "label": "C",
+        "text": "Deploy the Inspector Classic agent on each EC2 instance AMI; Inspector Classic runs scheduled assessments on agent-installed instances."
+      },
+      {
+        "label": "D",
+        "text": "Enable Amazon Inspector v2 at the account level; Inspector v2 automatically scans all supported EC2 instances using AWS Systems Manager SSM Agent, with no per-instance configuration required."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Amazon Inspector v2 is account-wide and automatic. Once enabled, it continuously scans all EC2 instances with SSM Agent installed \u2014 including newly launched ones \u2014 without additional configuration. New instances are automatically enrolled within minutes of launch.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "inspector",
+      "ec2",
+      "continuous-scanning",
+      "ssm"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-014",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company deploys containerized microservices using ECS on Fargate. They want to scan container images for vulnerabilities before they are used in production. Which AWS native workflow achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Amazon Macie to scan container image layers stored in ECR for sensitive data and security vulnerabilities before deployment."
+      },
+      {
+        "label": "B",
+        "text": "Configure ECR enhanced scanning (Inspector v2) on the repository; push the image to ECR, and use a CodePipeline gate that checks the Inspector finding count before deploying to Fargate."
+      },
+      {
+        "label": "C",
+        "text": "Enable GuardDuty ECS protection, which scans container images in ECR before they are pulled by Fargate task definitions."
+      },
+      {
+        "label": "D",
+        "text": "Configure Fargate task health checks that run a vulnerability scan on the container filesystem at task startup and fail the task if vulnerabilities are found."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "ECR enhanced scanning uses Inspector v2 to scan images on push and continuously. A CI/CD pipeline can query the ECR image scan findings via API or through an EventBridge-triggered Lambda after the push event, blocking deployment if critical or high findings exist.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "ecr",
+      "inspector",
+      "ecs-fargate",
+      "cicd",
+      "vulnerability-scanning"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-015",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company has a hybrid environment with an on-premises Active Directory. They want EC2 instances joined to Active Directory to authenticate users without creating separate IAM users. Which AWS service enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Cognito User Pools with an LDAP federation bridge, which maps on-premises AD users to Cognito identities accessible by EC2 instances."
+      },
+      {
+        "label": "B",
+        "text": "AWS IAM Identity Center with an on-premises Active Directory connector, which allows AD users to authenticate to AWS console and CLI but does not join EC2 instances to the domain."
+      },
+      {
+        "label": "C",
+        "text": "AWS Systems Manager with Active Directory integration; SSM uses AD group policies to manage EC2 instance authentication without domain join."
+      },
+      {
+        "label": "D",
+        "text": "AWS Directory Service (AWS Managed Microsoft AD or AD Connector), which enables EC2 instances to join the domain and authenticate with on-premises AD credentials via LDAP/Kerberos."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Directory Service (Managed Microsoft AD or AD Connector) enables EC2 instances to join a Windows or Linux domain. Users can then authenticate to those instances using their AD credentials without separate IAM users, leveraging Kerberos and NTLM protocols.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "directory-service",
+      "active-directory",
+      "ec2",
+      "hybrid"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-016",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An organization enables AWS Config to record all supported resource types including security groups. A change to a security group's inbound rules is detected by Config. What data does Config store for this change?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Config stores only the current state of the security group; historical before-state must be retrieved from CloudTrail using the RequestParameters field."
+      },
+      {
+        "label": "B",
+        "text": "Config captures the CloudTrail event that caused the change, linking the API call to the configuration change in a combined security group change record."
+      },
+      {
+        "label": "C",
+        "text": "Config captures a configuration item containing the full before and after state of the security group's inbound rules, the time of change, and the ARN of the resource."
+      },
+      {
+        "label": "D",
+        "text": "Config stores only a notification that the security group changed, without capturing the before and after configuration details."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Config creates a configuration item for each resource change. The item includes the complete resource configuration at the time of the change, a relationship list, the change type, and the timestamp. Successive configuration items provide full before-and-after comparison.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "aws-config",
+      "security-groups",
+      "configuration-item"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-017",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to control access to a third-party SaaS application based on whether the user's device is compliant with MDM policies. The SaaS app supports SAML federation. Which AWS service can enforce device compliance as part of the authentication flow?",
+    "options": [
+      {
+        "label": "A",
+        "text": "IAM Identity Center with permission sets scoped to device tags, which restricts access based on the device tag passed in the SAML NameID attribute."
+      },
+      {
+        "label": "B",
+        "text": "Amazon Cognito User Pools with device tracking enabled, which records device fingerprints and blocks logins from unrecognized devices."
+      },
+      {
+        "label": "C",
+        "text": "AWS IAM Identity Center with trusted token forwarding, which passes MDM compliance attributes from the identity provider to the SAML assertion sent to the SaaS app."
+      },
+      {
+        "label": "D",
+        "text": "AWS Verified Access, which integrates with MDM providers (like Jamf or Microsoft Intune) to evaluate device trust posture before granting access to applications."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Verified Access is specifically designed for zero-trust application access. It integrates with identity providers and MDM providers (Jamf, Intune, CrowdStrike) to evaluate both identity and device trust posture before granting access, without a VPN.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "verified-access",
+      "zero-trust",
+      "mdm",
+      "saml"
+    ]
+  },
+  {
+    "id": "scs-d3-t3-018",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A Lambda function runs in a VPC private subnet and needs to retrieve a secret from Secrets Manager. The call fails with a timeout. The function has the necessary IAM permissions. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The Lambda function's execution role does not have the secretsmanager:GetSecretValue permission; the IAM permission check returns a timeout rather than an explicit AccessDenied error."
+      },
+      {
+        "label": "B",
+        "text": "The Secrets Manager secret's resource policy explicitly denies the Lambda's execution role, causing the request to timeout rather than returning an error."
+      },
+      {
+        "label": "C",
+        "text": "Lambda functions in VPCs have a maximum execution timeout of 3 seconds for API calls; the Secrets Manager call exceeds this and times out."
+      },
+      {
+        "label": "D",
+        "text": "The VPC does not have an Interface Endpoint for Secrets Manager and there is no NAT Gateway; the Lambda function cannot reach the Secrets Manager public endpoint from the private subnet."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "When a Lambda function runs in a private VPC subnet, it loses default internet connectivity. Without a NAT Gateway or a VPC Interface Endpoint for Secrets Manager, calls to the Secrets Manager public API endpoint time out. The fix is either a NAT Gateway or an Interface Endpoint.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "lambda",
+      "vpc",
+      "secrets-manager",
+      "interface-endpoint"
+    ]
+  }
+]

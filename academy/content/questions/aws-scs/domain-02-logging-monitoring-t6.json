@@ -1,0 +1,658 @@
+[
+  {
+    "id": "scs-d2-t6-001",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security team needs to query seven years of CloudTrail events using SQL to identify all API calls made by a specific IAM role across all regions. They want to avoid managing an external data store. Which approach satisfies these requirements within the native CloudTrail service?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Config advanced queries to run SQL statements against the configuration history resource records, filtering on the IAM role ARN for the relevant time range and regions."
+      },
+      {
+        "label": "B",
+        "text": "Configure CloudTrail to stream events to Amazon Kinesis Data Firehose, load them into Amazon Redshift, and query the events table using standard SQL joined with an IAM role reference table."
+      },
+      {
+        "label": "C",
+        "text": "Enable a multi-region trail that delivers logs to S3, then use Amazon Athena with a Glue crawler to partition the data by date and region and run SQL queries from the Athena console."
+      },
+      {
+        "label": "D",
+        "text": "Create a CloudTrail Lake event data store with a seven-year retention period and use the CloudTrail Lake query editor to run SQL SELECT statements filtered by userIdentity.arn against the event data store."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "CloudTrail Lake is a managed audit-activity lake that stores events in an immutable event data store for up to seven years and exposes a native SQL query editor. Queries can filter on any event field including userIdentity.arn across all ingested regions without external infrastructure. Option B uses Athena against S3 but requires separate Glue and Athena setup outside CloudTrail. Options C and D involve additional services not native to CloudTrail.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-002",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses Amazon Security Lake and wants analysts to query OCSF-formatted security data using their existing Amazon OpenSearch Service cluster. The team needs near-real-time access with full SQL and KQL support. Which Security Lake subscriber configuration achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a Security Lake subscriber with data access type set to S3, configure an SQS notification, and build a custom Lambda that reads Parquet files from S3 and indexes them into OpenSearch using the bulk API."
+      },
+      {
+        "label": "B",
+        "text": "Create a Security Lake subscriber with query access type, which grants the OpenSearch domain direct federated query access to the Security Lake S3 bucket using Lake Formation permissions without data movement."
+      },
+      {
+        "label": "C",
+        "text": "Enable Security Lake integration with Amazon OpenSearch Service in the Security Lake console by selecting OpenSearch as the subscriber type, which streams OCSF events via Kinesis Data Firehose into the domain automatically."
+      },
+      {
+        "label": "D",
+        "text": "Configure an AWS Glue ETL job triggered by S3 event notifications to transform OCSF Parquet files into JSON and load them into OpenSearch using the OpenSearch Ingestion pipeline connector."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Security Lake supports OpenSearch Service as a natively integrated subscriber type. Selecting it in the console automatically provisions a Kinesis Data Firehose delivery stream that converts OCSF Parquet data and loads it into the OpenSearch domain, enabling KQL and SQL queries with near-real-time latency. Option B describes query-access subscribers that use federated queries against S3, not OpenSearch. Options A and D require custom engineering not provided by the native integration.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-003",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A developer wants application logs emitted by an AWS Lambda function to automatically create CloudWatch metrics without a separate metric filter configuration step. The metrics must include custom dimensions and high-resolution values. Which technique should be used?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Lambda Insights on the function, which captures all stdout JSON log lines and converts them to metrics automatically using the CloudWatch Lambda Insights extension layer."
+      },
+      {
+        "label": "B",
+        "text": "Use the CloudWatch PutMetricData API directly inside the Lambda function code to publish custom metrics with dimensions, bypassing CloudWatch Logs entirely for the metric data path."
+      },
+      {
+        "label": "C",
+        "text": "Emit logs using the CloudWatch Embedded Metrics Format by structuring JSON output with a _aws.CloudWatchMetrics namespace block, which Lambda automatically converts to CloudWatch metrics without a metric filter."
+      },
+      {
+        "label": "D",
+        "text": "Write application logs in JSON and define a CloudWatch Logs metric filter on the log group that extracts JSON field values into a metric with dimensions using the filter pattern syntax."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The CloudWatch Embedded Metrics Format (EMF) lets you embed metric directives inside JSON log lines. The CloudWatch Logs service automatically extracts and publishes the metrics without requiring any separate metric filter configuration. EMF supports custom dimensions and high-resolution one-second metrics. Option A requires a manually created metric filter. Option C works but bypasses logs entirely and does not reduce setup complexity. Option D captures predefined Lambda performance metrics, not arbitrary application metrics.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-004",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A compliance team requires AWS Config to capture a full configuration snapshot every three hours so that drift is detected quickly. A colleague claims snapshots can be delivered as frequently as every hour. What is the MINIMUM supported delivery frequency for AWS Config configuration snapshots?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Fifteen minutes is the minimum because AWS Config continuous recording triggers a snapshot on every resource configuration change, which can occur more frequently than once per hour."
+      },
+      {
+        "label": "B",
+        "text": "Six hours is the minimum scheduled frequency; AWS Config records changes in real time but only delivers periodic snapshots every 6, 12, or 24 hours."
+      },
+      {
+        "label": "C",
+        "text": "One hour is the minimum periodic snapshot delivery frequency; AWS Config also supports 3, 6, 12, and 24 hours, but does not support sub-hourly intervals for scheduled snapshots."
+      },
+      {
+        "label": "D",
+        "text": "Three hours is the minimum; AWS Config configuration snapshot delivery supports 3, 6, 12, and 24-hour intervals but does not offer a one-hour option for periodic delivery."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Config configuration snapshot delivery frequency can be set to 1, 3, 6, 12, or 24 hours. The minimum periodic interval is one hour. Continuous recording captures changes as they occur but that is separate from snapshot delivery frequency. Option B is incorrect because one hour is supported. Option C confuses continuous change recording with snapshot delivery. Option D incorrectly states six hours is the minimum.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-005",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security analyst investigates traffic traversing a NAT Gateway and wants to determine the original source IP of packets rather than the translated NAT address. Standard VPC Flow Log fields show the NAT Gateway ENI IP. Which VPC Flow Logs fields resolve the original packet-level source and destination addresses for NAT traversal analysis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable VPC Flow Logs and add the srcaddr and dstaddr fields in a custom format; these always reflect the pre-NAT addresses regardless of which ENI is being logged."
+      },
+      {
+        "label": "B",
+        "text": "Enable VPC Flow Logs v3 or later and include the pkt-srcaddr and pkt-dstaddr fields, which capture packet-level source and destination IP addresses before and after NAT translation."
+      },
+      {
+        "label": "C",
+        "text": "Use the flow-direction field added in VPC Flow Logs v5 together with srcaddr; when flow-direction is ingress, srcaddr automatically reflects the pre-NAT source address."
+      },
+      {
+        "label": "D",
+        "text": "Configure Traffic Mirroring on the NAT Gateway ENI and capture raw packets; VPC Flow Logs do not expose any pre-NAT address information in any version or custom format."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "VPC Flow Logs v3 introduced the pkt-srcaddr and pkt-dstaddr fields specifically to expose packet-level IP addresses that differ from the interface-level srcaddr and dstaddr when NAT is involved. For traffic through a NAT Gateway, pkt-srcaddr shows the original private IP of the source instance while srcaddr shows the NAT Gateway ENI IP. Option B is incorrect because srcaddr reflects the interface address, not the pre-NAT address. Option C is unnecessary since pkt-* fields solve this natively. Option D misrepresents what flow-direction provides.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-006",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An AWS Organizations administrator creates a single organization-level CloudTrail trail to capture management events for all member accounts. A member account security team reports they cannot see any CloudTrail events in their own account's CloudTrail console. What is the MOST likely explanation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The organization trail must have IsMultiRegionTrail set to true before management events from member accounts are captured and made visible to those accounts."
+      },
+      {
+        "label": "B",
+        "text": "Organization trails deliver events only to the management account's S3 bucket and CloudWatch Logs group; member accounts cannot view organization trail events in their own CloudTrail console event history."
+      },
+      {
+        "label": "C",
+        "text": "Organization trails are replicated to each member account automatically; the member account team must first enable CloudTrail in their own account before events from the organization trail become visible."
+      },
+      {
+        "label": "D",
+        "text": "The member account needs an IAM policy granting cloudtrail:LookupEvents on the organization trail ARN before events appear in the member account's CloudTrail event history view."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Organization trails log events for all accounts in the organization but deliver them only to the S3 bucket and optional CloudWatch Logs group in the management account. Member accounts can see organization trails listed in their CloudTrail console but cannot view the event history there, because that view only shows events from trails created within the member account itself. Options B, C, and D all misrepresent how organization trail visibility works for member accounts.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-007",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security engineer enables Amazon Macie sensitive data discovery jobs across multiple S3 buckets. The CISO asks where Macie stores the detailed discovery results and whether those results surface in Security Hub automatically. Which statement CORRECTLY describes Macie discovery results storage and Security Hub integration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Macie stores discovery results only in CloudWatch Logs under a managed log group; Security Hub automatically receives all Macie findings without requiring any additional integration configuration."
+      },
+      {
+        "label": "B",
+        "text": "Macie does not persist discovery results externally; results are viewable in the Macie console for 90 days after which they expire; Security Hub integration is not supported for Macie discovery findings."
+      },
+      {
+        "label": "C",
+        "text": "Macie stores sensitive data discovery results in the same S3 bucket being analyzed; Security Hub integration must be enabled manually and only forwards policy findings, not discovery results."
+      },
+      {
+        "label": "D",
+        "text": "Macie stores discovery results in a dedicated S3 results bucket you specify during configuration; Macie policy and sensitive data findings are published to Security Hub when the Macie-Security Hub integration is enabled."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Amazon Macie writes sensitive data discovery results to a dedicated S3 results bucket that you configure or Macie creates for you. This bucket is separate from the buckets being analyzed. When the Macie integration with Security Hub is enabled, Macie publishes both policy findings and sensitive data findings to Security Hub in ASFF format. Option A incorrectly states results go to the analyzed bucket. Option C incorrectly names CloudWatch Logs as the storage location. Option D is entirely incorrect regarding persistence and Security Hub support.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-008",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A CloudWatch alarm monitors an EC2 instance metric. The instance stops sending metrics for 10 minutes due to a temporary network outage. The alarm is configured with TreatMissingData set to breaching. What alarm state transitions occur during and after the outage?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The alarm remains in OK state during the outage because CloudWatch waits for the full evaluation period before changing state; it transitions to ALARM only after three consecutive missing data points satisfy the evaluation period."
+      },
+      {
+        "label": "B",
+        "text": "The alarm transitions to INSUFFICIENT_DATA state after the first missed data point, then returns to OK or ALARM once metrics resume, regardless of the TreatMissingData configuration."
+      },
+      {
+        "label": "C",
+        "text": "With TreatMissingData set to breaching, missing data points are treated as threshold violations; the alarm transitions to ALARM once enough missing periods satisfy the evaluation window, then returns to OK when real metrics resume below the threshold."
+      },
+      {
+        "label": "D",
+        "text": "CloudWatch suppresses all state changes during a network outage and buffers missing data points; once connectivity is restored, the alarm evaluates all buffered points and transitions to ALARM only if real metric values breached the threshold."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "When TreatMissingData is set to breaching, CloudWatch treats each missing data point as if the metric violated the alarm threshold. Once enough evaluation periods contain breaching data points to satisfy the datapoints-to-alarm setting, the alarm transitions to ALARM state. When metrics resume and actual values fall below the threshold, the alarm returns to OK. Option B describes the behavior for TreatMissingData set to missing (the default), which yields INSUFFICIENT_DATA. Options A and D misrepresent how CloudWatch handles missing data evaluation.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-009",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A developer integrating a third-party security tool with AWS Security Hub must submit findings in ASFF format via BatchImportFindings. They need to know which top-level fields are required. Which set of fields is REQUIRED in every ASFF finding?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Id, ProductArn, AwsAccountId, CreatedAt, UpdatedAt, and Title are the six required fields; SchemaVersion and Severity are recommended but optional for third-party findings submitted to Security Hub."
+      },
+      {
+        "label": "B",
+        "text": "SchemaVersion, Id, ProductArn, and AwsAccountId are the only four required fields; Severity, Types, Resources, and timestamps are recommended but optional for BatchImportFindings submissions."
+      },
+      {
+        "label": "C",
+        "text": "Only ProductArn and AwsAccountId are required; all other ASFF fields including Id, Severity, CreatedAt, and Resources are optional and default to null if omitted from the finding payload."
+      },
+      {
+        "label": "D",
+        "text": "SchemaVersion, Id, ProductArn, GeneratorId, AwsAccountId, Types, CreatedAt, UpdatedAt, Severity, and Resources are all required fields in every ASFF finding submitted via BatchImportFindings."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The AWS Security Finding Format requires the following top-level fields for every finding submitted via BatchImportFindings: SchemaVersion, Id, ProductArn, GeneratorId, AwsAccountId, Types, CreatedAt, UpdatedAt, Severity, and Resources. Omitting any of these causes the finding to be rejected with a validation error. Options B, C, and D all undercount the required fields, which would cause submission failures in production integrations.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-010",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security team uploads a custom threat intelligence list of malicious IP addresses to GuardDuty as a ThreatIntelSet. They want to understand how quickly GuardDuty uses the updated list compared to AWS-managed threat feeds. Which statement CORRECTLY describes the update behavior of each source?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Custom ThreatIntelSets are refreshed hourly from the S3 object specified during creation; AWS-managed feeds also refresh hourly, giving both sources equivalent detection latency for new indicators."
+      },
+      {
+        "label": "B",
+        "text": "AWS-managed threat intelligence feeds update continuously in near-real-time as new indicators are discovered; custom ThreatIntelSets require a manual re-upload or UpdateThreatIntelSet API call each time the list changes."
+      },
+      {
+        "label": "C",
+        "text": "Both custom ThreatIntelSets and AWS-managed threat feeds update on the same 24-hour schedule; GuardDuty synchronizes all feed sources nightly to maintain consistent detection latency."
+      },
+      {
+        "label": "D",
+        "text": "Custom ThreatIntelSets are applied within minutes of upload, but AWS-managed threat intelligence feeds update on a 24-hour cycle, so custom lists may be more current than AWS feeds for recently identified threats."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS-managed GuardDuty threat intelligence feeds are updated continuously in near-real-time as new threat indicators are identified. Custom ThreatIntelSets are static S3 files that GuardDuty reads when first activated and on subsequent UpdateThreatIntelSet API calls \u2014 they do not auto-refresh. The security team must re-upload or call UpdateThreatIntelSet to incorporate new indicators. Options A, B, and D all mischaracterize the update cadence of one or both feed types.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-011",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security team enables EKS control plane logging for an existing cluster. They need logs covering authentication decisions, Kubernetes API server requests, and scheduler decisions while minimizing log volume and cost. Which combination of EKS control plane log types should they enable?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable api, audit, and authenticator log types to capture API server requests, authentication decisions, and the Kubernetes audit trail while excluding controllerManager and scheduler to reduce volume."
+      },
+      {
+        "label": "B",
+        "text": "Enable only the audit log type, which is a superset containing API server, authenticator, controller manager, and scheduler events in one unified stream to minimize the number of log groups."
+      },
+      {
+        "label": "C",
+        "text": "Enable api, authenticator, and scheduler log types to capture API requests, authentication decisions, and scheduling events while excluding audit and controllerManager to control cost."
+      },
+      {
+        "label": "D",
+        "text": "Enable all five EKS control plane log types because they cannot be individually selected; enabling control plane logging activates api, audit, authenticator, controllerManager, and scheduler simultaneously."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "EKS supports five independently selectable control plane log types: api, audit, authenticator, controllerManager, and scheduler. To capture API server requests, authentication decisions, and scheduling events while minimizing volume, enable api, authenticator, and scheduler and omit audit (which is verbose) and controllerManager. Option A incorrectly substitutes audit for scheduler. Option B is false; audit is not a superset of all log types. Option D is false; log types can be individually toggled in the EKS console or API.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-012",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company wants to reduce CloudTrail costs while retaining visibility into configuration changes. A security architect proposes logging only write management events instead of all management events. Which security coverage gap must the team accept with this configuration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Write-only management events exclude read-only API calls such as DescribeInstances and ListBuckets, so the team loses visibility into reconnaissance and data enumeration activity by threat actors or insiders."
+      },
+      {
+        "label": "B",
+        "text": "Write-only management events still capture all read API calls internally but suppress them from S3 delivery, so log integrity is maintained while delivery costs are reduced proportionally."
+      },
+      {
+        "label": "C",
+        "text": "Write-only management events exclude CloudTrail Insights events, so anomaly detection for unusual write activity is disabled when read events are filtered from the trail configuration."
+      },
+      {
+        "label": "D",
+        "text": "Write-only management events exclude data events such as S3 object downloads and Lambda invocations, so the team loses data exfiltration visibility but retains full coverage of all control plane changes."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail management events are categorized as read (e.g., Describe*, List*, Get*) or write (e.g., Create*, Delete*, Put*). Logging only write events eliminates read-only API calls from the trail, meaning reconnaissance activities such as an attacker enumerating IAM policies, listing S3 buckets, or describing EC2 instances will not be recorded. This creates a detection gap for the discovery phase of an attack. Option B confuses management events with data events. Option C is incorrect; filtered events are not captured internally. Option D mischaracterizes how Insights relates to event type filtering.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-013",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security engineer reviews ALB access logs to distinguish time spent processing a request in the backend application from time the ALB spent waiting for the target to respond. Which ALB access log fields provide this breakdown?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use request_processing_time for time the ALB spent before routing to a target, and target_processing_time for the duration from when the ALB sent the request to the target until it received the full response."
+      },
+      {
+        "label": "B",
+        "text": "Use response_processing_time for application processing duration and total_time for the complete end-to-end duration; no field isolates only the target response time in ALB access logs."
+      },
+      {
+        "label": "C",
+        "text": "Use the backend_processing_time field, which is the Classic Load Balancer equivalent of ALB target_processing_time, and connection_time for the ALB-side overhead in ALB access log format."
+      },
+      {
+        "label": "D",
+        "text": "ALB access logs only record total_time as a single duration; granular time breakdowns between ALB processing and target processing require enabling X-Ray tracing on the load balancer and targets."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "ALB access logs include three distinct time fields: request_processing_time (time from receiving the client request to sending it to a target), target_processing_time (time from sending the request to the target until receiving the full response), and response_processing_time (time to transmit the response to the client). These allow engineers to isolate whether latency or anomalies originate in the load balancer or the application backend. Options B and D misrepresent available fields. Option C references Classic ELB field naming that does not apply to ALB logs.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-014",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An auditor requires a complete and guaranteed record of every S3 object-level API call for a compliance bucket. A team member suggests S3 server access logging as a cost-effective alternative to CloudTrail data events. What critical difference must the security engineer communicate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 server access logging captures all object-level API calls including anonymous and presigned URL requests, while CloudTrail data events only record calls by authenticated IAM principals, missing public access events."
+      },
+      {
+        "label": "B",
+        "text": "S3 server access logging delivers logs on a best-effort basis with no guaranteed completeness or delivery time, while CloudTrail data events provide a guaranteed durable record of every authenticated object-level API call."
+      },
+      {
+        "label": "C",
+        "text": "CloudTrail data events for S3 only record management operations like CreateBucket and PutBucketPolicy; object-level operations such as GetObject require S3 server access logging to be captured."
+      },
+      {
+        "label": "D",
+        "text": "S3 server access logging and CloudTrail data events both guarantee complete delivery of every API call; the only difference is that server access logs are free while CloudTrail data events incur per-event charges."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "S3 server access logging is a best-effort service \u2014 AWS does not guarantee that every request will be logged or that logs will be delivered within a specific time window. For compliance requirements demanding a complete audit trail, CloudTrail S3 data events are the correct choice because they provide guaranteed durable delivery of every authenticated API call. Option B partially describes a difference but overstates CloudTrail gaps regarding presigned URLs. Option C is false because server access logging does not guarantee completeness. Option D is incorrect; CloudTrail data events are specifically designed to capture object-level S3 operations.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-015",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security operations team creates a custom CloudWatch metric and publishes data points every minute. Six months later they try to view the metric at one-minute granularity but find the data is no longer available at that resolution. Which CloudWatch metric retention behavior explains this gap?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudWatch retains one-minute metrics at full resolution for 15 months; the team's gap is caused by a console rendering limitation for date ranges exceeding 180 days, not actual data loss."
+      },
+      {
+        "label": "B",
+        "text": "CloudWatch deletes all metric data after 15 months regardless of resolution; after that window the team must use CloudWatch metric math to reconstruct historical data from archived log group metrics."
+      },
+      {
+        "label": "C",
+        "text": "CloudWatch retains all custom metrics at their original resolution indefinitely; the console 90-day display limit may hide older data points, but they are retrievable via the GetMetricStatistics API."
+      },
+      {
+        "label": "D",
+        "text": "CloudWatch retains high-resolution sub-minute metrics for 3 hours; one-minute metrics are retained for 15 days, then aggregated to 5-minute resolution for 63 days, then to 1-hour resolution for 15 months."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "CloudWatch uses a tiered retention and aggregation policy: data points with a period under 60 seconds are retained for 3 hours; one-minute data points for 15 days; five-minute data points for 63 days; one-hour data points for 15 months. After 15 days, one-minute metrics are rolled up to five-minute aggregates, so six-month-old data is available only at one-hour granularity. This explains why fine-grained historical analysis is not possible after the retention window for that resolution expires. Options B, C, and D all misstate the retention tiers.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t6-016",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A compliance team needs a per-account per-resource report showing whether each resource is compliant with AWS Firewall Manager security policies across all accounts in their AWS Organization. Which Firewall Manager feature provides this compliance status export?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use the Firewall Manager policy compliance dashboard in the console, which displays per-account per-resource compliance status for all managed policies and can be exported to CSV for reporting purposes."
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS Config conformance packs managed by Firewall Manager; conformance packs aggregate per-resource compliance results across accounts and can be exported from the AWS Config console."
+      },
+      {
+        "label": "C",
+        "text": "Use the Firewall Manager GetComplianceDetail API to retrieve per-account per-resource compliance status programmatically and export results; the console does not provide a built-in export for compliance reports."
+      },
+      {
+        "label": "D",
+        "text": "Configure Firewall Manager to publish compliance events to Amazon EventBridge and build a Lambda function that aggregates events and writes a per-account per-resource compliance report to S3 for download."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Firewall Manager provides a built-in policy compliance dashboard showing compliance status for each account and each resource covered by every Firewall Manager policy in the organization. The console view can be exported to CSV, giving compliance teams the per-account per-resource report they need without custom engineering. Option B conflates Config conformance packs with Firewall Manager functionality. Option C is partially true in that the API exists but incorrectly states the console lacks export capability. Option D describes a valid but unnecessarily complex custom solution when the native export already exists.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring"
+    ]
+  }
+]

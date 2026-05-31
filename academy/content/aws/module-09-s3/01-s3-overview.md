@@ -35,6 +35,48 @@ S3 Standard offers 99.999999999% (11 9s) durability by redundantly storing objec
 
 S3 is a regional, globally-named object store with strong consistency, 11 nines of durability, and the ability to store objects up to 5 TB. Buckets are unique containers; objects are key-value pairs with metadata. Understanding these fundamentals is the foundation for every S3 feature that follows.
 
+## Examples
+
+A media startup stores user-uploaded profile photos in S3. Each photo is an object with a key like `users/12345/avatar.jpg`, a value (the image bytes), and system metadata like `Content-Type: image/jpeg`. This is the textbook bucket-and-object model: the "folder" in the key is an illusion — S3 has no real directories, just a flat namespace of keys inside a bucket.
+
+A regional bank wants to store loan application documents and needs to know the data won't leave their chosen AWS region. When they create their S3 bucket in `us-east-1` and do nothing else, that data stays in `us-east-1`. S3's regional data residency guarantee is not an add-on feature — it's the default behavior, and it satisfies many data sovereignty requirements without extra configuration.
+
+A data engineering team writes a pipeline that reads an S3 object immediately after another service writes it. Before December 2020 they had to build in retry logic because S3 offered only eventual consistency — a fresh GET might return stale data. With S3's current strong read-after-write consistency model, the read immediately after a successful PUT is guaranteed to return the new data, removing an entire class of race-condition bugs from distributed pipeline design.
+
+## Think About It
+
+1. Why does S3 use a flat key namespace instead of a real directory tree, and what does that mean for operations like "delete a folder"?
+2. What would happen if two applications tried to PUT to the same S3 key at exactly the same time? Which version wins, and how would you design around this?
+3. S3 offers 11 nines of durability but only 99.99% availability. What is the difference between durability and availability, and why might a highly durable store still be temporarily unavailable?
+4. How would you decide whether to store a 6 TB dataset as a single object (if that were allowed) versus many smaller objects? What trade-offs in key design, retrieval, and partial access would drive that decision?
+5. A bucket name is globally unique across all AWS accounts. Why do you think AWS made this choice, and what problems does it create for organizations with many teams?
+
+## Quick Check
+
+**Q1.** What is the maximum size of a single S3 object?
+- A) 100 MB
+- B) 5 GB
+- C) 5 TB
+- D) Unlimited
+
+**Answer: C** — A single S3 object can be up to 5 TB; objects over 5 GB must use multipart upload.
+
+**Q2.** Which statement about S3 consistency is correct as of 2021 and later?
+- A) S3 provides eventual consistency for all operations
+- B) S3 provides strong consistency only for GET operations
+- C) S3 provides strong read-after-write consistency for all operations
+- D) S3 consistency depends on the storage class
+
+**Answer: C** — Since December 2020, S3 provides strong read-after-write consistency for PUTs, DELETEs, and list operations across all storage classes.
+
+**Q3.** A bucket named `my_bucket_01` fails to be created. What is the most likely reason?
+- A) The bucket already exists in another region
+- B) The name contains an underscore, which is not allowed
+- C) The name is too short
+- D) Buckets can only be created from the AWS CLI
+
+**Answer: B** — S3 bucket names must be lowercase letters, numbers, and hyphens only; underscores are not permitted in bucket names.
+
 ## What's Next
 
 Next up: S3 Storage Classes — how to match cost to access patterns and move data automatically through tiers.

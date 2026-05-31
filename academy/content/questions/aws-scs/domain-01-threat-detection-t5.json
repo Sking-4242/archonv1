@@ -1,0 +1,594 @@
+[
+  {
+    "id": "scs-d1-t5-001",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team maintains a list of known malicious IP addresses gathered from internal threat intelligence feeds. They want GuardDuty to generate findings whenever EC2 instances communicate with these IPs. What is the correct sequence of steps to activate this custom threat list in GuardDuty?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Store the IP list in AWS Secrets Manager, create an EventBridge rule referencing the secret ARN, and configure GuardDuty to poll Secrets Manager every hour to automatically update its internal threat intelligence database."
+      },
+      {
+        "label": "B",
+        "text": "Create an AWS WAF IP set with the malicious IPs, associate it with a web ACL, then link the web ACL to GuardDuty via the console to enable cross-service threat correlation and finding generation."
+      },
+      {
+        "label": "C",
+        "text": "Upload the IP list as a .txt file to an S3 bucket, then in the GuardDuty console choose Threat intelligence > Threat lists > Add threat list, provide the S3 URI, set format to TXT, and activate the list."
+      },
+      {
+        "label": "D",
+        "text": "Paste IP addresses directly into the GuardDuty console under Findings > Custom rules, save the ruleset, and GuardDuty will automatically block communication with those IPs via an integrated network ACL update."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "GuardDuty supports custom threat lists (malicious IPs) stored as plaintext or structured files in S3. The correct workflow is: (1) upload the IP list file to S3, (2) navigate to GuardDuty > Lists > Threat lists > Add threat list, (3) provide the S3 object URI and specify the format (TXT, STIX, OTX CSV, ProofPoint, FireEye), and (4) set the list to Active. GuardDuty does not accept direct console input of IPs, does not integrate with WAF IP sets for this purpose, and does not poll Secrets Manager.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "threat-intelligence",
+      "custom-threat-list"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-002",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "GuardDuty generates an UnauthorizedAccess:Lambda/MaliciousIPCaller.Custom finding for a production Lambda function that processes customer payment events. The security team suspects the function has been compromised and is beaconing to a threat actor. What two immediate containment actions should be taken to stop the threat while preserving forensic evidence?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Delete the Lambda function immediately and redeploy from source control, then rotate all application credentials stored in environment variables to prevent further unauthorized access from the compromised function."
+      },
+      {
+        "label": "B",
+        "text": "Set the function's reserved concurrency to zero to throttle all invocations, then attach a deny-all IAM policy to the function's execution role to revoke active session credentials issued from that role."
+      },
+      {
+        "label": "C",
+        "text": "Move the function to a private VPC subnet with no internet gateway, update the associated security group to block all outbound traffic, and snapshot the execution environment for later forensic review by the security team."
+      },
+      {
+        "label": "D",
+        "text": "Enable AWS Config on the function to record configuration changes, create a CloudWatch alarm on function errors, and notify the on-call team via SNS to investigate before taking any containment action."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Immediate containment for a compromised Lambda function requires two actions: (1) Set reserved concurrency to 0 \u2014 this throttles all new invocations without deleting the function, preserving its configuration and code for forensics. (2) Attach a deny-all inline policy to the execution role \u2014 Lambda's temporary credentials are issued via STS and may still be active; a resource-based deny policy invalidates those sessions immediately. Deleting the function (A) destroys forensic evidence. Waiting for Config/CloudWatch alarms (C) delays containment. Lambda functions do not run in persistent EC2-style environments that can be snapshotted (D).",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "lambda",
+      "incident-response",
+      "containment"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-003",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A GuardDuty finding of type Execution:EKS/MaliciousFile is triggered for a node in an EKS cluster. A separate finding of Policy:Kubernetes/ExposedDashboard was generated 20 minutes earlier for the same cluster. What attack sequence do these findings most likely represent, and what is the most appropriate immediate response?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The findings indicate a DDoS attack targeting the EKS API server. Scale down the cluster to a single node, enable AWS Shield Advanced on the cluster endpoint, and engage the AWS DDoS Response Team for active mitigation support."
+      },
+      {
+        "label": "B",
+        "text": "These findings are likely false positives from a scheduled penetration test. Archive both findings in GuardDuty, add the test IP range to the trusted IP list, and verify with the penetration testing team before escalating the event to incident response."
+      },
+      {
+        "label": "C",
+        "text": "Both findings indicate misconfigured RBAC policies. Remediate by running kubectl auth can-i checks, tightening ClusterRole bindings, and redeploying affected pods with updated service account annotations configured for least-privilege access."
+      },
+      {
+        "label": "D",
+        "text": "The findings suggest an exposed Kubernetes Dashboard provided initial access, enabling a threat actor to deploy a malicious container that executed code on the host. Cordon and drain the node, revoke the compromised node IAM role, and capture forensic artifacts from affected pods."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Policy:Kubernetes/ExposedDashboard indicates the Kubernetes Dashboard is publicly accessible without authentication \u2014 a known initial access vector. Execution:EKS/MaliciousFile indicates a file with known malicious content was executed inside a container or on the node, suggesting a container escape or workload compromise. Together these findings represent initial access via the exposed dashboard followed by malicious code execution, potentially a container escape to the EC2 host. The correct response is to cordon/drain the node (stops scheduling, isolates workload), revoke the node's IAM instance profile to prevent credential misuse, and capture forensic artifacts. RBAC fixes (A) do not address active execution. These are not DDoS indicators (C). Archiving active execution findings (D) is dangerous without investigation.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "eks",
+      "container-escape",
+      "kubernetes"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-004",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "During a CloudTrail log review, a security analyst notices that an EC2 instance role in Account A called sts:AssumeRole to assume a role in Account B, immediately followed by iam:ListRoles, iam:ListPolicies, and ec2:DescribeInstances from the assumed role in Account B. The EC2 instance in Account A has no documented business need to access Account B. What does this pattern most likely indicate and what should the analyst do first?",
+    "options": [
+      {
+        "label": "A",
+        "text": "This pattern indicates lateral movement \u2014 a threat actor has compromised the EC2 instance role in Account A and is using it to pivot into Account B for IAM and compute reconnaissance. Immediately revoke the cross-account trust policy in Account B and place the Account A instance role under investigation."
+      },
+      {
+        "label": "B",
+        "text": "The API calls represent a routine Service Control Policy evaluation by AWS Organizations. Enumeration of IAM roles and EC2 resources is triggered automatically when SCP inheritance is recalculated during account moves within the organization structure."
+      },
+      {
+        "label": "C",
+        "text": "This behavior is consistent with AWS Security Hub cross-account findings aggregation, where the delegated administrator role performs periodic inventory sweeps across member accounts to synchronize finding data and compliance status."
+      },
+      {
+        "label": "D",
+        "text": "This is normal behavior for AWS Config aggregation. Config uses cross-account roles to collect inventory data. Verify whether a Config aggregator is configured in Account B and confirm the instance role is the designated Config source account service role."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The pattern \u2014 AssumeRole from a workload identity (EC2 instance role) into an unrelated account, immediately followed by IAM and compute enumeration \u2014 is a classic lateral movement and reconnaissance sequence. A threat actor who has compromised EC2 credentials in Account A leverages any permissive cross-account trust to pivot into Account B and map resources. The immediate action is to revoke the cross-account trust relationship (remove the Account A role from Account B's trust policy) and quarantine the EC2 instance in Account A to prevent further credential use. AWS Config (A), SCPs (C), and Security Hub (D) do not generate this specific API pattern from an EC2 instance role.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "cloudtrail",
+      "lateral-movement",
+      "assume-role",
+      "cross-account"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-005",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An organization uses GuardDuty in a multi-account AWS Organizations setup with a delegated GuardDuty administrator account. A security engineer in a member account attempts to archive a high-severity finding and disable their local GuardDuty detector, but both actions fail. The engineer also cannot see findings from other member accounts. What explains these behaviors and what is the correct architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The member account's IAM role lacks guardduty:ArchiveFindings and guardduty:DeleteDetector permissions. Granting these permissions via an IAM policy attached to the engineer's role will restore full GuardDuty management capability within the member account."
+      },
+      {
+        "label": "B",
+        "text": "The findings are stored in the administrator account's S3 bucket, and the member account needs an S3 bucket policy granting cross-account read access to view them. The bucket owner must configure S3 permissions before member accounts can query any finding data."
+      },
+      {
+        "label": "C",
+        "text": "In a GuardDuty Organizations setup, the administrator account centrally manages all detectors. Member accounts cannot archive findings, disable their detectors, or view findings from other members \u2014 all finding management and cross-account visibility is controlled exclusively from the administrator account."
+      },
+      {
+        "label": "D",
+        "text": "GuardDuty requires VPC endpoints for cross-account finding aggregation. The member account's VPC is missing a com.amazonaws.region.guardduty endpoint, which prevents the member from publishing findings to the administrator or modifying detector settings."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "In a GuardDuty multi-account Organizations deployment, the delegated administrator account has centralized control. Member accounts cannot: disable or modify their GuardDuty detector (the administrator controls detector configuration), archive or suppress findings (only the administrator can), or see findings from other member accounts (cross-account finding aggregation is visible only in the administrator account). This is by design to prevent a compromised member account from suppressing findings or disabling detection. The restriction is architectural, not an IAM permission gap (A). Findings are not stored in S3 by default (C). VPC endpoints are not required for GuardDuty finding aggregation (D).",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "multi-account",
+      "organizations",
+      "delegated-administrator"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-006",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "GuardDuty generates a Backdoor:EC2/C&CActivity.B!DNS finding for an EC2 instance, indicating the instance is making DNS queries that match known command-and-control domain patterns. The security team wants to block DNS-based C2 communication across the entire VPC without disrupting legitimate DNS resolution. What is the most targeted and operationally sound remediation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy AWS Network Firewall in the VPC with a Suricata-compatible stateful rule matching the C2 domain pattern via SNI inspection, and route all VPC DNS traffic through the firewall before it reaches the Route 53 Resolver endpoint."
+      },
+      {
+        "label": "B",
+        "text": "Create a Route 53 Resolver DNS Firewall rule group with a domain list containing the C2 domains, associate the rule group with the affected VPC, and configure the rule action to BLOCK with a NODATA response for all matched queries."
+      },
+      {
+        "label": "C",
+        "text": "Add a VPC security group outbound rule denying TCP and UDP port 53 to 0.0.0.0/0 for all instances in the affected subnets, blocking DNS traffic from leaving the VPC while assuming internal DNS resolution can continue normally."
+      },
+      {
+        "label": "D",
+        "text": "Modify the VPC's DHCP options set to point all instances to a custom on-premises DNS server that filters malicious domains using a local blocklist, replacing the default AmazonProvidedDNS resolver for all instances in the affected VPC."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Route 53 Resolver DNS Firewall is purpose-built for blocking DNS-based threats at the VPC resolver level. By creating a rule group with the malicious domains and associating it with the VPC, all DNS queries from any instance in that VPC matching the blocklist are blocked with a NODATA or NXDOMAIN response \u2014 stopping C2 communication without affecting legitimate resolution. Custom DNS servers via DHCP options (A) require operating and maintaining an additional fleet and do not natively integrate with GuardDuty findings. Blocking port 53 via security groups (B) would also block all legitimate external DNS. Network Firewall (D) requires traffic rerouting and is more complex; DNS Firewall is the direct, intended solution for this finding type.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "dns-firewall",
+      "route53",
+      "c2",
+      "dns-exfiltration"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-007",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A GuardDuty finding InstanceCredentialExfiltration:EC2/MetaDataService is generated, indicating that credentials from an EC2 instance's IMDSv2 service were used from an external IP. Investigation reveals the credentials were obtained via an SSRF vulnerability in a web application on that instance, routed through a Lambda function. What automated remediation chain, triggered by EventBridge, best stops the active threat and prevents lateral movement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EventBridge rule invokes a Lambda function that calls ec2:StopInstances on the affected EC2 instance, then publishes an SNS notification to the security team with the finding details and instance metadata for subsequent manual investigation and credential rotation."
+      },
+      {
+        "label": "B",
+        "text": "EventBridge rule triggers an SSM Automation document that: (1) replaces the instance's security groups with a forensic-isolation group blocking all outbound traffic, (2) attaches a deny-all policy to the instance profile IAM role to revoke active STS sessions from the exfiltrated credentials, and (3) creates an EBS snapshot for forensic analysis."
+      },
+      {
+        "label": "C",
+        "text": "EventBridge rule invokes AWS Config remediation to enforce IMDSv2-only on the instance, automatically upgrading the metadata service configuration to require session tokens and prevent future SSRF-based credential theft without interrupting the running instance workload."
+      },
+      {
+        "label": "D",
+        "text": "EventBridge rule triggers a Step Functions workflow that disables the affected IAM user, rotates all account-level access keys, invalidates active sessions via iam:DeleteLoginProfile, and sends a PagerDuty alert through an API Gateway webhook integration for on-call response."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The SSRF chain produces exfiltrated STS credentials that may already be in active use externally. The correct automated remediation must: (1) stop new credential use by isolating the instance via security group replacement (a forensic isolation group with no outbound access), (2) revoke the STS sessions already issued from the instance profile by attaching a deny-all policy to the IAM role \u2014 this is the only mechanism to invalidate active STS tokens before they expire, and (3) preserve evidence via EBS snapshot. Simply stopping the instance (A) does not revoke already-exfiltrated credentials. Enforcing IMDSv2 (C) prevents future abuse but does not contain the active exfiltrated session. Rotating IAM user keys (D) is irrelevant \u2014 the threat involves EC2 instance role STS credentials, not IAM user keys.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "ssrf",
+      "imds",
+      "credential-exfiltration",
+      "automated-remediation"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-008",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A GuardDuty Malware Protection scan triggered for an EBS volume attached to an EC2 instance returns a finding of type Execution:EC2/MaliciousFile. The volume contains sensitive financial data. What is the correct quarantine and investigation workflow sequence?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Terminate the EC2 instance immediately to stop active malware execution, then contact AWS Support to retrieve the infected EBS volume data from AWS's secure post-termination storage tier, which retains volumes for 30 days for forensic retrieval purposes."
+      },
+      {
+        "label": "B",
+        "text": "Run AWS Inspector on the EC2 instance to perform a deep malware scan, review the Inspector findings report to identify specific malicious files, then use Systems Manager Run Command to delete the identified files from the volume while the instance remains running."
+      },
+      {
+        "label": "C",
+        "text": "Enable GuardDuty automated response to quarantine the finding, which automatically moves the EBS volume to a GuardDuty-managed quarantine bucket, runs a secondary verification scan, and generates a remediation report without any manual intervention required."
+      },
+      {
+        "label": "D",
+        "text": "Take an EBS snapshot of the infected volume tagged with a case ID for chain-of-custody, detach the volume from the instance, reattach it as a secondary drive to an isolated forensic EC2 instance in a quarantine VPC with no internet access, and analyze using a hardened forensic AMI."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The correct EBS malware quarantine workflow is: (1) Take an EBS snapshot before any analysis \u2014 preserves the original state and establishes chain of custody with case ID tagging. (2) Detach the original volume or mount a snapshot copy to an isolated forensic EC2 instance in a quarantine VPC \u2014 a hardened environment with no internet, no production access, and appropriate forensic tooling. (3) Analyze using a trusted forensic AMI. Terminating the instance (A) causes EBS volumes to be deleted by default (unless DeleteOnTermination=false); AWS Support cannot retrieve them from a 'storage tier'. AWS Inspector scans for vulnerabilities, not malware; deleting files without forensic analysis destroys evidence (B). GuardDuty does not automatically move EBS volumes to S3 quarantine buckets (C).",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "malware-protection",
+      "ebs",
+      "forensics",
+      "quarantine"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-009",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "GuardDuty generates a Persistence:IAMUser/UserCreation finding. CloudTrail shows an iam:CreateUser API call from an IAM role normally used only by an automated CI/CD pipeline. The new user was immediately granted AdministratorAccess. What forensic steps should the analyst perform first to determine whether this was authorized or an attacker establishing persistence?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Filter CloudTrail for the calling role's ARN across the 24-hour window surrounding the CreateUser event. Examine userIdentity.sessionContext.sessionIssuer to trace the assumption chain, compare sourceIPAddress and userAgent against CI/CD baselines, and review subsequent iam:AttachUserPolicy and iam:CreateLoginProfile calls from the same session to map the full persistence chain."
+      },
+      {
+        "label": "B",
+        "text": "Check AWS Trusted Advisor for IAM recommendations, review the new user's MFA enrollment status, and compare the current IAM user count against the baseline from the last AWS Well-Architected Framework review to detect unauthorized additions."
+      },
+      {
+        "label": "C",
+        "text": "Use Amazon Macie to scan all S3 buckets accessible to the new IAM user for exfiltrated sensitive data, correlate Macie findings with the GuardDuty alert to determine the blast radius of the persistence technique before initiating any containment action."
+      },
+      {
+        "label": "D",
+        "text": "Immediately delete the newly created IAM user and revoke the CI/CD role's permissions, then run AWS Config's IAM password policy conformance check and review SCPs to determine whether preventive controls should have blocked the user creation event."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Forensic investigation of a suspected IAM persistence event requires full session reconstruction in CloudTrail: (1) Filter by the CI/CD role ARN to see all API calls in the session surrounding the CreateUser event. (2) Examine sessionContext.sessionIssuer to understand how the role was assumed \u2014 legitimate pipeline or attacker assumption? (3) Compare sourceIPAddress and userAgent against known CI/CD pipeline IPs (e.g., CodePipeline service IPs vs. an unexpected external IP). (4) Trace follow-on calls: iam:AttachUserPolicy (granting AdministratorAccess), iam:CreateLoginProfile (enabling console access), iam:CreateAccessKey \u2014 these form the persistence chain. Trusted Advisor (A) does not provide session-level forensics. Deleting the user before investigation (C) may destroy evidence. Macie (D) is useful for data exfiltration detection but is not the first step in IAM persistence forensics.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "cloudtrail",
+      "iam",
+      "persistence",
+      "forensics"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-010",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team wants to automate incident response for HIGH severity GuardDuty findings. When triggered, the automation should isolate the affected EC2 instance, capture memory forensics via an agent, and notify the incident response team. Which architecture most effectively implements this multi-step runbook?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure GuardDuty automated response templates in the GuardDuty console, select the HIGH severity runbook from the built-in template library, configure the EC2 instance ARN pattern, and GuardDuty will natively orchestrate isolation, memory capture, and notifications without additional services."
+      },
+      {
+        "label": "B",
+        "text": "Configure GuardDuty to push findings to an SQS queue, deploy a Lambda function polling SQS that calls ec2:ModifyInstanceAttribute to swap security groups, publishes to SNS for notifications, and triggers a second Lambda for memory capture via SSM Run Command in a separate invocation."
+      },
+      {
+        "label": "C",
+        "text": "Create an EventBridge rule matching GuardDuty findings where severity >= 7.0, targeting an SSM Automation document that swaps the instance's security group to an isolation group, runs a memory capture script via a nested SSM Run Command step using SSM Agent, and sends an SNS notification as the final step."
+      },
+      {
+        "label": "D",
+        "text": "Configure AWS Security Hub to receive GuardDuty findings, create a Security Hub custom action that triggers an AWS Chatbot workflow, and use Chatbot's built-in incident response playbook engine to isolate instances and dispatch notifications to the security team's Slack channel."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The recommended pattern for GuardDuty finding automation is: EventBridge rule (matching on source: aws.guardduty and detail.severity >= 7.0) targeting an SSM Automation document. SSM Automation is the purpose-built AWS service for multi-step runbook orchestration: it can execute AWS API actions (security group replacement for isolation), run scripts on instances via SSM Run Command steps (memory capture using tools like LiME if SSM Agent is installed), and integrate with SNS for notifications \u2014 all in a tracked, auditable execution. GuardDuty has no native built-in runbook templates for isolation (A). SQS/Lambda (B) works but chains multiple functions without step tracking or rollback. AWS Chatbot is a notification routing tool, not a runbook execution engine (D).",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "ssm-automation",
+      "eventbridge",
+      "incident-response",
+      "runbook"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-011",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "During an AWS CodeBuild build, GuardDuty generates an UnauthorizedAccess:IAMUser/MaliciousIPCaller finding for the build project's service role. Investigation reveals that plaintext credentials were printed to the build log and then used from an external IP \u2014 a supply chain attack targeting the CI/CD pipeline. Which combination of detective and preventive controls should be implemented going forward?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy an AWS WAF rule on the CodeBuild endpoint to block requests from known malicious IPs, configure AWS Shield Advanced for the CodeBuild service, and use Amazon Inspector to scan all build artifacts for credential exposure before each build completes and artifacts are published."
+      },
+      {
+        "label": "B",
+        "text": "Enable CodeBuild build badge, configure CloudWatch Logs retention to 1 day for build logs to reduce the exfiltration window, and rotate the CodeBuild service role credentials every 24 hours using a Lambda function triggered by EventBridge Scheduler to limit exposure time."
+      },
+      {
+        "label": "C",
+        "text": "Store pipeline secrets in AWS Secrets Manager or Parameter Store instead of environment variables, enable CodeBuild log value masking, restrict the build service role to least-privilege using permission boundaries, enable GuardDuty in the build account, and use CodeBuild VPC mode to limit outbound network egress during builds."
+      },
+      {
+        "label": "D",
+        "text": "Migrate all builds to CodePipeline with cross-account roles, encrypt the CodeBuild environment with a customer-managed KMS key, and require all build artifacts to pass through AWS Signer before deployment to prevent malicious code from executing in downstream environments."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Supply chain attacks targeting CI/CD pipelines commonly exploit credentials exposed in build logs or environment variables. The correct defense-in-depth approach addresses root cause and detection: (1) Move secrets to Secrets Manager or SSM Parameter Store SecureString \u2014 never pass credentials as plaintext environment variables. (2) Enable CodeBuild log value masking to prevent secrets from appearing in logs. (3) Apply least-privilege permission boundaries to the build service role to limit blast radius. (4) Enable GuardDuty in the build account \u2014 often overlooked because build accounts are treated as non-production. (5) Use CodeBuild VPC mode to restrict egress and prevent exfiltration to external IPs. Deleting logs (A) destroys evidence. CodePipeline cross-account roles (C) and Signer address different threat vectors. WAF and Shield do not protect CodeBuild (D), and Inspector scans for vulnerabilities, not real-time credential exposure.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "codebuild",
+      "supply-chain",
+      "cicd",
+      "secrets-management"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-012",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team is designing a forensic analysis environment for post-incident investigation of compromised EC2 instances. The environment must ensure evidence integrity, maintain chain of custody, and prevent contamination between the forensic environment and the subject of investigation. Which architecture best satisfies all three requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use the existing production VPC, launch a dedicated forensic EC2 instance with a hardened forensic AMI, attach suspect EBS volumes as secondary drives, and store all forensic outputs in the same S3 bucket used for application logs to simplify access control and data consolidation."
+      },
+      {
+        "label": "B",
+        "text": "Perform all forensic analysis directly on the running compromised instance using SSM Session Manager to avoid provisioning new infrastructure, document all commands in Session Manager logs, and use S3 Transfer Acceleration to quickly upload forensic outputs to a central evidence bucket."
+      },
+      {
+        "label": "C",
+        "text": "Create an isolated forensic VPC with no internet gateway, no VPC peering to production, and no NAT gateway. Use a hardened forensic AMI, snapshot EBS volumes before analysis with case ID tags for chain of custody, store all artifacts in a dedicated S3 bucket with Object Lock (WORM) enabled, and log all forensic API activity to a separate tamper-evident CloudTrail trail."
+      },
+      {
+        "label": "D",
+        "text": "Deploy a third-party forensic platform from AWS Marketplace into the compromised instance's subnet, grant the platform an IAM role with ReadOnlyAccess to all services, and configure the platform to automatically generate chain-of-custody reports and submit them to the legal team via SES."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "A sound forensic VPC architecture requires: (1) Network isolation \u2014 a dedicated VPC with no internet gateway, no peering to production, and no NAT prevents the forensic environment from becoming a new attack vector and prevents evidence contamination. (2) Hardened forensic AMI \u2014 pre-loaded with trusted tools (Volatility, dd, etc.) from a known-good, version-pinned image. (3) EBS snapshots taken before mounting \u2014 preserves the original state; analysis is done on a copy. (4) S3 with Object Lock (WORM) \u2014 ensures forensic artifacts cannot be modified or deleted, satisfying chain-of-custody requirements for legal proceedings. (5) Separate CloudTrail trail \u2014 provides tamper-evident audit log of all forensic API actions. Using the production VPC (A) risks contamination. Analyzing on the live compromised instance (B) contaminates evidence and may trigger attacker defenses. Third-party platforms in the same subnet (D) violate isolation principles.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "forensics",
+      "vpc",
+      "s3-object-lock",
+      "chain-of-custody",
+      "incident-response"
+    ]
+  },
+  {
+    "id": "scs-d1-t5-013",
+    "domain": "domain-01",
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security operations team faces alert fatigue from three categories of GuardDuty noise: (1) findings from a known vulnerability scanner run weekly from a fixed IP range, (2) a legitimate third-party service that occasionally triggers UnauthorizedAccess findings from known IPs that have never been a real threat, and (3) the finding type Recon:EC2/PortProbeUnprotectedPort which has never been actionable in their environment. Which approach correctly maps each suppression mechanism to its appropriate use case?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Disable the GuardDuty data sources (VPC Flow Logs, DNS logs, CloudTrail) that generate the unwanted finding types, create custom CloudWatch metric filters on the raw log data to reconstruct only the findings the team cares about, and deliver actionable alerts via SNS without GuardDuty as an intermediary layer."
+      },
+      {
+        "label": "B",
+        "text": "Add all three IP ranges and the finding type to the GuardDuty trusted IP list, which suppresses all findings from those sources and for that finding type globally across all accounts in the organization with no audit trail impact."
+      },
+      {
+        "label": "C",
+        "text": "For all three cases, create EventBridge rules that match the specific finding types and source IPs, route matched events to a Lambda function that calls guardduty:ArchiveFindings programmatically, and avoid any GuardDuty configuration changes to maintain a clean console and preserve flexibility for future tuning."
+      },
+      {
+        "label": "D",
+        "text": "Use the trusted IP list for the vulnerability scanner IPs so no findings are generated at all, create a suppression rule with an archive filter for the third-party service findings so they are still generated and logged but auto-archived, and create a separate suppression rule to auto-archive all Recon:EC2/PortProbeUnprotectedPort findings while preserving them in the log for compliance."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "GuardDuty provides three distinct noise-reduction mechanisms with different behaviors: (1) Trusted IP list \u2014 for sources that should NEVER generate findings (e.g., your own vulnerability scanner). Findings are not created at all for traffic from these IPs, which means no audit trail. Use only for fully trusted internal sources. (2) Suppression rules (archive filters) \u2014 findings ARE generated and stored but are automatically archived (not shown in active findings). This maintains an audit trail for compliance while removing noise from the active queue. Ideal for known-benign third parties where you still want a record. (3) Archive filter for finding types \u2014 same mechanism, applied to an entire finding type that has proven non-actionable. Findings are still logged for compliance. Option A incorrectly applies the trusted IP list to the third-party service (losing audit trail) and trusted IP lists cannot suppress finding types. Disabling data sources (C) blinds GuardDuty broadly. Programmatic archiving via Lambda (D) adds operational complexity without benefit over native suppression rules.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "suppression-rules",
+      "trusted-ip-list",
+      "alert-fatigue",
+      "tuning"
+    ]
+  }
+]

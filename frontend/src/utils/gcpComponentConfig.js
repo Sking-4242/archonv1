@@ -3,6 +3,7 @@ export const GCP_COMPONENT_CONFIGS = {
   gcp_vpc: [
     { key: "auto_create_subnetworks", label: "Auto Subnets", type: "boolean", default: false, basic: true },
     { key: "routing_mode", label: "Routing Mode", type: "select", options: ["REGIONAL", "GLOBAL"], default: "REGIONAL", basic: true },
+    { key: "enable_flow_logs", label: "VPC Flow Logs", type: "boolean", default: false, basic: true },
   ],
   gcp_subnet: [
     { key: "ip_cidr_range", label: "IP CIDR Range", type: "text", default: "10.0.0.0/24", basic: true },
@@ -15,6 +16,7 @@ export const GCP_COMPONENT_CONFIGS = {
   ],
   gcp_lb: [
     { key: "load_balancing_scheme", label: "Scheme", type: "select", options: ["EXTERNAL", "INTERNAL", "EXTERNAL_MANAGED"], default: "EXTERNAL", basic: true },
+    { key: "cloud_armor_enabled", label: "Cloud Armor Attached", type: "boolean", default: false, basic: true },
   ],
   gcp_cdn: [],
   gcp_dns: [
@@ -47,6 +49,9 @@ export const GCP_COMPONENT_CONFIGS = {
     { key: "zone", label: "Zone", type: "text", default: "us-central1-a", basic: true },
     { key: "boot_disk_size", label: "Boot Disk (GB)", type: "number", default: 50, basic: true },
     { key: "boot_disk_type", label: "Disk Type", type: "select", options: ["pd-standard", "pd-balanced", "pd-ssd"], default: "pd-balanced" },
+    { key: "public_ip", label: "Public IP", type: "boolean", default: false, basic: true },
+    { key: "shielded_vm_enabled", label: "Shielded VM", type: "boolean", default: true, basic: true },
+    { key: "os_login_enabled", label: "OS Login", type: "boolean", default: true, basic: true },
   ],
   gcp_mig: [
     { key: "base_instance_name", label: "Base Instance Name", type: "text", default: "instance", basic: true },
@@ -58,11 +63,15 @@ export const GCP_COMPONENT_CONFIGS = {
     { key: "machine_type", label: "Node Machine Type", type: "text", default: "e2-standard-2", basic: true },
     { key: "location", label: "Location", type: "text", default: "us-central1", basic: true },
     { key: "autopilot", label: "Autopilot", type: "boolean", default: false, basic: true },
+    { key: "private_cluster", label: "Private Cluster", type: "boolean", default: true, basic: true },
+    { key: "workload_identity_enabled", label: "Workload Identity", type: "boolean", default: true, basic: true },
+    { key: "network_policy", label: "Network Policy", type: "boolean", default: true, basic: true },
   ],
   gcp_cloud_run: [
     { key: "location", label: "Location", type: "text", default: "us-central1", basic: true },
     { key: "max_instance_count", label: "Max Instances", type: "number", default: 10, basic: true },
-    { key: "ingress", label: "Ingress", type: "select", options: ["all", "internal", "internal-and-cloud-load-balancing"], default: "all", basic: true },
+    { key: "ingress", label: "Ingress", type: "select", options: ["all", "internal", "internal-and-cloud-load-balancing"], default: "internal-and-cloud-load-balancing", basic: true },
+    { key: "allow_unauthenticated", label: "Allow Unauthenticated", type: "boolean", default: false, basic: true },
   ],
   gcp_cloud_functions: [
     { key: "runtime", label: "Runtime", type: "select", options: ["python311", "nodejs20", "go122", "java21"], default: "python311", basic: true },
@@ -88,6 +97,7 @@ export const GCP_COMPONENT_CONFIGS = {
     { key: "location", label: "Location", type: "text", default: "US", basic: true },
     { key: "storage_class", label: "Storage Class", type: "select", options: ["STANDARD", "NEARLINE", "COLDLINE", "ARCHIVE"], default: "STANDARD", basic: true },
     { key: "uniform_bucket_level_access", label: "Uniform Access", type: "boolean", default: true, basic: true },
+    { key: "public_access_prevention", label: "Public Access Prevention", type: "select", options: ["enforced", "inherited", "unspecified"], default: "enforced", basic: true },
   ],
   gcp_filestore: [
     { key: "tier", label: "Tier", type: "select", options: ["BASIC_HDD", "BASIC_SSD", "PREMIUM", "ENTERPRISE"], default: "BASIC_HDD", basic: true },
@@ -109,6 +119,10 @@ export const GCP_COMPONENT_CONFIGS = {
     { key: "tier", label: "Tier", type: "text", default: "db-f1-micro", basic: true },
     { key: "disk_size", label: "Disk (GB)", type: "number", default: 20, basic: true },
     { key: "availability_type", label: "Availability", type: "select", options: ["ZONAL", "REGIONAL"], default: "ZONAL", basic: true },
+    { key: "ipv4_enabled", label: "Public IPv4", type: "boolean", default: false, basic: true },
+    { key: "ssl_mode", label: "SSL Mode", type: "select", options: ["ENCRYPTED_ONLY", "ALLOW_UNENCRYPTED_AND_ENCRYPTED"], default: "ENCRYPTED_ONLY", basic: true },
+    { key: "backup_enabled", label: "Automated Backups", type: "boolean", default: true, basic: true },
+    { key: "deletion_protection", label: "Deletion Protection", type: "boolean", default: true, basic: true },
   ],
   gcp_alloydb: [
     { key: "cluster_type", label: "Cluster Type", type: "select", options: ["PRIMARY", "SECONDARY"], default: "PRIMARY", basic: true },

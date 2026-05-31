@@ -1,0 +1,667 @@
+[
+  {
+    "id": "scs-d2-t2-001",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security engineer discovers that CloudTrail log files in S3 have been modified after delivery. Which CloudTrail feature, when enabled, allows you to detect this tampering?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudTrail Insights, which detects unusual write API activity patterns and alerts on anomalous bursts of API calls."
+      },
+      {
+        "label": "B",
+        "text": "Log file validation, which creates a SHA-256 hash digest file for each delivery batch so you can verify that log files have not been modified, deleted, or forged."
+      },
+      {
+        "label": "C",
+        "text": "CloudTrail data event logging, which records S3 object-level API calls so you can detect when a log file's PutObject or DeleteObject was called."
+      },
+      {
+        "label": "D",
+        "text": "S3 Object Lock in Compliance mode applied to the CloudTrail bucket, which prevents modification but does not verify whether a file was changed before the lock was applied."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail log file validation creates a digest file containing SHA-256 hashes of delivered log files. The AWS CLI validate-logs command uses these digests to verify that logs have not been tampered with after delivery.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "log-integrity",
+      "file-validation"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-002",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An organization needs to analyze CloudTrail logs for specific patterns across 12 months of data stored in S3. The team wants ad-hoc SQL queries without managing servers. Which is the MOST cost-effective solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Amazon Athena to query the CloudTrail logs directly in S3 using standard SQL, paying only for the data scanned per query."
+      },
+      {
+        "label": "B",
+        "text": "Load logs into Amazon Redshift using COPY commands, then run SQL queries; Redshift is optimized for large-scale analytics."
+      },
+      {
+        "label": "C",
+        "text": "Load the CloudTrail JSON logs into Amazon OpenSearch Service and use the Kibana dashboard for querying and visualization."
+      },
+      {
+        "label": "D",
+        "text": "Stream logs through Kinesis Data Firehose into a Parquet format in S3, then use Glue ETL jobs to normalize the data before querying."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Amazon Athena queries data directly in S3 without data movement, using serverless SQL with pay-per-query pricing. It natively supports CloudTrail JSON logs and is the recommended approach for ad-hoc log analysis.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "athena",
+      "log-analysis",
+      "s3"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-003",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A CloudWatch metric filter is configured on CloudTrail logs to detect when the root account is used. The alarm triggers an SNS notification. During testing, the alarm fires correctly. What CloudTrail configuration is REQUIRED for this to work?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudTrail must be configured to send log events to CloudWatch Logs; without this integration, CloudWatch cannot apply metric filters to CloudTrail data."
+      },
+      {
+        "label": "B",
+        "text": "CloudTrail must have data event logging enabled for all S3 buckets so that object-level API calls by the root account are captured."
+      },
+      {
+        "label": "C",
+        "text": "CloudTrail must deliver logs to an S3 bucket in the same region as the CloudWatch Logs group where the metric filter is defined."
+      },
+      {
+        "label": "D",
+        "text": "CloudTrail must have Insights enabled so that unusual root account activity patterns are surfaced as findings visible to CloudWatch."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudWatch metric filters operate on CloudWatch Logs data. For CloudTrail events to be filterable by CloudWatch, the trail must be configured to deliver logs to a CloudWatch Logs log group. Without this, CloudWatch has no stream to filter.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "cloudwatch",
+      "metric-filter",
+      "root-account"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-004",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "VPC Flow Logs are enabled for a VPC. A security analyst needs to identify all rejected connection attempts to a specific EC2 instance's private IP over the last 7 days. Which query tool and log field combination is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Config to query resource configuration history for the security group rules that caused connections to be rejected."
+      },
+      {
+        "label": "B",
+        "text": "Use CloudTrail to query ec2:DescribeNetworkInterfaces events filtered by the instance ID to find rejected connection metadata."
+      },
+      {
+        "label": "C",
+        "text": "Use GuardDuty to identify rejected connections; GuardDuty's network findings include detailed per-IP reject counts."
+      },
+      {
+        "label": "D",
+        "text": "Use CloudWatch Logs Insights to filter VPC Flow Log records where the action field equals REJECT and dstaddr matches the instance's private IP."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "VPC Flow Log records include `action` (ACCEPT/REJECT), `srcaddr`, `dstaddr`, and port fields. CloudWatch Logs Insights can query these fields with filter commands to find rejected connections to a specific destination IP.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "vpc-flow-logs",
+      "cloudwatch-logs-insights",
+      "network-analysis"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-005",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security engineer needs to detect when any IAM policy is attached to a user, role, or group in a production account. The detection must happen in near-real time. Which approach is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a CloudWatch metric filter on CloudTrail logs sent to CloudWatch Logs that matches the eventName field for AttachUserPolicy, AttachRolePolicy, and AttachGroupPolicy, then trigger a CloudWatch alarm."
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS Config's iam-policy-attached managed rule, which evaluates compliance when a policy is attached and generates a Config finding."
+      },
+      {
+        "label": "C",
+        "text": "Create a GuardDuty finding filter for IAM policy attachment events and configure SNS notifications for matching findings."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Security Hub's Foundational Security Best Practices standard, which has a control for detecting IAM policy changes in near-real time."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudWatch metric filters on CloudTrail Logs are the standard mechanism for near-real-time alerting on specific API events. Filtering on AttachUserPolicy, AttachRolePolicy, and AttachGroupPolicy event names and triggering an alarm meets the requirement.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "cloudwatch",
+      "iam",
+      "metric-filter"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-006",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon Security Lake to centralize logs from CloudTrail, VPC Flow Logs, Route 53, and a third-party firewall. What data format does Security Lake use to normalize all log sources?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Security Lake stores logs in their native JSON format in separate S3 prefixes per service, relying on Athena schema-on-read for querying."
+      },
+      {
+        "label": "B",
+        "text": "Security Lake converts all logs to Apache Parquet format using Glue ETL jobs, which can then be queried with Athena."
+      },
+      {
+        "label": "C",
+        "text": "Security Lake normalizes all log data to the Open Cybersecurity Schema Framework (OCSF) format, enabling consistent querying across diverse log sources."
+      },
+      {
+        "label": "D",
+        "text": "Security Lake normalizes all logs to the Elastic Common Schema (ECS) format used by OpenSearch Service and compatible SIEM tools."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Amazon Security Lake normalizes log data to the Open Cybersecurity Schema Framework (OCSF), a vendor-neutral open standard. OCSF allows security tools and analysts to query data consistently regardless of the original log source.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "security-lake",
+      "ocsf",
+      "log-normalization"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-007",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An organization stores CloudTrail logs in a centralized S3 bucket in a security account. A security engineer must prevent all other accounts, including the management account, from deleting these logs. What combination of controls achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable S3 MFA Delete on the bucket so that any delete request requires MFA, effectively slowing down unauthorized deletions."
+      },
+      {
+        "label": "B",
+        "text": "Apply an S3 bucket policy with an explicit Deny on s3:DeleteObject for all principals except a break-glass role, combined with S3 Object Lock in Compliance mode to prevent overwrites."
+      },
+      {
+        "label": "C",
+        "text": "Apply an SCP to the management account that denies s3:DeleteObject on the specific CloudTrail bucket ARN from all principals."
+      },
+      {
+        "label": "D",
+        "text": "Enable bucket versioning so that deleted objects can be restored, and use CloudWatch Logs to alert when s3:DeleteObject events are detected on the bucket."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "A bucket policy explicit Deny blocks deletion at the resource level even for highly privileged principals. S3 Object Lock in Compliance mode adds a write-once layer that cannot be overridden by any user including the root account during the retention period.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "s3",
+      "object-lock",
+      "cloudtrail",
+      "log-protection"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-008",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "Route 53 Resolver query logging is enabled for a VPC. A security analyst wants to detect DNS queries to known malicious domains. Which service can consume Route 53 query logs and perform automated threat detection?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS WAF, which can inspect DNS queries and block requests matching known malicious domain patterns using managed rule groups."
+      },
+      {
+        "label": "B",
+        "text": "Amazon Macie, which scans Route 53 query logs stored in S3 for sensitive data such as domain names matching threat intelligence feeds."
+      },
+      {
+        "label": "C",
+        "text": "Amazon GuardDuty, which automatically analyzes Route 53 Resolver query logs when enabled and generates findings for queries to known malicious domains."
+      },
+      {
+        "label": "D",
+        "text": "Amazon Inspector, which analyzes DNS activity from EC2 instances and generates vulnerability findings for known C2 domain queries."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "GuardDuty is one of the data sources that includes Route 53 Resolver query logs. When enabled, GuardDuty automatically analyzes DNS queries and generates findings like Backdoor:EC2/C&CActivity.B!DNS for queries to known malicious domains.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "route53",
+      "guardduty",
+      "dns-logging"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-009",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company wants to capture all S3 data events (GetObject, PutObject, DeleteObject) for a specific bucket to investigate potential data exfiltration. What must be configured in CloudTrail?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a CloudWatch Events rule that captures S3 API calls and delivers them to CloudTrail via a cross-service integration."
+      },
+      {
+        "label": "B",
+        "text": "Enable S3 server access logging for the bucket and configure it to deliver to CloudTrail's S3 bucket so events are aggregated."
+      },
+      {
+        "label": "C",
+        "text": "Enable CloudTrail management events for the S3 service in the trail; management events include all S3 control plane and data plane operations."
+      },
+      {
+        "label": "D",
+        "text": "Enable CloudTrail data event logging for the specific S3 bucket ARN by adding it as a data event resource in the trail configuration."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "S3 object-level operations (GetObject, PutObject, DeleteObject) are data events in CloudTrail, not management events. You must explicitly enable data event logging for the bucket ARN (or all S3 buckets) in the trail configuration.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "s3",
+      "data-events"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-010",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security team wants to stream AWS WAF logs to a SIEM tool in near-real time. WAF logs must be transformed (field filtering) before reaching the SIEM. Which architecture is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure an AWS Glue ETL job to read WAF logs from S3, apply the transformation, and send the results to the SIEM on a scheduled basis."
+      },
+      {
+        "label": "B",
+        "text": "Enable WAF logging to an S3 bucket, create an S3 Event Notification that triggers a Lambda to process and forward each log file to the SIEM."
+      },
+      {
+        "label": "C",
+        "text": "Configure WAF to log to CloudWatch Logs, create a CloudWatch Logs subscription filter, and use a Lambda function to transform and forward logs to the SIEM."
+      },
+      {
+        "label": "D",
+        "text": "Configure WAF logging to deliver to Kinesis Data Firehose, use a Lambda transformation function attached to the Firehose delivery stream, and configure the destination as the SIEM's HTTP endpoint."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS WAF supports native logging to Kinesis Data Firehose. Firehose supports Lambda-based data transformation, and its HTTP Endpoint destination can deliver directly to SIEM tools. This is the intended near-real-time WAF log streaming pattern.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "waf",
+      "kinesis-firehose",
+      "logging",
+      "siem"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-011",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A CloudTrail organization trail is configured in the management account. A developer in a member account notices that CloudTrail is showing events from their account. Can the developer modify the organization trail from their member account?",
+    "options": [
+      {
+        "label": "A",
+        "text": "No; organization trails are immutable and cannot be modified by any account after creation, including the management account."
+      },
+      {
+        "label": "B",
+        "text": "Yes; the developer can disable the organization trail for their specific account by using the cloudtrail:StopLogging API for their account only."
+      },
+      {
+        "label": "C",
+        "text": "Yes; any IAM user with cloudtrail:UpdateTrail permission in the member account can modify the organization trail's settings."
+      },
+      {
+        "label": "D",
+        "text": "No; organization trails can only be modified from the management account or delegated administrator account that created them."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Organization trails are created and managed exclusively from the management account or delegated CloudTrail administrator. Member accounts can see the trail but cannot modify, delete, or stop it, ensuring centralized log integrity.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "organization-trail",
+      "multi-account"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-012",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security analyst is writing a CloudWatch Logs Insights query to find failed console sign-in attempts from the past 24 hours using CloudTrail logs. Which filter condition is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "filter eventSource = 'signin.amazonaws.com' and eventName = 'ConsoleLogin' | stats count(*) by errorCode"
+      },
+      {
+        "label": "B",
+        "text": "filter eventName = 'ConsoleLogin' and responseElements.ConsoleLogin = 'Failure' | stats count(*) by sourceIPAddress"
+      },
+      {
+        "label": "C",
+        "text": "filter eventName = 'ConsoleLogin' and errorCode = 'AccessDenied' | stats count(*) by sourceIPAddress"
+      },
+      {
+        "label": "D",
+        "text": "filter userAgent = 'signin.amazonaws.com' and eventName = 'FailedLogin' | stats count(*) by userIdentity.arn"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail records console login attempts with eventName = ConsoleLogin. The success or failure is captured in responseElements.ConsoleLogin as either 'Success' or 'Failure'. Filtering on this field and grouping by source IP identifies repeated failure sources.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "cloudwatch-logs-insights",
+      "failed-login"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-013",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs to ensure that CloudTrail logs delivered to S3 are encrypted using a customer-managed KMS key. They also need CloudTrail to be unable to decrypt the logs itself once delivered. What configuration achieves encryption at rest with customer key control?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use client-side encryption in CloudTrail by generating a local key pair and providing the public key to CloudTrail for log encryption."
+      },
+      {
+        "label": "B",
+        "text": "Configure the CloudTrail trail to use a customer-managed KMS key (SSE-KMS) for encryption; key policies can restrict who can decrypt, giving the company full control."
+      },
+      {
+        "label": "C",
+        "text": "Configure S3 default encryption with SSE-KMS using an AWS managed key; this uses a KMS key that AWS manages but the customer owns."
+      },
+      {
+        "label": "D",
+        "text": "Enable SSE-S3 on the CloudTrail S3 bucket; S3 manages the encryption keys so the company retains full control over decryption."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail supports SSE-KMS encryption with a customer-managed key. The KMS key policy controls who can call kms:Decrypt, allowing the organization to restrict decryption access independently of S3 permissions.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "kms",
+      "encryption",
+      "s3"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-014",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security engineer needs to detect when an EC2 security group is modified to allow unrestricted inbound access (0.0.0.0/0) on any port. The alert must fire within minutes of the change. Which solution is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a CloudWatch metric filter on CloudTrail logs that matches AuthorizeSecurityGroupIngress events, then trigger an alarm when the metric count exceeds zero."
+      },
+      {
+        "label": "B",
+        "text": "Enable GuardDuty network threat detection, which automatically detects when security groups are opened to the internet."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Config with the restricted-ssh or incoming-ssh-disabled managed rule and configure an SNS notification for Config rule non-compliance."
+      },
+      {
+        "label": "D",
+        "text": "Create an EventBridge rule matching ec2:AuthorizeSecurityGroupIngress API calls, add a Lambda function to inspect the CIDR, and send an SNS alert when 0.0.0.0/0 is detected."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "EventBridge captures the AuthorizeSecurityGroupIngress CloudTrail event in near-real time. A Lambda function inspects the IpRanges in the event detail and triggers SNS when 0.0.0.0/0 is found, providing within-minutes alerting with CIDR-level precision.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "eventbridge",
+      "lambda",
+      "security-group",
+      "cloudtrail",
+      "alerting"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-015",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An organization wants to capture detailed access logs for every request made to an Application Load Balancer, including client IP, request path, response code, and processing time, for security analysis. What must be enabled?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure VPC Flow Logs for the ALB's subnet to capture network-level metadata including source IPs and destination ports."
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS WAF logging on the ALB listener so that all requests including those not matching WAF rules are recorded."
+      },
+      {
+        "label": "C",
+        "text": "Enable ALB access logs by specifying an S3 bucket in the load balancer attributes; ALB delivers detailed per-request log files to that bucket."
+      },
+      {
+        "label": "D",
+        "text": "Enable CloudTrail data events for the ALB so that all HTTP request details are recorded in CloudTrail log files delivered to S3."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "ALB access logs must be explicitly enabled in the load balancer's attributes. When enabled, ALB delivers log files to a specified S3 bucket containing per-request details: client IP, request URL, response code, backend latency, and more.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "alb",
+      "access-logs",
+      "s3",
+      "monitoring"
+    ]
+  },
+  {
+    "id": "scs-d2-t2-016",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A compliance requirement states that all API activity across all AWS services must be logged, including read-only API calls such as DescribeInstances and ListBuckets. The default CloudTrail configuration does not capture these. What must be changed?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable CloudTrail data events for all services; data events include read-only describe and list API calls for supported services."
+      },
+      {
+        "label": "B",
+        "text": "The default CloudTrail trail only logs write events; to capture read-only management events, the trail must be updated to include read events under management event settings."
+      },
+      {
+        "label": "C",
+        "text": "Enable CloudTrail Insights; Insights mode captures all API calls including read operations and flags anomalous usage patterns."
+      },
+      {
+        "label": "D",
+        "text": "Create a separate CloudTrail trail specifically for read events; the existing trail cannot be modified to include both read and write events."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail management event logging can be configured to capture Read events, Write events, or both. By default, only Write events are logged. Updating the trail to include Read management events captures describe, list, and get API calls.",
+    "module_ref": "scs-m2",
+    "tags": [
+      "cloudtrail",
+      "management-events",
+      "read-events"
+    ]
+  }
+]

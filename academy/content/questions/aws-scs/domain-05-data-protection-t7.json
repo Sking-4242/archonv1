@@ -1,0 +1,658 @@
+[
+  {
+    "id": "scs-d5-t7-001",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "An administrator reviews a newly created AWS KMS customer managed key and notices the key policy contains a statement granting the AWS account root ARN full kms:* permissions. What is the purpose of this default root ARN statement in the key policy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The root ARN statement enables IAM delegation, allowing IAM users and roles in the account with appropriate IAM permissions to manage and use the key without being individually listed in the key policy."
+      },
+      {
+        "label": "B",
+        "text": "The root ARN statement grants AWS Support access to the key for troubleshooting; removing it prevents AWS Support from helping with key-related issues."
+      },
+      {
+        "label": "C",
+        "text": "The root ARN statement is a required placeholder that must be replaced with specific principal ARNs before any key operation succeeds; leaving it in place blocks all key usage."
+      },
+      {
+        "label": "D",
+        "text": "The root ARN statement grants the AWS account root user exclusive, non-delegable access so no IAM user or role can use the key unless explicitly added to the key policy by the root user."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The default KMS key policy grants the AWS account root ARN (arn:aws:iam::ACCOUNT-ID:root) full kms:* permissions. This enables IAM delegation \u2014 it allows IAM policies attached to users and roles to grant KMS permissions for this key. Without this statement, IAM policies alone cannot grant access; the key policy must explicitly list every principal. This design lets you manage key access through standard IAM policies rather than editing the key policy for every new user or role.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-002",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security engineer needs S3 encryption where AWS never stores the encryption keys and the company supplies the key on every API call. Which S3 encryption method satisfies this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SSE-S3 uses AWS-managed AES-256 keys stored and rotated automatically by AWS, giving the company no control over the encryption keys protecting the data."
+      },
+      {
+        "label": "B",
+        "text": "SSE-C (server-side encryption with customer-provided keys) requires the caller to supply the encryption key as a header on every S3 PUT and GET; AWS performs encryption or decryption and then immediately discards the key without storing it."
+      },
+      {
+        "label": "C",
+        "text": "SSE-KMS with a customer managed key stores the CMK within AWS KMS; while the customer controls the key policy and rotation schedule, AWS retains the key material inside the KMS service boundary."
+      },
+      {
+        "label": "D",
+        "text": "Client-side encryption means AWS receives only ciphertext, but it requires the team to implement encryption logic in application code rather than using native S3 server-side encryption headers."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "SSE-C (Server-Side Encryption with Customer-Provided Keys) is the S3 option where the customer supplies the encryption key with every request as an HTTP header. AWS uses the key to encrypt or decrypt and immediately discards it \u2014 the key is never stored by AWS. The customer is responsible for maintaining the key outside AWS. Every GET and PUT must include the correct key or the request fails. This provides full key custody outside AWS but requires the application team to securely store and supply the key on each call.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-003",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A company wants to use TLS certificates on their Application Load Balancers and CloudFront distributions, and also on their on-premises load balancers. Which statement about AWS Certificate Manager (ACM) correctly describes what is and is not possible?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ACM certificates are free only for the first year; annual renewal fees apply afterward, and separate certificates must be obtained for on-premises use through AWS Marketplace."
+      },
+      {
+        "label": "B",
+        "text": "ACM provides free public TLS certificates for integrated AWS services like ALB and CloudFront, but ACM certificate private keys are not exportable, so ACM certificates cannot be installed on on-premises or non-AWS infrastructure."
+      },
+      {
+        "label": "C",
+        "text": "ACM certificates can be exported including the private key and certificate chain, allowing the same certificate to be deployed on AWS services and on-premises load balancers from a single ACM issuance."
+      },
+      {
+        "label": "D",
+        "text": "ACM certificates issued for CloudFront must be created in us-east-1 and are globally valid; the same certificate can be used on ALBs in any region and exported for on-premises deployment."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "ACM provides free public TLS/SSL certificates for AWS services integrated with ACM \u2014 ALB, CloudFront, API Gateway, etc. A key characteristic of ACM public certificates is that the private key is managed by AWS and is not exportable. This means you cannot download the certificate and private key to install on on-premises infrastructure. For on-premises use, the company would need certificates from a third-party CA or use ACM Private CA with exportable certificates. ACM handles automatic renewal for certificates in use with AWS services.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-004",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security team enables Amazon Macie in their AWS account. They want to understand which S3 buckets Macie will evaluate for security policy findings by default after the service is enabled. What is Macie's default coverage behavior?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Macie monitors only buckets storing objects larger than 1 GB, treating smaller buckets as low-risk and excluding them from the default monitoring scope to reduce costs."
+      },
+      {
+        "label": "B",
+        "text": "Macie monitors only buckets explicitly tagged with a Macie monitoring tag; untagged buckets are excluded from all discovery jobs and policy findings by default."
+      },
+      {
+        "label": "C",
+        "text": "Macie automatically discovers and monitors all S3 buckets in the region where it is enabled, evaluating bucket policies and access controls and generating policy findings for all buckets without per-bucket configuration."
+      },
+      {
+        "label": "D",
+        "text": "Macie requires the administrator to create a discovery job per bucket; enabling Macie does not automatically monitor any buckets until at least one scheduled job is manually configured."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "When Amazon Macie is enabled, it automatically begins monitoring all S3 buckets in the region by performing bucket-level security assessments. Macie generates policy findings for buckets with public access, sharing with external accounts, or disabled encryption \u2014 all automatically without per-bucket configuration. For object-level sensitive data discovery (finding PII inside objects), you create and run discovery jobs, but bucket inventory and policy findings are automatic across all buckets in the region. No tagging or per-bucket opt-in is required for policy monitoring.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-005",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security auditor asks about the operational difference between automatic KMS key rotation and manual KMS key rotation for customer managed keys. Which statement correctly describes this distinction?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Automatic rotation is only available for AWS managed keys and cannot be enabled for customer managed keys; CMKs must always use manual rotation by creating a new key and updating all application references."
+      },
+      {
+        "label": "B",
+        "text": "Automatic and manual rotation produce identical results; the only difference is that automatic rotation follows a schedule while manual rotation is triggered by an administrator API call."
+      },
+      {
+        "label": "C",
+        "text": "Automatic rotation occurs every year and replaces the backing key material while retaining the same key ID and ARN so no application changes are needed; manual rotation requires creating a new CMK and re-encrypting data encrypted under the old key."
+      },
+      {
+        "label": "D",
+        "text": "Automatic rotation occurs every 90 days and deletes the old key material immediately, requiring applications to use the new key ID; manual rotation keeps the old key ID active for a 30-day transition window."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "KMS automatic key rotation, when enabled, rotates the backing key material every 365 days. The key ID, ARN, alias, and policies remain unchanged \u2014 AWS retains all prior backing keys to decrypt data encrypted with previous versions, so applications need no changes. Manual key rotation involves creating a completely new CMK with a new key ID and ARN, updating aliases or application configurations to point to the new key, and optionally re-encrypting data. Manual rotation gives more control over timing but requires significantly more operational effort.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-006",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A compliance requirement now mandates encryption at rest for an existing unencrypted Amazon RDS MySQL instance. The security team must enable encryption. What is the correct approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Take a snapshot of the unencrypted instance, copy the snapshot enabling encryption during the copy operation to produce an encrypted snapshot, then restore a new encrypted RDS instance from that snapshot."
+      },
+      {
+        "label": "B",
+        "text": "Create an encrypted read replica from the unencrypted RDS instance; once replication completes, promote the replica to a standalone encrypted primary and update application connection strings."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Database Migration Service to migrate data from the unencrypted instance to a new encrypted RDS instance while both databases remain online, achieving zero-downtime encryption."
+      },
+      {
+        "label": "D",
+        "text": "Enable encryption on the existing RDS instance through the AWS Console by modifying storage settings; RDS re-encrypts all data in place transparently without downtime."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "RDS encryption must be enabled at instance creation \u2014 you cannot enable encryption on an existing unencrypted RDS instance in place. The supported path is: (1) take a snapshot of the unencrypted instance, (2) copy the snapshot and enable encryption during the copy, creating an encrypted snapshot, then (3) restore a new encrypted RDS instance from that snapshot. You cannot create an encrypted read replica from an unencrypted primary. After the new encrypted instance is running and verified, update application connection strings and decommission the old instance.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-007",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security engineer enables SSE-KMS as the default encryption for an S3 bucket that already contains thousands of unencrypted objects. What is the effect on those existing objects?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enabling SSE-KMS default encryption has no effect on existing objects already stored in the bucket; only objects uploaded after the setting is applied will be encrypted using SSE-KMS."
+      },
+      {
+        "label": "B",
+        "text": "Enabling SSE-KMS default encryption causes S3 to re-encrypt all existing objects immediately in a synchronous in-place operation that briefly makes them unavailable."
+      },
+      {
+        "label": "C",
+        "text": "Enabling SSE-KMS default encryption triggers a background job that encrypts all existing unencrypted objects over the following 24\u201348 hours using the specified KMS key."
+      },
+      {
+        "label": "D",
+        "text": "Enabling SSE-KMS default encryption causes S3 to lazily re-encrypt each existing object on its first read and then store the re-encrypted version going forward."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "S3 default bucket encryption applies only to objects uploaded after the setting is enabled. Existing objects remain in their current state \u2014 unencrypted objects stay unencrypted. S3 performs no background or lazy re-encryption of existing objects. To encrypt existing objects, you must explicitly copy them (using S3 Batch Operations with a Copy operation specifying the desired encryption, or individual copy calls). This is an important distinction when remediating unencrypted data in existing buckets.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-008",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A financial services company must store encryption keys in dedicated single-tenant hardware meeting FIPS 140-2 Level 3 validation. Which AWS service meets this requirement and how does it differ from AWS KMS?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS CloudHSM provides dedicated single-tenant HSM hardware that is FIPS 140-2 Level 3 validated; AWS KMS uses multi-tenant hardware that is FIPS 140-2 Level 2 validated and is managed by AWS with shared infrastructure."
+      },
+      {
+        "label": "B",
+        "text": "AWS KMS meets FIPS 140-2 Level 3 with dedicated single-tenant HSM hardware per customer; CloudHSM is the lower-cost multi-tenant alternative with FIPS 140-2 Level 2 validation."
+      },
+      {
+        "label": "C",
+        "text": "Both CloudHSM and KMS use FIPS 140-2 Level 3 validated single-tenant hardware; the only difference is that KMS is fully managed while CloudHSM requires the customer to manage the HSM cluster."
+      },
+      {
+        "label": "D",
+        "text": "AWS CloudHSM is available only in GovCloud regions designed for US federal government workloads; standard commercial regions use KMS for all key management."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS CloudHSM provides dedicated, single-tenant HSM hardware that is FIPS 140-2 Level 3 validated. The HSM hardware is physically dedicated to your account \u2014 not shared with other AWS customers. You have exclusive control including managing users and keys, and AWS cannot access the key material. AWS KMS uses multi-tenant hardware (FIPS 140-2 Level 2) where the underlying HSM infrastructure is shared across customers, with logical isolation maintained. KMS is a fully managed service. CloudHSM requires the customer to manage the cluster but satisfies stricter compliance requirements for dedicated hardware and Level 3 validation.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-009",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A company's security policy requires all new EBS volumes created in their AWS account to be encrypted by default, regardless of whether the application specifies encryption. How can the security team enforce this at the account level?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy an AWS Config rule with auto-remediation that detects unencrypted EBS volumes after creation and immediately deletes them, forcing users to recreate volumes with encryption."
+      },
+      {
+        "label": "B",
+        "text": "Enable EBS encryption by default at the AWS account and region level in the EC2 console settings; all new EBS volumes and snapshots in that region are then encrypted automatically using the specified KMS key."
+      },
+      {
+        "label": "C",
+        "text": "Create an S3 bucket policy blocking unencrypted EBS snapshot exports and deploy a Lambda function to encrypt any new volume created without explicit encryption parameters."
+      },
+      {
+        "label": "D",
+        "text": "Attach an IAM permission boundary to all users and roles that denies ec2:CreateVolume unless the request includes the encryption parameter set to true."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS provides an account-level, region-level setting called EBS encryption by default. When enabled in the EC2 console (Account Attributes > EBS encryption), all new EBS volumes and copies of snapshots in that region are automatically encrypted using either the AWS managed key (aws/ebs) or a customer managed KMS key you specify. This applies regardless of whether the API caller includes encryption parameters. It does not retroactively encrypt existing volumes, but no new unencrypted volumes can be created while the setting is active.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-010",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A developer needs to store a database password requiring automatic 30-day rotation and hundreds of non-sensitive static configuration parameters that never change. Which approach best optimizes for both security and cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Store the database password in AWS KMS as a custom key alias with the password as key metadata; KMS natively supports credential storage and rotation."
+      },
+      {
+        "label": "B",
+        "text": "Store all values in AWS Secrets Manager for a single unified interface; the cost difference between Secrets Manager and Parameter Store is negligible at scale."
+      },
+      {
+        "label": "C",
+        "text": "Store all values in Parameter Store SecureString with KMS encryption and implement a custom Lambda triggered by CloudWatch Events to rotate the database password on a schedule."
+      },
+      {
+        "label": "D",
+        "text": "Store the database password in AWS Secrets Manager for built-in automatic rotation; store the non-sensitive static parameters in AWS Systems Manager Parameter Store Standard tier to minimize cost."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Secrets Manager is purpose-built for secrets requiring rotation. It includes native integration for rotating Amazon RDS, Redshift, and DocumentDB credentials using built-in Lambda rotation functions \u2014 no custom code required. Secrets Manager charges per secret per month (~$0.40). AWS Systems Manager Parameter Store Standard tier is free for non-advanced parameters and is well-suited for static configuration values that don't require rotation. Using Parameter Store for hundreds of static config values avoids unnecessary Secrets Manager charges. The best practice is Secrets Manager for rotating credentials and Parameter Store for static configuration.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-011",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "An IAM role has an IAM policy that explicitly allows kms:Decrypt on a specific KMS CMK ARN. When the application uses this role to decrypt data, it receives AccessDeniedException. No explicit deny exists anywhere. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The application is calling Decrypt from a VPC different from where the KMS key was created; KMS key access is restricted to the origin VPC unless a VPC endpoint condition is added."
+      },
+      {
+        "label": "B",
+        "text": "The KMS CMK is an AWS managed key; AWS managed keys cannot be accessed via IAM policies and require the key policy to be modified directly."
+      },
+      {
+        "label": "C",
+        "text": "The IAM policy grants kms:Decrypt but the role also requires kms:GenerateDataKey; KMS requires both permissions even when only decrypting already-encrypted data."
+      },
+      {
+        "label": "D",
+        "text": "The KMS key policy does not include a statement allowing the IAM role to use the key; both the key policy and the IAM policy must allow the action, and the missing key policy statement results in an implicit deny."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "For KMS key access, both the key policy AND the IAM policy must allow the action. If the KMS key policy does not include a statement allowing the specific IAM principal to perform kms:Decrypt, access is denied even with a valid IAM policy. The exception is when the key policy contains the default root account statement (granting the account root ARN full access), which enables IAM delegation. Without that statement or an explicit principal-level grant in the key policy, the IAM policy alone is insufficient. This is a common source of AccessDeniedException errors with KMS.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-012",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A company runs microservices on ECS that communicate over mutual TLS. The services use internal domain names that are not publicly resolvable, so public certificate authorities cannot issue certificates for them. Which AWS service should be used to issue TLS certificates for these internal services?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS IoT Core includes a built-in private CA service that can be repurposed for microservice mutual TLS; its certificates are trusted by all AWS services and ECS containers by default."
+      },
+      {
+        "label": "B",
+        "text": "AWS KMS can generate RSA key pairs and self-signed certificates; the private keys are protected by KMS and certificates can be distributed to ECS tasks via environment variables."
+      },
+      {
+        "label": "C",
+        "text": "AWS Certificate Manager Private CA (ACM PCA) enables the company to create a private certificate authority hierarchy and issue private TLS certificates for internal services with non-public domain names."
+      },
+      {
+        "label": "D",
+        "text": "ACM public certificates support any domain name including internal ones; the company simply needs to use email validation instead of DNS validation for internal domains."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Certificate Manager Private CA (ACM Private CA / AWS Private CA) lets you create and operate a private certificate authority hierarchy within AWS. It issues private X.509 certificates for internal services, including services with private or non-publicly-resolvable domain names. These certificates are trusted by entities configured to trust your private CA certificate. ACM public certificates require domain ownership validation and only work for publicly resolvable domains. Private CA is the correct solution for internal PKI, mTLS between microservices, and scenarios where public CAs are inappropriate.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-013",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A company must ensure that regulated financial records stored in S3 cannot be deleted or overwritten by anyone \u2014 including administrators \u2014 for exactly 7 years. Which S3 Object Lock configuration correctly meets this strict WORM requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable S3 Versioning with MFA Delete; this requires multi-factor authentication to delete any object version, effectively preventing unauthorized deletion for the retention period."
+      },
+      {
+        "label": "B",
+        "text": "Enable S3 Object Lock with Governance mode combined with an SCP denying s3:DeleteObject; combining Governance mode with an SCP provides equivalent protection to Compliance mode."
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 Object Lock with Governance mode retention for 7 years; Governance mode prevents all users including root from deleting or overwriting objects."
+      },
+      {
+        "label": "D",
+        "text": "Enable S3 Object Lock with Compliance mode retention for 7 years; in Compliance mode no user including the AWS account root can shorten the retention period or delete the object before it expires."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "S3 Object Lock has two retention modes. Compliance mode is the stricter option: once set, no user \u2014 not even the AWS account root user \u2014 can delete the object or shorten the retention period before it expires. This provides the strongest WORM protection for regulated industries. Governance mode also prevents most deletions but allows users with the s3:BypassGovernanceRetention permission to override the lock, making it less suitable for scenarios where even administrators must be prevented from deletion. Compliance mode is the correct choice for a hard 7-year retention requirement.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-014",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A healthcare company wants Amazon Macie to detect proprietary patient identifier formats unique to their internal systems that are not covered by Macie's built-in managed data identifiers. How should Macie be configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Glue DataBrew to profile the S3 data and define custom data quality rules; DataBrew integrates with Macie to report custom pattern matches as sensitive data findings."
+      },
+      {
+        "label": "B",
+        "text": "Submit a request to AWS Support to add the custom format to Macie's managed data identifier library; AWS updates the library quarterly."
+      },
+      {
+        "label": "C",
+        "text": "Create a custom data identifier in Macie using a regular expression (regex) pattern and optional keywords and ignore words; Macie uses it in sensitive data discovery jobs alongside built-in managed identifiers."
+      },
+      {
+        "label": "D",
+        "text": "Export S3 object content to Amazon Comprehend and use Comprehend custom entity recognition to train a model on the proprietary format; Macie natively integrates with Comprehend custom models."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Amazon Macie supports custom data identifiers that allow organizations to define their own sensitive data patterns using regular expressions. A custom data identifier consists of a regex pattern describing the format, optional keywords that must appear near the match to reduce false positives, and optional ignore words to exclude known non-sensitive matches. These custom identifiers are used alongside Macie's built-in managed data identifiers during sensitive data discovery jobs \u2014 the correct mechanism for detecting organization-specific PII patterns or proprietary identifiers not covered by Macie's standard library.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-015",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A company uses a KMS customer managed key with imported key material. The security team must understand their additional responsibilities compared to a standard KMS CMK using AWS-generated key material. Which statement is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The customer must re-import the key material every 90 days because KMS automatically expires imported key material on a fixed compliance schedule."
+      },
+      {
+        "label": "B",
+        "text": "AWS encrypts the imported key material with a KMS-managed wrapping key and stores it in an S3 bucket controlled by the customer, enabling self-service restoration without AWS involvement."
+      },
+      {
+        "label": "C",
+        "text": "AWS is responsible for key material backup and durability because the material is stored within KMS infrastructure; the customer only needs to manage access via key policies."
+      },
+      {
+        "label": "D",
+        "text": "The customer is responsible for maintaining a secure backup of the imported key material outside of AWS; if the key material is deleted from KMS, AWS cannot recover it and data encrypted with it becomes permanently inaccessible."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "When you import key material into a KMS CMK, the customer becomes responsible for maintaining a secure backup of that key material outside of AWS. Unlike AWS-generated key material, imported key material can be deleted from KMS \u2014 either intentionally or accidentally. If deleted with no backup, any data encrypted with that key becomes permanently inaccessible; AWS Support cannot recover it. Customers using imported key material must store the original key material securely (e.g., in an HSM or secure key store) and have a documented re-import process.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "scs-d5-t7-016",
+    "domain": 5,
+    "domain_name": "Data Protection",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A large enterprise with dozens of AWS Organizations member accounts needs to enforce consistent backup schedules for EC2, RDS, and EFS resources across all accounts from a central security team. Which approach provides centralized backup policy enforcement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy a central Lambda function in the management account that queries all member accounts via cross-account roles and creates AWS Backup plans in each account weekly via the Backup API."
+      },
+      {
+        "label": "B",
+        "text": "Deploy an AWS Config conformance pack via CloudFormation StackSets to all accounts; the conformance pack evaluates backup compliance and triggers SNS notifications when resources lack backup plans."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Backup with backup policies enabled in AWS Organizations; backup policies are an Organizations policy type that define AWS Backup plans and can be applied to OUs or accounts to enforce backup schedules centrally."
+      },
+      {
+        "label": "D",
+        "text": "Create an SCP that denies creation of EC2, RDS, and EFS resources unless the API call includes a backup tag; this tag-based approach ensures all resources have backup plans before provisioning."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Backup integrates with AWS Organizations through backup policies \u2014 an Organizations policy type (similar to SCPs) created in the management account and attached to the root, OUs, or individual accounts. A backup policy defines an AWS Backup plan including schedules, retention periods, and backup vaults, and automatically applies it to resources in targeted accounts. This provides true centralized enforcement: the security team defines backup requirements once, and all member accounts automatically have backup plans created and enforced without per-account configuration.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection"
+    ]
+  }
+]

@@ -13,6 +13,10 @@ import {
   createNote,
   updateNote,
 } from "../../api/library";
+import useAccessStore from "../../store/accessStore";
+import UpgradePrompt from "../ui/UpgradePrompt";
+import TutorPanel from "../tutor/TutorPanel";
+import { canAccessModule } from "../../utils/tierGates";
 
 const CANVAS_URL = import.meta.env.VITE_CANVAS_URL ?? "http://localhost:3000";
 
@@ -26,6 +30,20 @@ const PROSE_CLASSES =
   "prose-code:bg-gray-100 prose-code:rounded prose-code:px-1 prose-code:py-0.5 " +
   "prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-lg prose-pre:p-4 " +
   "prose-blockquote:border-l-blue-400 prose-blockquote:text-gray-600";
+
+function LessonWithTutor({ children, contextType, lessonTitle, lessonContent, moduleTitle }) {
+  return (
+    <div className="flex-1 flex min-h-0">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">{children}</div>
+      <TutorPanel
+        contextType={contextType}
+        lessonTitle={lessonTitle}
+        lessonContent={lessonContent}
+        moduleTitle={moduleTitle}
+      />
+    </div>
+  );
+}
 
 // ── Sidebar item ──────────────────────────────────────────────────────────────
 
@@ -195,7 +213,7 @@ function NotesPanel({ libraryLessonId }) {
 
 // ── Library lesson pane ───────────────────────────────────────────────────────
 
-function LibraryLessonPane({ link, onComplete }) {
+function LibraryLessonPane({ link, onComplete, moduleTitle }) {
   const [lesson,     setLesson]     = useState(null);
   const [loading,    setLoading]    = useState(true);
   const [completing, setCompleting] = useState(false);
@@ -256,6 +274,12 @@ function LibraryLessonPane({ link, onComplete }) {
   const isCanvas = lesson.lesson_type === "canvas";
 
   return (
+    <LessonWithTutor
+      contextType={isCanvas ? "lab" : "lesson"}
+      lessonTitle={lesson.title}
+      lessonContent={lesson.content}
+      moduleTitle={moduleTitle || lesson.module_title}
+    >
     <div className="flex-1 flex flex-col overflow-hidden">
       {/* Header */}
       <div className="px-8 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
@@ -351,12 +375,13 @@ function LibraryLessonPane({ link, onComplete }) {
         </button>
       </div>
     </div>
+    </LessonWithTutor>
   );
 }
 
 // ── Canvas lab viewer ─────────────────────────────────────────────────────────
 
-function CanvasLessonViewer({ lessonSummary, moduleId, allItems, onComplete }) {
+function CanvasLessonViewer({ lessonSummary, moduleId, allItems, onComplete, moduleTitle }) {
   const navigate = useNavigate();
   const [lesson,     setLesson]     = useState(null);
   const [loading,    setLoading]    = useState(true);
@@ -411,6 +436,12 @@ function CanvasLessonViewer({ lessonSummary, moduleId, allItems, onComplete }) {
   }
 
   return (
+    <LessonWithTutor
+      contextType="lab"
+      lessonTitle={lesson.title}
+      lessonContent={lesson.content}
+      moduleTitle={moduleTitle}
+    >
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="px-8 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
         <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
@@ -490,12 +521,13 @@ function CanvasLessonViewer({ lessonSummary, moduleId, allItems, onComplete }) {
         </button>
       </div>
     </div>
+    </LessonWithTutor>
   );
 }
 
 // ── Content lesson viewer ─────────────────────────────────────────────────────
 
-function LessonViewer({ lessonSummary, moduleId, allItems, onComplete }) {
+function LessonViewer({ lessonSummary, moduleId, allItems, onComplete, moduleTitle }) {
   const navigate = useNavigate();
   const [lesson,     setLesson]     = useState(null);
   const [loading,    setLoading]    = useState(true);
@@ -540,6 +572,12 @@ function LessonViewer({ lessonSummary, moduleId, allItems, onComplete }) {
   }
 
   return (
+    <LessonWithTutor
+      contextType="lesson"
+      lessonTitle={lesson.title}
+      lessonContent={lesson.content}
+      moduleTitle={moduleTitle}
+    >
     <div className="flex-1 flex flex-col overflow-hidden">
       <div className="px-8 pt-6 pb-4 border-b border-gray-100 flex-shrink-0">
         <div className="flex items-center gap-2 text-xs text-gray-400 mb-2">
@@ -595,6 +633,7 @@ function LessonViewer({ lessonSummary, moduleId, allItems, onComplete }) {
         </button>
       </div>
     </div>
+    </LessonWithTutor>
   );
 }
 
@@ -624,6 +663,7 @@ function AssignmentPane({ item }) {
 export default function StudentModuleDetail() {
   const { moduleId } = useParams();
   const navigate     = useNavigate();
+  const canUse = useAccessStore((s) => s.canUse);
 
   const [module,      setModule]      = useState(null);
   const [libLinks,    setLibLinks]    = useState([]);
@@ -708,6 +748,19 @@ export default function StudentModuleDetail() {
     );
   }
 
+  if (!canAccessModule(module, canUse)) {
+    return (
+      <div className="py-16">
+        <UpgradePrompt feature="academy_all_certs" />
+        <div className="text-center mt-4">
+          <button onClick={() => navigate("/modules")} className="text-sm text-blue-600">
+            Back to Modules
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   const lessonItems     = (module.lessons     || []).map((l) => ({ ...l, type: "lesson" }));
   const assignmentItems = (module.assignments || []).map((a) => ({ ...a, type: "assignment" }));
   const libraryItems    = libLinks.map((lk) => ({ ...lk, type: "library" }));
@@ -777,6 +830,7 @@ export default function StudentModuleDetail() {
             key={activeItem.id}
             link={activeItem}
             onComplete={handleLibraryComplete}
+            moduleTitle={module.title}
           />
         ) : activeItem.type === "assignment" ? (
           <AssignmentPane item={activeItem} />
@@ -786,6 +840,7 @@ export default function StudentModuleDetail() {
             moduleId={moduleId}
             allItems={allItems}
             onComplete={handleComplete}
+            moduleTitle={module.title}
           />
         ) : (
           <LessonViewer
@@ -793,6 +848,7 @@ export default function StudentModuleDetail() {
             moduleId={moduleId}
             allItems={allItems}
             onComplete={handleComplete}
+            moduleTitle={module.title}
           />
         )}
       </div>

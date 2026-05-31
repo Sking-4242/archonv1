@@ -61,6 +61,22 @@ export default function StudentHome() {
         <StatCard label="Graded" value={graded.length} color="text-green-600" />
       </div>
 
+      {/* Practice tests promo */}
+      <section className="bg-white border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between gap-4">
+        <div>
+          <div className="font-medium text-gray-900 text-sm">AWS Cloud Practitioner practice tests</div>
+          <p className="text-xs text-gray-500 mt-1">
+            Study mode with explanations or timed live exams. Test 1 is free with your account.
+          </p>
+        </div>
+        <button
+          onClick={() => navigate("/practice-tests")}
+          className="shrink-0 text-sm px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700"
+        >
+          Open practice tests
+        </button>
+      </section>
+
       {/* Upcoming assignments */}
       <section>
         <div className="flex items-center justify-between mb-4">

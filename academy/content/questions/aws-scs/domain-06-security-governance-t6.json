@@ -1,0 +1,583 @@
+[
+  {
+    "id": "scs-d6-t6-001",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A platform team uses Control Tower Account Factory for Terraform (AFT) to vend new AWS accounts. They want every new account to automatically receive a standard set of security baseline resources \u2014 KMS keys, CloudTrail configuration, and GuardDuty enrollment \u2014 without modifying the AFT core module. What is the correct AFT mechanism to achieve this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an AFT account customizations repository that contains Terraform modules targeting all accounts; AFT applies it to every vended account as part of the pipeline."
+      },
+      {
+        "label": "B",
+        "text": "Place Terraform configuration in the AFT global customizations repository so that it is applied to every account AFT provisions, regardless of account-specific settings."
+      },
+      {
+        "label": "C",
+        "text": "Use an AWS Service Catalog product shared from the AFT management account so that each new account can self-provision the baseline stack."
+      },
+      {
+        "label": "D",
+        "text": "Add a Control Tower lifecycle event rule in the management account that triggers a Lambda function to deploy baseline resources after account creation."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AFT has two customization layers: global customizations (applied to every vended account) and account customizations (applied per account based on tags or metadata). Placing Terraform in the global customizations repository is the correct way to enforce a universal security baseline across all accounts without editing the AFT core. Account customizations would require per-account configuration, and Lambda lifecycle rules or Service Catalog are outside the AFT pipeline model.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "control-tower",
+      "aft",
+      "account-factory-terraform"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-002",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security engineer attaches an SCP to the Root of an AWS Organization that denies s3:DeleteBucket for all principals. A root user in a member account attempts to delete an S3 bucket. What happens?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The action succeeds because SCPs do not apply to the root user; only IAM roles and users are subject to SCP restrictions."
+      },
+      {
+        "label": "B",
+        "text": "The action succeeds because a root user's permissions cannot be restricted by SCPs, which only limit IAM identities."
+      },
+      {
+        "label": "C",
+        "text": "The action fails because SCPs apply to all principals in member accounts, including the root user of those member accounts."
+      },
+      {
+        "label": "D",
+        "text": "The action fails only if a matching SCP deny is also applied at the OU level directly containing the member account."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "SCPs apply to every principal in a member account, including the root user of that member account. This is a critical distinction: the root user of the management account is NOT subject to SCPs, but the root user of any member account IS subject to them. Attaching a Deny SCP at the Root therefore prevents even member account root users from performing the denied action.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "scp",
+      "organizations",
+      "root-user",
+      "member-account"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-003",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A compliance team needs to assess all AWS accounts in an Organization against the CIS AWS Foundations Benchmark without manually creating individual Config rules in each account. Which AWS Config feature best satisfies this requirement with the least operational overhead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable AWS Security Hub with the CIS AWS Foundations standard; Security Hub creates the underlying Config rules automatically across accounts."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Audit Manager with the CIS framework; Audit Manager deploys Config rules to member accounts when delegated admin is configured."
+      },
+      {
+        "label": "C",
+        "text": "Deploy a CloudFormation StackSet that creates the required individual Config rules in each member account using the CIS rule list."
+      },
+      {
+        "label": "D",
+        "text": "Deploy a Config conformance pack containing the CIS AWS Foundations Benchmark template from the AWS sample library across all accounts in the Organization."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Config conformance packs bundle a set of Config rules and optional remediation actions into a single deployable package. AWS provides sample conformance packs for CIS, PCI DSS, HIPAA, and others. Using Organizations integration, a conformance pack can be deployed across all accounts and regions from a single operation. This is the native Config mechanism designed for exactly this use case. Security Hub also uses Config rules but is a separate service layer; the question asks specifically about Config.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "config",
+      "conformance-pack",
+      "cis",
+      "compliance"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-004",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security operations team wants a single pane of glass for Security Hub findings generated in us-east-1, eu-west-1, and ap-southeast-1. They designate us-east-1 as the aggregator region. After configuration, findings from eu-west-1 are missing in the aggregator. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The aggregator region must be the same as the Security Hub administrator account's home region; cross-region aggregation is not supported across different home regions."
+      },
+      {
+        "label": "B",
+        "text": "Cross-region aggregation requires an EventBridge rule in each source region to forward findings to the aggregator region."
+      },
+      {
+        "label": "C",
+        "text": "eu-west-1 was not added as a linked region in the cross-region aggregation configuration in us-east-1."
+      },
+      {
+        "label": "D",
+        "text": "Security Hub in eu-west-1 is enabled but the finding aggregation IAM service-linked role is missing in that region."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Security Hub cross-region aggregation requires explicitly linking each source region to the aggregator region within the aggregation configuration. If eu-west-1 is not listed as a linked region, its findings will not replicate to us-east-1. The feature does not require separate IAM roles or EventBridge rules \u2014 it is managed entirely within Security Hub's aggregation settings. The home region restriction applies to the administrator designation, not to aggregation.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "security-hub",
+      "cross-region-aggregation",
+      "findings"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-005",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An auditor needs to demonstrate continuous compliance with SOC 2 Trust Service Criteria. The team uses AWS Config rules and Security Hub findings to gather evidence. They want to automatically map these signals to specific SOC 2 controls and generate audit-ready evidence reports. Which AWS service is purpose-built for this workflow?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Audit Manager with the SOC 2 framework; it maps Config rules and Security Hub findings to control requirements and collects evidence automatically."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Config conformance packs with a custom SOC 2 template that tags each rule evaluation result with the corresponding control ID."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Security Hub custom actions to export findings to S3 and have the auditor manually map them to SOC 2 controls in a spreadsheet."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Systems Manager Compliance to aggregate Config rule results and tag them with SOC 2 control identifiers for reporting."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Audit Manager is the purpose-built service for continuous audit readiness. It provides pre-built frameworks for SOC 2, PCI DSS, HIPAA, and others. Audit Manager automatically maps data sources \u2014 including AWS Config rules and Security Hub findings \u2014 to specific control requirements, collects evidence on a continuous basis, and generates audit-ready reports. No other listed option provides this end-to-end control mapping and evidence collection natively.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "audit-manager",
+      "soc2",
+      "control-mapping",
+      "evidence"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-006",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An organization wants to enforce that every EC2 instance created across all AWS accounts has a tag with key 'CostCenter' using only uppercase letters and a value from an approved list. No other tagging enforcement mechanism is in place. Which Organizations feature directly enforces tag key capitalization and value constraints?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable AWS Config with the required-tags managed rule and specify the exact tag key and allowed values for evaluation."
+      },
+      {
+        "label": "B",
+        "text": "Attach an SCP with a Condition using aws:RequestedRegion to restrict resource creation to regions where the CostCenter tag is present."
+      },
+      {
+        "label": "C",
+        "text": "Use IAM permission boundaries on all roles to deny ec2:RunInstances when the aws:RequestTag condition does not match the approved values."
+      },
+      {
+        "label": "D",
+        "text": "Enable AWS Organizations Tag Policies and define the CostCenter tag with enforced capitalization and an allowed values list."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Organizations Tag Policies are the native feature for enforcing tag key capitalization and restricting tag values to an approved list across an organization. Tag Policies can specify that 'CostCenter' must appear with that exact casing and only accept defined values. Config's required-tags rule evaluates compliance but does not prevent resource creation or enforce key casing. SCPs and permission boundaries can block tagging but require complex condition logic and do not natively handle capitalization enforcement.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "tag-policies",
+      "organizations",
+      "tagging"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-007",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A Config rule evaluates whether S3 bucket server-side encryption is enabled. The rule is configured with a periodic trigger set to 24 hours. A developer disables SSE on a bucket at 09:00. The security team expects a Config NON_COMPLIANT finding by 09:05. Why will this not happen?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Config requires a CloudTrail event to be delivered before a periodic rule can evaluate; CloudTrail delivery latency causes the delay."
+      },
+      {
+        "label": "B",
+        "text": "Periodic rules only evaluate resources created after the rule was enabled; existing buckets require a manual evaluation trigger to be assessed."
+      },
+      {
+        "label": "C",
+        "text": "Config periodic rules evaluate on a fixed schedule regardless of when changes occur; the finding will not appear until the next 24-hour evaluation cycle runs."
+      },
+      {
+        "label": "D",
+        "text": "Config does not support periodic evaluation for S3 encryption rules; only configuration-change triggers are valid for this resource type."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Config rule triggers come in two types: configuration-change triggered (evaluates when a resource configuration changes, providing near-real-time detection) and periodic (evaluates on a schedule \u2014 1, 3, 6, 12, or 24 hours). A periodic rule will not react immediately to a change; it waits until its next scheduled run. For low-latency detection of configuration drift, teams should use configuration-change triggers instead of or in addition to periodic triggers.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "config",
+      "rule-trigger",
+      "periodic",
+      "detection-latency"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-008",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A central cloud platform team wants to make a set of approved, pre-configured VPC and EC2 launch products available to 50 business unit accounts without requiring each account to maintain its own Service Catalog portfolio. Which Service Catalog capability enables this with the least management overhead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS RAM to share the Service Catalog portfolio ARN with each of the 50 accounts, accepting sharing invitations in each account."
+      },
+      {
+        "label": "B",
+        "text": "Export each product as a CloudFormation template and store it in a shared S3 bucket; instruct each account to import the template into their own portfolio."
+      },
+      {
+        "label": "C",
+        "text": "Share the central portfolio with the AWS Organizations organization node so all accounts in that node can access and launch the products."
+      },
+      {
+        "label": "D",
+        "text": "Create a separate portfolio in each of the 50 accounts using a CloudFormation StackSet that replicates products from the central account."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Service Catalog supports portfolio sharing at the Organizations level. By sharing a portfolio with an OU or the organization root, all accounts in that organizational unit automatically gain access to the products, eliminating per-account management. This is specifically designed for enterprise environments where a central team curates approved infrastructure products for downstream business units. Using RAM or per-account replication adds unnecessary overhead.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "service-catalog",
+      "portfolio-sharing",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-009",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "After deploying Control Tower, a team manually modifies the SCP attached to the Security OU directly in the AWS Organizations console. The next day, the Control Tower dashboard shows a drift status. Which statement correctly describes what happened and how to resolve it?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Drift occurred because Control Tower detected a difference between its expected configuration and the actual state; re-register the OU in Control Tower to remediate the drift."
+      },
+      {
+        "label": "B",
+        "text": "Drift is expected when SCPs are modified; it is informational only and does not affect account provisioning or Control Tower guardrails."
+      },
+      {
+        "label": "C",
+        "text": "Drift occurred due to an IAM permission issue in the audit account; recreate the AWSControlTowerExecution role to clear the drift state."
+      },
+      {
+        "label": "D",
+        "text": "Drift occurred because the manual SCP change was logged to CloudTrail, which Control Tower monitors; revert the SCP manually to restore compliance."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Control Tower drift occurs when the actual state of a managed resource (SCP, OU structure, logging account configuration, etc.) diverges from what Control Tower expects. Common drift causes include manually modifying SCPs, renaming OUs, or changing logging account settings outside Control Tower. The supported remediation is to use the Control Tower console to re-register the affected OU or account, which reconciles the configuration back to the expected state. Drift is not merely informational \u2014 it can prevent new account enrollments.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "control-tower",
+      "drift",
+      "scp",
+      "remediation"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-010",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security team designates a centralized security account as the GuardDuty delegated administrator for the entire AWS Organization. After configuration, an engineer in the security account expects to see threat findings from all member accounts in the GuardDuty console. Findings from three member accounts are absent. What is the most likely reason?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Those three accounts have GuardDuty disabled; the delegated administrator can view findings only from accounts where GuardDuty is actively enabled."
+      },
+      {
+        "label": "B",
+        "text": "The three accounts are in a different OU than the accounts whose findings are visible; GuardDuty delegation is scoped per OU, not per organization."
+      },
+      {
+        "label": "C",
+        "text": "GuardDuty finding aggregation requires a cross-account IAM role in each member account; those accounts are missing the required role."
+      },
+      {
+        "label": "D",
+        "text": "Those three accounts were not added as member accounts in the GuardDuty delegated administrator account and are not enrolled in the organization-wide configuration."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "When GuardDuty delegated administration is configured, member accounts must be enrolled \u2014 either automatically via the auto-enable setting or manually. If three accounts were not added as members (for example, they existed before delegation was configured and auto-enable was not retroactively applied), their findings will not appear in the administrator account. GuardDuty delegation is organization-wide, not OU-scoped, and does not require separate cross-account IAM roles for finding aggregation.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "guardduty",
+      "delegated-admin",
+      "organizations",
+      "member-accounts"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-011",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security operations team receives thousands of Security Hub findings per day. Many are known false positives for a specific EC2 instance used for penetration testing. The team wants to hide these findings from the active queue without deleting them, preserving them for audit. Which approach is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Set the finding workflow status to RESOLVED in Security Hub; resolved findings are removed from the active queue and archived automatically."
+      },
+      {
+        "label": "B",
+        "text": "Delete the findings via the Security Hub BatchDeleteFindings API so they no longer consume quota but remain in CloudWatch Logs for audit purposes."
+      },
+      {
+        "label": "C",
+        "text": "Create a suppression filter in Security Hub that matches the specific resource ARN; findings matching the filter are set to SUPPRESSED workflow status and hidden from the default view."
+      },
+      {
+        "label": "D",
+        "text": "Disable the specific Security Hub control that generates the finding for only the affected account using the control disable feature."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Security Hub suppression filters allow you to specify criteria (resource ARN, title, severity, etc.) so that matching findings are automatically set to a SUPPRESSED workflow status. Suppressed findings are hidden from the default active findings view but are retained for audit and compliance purposes. RESOLVED status indicates a finding was addressed, not suppressed as a false positive. Deleting findings removes them permanently. Disabling a control affects all resources, not just the specific instance.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "security-hub",
+      "suppression-filter",
+      "workflow-status",
+      "findings"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-012",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security architect needs to write an SCP that allows accounts in an OU to perform ONLY s3:GetObject and s3:PutObject on S3, while denying all other S3 actions. Using the least complex SCP logic, which approach is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Write a Deny SCP with Action set to s3:* and a condition that excludes s3:GetObject and s3:PutObject using StringNotEquals on the action context key."
+      },
+      {
+        "label": "B",
+        "text": "Write two SCPs \u2014 one Allow for s3:GetObject and s3:PutObject, and one Deny for s3:* \u2014 and attach both to the OU; the specific Allow overrides the broad Deny."
+      },
+      {
+        "label": "C",
+        "text": "Write a Deny SCP with NotAction listing s3:GetObject and s3:PutObject; this denies all S3 actions except those two listed in NotAction."
+      },
+      {
+        "label": "D",
+        "text": "Write an Allow SCP with Action set to s3:GetObject and s3:PutObject; SCPs with Allow statements grant permission only for listed actions."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The idiomatic SCP pattern for 'allow only these actions, deny everything else' uses a Deny statement with NotAction. By listing s3:GetObject and s3:PutObject in NotAction, the SCP denies all S3 actions except those two. This is cleaner than enumerating every S3 action to deny. SCPs do not grant permissions \u2014 Allow SCPs only define the maximum permission boundary; they cannot grant access on their own. A specific Allow SCP does not override a Deny SCP in the same evaluation chain.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "scp",
+      "notaction",
+      "deny",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t6-013",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A platform team wants to share a Transit Gateway with all accounts in an AWS Organization using AWS Resource Access Manager (RAM). They want to avoid requiring each member account to manually accept a sharing invitation. What must be configured to enable automatic acceptance across the organization?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable RAM trusted access with AWS Organizations; this allows RAM shares targeting an organization or OU to be automatically accepted by member accounts."
+      },
+      {
+        "label": "B",
+        "text": "Use an SCP to allow ram:AcceptResourceShareInvitation in all member accounts so invitations are accepted automatically upon receipt."
+      },
+      {
+        "label": "C",
+        "text": "Configure RAM to share directly with each account ARN instead of the organization; direct account shares do not require invitation acceptance."
+      },
+      {
+        "label": "D",
+        "text": "Deploy a Lambda function in each member account triggered by a RAM EventBridge event that automatically calls AcceptResourceShareInvitation."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "When RAM trusted access is enabled for AWS Organizations, resource shares targeting an organization, OU, or organization accounts are automatically available to members without requiring explicit invitation acceptance. This is the key operational benefit of integrating RAM with Organizations \u2014 it removes the per-account invitation workflow. SCPs control what actions are allowed but cannot auto-accept invitations. Lambda workarounds are unnecessary overhead once trusted access is enabled.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "ram",
+      "resource-access-manager",
+      "organizations",
+      "trusted-access"
+    ]
+  }
+]

@@ -1,0 +1,431 @@
+[
+  {
+    "id": "aws-cp-t4-04-001",
+    "type": "single",
+    "stem": "A company is comparing the cost of running a workload on-premises vs. AWS for a TCO analysis. Which costs are frequently OMITTED from on-premises calculations, making cloud appear more expensive than it actually is?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EC2 instance hourly rates and data transfer charges"
+      },
+      {
+        "label": "B",
+        "text": "S3 storage costs and egress fees"
+      },
+      {
+        "label": "C",
+        "text": "AWS Support plan fees and CloudWatch costs"
+      },
+      {
+        "label": "D",
+        "text": "Facility costs (power, cooling, floor space), hardware refresh cycles, and IT staff time for maintenance"
+      }
+    ],
+    "answer": "B",
+    "explanation": "On-premises TCO calculations often exclude facility costs (power, cooling, real estate), hardware depreciation and refresh every 3-5 years, software licensing (OS, hypervisor), and IT labor for hardware maintenance. When these hidden costs are included, cloud often becomes cost-competitive or cheaper. A and D are AWS-specific costs that would make cloud look more expensive. C is also an AWS cost.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "tco",
+      "on-premises",
+      "cost-comparison",
+      "hidden-costs"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-04-002",
+    "type": "single",
+    "stem": "A company uses EC2 On-Demand instances for a workload that runs continuously 24/7 and has been running for 8 months with no interruption. They are paying full On-Demand rates. What would yield the greatest cost savings for this predictable workload?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch to Spot Instances to save up to 90%"
+      },
+      {
+        "label": "B",
+        "text": "Move to a smaller instance type"
+      },
+      {
+        "label": "C",
+        "text": "Purchase a 1-year or 3-year Reserved Instance or Compute Savings Plan for that workload"
+      },
+      {
+        "label": "D",
+        "text": "Enable Auto Scaling to scale down during off-peak hours"
+      }
+    ],
+    "answer": "B",
+    "explanation": "For steady-state 24/7 workloads, Reserved Instances or Compute Savings Plans provide 40-72% savings over On-Demand with a 1 or 3 year commitment. Spot Instances can be interrupted at any time \u2014 unsuitable for a continuous production workload. Auto Scaling down off-peak doesn't help if the workload truly runs 24/7. Downsizing may impact performance and may not provide as much savings as commitment-based pricing.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "reserved-instances",
+      "savings-plans",
+      "cost-optimization",
+      "ec2"
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-04-003",
+    "type": "single",
+    "stem": "A company's AWS bill spikes unexpectedly one month. They need to identify which specific service, account, and resource type caused the increase, broken down by day. Which tool provides this level of granular cost analysis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Cost Explorer with filtering by service, linked account, and usage type"
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor Cost Optimization checks"
+      },
+      {
+        "label": "C",
+        "text": "AWS Pricing Calculator"
+      },
+      {
+        "label": "D",
+        "text": "AWS Budgets"
+      }
+    ],
+    "answer": "B",
+    "explanation": "Cost Explorer provides retroactive cost analysis with the ability to filter and group by service, linked account, usage type, tags, and more \u2014 at daily granularity. This is the right tool for diagnosing a past cost spike. Budgets alert on future thresholds but don't provide drill-down analysis. Pricing Calculator is for pre-deployment estimates, not historical analysis. Trusted Advisor identifies waste (e.g., idle resources) but doesn't break down historical spend.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "cost-explorer",
+      "cost-analysis",
+      "billing",
+      "cost-spike"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-04-004",
+    "type": "single",
+    "stem": "A startup is building its first AWS architecture and wants to estimate monthly costs before deploying. They know the expected instance types, data transfer volumes, and S3 usage. Which tool should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Cost Explorer"
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "C",
+        "text": "AWS Billing Dashboard"
+      },
+      {
+        "label": "D",
+        "text": "AWS Pricing Calculator"
+      }
+    ],
+    "answer": "C",
+    "explanation": "The AWS Pricing Calculator (calculator.aws) allows you to model and estimate costs for planned architectures before deployment, with no AWS account required. Cost Explorer requires an active account with existing spend data. The Billing Dashboard shows current and past charges. Trusted Advisor analyzes existing resources for optimization opportunities.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "pricing-calculator",
+      "cost-estimation",
+      "pre-deployment",
+      "planning"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-04-005",
+    "type": "single",
+    "stem": "A company with 12 AWS accounts under AWS Organizations wants to ensure all accounts benefit from volume pricing discounts. They also want to share Reserved Instances purchased in the management account. What feature enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Consolidated Billing with Reserved Instance sharing enabled"
+      },
+      {
+        "label": "B",
+        "text": "Per-account Reserved Instance purchases"
+      },
+      {
+        "label": "C",
+        "text": "AWS Cost Allocation Tags"
+      },
+      {
+        "label": "D",
+        "text": "AWS Budgets alerts for each linked account"
+      }
+    ],
+    "answer": "B",
+    "explanation": "Organizations consolidated billing aggregates usage across all member accounts for volume discount thresholds. Reserved Instances purchased in any account can be shared across the organization (RI sharing is enabled by default), allowing idle RI capacity in one account to benefit another. Cost allocation tags organize costs but don't enable sharing. Per-account RI purchases miss the sharing benefit.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "organizations",
+      "consolidated-billing",
+      "reserved-instances",
+      "ri-sharing"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-04-006",
+    "type": "single",
+    "stem": "An engineer wants to automatically stop non-production EC2 instances (development and test) every evening at 7 PM and start them every morning at 8 AM on weekdays. They currently run 24/7. What is the simplest AWS-native approach to achieve this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Instance Scheduler or EventBridge Scheduler with Lambda to start/stop instances on a cron schedule"
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Savings Plans to reduce costs during off-hours"
+      },
+      {
+        "label": "C",
+        "text": "Enable EC2 Auto Scaling with scheduled scaling policies"
+      },
+      {
+        "label": "D",
+        "text": "Purchase Scheduled Reserved Instances for dev/test environments"
+      }
+    ],
+    "answer": "B",
+    "explanation": "AWS Instance Scheduler (a managed solution) or EventBridge Scheduler + Lambda can start/stop EC2 instances on a schedule. Running ~11 hours/day instead of 24 hours saves ~54% on compute costs. Scheduled Reserved Instances reserve capacity for specific time windows but still require the instance to be running. Auto Scaling manages instance count for capacity, not time-based start/stop for cost savings. Savings Plans reduce hourly rates but instances still run 24/7.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "instance-scheduling",
+      "cost-optimization",
+      "ec2",
+      "eventbridge"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-04-007",
+    "type": "single",
+    "stem": "A company is analyzing their data transfer costs on AWS. They transfer large amounts of data between EC2 instances and S3. Which data transfer scenario incurs NO additional AWS data transfer charges?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Transferring data from EC2 to S3 in a different AWS Region"
+      },
+      {
+        "label": "B",
+        "text": "Transferring data from EC2 to the public internet"
+      },
+      {
+        "label": "C",
+        "text": "Transferring data from EC2 to S3 within the SAME Region using a VPC Gateway Endpoint"
+      },
+      {
+        "label": "D",
+        "text": "Transferring data from S3 to an on-premises server via Direct Connect"
+      }
+    ],
+    "answer": "C",
+    "explanation": "Data transfer between EC2 and S3 within the same Region is free when using a VPC Gateway Endpoint (and even without it in many cases for intra-region S3 traffic). Cross-region data transfer (A) incurs charges. Internet egress (B) incurs charges. Direct Connect data transfer (D) has reduced rates but is not free.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "data-transfer",
+      "s3",
+      "vpc-endpoint",
+      "cost-optimization"
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-04-008",
+    "type": "single",
+    "stem": "A company currently has the Developer Support plan. They want 24/7 phone access to AWS Cloud Support Engineers and a response time under 1 hour for production system outages. Which is the MINIMUM support plan that provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enterprise Support"
+      },
+      {
+        "label": "B",
+        "text": "Enterprise On-Ramp Support"
+      },
+      {
+        "label": "C",
+        "text": "Business Support"
+      },
+      {
+        "label": "D",
+        "text": "Developer Support"
+      }
+    ],
+    "answer": "B",
+    "explanation": "Business Support provides 24/7 access to Cloud Support Engineers via phone, chat, and email, with a response time of <1 hour for production system down cases. Developer Support offers only business-hours access with no phone support and no <1 hour SLA. Enterprise On-Ramp and Enterprise offer the same SLAs for production but at higher cost \u2014 Business is the minimum plan that satisfies the stated requirements.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "support-plans",
+      "business-support",
+      "sla",
+      "24-7-support"
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-04-009",
+    "type": "single",
+    "stem": "A company wants to set up billing alerts so that the finance team is notified when projected monthly spending is about to exceed $10,000. They want the alert before the bill is finalized, not after. Which service supports projected spend alerts?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS CloudWatch Billing Alarms"
+      },
+      {
+        "label": "B",
+        "text": "AWS Budgets with a cost budget and projected spend alert threshold"
+      },
+      {
+        "label": "C",
+        "text": "AWS Cost Explorer with anomaly detection"
+      },
+      {
+        "label": "D",
+        "text": "AWS Trusted Advisor"
+      }
+    ],
+    "answer": "B",
+    "explanation": "AWS Budgets supports both actual spend and forecasted/projected spend alerts. You can configure a budget to notify when projected spend for the month is expected to exceed the threshold \u2014 before the month ends. CloudWatch Billing Alarms trigger on actual accrued charges, not projections. Cost Explorer anomaly detection identifies unusual cost patterns. Trusted Advisor checks for underutilized resources.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "budgets",
+      "cost-alerts",
+      "forecasted-spend",
+      "billing"
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-04-010",
+    "type": "single",
+    "stem": "A company has a mix of EC2 instance types across multiple regions, all running continuously. They want maximum flexibility to change instance families, sizes, and regions while still saving 40-50% compared to On-Demand pricing. Which purchasing option best fits?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Convertible Reserved Instances"
+      },
+      {
+        "label": "B",
+        "text": "Compute Savings Plans"
+      },
+      {
+        "label": "C",
+        "text": "Standard Reserved Instances"
+      },
+      {
+        "label": "D",
+        "text": "Spot Instances"
+      }
+    ],
+    "answer": "C",
+    "explanation": "Compute Savings Plans offer savings of up to 66% and apply automatically across any EC2 instance family, size, OS, tenancy, and region, as well as Fargate and Lambda usage. This is the most flexible commitment-based option. Standard RIs lock you to a specific instance family and region. Convertible RIs allow exchanges within RIs but at reduced savings (~54%) and require manual conversion. Spot Instances can be interrupted and aren't suitable for continuous workloads.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "savings-plans",
+      "compute-savings-plans",
+      "flexibility",
+      "cost-optimization"
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-04-011",
+    "type": "single",
+    "stem": "A company wants to understand what AWS services would cost if they migrate an existing on-premises workload. They have detailed specs: 4 vCPU, 16 GB RAM, 500 GB storage, 2 TB monthly data egress. Before spending any money on AWS, they need a cost estimate. What is the correct AWS tool and approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use the AWS Pricing Calculator to model the workload with equivalent EC2, EBS, and data transfer specs and estimate monthly cost"
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Trusted Advisor to generate a cost estimate before deployment"
+      },
+      {
+        "label": "C",
+        "text": "Spin up a test environment in AWS and measure actual costs for one month"
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Cost Explorer to look at similar workloads in their existing AWS accounts"
+      }
+    ],
+    "answer": "C",
+    "explanation": "The AWS Pricing Calculator is designed for exactly this pre-deployment scenario \u2014 model any combination of AWS services by entering specs (instance type, storage size, data transfer volumes) and get a monthly cost estimate without needing an AWS account or spending any money. Cost Explorer requires existing account spend. Running a live test environment costs money. Trusted Advisor analyzes running resources.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "pricing-calculator",
+      "migration",
+      "cost-estimation",
+      "pre-deployment"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  }
+]

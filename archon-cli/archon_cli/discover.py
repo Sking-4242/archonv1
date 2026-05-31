@@ -6,16 +6,19 @@ instance profiles). Credentials NEVER leave the machine — all AWS API calls
 are made locally via boto3. No credentials are passed to Archon Pro or any
 remote server.
 
-Covers 30 of the most common AWS service types:
+Covers all 85 AWS canvas palette types via 84 discoverer functions:
 
-Compute:     EC2, Lambda, ECS clusters, EKS clusters, Auto Scaling Groups
-Network:     VPC, Subnet, Internet Gateway, NAT Gateway, Security Group,
-             Route Table, Elastic IP, Load Balancers (ALB/NLB), CloudFront
-Storage:     S3, EBS, EFS
-Database:    RDS, ElastiCache, DynamoDB
-Security:    KMS Keys, Secrets Manager, IAM Roles
-Integration: SNS, SQS
-Monitoring:  CloudWatch Alarms
+Compute:     EC2, Lambda, ECS, EKS, ASG, ECR, App Runner, Batch, Beanstalk, Lightsail
+Network:     VPC, Subnet, IGW, NAT, SG, Route Table, EIP, ALB/NLB, CloudFront, Route 53,
+             Transit Gateway, VPN Gateway, Direct Connect, Global Accelerator, VPC Endpoints
+Storage:     S3, EBS, EFS, FSx, Backup, Storage Gateway
+Database:    RDS, Aurora, ElastiCache, DynamoDB, Redshift, DocumentDB, Neptune,
+             OpenSearch, Timestream
+Security:    KMS, Secrets Manager, IAM Roles, ACM, Cognito, GuardDuty, Config, WAF, CloudTrail
+Integration: SNS, SQS, EventBridge, Step Functions, Kinesis, Firehose, MQ, AppSync, API Gateway
+Analytics:   Glue, Athena, EMR, MSK
+DevOps:      CodePipeline, CodeBuild, CodeDeploy, CodeCommit, CloudFormation
+Monitoring:  CloudWatch Alarms, Systems Manager, SageMaker endpoints
 
 Usage
 -----
@@ -144,6 +147,9 @@ def _discover_ec2_instances(session, region: str, errors: list) -> list[Discover
                             "public_ip": inst.get("PublicIpAddress"),
                             "key_name": inst.get("KeyName"),
                             "iam_profile": (inst.get("IamInstanceProfile") or {}).get("Arn"),
+                            "security_group_ids": [
+                                sg.get("GroupId") for sg in inst.get("SecurityGroups", []) if sg.get("GroupId")
+                            ],
                         },
                     ))
 
@@ -476,6 +482,7 @@ def _discover_lambda(session, region: str, errors: list) -> list[DiscoveredResou
             for fn in page.get("Functions", []):
                 arn = fn["FunctionArn"]
                 name = fn["FunctionName"]
+                vpc_config = fn.get("VpcConfig") or {}
                 resources.append(DiscoveredResource(
                     service="Lambda", resource_type="Function",
                     resource_id=arn, name=name,
@@ -488,6 +495,9 @@ def _discover_lambda(session, region: str, errors: list) -> list[DiscoveredResou
                         "role": fn.get("Role"),
                         "code_size": fn.get("CodeSize"),
                         "tracing_mode": (fn.get("TracingConfig") or {}).get("Mode"),
+                        "vpc_id": vpc_config.get("VpcId"),
+                        "subnet_ids": vpc_config.get("SubnetIds") or [],
+                        "security_group_ids": vpc_config.get("SecurityGroupIds") or [],
                     },
                 ))
 
@@ -667,7 +677,7 @@ def _discover_kms(session, region: str, errors: list) -> list[DiscoveredResource
                     resources.append(DiscoveredResource(
                         service="KMS", resource_type="Key",
                         resource_id=arn, name=alias or kid,
-                        region=region, state=meta.get("KeyState", "unknown"), canvas_type="kms",
+                        canvas_type="kms_key",
                         attributes={
                             "key_spec": meta.get("KeySpec"),
                             "key_usage": meta.get("KeyUsage"),
@@ -708,7 +718,9 @@ def _discover_secrets(session, region: str, errors: list) -> list[DiscoveredReso
 
 
 def _discover_iam_roles(session, region: str, errors: list) -> list[DiscoveredResource]:
-    """IAM is global; only include when region is the first/primary call region."""
+    """IAM is global; only discover once per scan (us-east-1) to avoid duplicates."""
+    if region != "us-east-1":
+        return []
     resources: list[DiscoveredResource] = []
     client = session.client("iam", region_name="us-east-1")  # IAM is always us-east-1
 
@@ -963,159 +975,154 @@ def _discover_eventbridge(session, region: str, errors: list) -> list[Discovered
     return resources
 
 
-# ─── Orchestrator ─────────────────────────────────────────────────────────────
-
-_DISCOVERERS = [
-    _discover_vpcs,
-    _discover_subnets,
-    _discover_igws,
-    _discover_nat_gateways,
-    _discover_route_tables,
-    _discover_eips,
-    _discover_security_groups,
-    _discover_ec2_instances,
-    _discover_ebs,
-    _discover_albs,
-    _discover_asg,
-    _discover_lambda,
-    _discover_ecs,
-    _discover_eks,
-    _discover_s3,
-    _discover_rds,
-    _discover_elasticache,
-    _discover_dynamodb,
-    _discover_efs,
-    _discover_kms,
-    _discover_secrets,
-    _discover_iam_roles,
-    _discover_sns,
-    _discover_sqs,
-    _discover_cloudwatch_alarms,
-    _discover_cloudfront,
-    _discover_waf,
-    _discover_cloudtrail,
-    _discover_api_gateway,
-    _discover_eventbridge,
-]
-
-
-def discover_region(region: str, profile: str | None = None) -> DiscoveryReport:
-    """
-    Discover all supported AWS resources in the given region.
-
-    Parameters
-    ----------
-    region  : AWS region name, e.g. "us-east-1"
-    profile : Optional AWS profile name (from ~/.aws/config).
-              If None, uses the default credential chain.
-
-    Returns
-    -------
-    DiscoveryReport with resources and any per-service errors.
-
-    Security note
-    -------------
-    Credentials are resolved entirely via boto3's standard chain
-    (environment variables → ~/.aws/credentials → instance metadata).
-    They are never transmitted outside this process.
-    """
-    import boto3  # deferred so the module can be imported without boto3 installed
-
-    session = boto3.Session(profile_name=profile) if profile else boto3.Session()
-    report = DiscoveryReport(region=region)
-
-    for discoverer in _DISCOVERERS:
-        try:
-            found = discoverer(session, region, report.errors)
-            report.resources.extend(found)
-        except Exception as exc:  # noqa: BLE001
-            report.errors.append(DiscoveryError(
-                service=discoverer.__name__,
-                error=str(exc),
-            ))
-
-    return report
-cloudwatch_logs_arn": trail.get("CloudWatchLogsLogGroupArn", ""),
-                    "kms_key_id": trail.get("KMSKeyId", ""),
-                },
-            ))
-
-    _safe(_fetch, "CloudTrail:Trails", errors)
-    return resources
-
-
-def _discover_api_gateway(session, region: str, errors: list) -> list[DiscoveredResource]:
-    """API Gateway REST APIs (v1) and HTTP/WebSocket APIs (v2)."""
+def _discover_route53(session, region: str, errors: list) -> list[DiscoveredResource]:
+    """Route 53 hosted zones are global; discover once from us-east-1."""
+    if region != "us-east-1":
+        return []
     resources: list[DiscoveredResource] = []
-
-    def _fetch_v1():
-        client = session.client("apigateway", region_name=region)
-        paginator = client.get_paginator("get_rest_apis")
-        for page in paginator.paginate():
-            for api in page.get("items", []):
-                api_id = api["id"]
-                arn = f"arn:aws:apigateway:{region}::/restapis/{api_id}"
-                resources.append(DiscoveredResource(
-                    service="API Gateway", resource_type="REST API",
-                    resource_id=arn, name=api.get("name", api_id),
-                    region=region, state="active",
-                    canvas_type="api_gateway",
-                    attributes={
-                        "id": api_id,
-                        "endpoint_type": api.get("endpointConfiguration", {}).get("types", []),
-                        "description": api.get("description", ""),
-                    },
-                ))
-
-    def _fetch_v2():
-        client = session.client("apigatewayv2", region_name=region)
-        paginator = client.get_paginator("get_apis")
-        for page in paginator.paginate():
-            for api in page.get("Items", []):
-                api_id = api["ApiId"]
-                arn = f"arn:aws:apigateway:{region}::/apis/{api_id}"
-                resources.append(DiscoveredResource(
-                    service="API Gateway", resource_type=api.get("ProtocolType", "HTTP") + " API",
-                    resource_id=arn, name=api.get("Name", api_id),
-                    region=region, state="active",
-                    canvas_type="api_gateway",
-                    attributes={
-                        "id": api_id,
-                        "protocol_type": api.get("ProtocolType", "HTTP"),
-                        "endpoint": api.get("ApiEndpoint", ""),
-                    },
-                ))
-
-    _safe(_fetch_v1, "APIGateway:RestAPIs", errors)
-    _safe(_fetch_v2, "APIGatewayV2:APIs", errors)
-    return resources
-
-
-def _discover_eventbridge(session, region: str, errors: list) -> list[DiscoveredResource]:
-    """EventBridge custom event buses (default bus excluded)."""
-    resources: list[DiscoveredResource] = []
-    client = session.client("events", region_name=region)
+    client = session.client("route53", region_name="us-east-1")
 
     def _fetch():
-        paginator = client.get_paginator("list_event_buses")
+        paginator = client.get_paginator("list_hosted_zones")
         for page in paginator.paginate():
-            for bus in page.get("EventBuses", []):
-                name = bus.get("Name", "")
-                if name == "default":
-                    continue
-                arn = bus.get("Arn", name)
+            for zone in page.get("HostedZones", []):
+                zone_id = zone["Id"].replace("/hostedzone/", "")
+                name = zone.get("Name", zone_id).rstrip(".")
                 resources.append(DiscoveredResource(
-                    service="EventBridge", resource_type="Event Bus",
-                    resource_id=arn, name=name,
-                    region=region, state="active",
-                    canvas_type="eventbridge",
+                    service="Route 53", resource_type="Hosted Zone",
+                    resource_id=zone_id, name=name,
+                    region="global", state="active", canvas_type="route53",
                     attributes={
-                        "policy": bool(bus.get("Policy")),
+                        "record_count": zone.get("ResourceRecordSetCount", 0),
+                        "private_zone": zone.get("Config", {}).get("PrivateZone", False),
                     },
                 ))
 
-    _safe(_fetch, "EventBridge:EventBuses", errors)
+    _safe(_fetch, "Route53:HostedZones", errors)
     return resources
+
+
+def _discover_vpc_endpoints(session, region: str, errors: list) -> list[DiscoveredResource]:
+    resources: list[DiscoveredResource] = []
+    client = session.client("ec2", region_name=region)
+
+    def _fetch():
+        paginator = client.get_paginator("describe_vpc_endpoints")
+        for page in paginator.paginate():
+            for ep in page.get("VpcEndpoints", []):
+                eid = ep["VpcEndpointId"]
+                name = _tag_name(ep.get("Tags")) or eid
+                resources.append(DiscoveredResource(
+                    service="VPC", resource_type="VPC Endpoint",
+                    resource_id=eid, name=name,
+                    region=region, state=ep.get("State", "available"), canvas_type="vpc_endpoint",
+                    attributes={
+                        "vpc_id": ep.get("VpcId"),
+                        "service_name": ep.get("ServiceName"),
+                        "endpoint_type": ep.get("VpcEndpointType"),
+                    },
+                ))
+
+    _safe(_fetch, "EC2:VpcEndpoints", errors)
+    return resources
+
+
+def _node_id(resource_id: str) -> str:
+    return resource_id.replace(":", "_").replace("/", "_")
+
+
+def infer_discovery_edges(resources: list[DiscoveredResource]) -> list[dict]:
+    """Infer network edges from discovered resource attribute references."""
+    resource_ids = {r.resource_id for r in resources}
+    edges: list[dict] = []
+    seen: set[tuple[str, str, str]] = set()
+
+    def resolve(ref: str | None) -> str | None:
+        if not ref or ref not in resource_ids:
+            return None
+        return _node_id(ref)
+
+    def add_edge(source_ref: str | None, target_ref: str | None, edge_type: str = "network") -> None:
+        source = resolve(source_ref)
+        target = resolve(target_ref)
+        if not source or not target or source == target:
+            return
+        key = (source, target, edge_type)
+        if key in seen:
+            return
+        seen.add(key)
+        edges.append({
+            "id": f"discover-{source}-{target}-{edge_type}",
+            "source": source,
+            "target": target,
+            "type": edge_type,
+        })
+
+    vpc_linked_types = (
+        "alb", "nlb", "rds", "aurora", "eks", "redshift", "fsx",
+        "opensearch", "elastic_beanstalk", "documentdb", "neptune",
+    )
+
+    for resource in resources:
+        attrs = resource.attributes or {}
+        vpc_id = attrs.get("vpc_id")
+        subnet_id = attrs.get("subnet_id")
+
+        if resource.canvas_type == "subnet" and vpc_id:
+            add_edge(resource.resource_id, vpc_id)
+        elif resource.canvas_type == "internet_gateway":
+            for attached_vpc in attrs.get("attached_vpcs") or []:
+                add_edge(resource.resource_id, attached_vpc)
+        elif resource.canvas_type == "nat_gateway" and subnet_id:
+            add_edge(resource.resource_id, subnet_id)
+            if vpc_id:
+                add_edge(resource.resource_id, vpc_id)
+        elif resource.canvas_type == "transit_gateway":
+            for attached_vpc in attrs.get("attached_vpc_ids") or []:
+                add_edge(resource.resource_id, attached_vpc)
+        elif resource.canvas_type == "vpn_gateway":
+            for attached_vpc in attrs.get("attached_vpc_ids") or []:
+                add_edge(resource.resource_id, attached_vpc)
+        elif resource.canvas_type == "security_group" and vpc_id:
+            add_edge(resource.resource_id, vpc_id)
+        elif resource.canvas_type == "route_table" and vpc_id:
+            add_edge(resource.resource_id, vpc_id)
+        elif resource.canvas_type == "vpc_endpoint" and vpc_id:
+            add_edge(resource.resource_id, vpc_id)
+        elif resource.canvas_type in vpc_linked_types and vpc_id:
+            add_edge(resource.resource_id, vpc_id)
+        elif resource.canvas_type == "ec2":
+            if subnet_id:
+                add_edge(resource.resource_id, subnet_id)
+            elif vpc_id:
+                add_edge(resource.resource_id, vpc_id)
+            for sg_id in attrs.get("security_group_ids") or []:
+                add_edge(resource.resource_id, sg_id, "dependency")
+        elif resource.canvas_type == "ebs":
+            for attachment in attrs.get("attached_to") or []:
+                instance_id = attachment[0] if isinstance(attachment, (list, tuple)) else attachment
+                if instance_id:
+                    add_edge(resource.resource_id, instance_id, "dependency")
+        elif resource.canvas_type == "lambda":
+            if vpc_id:
+                add_edge(resource.resource_id, vpc_id)
+            for subnet in attrs.get("subnet_ids") or []:
+                add_edge(resource.resource_id, subnet)
+            for sg_id in attrs.get("security_group_ids") or []:
+                add_edge(resource.resource_id, sg_id, "dependency")
+            role_arn = attrs.get("role")
+            if role_arn:
+                add_edge(resource.resource_id, role_arn, "dependency")
+        elif resource.canvas_type == "storage_gateway":
+            ec2_id = attrs.get("ec2_instance_id")
+            if ec2_id:
+                add_edge(resource.resource_id, ec2_id, "dependency")
+        elif resource.canvas_type == "secretsmanager":
+            kms_key = attrs.get("kms_key_id")
+            if kms_key:
+                add_edge(resource.resource_id, kms_key, "dependency")
+
+    return edges
 
 
 # ─── Orchestrator ─────────────────────────────────────────────────────────────
@@ -1151,7 +1158,15 @@ _DISCOVERERS = [
     _discover_cloudtrail,
     _discover_api_gateway,
     _discover_eventbridge,
+    _discover_route53,
+    _discover_vpc_endpoints,
 ]
+
+from archon_cli.discover_extended import EXTENDED_DISCOVERERS  # noqa: E402
+from archon_cli.discover_palette import PALETTE_DISCOVERERS  # noqa: E402
+
+_DISCOVERERS.extend(EXTENDED_DISCOVERERS)
+_DISCOVERERS.extend(PALETTE_DISCOVERERS)
 
 
 def discover_region(region: str, profile: str | None = None) -> DiscoveryReport:

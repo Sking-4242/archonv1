@@ -1,0 +1,548 @@
+[
+  {
+    "id": "scs-d6-t3-001",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses AWS Organizations and wants to prevent member accounts from creating public S3 buckets. They also want new accounts automatically protected when added to the organization. Which control type and implementation satisfies both requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A detective control using AWS Config's s3-bucket-public-read-prohibited rule with automated remediation, applied via Config aggregator to all accounts including new ones."
+      },
+      {
+        "label": "B",
+        "text": "A detective control using Security Hub's S3.2 control, which flags publicly accessible buckets; new accounts automatically enroll via Organizations integration."
+      },
+      {
+        "label": "C",
+        "text": "A preventive control using an SCP at the organization root that denies s3:PutBucketPolicy and s3:PutBucketAcl when the condition allows public access; new accounts automatically inherit root SCPs."
+      },
+      {
+        "label": "D",
+        "text": "A preventive control using AWS Firewall Manager WAF policies scoped to S3 resources, which block public bucket configurations on all existing and new accounts."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "An SCP is a preventive control \u2014 it blocks the action before it happens. Applied at the root, it applies to all current and future member accounts automatically. Detective controls (Config, Security Hub) catch issues after they occur but do not prevent them.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "scp",
+      "s3",
+      "preventive-control",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-002",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A compliance team needs to generate a report showing all AWS Config rule compliance results across 20 accounts, including the resource ID, rule name, and compliance status for each evaluation. What is the most efficient method?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Config Aggregator to collect compliance data from all accounts into a central aggregator account; query the aggregated data using the Config API or console to produce the multi-account report."
+      },
+      {
+        "label": "B",
+        "text": "Log into each of the 20 accounts, export Config compliance data from the console, and combine the exports into a single spreadsheet for the compliance report."
+      },
+      {
+        "label": "C",
+        "text": "Use Security Hub to aggregate Config findings from all accounts; export the aggregated findings from Security Hub to generate the compliance report."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Audit Manager to create an assessment that queries Config compliance data from all accounts and generates an automated compliance report."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Config Aggregator is the purpose-built tool for multi-account compliance reporting. It collects Config rule evaluation results (compliant/noncompliant/not-applicable) with resource IDs from all member accounts and allows centralized querying and export.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "aws-config",
+      "aggregator",
+      "compliance-report",
+      "multi-account"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-003",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security team wants to track the number of HIGH and CRITICAL Security Hub findings over time to show a security posture improvement trend. Which Security Hub feature provides this trending capability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Export Security Hub findings to CloudWatch Metrics using EventBridge and CloudWatch; use CloudWatch dashboard to graph the finding count over time."
+      },
+      {
+        "label": "B",
+        "text": "Security Hub Custom Insights, which allow defining filters (e.g., severity = HIGH or CRITICAL) and visualizing the aggregated finding count over time in the Security Hub console."
+      },
+      {
+        "label": "C",
+        "text": "Security Hub Findings Summary, which displays a daily count of findings by severity and stores the historical trend for the past 12 months."
+      },
+      {
+        "label": "D",
+        "text": "Security Hub Score History, which tracks the overall security score by standard over time and can be filtered by finding severity."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Security Hub Custom Insights are saved, filter-based aggregations of findings. A custom insight filtering on severity HIGH or CRITICAL shows the aggregated count and can be bookmarked and revisited to track trends. The EventBridge/CloudWatch approach (option C) also works but requires more setup.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "security-hub",
+      "custom-insights",
+      "trending",
+      "security-posture"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-004",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's control tower environment has a detective guardrail enabled that checks whether CloudTrail is enabled in all governed accounts. A new account was enrolled but the guardrail shows NONCOMPLIANT. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The organization trail created by Control Tower does not apply to accounts enrolled after the landing zone was initially set up; a separate trail must be created for new accounts."
+      },
+      {
+        "label": "B",
+        "text": "Detective guardrails use AWS Config rules; the new account may not have AWS Config enabled yet, or the Config rule has not evaluated the account after the CloudTrail organization trail was applied."
+      },
+      {
+        "label": "C",
+        "text": "Control Tower detective guardrails only evaluate accounts that have been active for at least 30 days; new accounts show NONCOMPLIANT during the evaluation grace period."
+      },
+      {
+        "label": "D",
+        "text": "The detective guardrail requires manual activation per account; it is not automatically applied to accounts enrolled via Account Factory."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Control Tower detective guardrails are Config rules. When a new account is enrolled, Config may take time to complete its initial evaluation. Additionally, the organization CloudTrail trail is applied automatically but Config may show NONCOMPLIANT until the first evaluation cycle completes.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "control-tower",
+      "aws-config",
+      "guardrails",
+      "detective"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-005",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses Security Hub and wants critical findings to automatically create JIRA tickets. Findings are generated by GuardDuty, Inspector, and Config. What is the most appropriate AWS-native integration approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a Security Hub action that directly calls the JIRA REST API; Security Hub natively supports webhook destinations for custom actions."
+      },
+      {
+        "label": "B",
+        "text": "Use Security Hub automated response and remediation (SOAR) to call the JIRA API; SOAR actions are built into Security Hub for all supported ticketing systems."
+      },
+      {
+        "label": "C",
+        "text": "Configure an EventBridge rule matching Security Hub findings with severity CRITICAL, trigger a Lambda function that calls the JIRA API to create a ticket with the finding details."
+      },
+      {
+        "label": "D",
+        "text": "Export Security Hub findings to S3 using the native export feature, then configure a JIRA S3 integration to poll the bucket and create tickets from new files."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The standard pattern for Security Hub \u2192 ticketing integration is EventBridge. An EventBridge rule matches CRITICAL Security Hub findings and triggers a Lambda function. Lambda calls the JIRA REST API with the finding details. Security Hub itself does not have native JIRA integration.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "security-hub",
+      "eventbridge",
+      "lambda",
+      "jira",
+      "ticketing"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-006",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to demonstrate to an auditor that all GuardDuty HIGH and CRITICAL findings in the past 90 days were remediated within 24 hours as required by their security policy. What is the best approach to produce this evidence?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Audit Manager with a custom control mapping GuardDuty findings to the 24-hour SLA requirement; Audit Manager automatically collects remediation timestamps as evidence."
+      },
+      {
+        "label": "B",
+        "text": "Show the auditor the GuardDuty console with the ARCHIVED filter; all remediated findings are moved to the archived state immediately after resolution."
+      },
+      {
+        "label": "C",
+        "text": "Generate an Audit Manager report from the Security Hub integration that includes finding creation and resolution timestamps for all HIGH/CRITICAL findings."
+      },
+      {
+        "label": "D",
+        "text": "Export all GuardDuty findings that were sent to S3 via EventBridge; correlate the finding creation time with the timestamp when the EventBridge-triggered remediation Lambda completed by checking Lambda CloudWatch Logs."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "For SLA compliance evidence, the approach is to use the GuardDuty S3 export (which records finding creation times) and correlate with Lambda CloudWatch Logs or ticketing system records that show when remediation completed. This provides an auditable timeline for each finding.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "guardduty",
+      "sla",
+      "audit",
+      "remediation-tracking"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-007",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A Security Hub administrator notices that a member account's findings count dropped dramatically. Investigation shows the member account's Security Hub is still enabled. What else might cause findings to stop appearing in the administrator account?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The GuardDuty, Inspector, or Config services that feed Security Hub were disabled in the member account, stopping the generation of new findings."
+      },
+      {
+        "label": "B",
+        "text": "Security Hub membership associations expire after 90 days; the administrator account must re-invite the member account to restore finding aggregation."
+      },
+      {
+        "label": "C",
+        "text": "The member account was moved to a different OU in AWS Organizations, which broke the Security Hub membership association between the member and administrator accounts."
+      },
+      {
+        "label": "D",
+        "text": "The member account's Security Hub was upgraded to a newer version, which changed the finding schema and made findings incompatible with the administrator account's aggregator."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Security Hub itself may be enabled but if the underlying data sources (GuardDuty, Inspector, Config, Macie) are disabled in the member account, no new findings are generated and the count drops. The administrator account's Security Hub shows zero new findings because there are none to ingest.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "security-hub",
+      "finding-sources",
+      "guardduty",
+      "inspector"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-008",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants all infrastructure deployments to be reviewed for security issues before CloudFormation stacks are created. Which Control Tower or Config feature provides pre-deployment evaluation of CloudFormation templates?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Security Hub's CloudFormation standard evaluates templates stored in S3 and generates findings, which can block deployments via a CodePipeline approval gate."
+      },
+      {
+        "label": "B",
+        "text": "AWS Control Tower proactive guardrails (implemented as CloudFormation hooks) evaluate resources specified in a template before the stack is created, blocking deployment if they violate policy."
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudFormation Guard integrated with CodePipeline evaluates templates at commit time before deployment, catching policy violations before any stack operation."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config proactive rules evaluate CloudFormation resources before stack creation using the cloudformation:CreateStack hook; non-compliant resources block deployment."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Control Tower proactive guardrails use CloudFormation hooks to evaluate resources before creation. When a CloudFormation stack operation begins, the hook invokes a compliance check; if resources in the template violate policy, the stack creation is blocked before any resource is provisioned.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "control-tower",
+      "proactive-guardrails",
+      "cloudformation-hooks",
+      "shift-left"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-009",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An SCP at the organization root includes a Deny for s3:DeleteBucket. A member account's CloudFormation stack includes an S3 bucket with a DeletionPolicy of Delete. When the stack is deleted, what happens to the S3 bucket?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The bucket is retained because CloudFormation detects the SCP restriction and automatically changes the DeletionPolicy to Retain for protected resources."
+      },
+      {
+        "label": "B",
+        "text": "The bucket is deleted successfully because CloudFormation uses a service-linked role that is exempt from SCP restrictions."
+      },
+      {
+        "label": "C",
+        "text": "The bucket is deleted because the DeletionPolicy in CloudFormation takes precedence over SCP restrictions for resources managed by stacks."
+      },
+      {
+        "label": "D",
+        "text": "The CloudFormation stack deletion fails when it attempts to delete the S3 bucket; the SCP Deny blocks the s3:DeleteBucket API call, causing the stack deletion to roll back."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "SCPs apply to all principals including CloudFormation execution roles. When CloudFormation's execution role calls s3:DeleteBucket, the SCP Deny blocks the call, resulting in a CloudFormation stack deletion failure. The stack enters DELETE_FAILED state and the bucket is retained.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "scp",
+      "cloudformation",
+      "s3",
+      "deletion-policy"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-010",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to implement a security baseline that generates automated compliance reports mapped to the NIST Cybersecurity Framework (CSF). Which AWS service provides this mapping out of the box?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor, which maps all its check categories to NIST CSF functions and generates a downloadable compliance report."
+      },
+      {
+        "label": "B",
+        "text": "AWS Security Hub, which includes a NIST CSF security standard that evaluates controls and produces a compliance score against the framework."
+      },
+      {
+        "label": "C",
+        "text": "AWS Audit Manager, which includes pre-built frameworks for NIST CSF that automatically collect evidence from AWS services and map it to NIST CSF controls."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config conformance packs, which include a pre-built NIST CSF sample pack that maps Config rules to NIST CSF categories."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Audit Manager includes pre-built assessment frameworks for NIST CSF, PCI DSS, HIPAA, SOC 2, and others. It automatically collects evidence from AWS services (CloudTrail, Config, Security Hub) and maps it to the specific NIST CSF controls for automated compliance reporting.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "audit-manager",
+      "nist-csf",
+      "compliance-framework",
+      "reporting"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-011",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's security team discovers that an AWS Config rule is reporting NONCOMPLIANT for resources but no automated remediation is configured. A developer manually fixed the resources. How long before Config shows the resources as COMPLIANT?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The compliance status never automatically updates after a manual fix; the compliance status must be manually acknowledged by an administrator in the Config console."
+      },
+      {
+        "label": "B",
+        "text": "Config re-evaluates the resource when a configuration change is detected that triggers the rule, or when a periodic evaluation runs (if the rule is periodic); after that evaluation, the compliance status updates."
+      },
+      {
+        "label": "C",
+        "text": "Config shows the resource as COMPLIANT immediately after the manual fix because AWS Config continuously monitors resource configuration in real time."
+      },
+      {
+        "label": "D",
+        "text": "Config shows the resource as COMPLIANT after 24 hours because Config has a daily evaluation cycle for all managed rules regardless of changes."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Config rules are triggered either by configuration changes (change-triggered rules re-evaluate when a relevant change occurs) or on a schedule (periodic rules run at configured intervals). After the manual fix, the next triggered evaluation or periodic evaluation will update the compliance status to COMPLIANT.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "aws-config",
+      "compliance-status",
+      "evaluation-trigger"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-012",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to enforce that all new EC2 instances are launched in approved VPCs only. Launches in the default VPC or non-approved VPCs should be blocked at the organization level. Which SCP condition achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A Deny on ec2:RunInstances with condition ec2:Vpc StringNotLike the list of approved VPC ARN patterns, blocking launches in any VPC not on the approved list."
+      },
+      {
+        "label": "B",
+        "text": "Delete the default VPC in all member accounts using an SCP that denies ec2:DescribeVpcs; without visibility of the default VPC, launches in it are not possible."
+      },
+      {
+        "label": "C",
+        "text": "A Deny on ec2:CreateVpc for non-approved CIDR ranges; without the ability to create VPCs, launches in unapproved VPCs cannot occur."
+      },
+      {
+        "label": "D",
+        "text": "A Deny on ec2:RunInstances with condition ec2:Subnet StringNotLike the list of approved subnet ARNs, which restricts launches to instances in only the listed subnets."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The ec2:Vpc condition key is available for ec2:RunInstances and checks the VPC ARN where the instance is being launched. A Deny with StringNotLike approved VPC ARN patterns blocks launches in any non-approved VPC including the default VPC.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "scp",
+      "ec2",
+      "vpc",
+      "approved-vpc"
+    ]
+  },
+  {
+    "id": "scs-d6-t3-013",
+    "domain": 6,
+    "domain_name": "Management and Security Governance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants AWS Firewall Manager to centrally manage Security Groups across all member accounts. What type of Firewall Manager policy achieves this, and what prerequisite is required?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A Firewall Manager WAF policy with security group type selected; no prerequisites beyond AWS Organizations membership are required."
+      },
+      {
+        "label": "B",
+        "text": "A Firewall Manager VPC policy, which controls security group rules in member accounts; the only prerequisite is enabling VPC Flow Logs organization-wide."
+      },
+      {
+        "label": "C",
+        "text": "A Firewall Manager Security Group policy, which enforces common security group rules across accounts; prerequisites include AWS Organizations, Firewall Manager administrator account designation, and AWS Config enabled in member accounts."
+      },
+      {
+        "label": "D",
+        "text": "A Firewall Manager Shield Advanced policy with security group templates; Shield Advanced subscription is required as a prerequisite for security group management."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Firewall Manager supports Security Group policies for enforcing common or audit security group rules. Prerequisites are: AWS Organizations with all features enabled, a designated Firewall Manager administrator account, and AWS Config enabled in all accounts where the policy applies.",
+    "module_ref": "scs-m6",
+    "tags": [
+      "firewall-manager",
+      "security-groups",
+      "organizations",
+      "aws-config"
+    ]
+  }
+]

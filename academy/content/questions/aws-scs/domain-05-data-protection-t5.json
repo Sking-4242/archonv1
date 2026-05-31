@@ -1,0 +1,708 @@
+[
+  {
+    "id": "scs-d5-t5-001",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A developer needs temporary access to a KMS customer managed key to decrypt a batch job's data. The key is owned by a separate security team and granting a permanent IAM policy is not permitted. Which mechanism is most appropriate for delegating this temporary access without modifying the key policy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add a temporary condition in the key policy with an aws:CurrentTime constraint, then remove it after the job."
+      },
+      {
+        "label": "B",
+        "text": "Use an SCP with a date condition to allow kms:Decrypt only during the batch window, then revert the SCP."
+      },
+      {
+        "label": "C",
+        "text": "Attach a time-limited IAM permission boundary to the developer's role allowing kms:Decrypt on the key ARN."
+      },
+      {
+        "label": "D",
+        "text": "Create a KMS grant scoped to the specific operation and retiring principal, then retire it after the job completes."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "KMS grants are designed exactly for temporary, programmatic access delegation without modifying the key policy. A grant can be scoped to specific operations, specific encryption contexts, and includes a retiring principal so the grantee or security team can retire it when done. Modifying the key policy (option B) requires key admin permissions and is a permanent change until manually reverted. Permission boundaries (option C) restrict, not expand, permissions. SCPs (option D) affect the entire account or OU, not a specific key or time window.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "kms",
+      "grants",
+      "temporary-access"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-002",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An organization must satisfy a compliance requirement that data at rest be encrypted with two independent layers of encryption, each using a separate key and algorithm. Which S3 encryption option natively fulfills this requirement using AWS-managed infrastructure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enabling SSE-KMS on the bucket and additionally enabling default S3-managed SSE-S3 encryption as a fallback layer."
+      },
+      {
+        "label": "B",
+        "text": "Using DSSE-KMS, which applies two separate AES-256 encryption layers each protected by a distinct KMS key."
+      },
+      {
+        "label": "C",
+        "text": "Enabling SSE-KMS with an MRK and configuring S3 Object Lock to add a second layer of WORM protection."
+      },
+      {
+        "label": "D",
+        "text": "Combining client-side encryption before upload with SSE-S3 server-side encryption to achieve dual layers."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "S3 Dual-layer Server-Side Encryption with KMS keys (DSSE-KMS) applies two independent AES-256-GCM encryption operations on each object, each protected by a separate KMS data key. This is the only native S3 option satisfying dual-independent-layer compliance requirements. SSE-S3 and SSE-KMS together (option A) are mutually exclusive per-object settings, not additive layers. S3 Object Lock (option C) is WORM protection, not encryption. Client-side plus SSE-S3 (option D) can achieve dual layers but requires application-side key management, not purely AWS-managed.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "s3",
+      "dsse-kms",
+      "dual-layer-encryption"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-003",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security architect is designing a CloudHSM deployment to meet high-availability requirements. The application must continue encrypting and decrypting without interruption if a single HSM instance becomes unavailable. What is the minimum recommended cluster configuration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Two HSM instances each in a different Availability Zone within the same VPC and cluster."
+      },
+      {
+        "label": "B",
+        "text": "Three HSM instances in one AZ to satisfy the quorum authentication minimum of three members."
+      },
+      {
+        "label": "C",
+        "text": "Two HSM instances in the same Availability Zone with synchronous key replication between them."
+      },
+      {
+        "label": "D",
+        "text": "One HSM instance with automated CloudHSM cluster backup to S3 for rapid failover restoration."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS recommends deploying at least two CloudHSM instances, each in a separate Availability Zone, within the same cluster. The CloudHSM client automatically load-balances and fails over between cluster members, so losing one AZ does not interrupt operations. Keys are synchronously shared across all HSMs in a cluster. A single AZ with two HSMs (option A) provides no AZ fault tolerance. A single HSM with S3 backup (option C) requires restore time before failover completes. Quorum authentication (option D) relates to user authentication thresholds, not the HA instance count requirement.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "cloudhsm",
+      "high-availability",
+      "multi-az"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-004",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A platform team is implementing zero-trust workload identity. Service pods need certificates that automatically expire within hours to minimize blast radius if a private key is compromised. Which AWS service and certificate type best meets this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ACM private certificates issued through a Private CA with automatic 13-month renewal and daily rotation."
+      },
+      {
+        "label": "B",
+        "text": "ACM public certificates with a short renewal period configured through the ACM managed renewal process."
+      },
+      {
+        "label": "C",
+        "text": "IAM server certificates uploaded with a custom expiry date set to the desired short-lived duration."
+      },
+      {
+        "label": "D",
+        "text": "AWS Private CA issuing end-entity certificates with a validity period of hours using the IssueCertificate API."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Private CA allows issuance of end-entity certificates with validity periods as short as one second via the IssueCertificate API, making it ideal for zero-trust workload identity patterns where short-lived certificates replace long-lived credentials. ACM public certificates (option A) are for TLS on public endpoints and do not support sub-day validity periods. ACM-managed certificates (option C) use 13-month validity with automated renewal, not hourly expiry. IAM server certificates (option D) are for legacy use cases and do not support programmatic short-lived issuance at scale.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "private-ca",
+      "short-lived-certificates",
+      "zero-trust"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-005",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "During a Macie review, a security engineer sees findings classified as HIGH severity on one S3 bucket and MEDIUM severity on another. Which distinction in discovered sensitive data most likely explains this difference in severity?",
+    "options": [
+      {
+        "label": "A",
+        "text": "HIGH findings mean Macie confidence is above 90%; MEDIUM findings mean Macie confidence is between 50% and 90%."
+      },
+      {
+        "label": "B",
+        "text": "HIGH findings contain government-issued IDs such as passport or Social Security numbers; MEDIUM findings contain generic PII like names and email addresses."
+      },
+      {
+        "label": "C",
+        "text": "HIGH findings indicate more than 1,000 occurrences; MEDIUM findings indicate fewer than 100 occurrences of the same data type."
+      },
+      {
+        "label": "D",
+        "text": "HIGH findings are from publicly accessible buckets; MEDIUM findings are from private buckets regardless of data type."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Macie's severity classification is driven primarily by the type of sensitive data found. Managed data identifiers for highly sensitive categories such as U.S. Social Security numbers, passport numbers, and driver's license numbers produce HIGH severity findings because of their regulatory significance and identity-theft risk. Generic PII such as names, email addresses, and phone numbers typically produce MEDIUM severity findings. Bucket public accessibility affects a separate policy finding, not the sensitivity finding severity (option B). Occurrence count and confidence scores influence finding details but are not the primary severity drivers (options C and D).",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "macie",
+      "findings-severity",
+      "pii"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-006",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An organization stores customer data encrypted with a KMS CMK in us-east-1. For disaster recovery, data is replicated to eu-west-1. After a regional failover, the recovery team must decrypt data in eu-west-1 without re-encrypting it before replication. Which KMS feature enables seamless cross-region decryption using the same key material?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Copy the key policy from us-east-1 to a new CMK in eu-west-1 so both keys share identical permissions."
+      },
+      {
+        "label": "B",
+        "text": "Use a KMS multi-region key and replicate it to eu-west-1 so both regions share the same key material and key ID prefix."
+      },
+      {
+        "label": "C",
+        "text": "Export the key material from us-east-1, import it into a new CMK in eu-west-1, and keep both keys in sync manually."
+      },
+      {
+        "label": "D",
+        "text": "Configure an S3 replication rule with SSE-KMS and let S3 automatically re-encrypt objects using the destination region key."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "KMS multi-region keys allow the same key material (identified by the mrk- key ID prefix) to exist in multiple AWS regions. Ciphertext encrypted in us-east-1 can be decrypted directly in eu-west-1 without any re-encryption step, because the underlying key material is identical. Copying a key policy (option A) creates a new key with different key material \u2014 existing ciphertext cannot be decrypted with it. Manual import (option C) is operationally complex and not the designed solution. S3 replication with SSE-KMS (option D) re-encrypts with a destination key during replication, meaning the encryption key changes rather than the same material being used.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "kms",
+      "multi-region-key",
+      "disaster-recovery"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-007",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A developer using the AWS Encryption SDK needs to encrypt a 50 GB file. They are evaluating framed versus non-framed content types. Which statement correctly describes the memory implication of each approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Framed content requires loading all frames into memory before writing; non-framed content streams byte-by-byte with constant memory."
+      },
+      {
+        "label": "B",
+        "text": "Non-framed content uses a streaming cipher requiring no buffering; framed content must buffer one complete frame per encryption thread."
+      },
+      {
+        "label": "C",
+        "text": "Both approaches require full plaintext buffering but framed content uses less CPU because each frame is encrypted in parallel."
+      },
+      {
+        "label": "D",
+        "text": "Non-framed content requires the entire plaintext to be buffered in memory; framed content encrypts fixed-size frames sequentially with bounded memory."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "In the AWS Encryption SDK, non-framed content encrypts the entire message as a single body, requiring the SDK to know the full plaintext length upfront and typically buffering the entire plaintext before writing the authentication tag. Framed content divides the plaintext into fixed-size frames (default 4096 bytes) and encrypts each frame independently with its own authentication tag, enabling constant-memory streaming encryption regardless of file size. For large files like 50 GB, framed content is the appropriate choice to avoid out-of-memory conditions.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "encryption-sdk",
+      "framed-content",
+      "streaming"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-008",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A compliance requirement mandates that certain DynamoDB attributes containing PHI must be encrypted client-side before being stored, while non-sensitive attributes remain in plaintext for query purposes. Which approach correctly implements this using the AWS Database Encryption SDK for DynamoDB?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Apply a DynamoDB condition expression that rejects writes of plaintext PHI values using attribute_exists checks."
+      },
+      {
+        "label": "B",
+        "text": "Store encrypted PHI in a separate DynamoDB table and join results in application code at read time."
+      },
+      {
+        "label": "C",
+        "text": "Mark PHI attributes as ENCRYPT_AND_SIGN and non-sensitive attributes as SIGN_ONLY or DO_NOTHING in the attribute actions configuration."
+      },
+      {
+        "label": "D",
+        "text": "Use DynamoDB server-side encryption with a CMK and configure a key policy that blocks read access to PHI attribute paths."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The AWS Database Encryption SDK for DynamoDB provides attribute-level encryption through a configuration map called attribute actions. Each attribute can be designated ENCRYPT_AND_SIGN (encrypted and integrity-protected), SIGN_ONLY (plaintext but included in the signature for tamper detection), or DO_NOTHING (excluded from cryptographic operations). This enables fine-grained encryption so PHI fields are opaque to the DynamoDB service while query attributes remain readable. DynamoDB server-side encryption (option B) encrypts the entire item at rest but the DynamoDB service still sees all attribute values. Separate tables (option C) add operational complexity and do not provide attribute-level encryption. Condition expressions (option D) are write guards, not encryption mechanisms.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "dynamodb",
+      "client-side-encryption",
+      "database-encryption-sdk"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-009",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A compliance auditor needs a report showing the encryption status of every object across all S3 buckets in an account for a specific point in time. Which S3 feature provides this data in the most operationally efficient way, and what is the default delivery frequency?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Storage Lens with encryption metrics enabled; aggregated daily with a 48-hour data latency."
+      },
+      {
+        "label": "B",
+        "text": "CloudTrail data events for PutObject capturing the x-amz-server-side-encryption header; queried via Athena daily."
+      },
+      {
+        "label": "C",
+        "text": "S3 Server Access Logs filtered for encryption headers; aggregated weekly and stored in the same bucket."
+      },
+      {
+        "label": "D",
+        "text": "S3 Inventory configured with encryption status as an optional field; delivered daily or weekly in CSV, ORC, or Parquet format."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "S3 Inventory generates flat-file reports listing every object in a bucket along with optional metadata fields including ServerSideEncryption, SSEKMSKeyId, and EncryptionStatus. Reports can be delivered daily or weekly to a designated S3 bucket in CSV, Apache ORC, or Parquet format, making them ideal for bulk compliance audits without writing custom queries. S3 Storage Lens (option A) provides aggregate metrics dashboards but does not enumerate individual object encryption statuses. Server access logs (option C) are event-driven and incomplete for a full object inventory. CloudTrail data events (option D) capture API calls, not the current encryption state of all objects, and only cover objects touched after logging was enabled.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "s3-inventory",
+      "encryption-status",
+      "compliance-auditing"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-010",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A database administrator needs to encrypt an existing unencrypted Amazon Aurora cluster that contains production data. Aurora does not support enabling encryption on a running cluster in place. What is the correct procedure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Modify the cluster to enable encryption; Aurora performs an online re-encryption of all data without downtime."
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS Backup for the cluster with a KMS key; AWS Backup retroactively encrypts the existing cluster data."
+      },
+      {
+        "label": "C",
+        "text": "Create an encrypted snapshot by copying the unencrypted snapshot with encryption enabled, then restore a new cluster from the encrypted copy."
+      },
+      {
+        "label": "D",
+        "text": "Detach and re-attach Aurora storage volumes with encryption enabled through the RDS console storage settings."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Aurora (and RDS) encryption cannot be enabled on an existing unencrypted cluster in place. The supported path is: (1) take a snapshot of the unencrypted cluster, (2) copy that snapshot and select a KMS key during the copy operation to produce an encrypted snapshot, (3) restore a new cluster from the encrypted snapshot. The new cluster is fully encrypted at rest. In-place modification (option A) is not supported. AWS Backup (option C) backs up data but does not re-encrypt the existing cluster storage. Aurora uses managed storage volumes that cannot be detached and re-attached like EBS volumes (option D).",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "aurora",
+      "rds-encryption",
+      "snapshot-restore"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-011",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A payment processing company must exchange symmetric encryption keys with an external partner in a PCI DSS-compliant manner. The keys must be wrapped in a format that cryptographically binds key attributes such as usage and algorithm to the key value. Which AWS service and key format satisfies this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Secrets Manager storing the plaintext key encrypted with SSE-KMS and shared via a cross-account role."
+      },
+      {
+        "label": "B",
+        "text": "CloudHSM with PKCS#11 key wrapping using AES-256-CBC to export the symmetric key for partner transmission."
+      },
+      {
+        "label": "C",
+        "text": "AWS KMS with key import using the RSAES_OAEP_SHA_256 wrapping algorithm to transfer the symmetric key securely."
+      },
+      {
+        "label": "D",
+        "text": "AWS Payment Cryptography using the TR-31 key block format, which cryptographically binds key attributes to the key value."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Payment Cryptography is purpose-built for payment industry key management and supports the TR-31 (ANSI X9.143) key block format, which is the PCI DSS-required standard for key exchange between payment systems. TR-31 cryptographically binds key attributes such as key usage, algorithm, and export restrictions to the encrypted key value, preventing attribute substitution attacks. KMS key import (option A) uses asymmetric wrapping for importing keys into KMS, not for exchanging keys with external payment partners. CloudHSM PKCS#11 wrapping (option C) does not natively produce TR-31 format blocks. Secrets Manager (option D) is a secrets store, not a key exchange protocol.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "payment-cryptography",
+      "tr-31",
+      "pci-dss"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-012",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "During a Secrets Manager secret rotation, a Lambda rotation function creates a new secret value. Which version stage label is assigned to the new secret version immediately after creation and before the new credentials are validated?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWSLATEST, indicating the newest version regardless of validation or promotion status."
+      },
+      {
+        "label": "B",
+        "text": "AWSPENDING, indicating the new version is staged for testing before being promoted to AWSCURRENT."
+      },
+      {
+        "label": "C",
+        "text": "AWSPREVIOUS, indicating the new version is held as a rollback candidate until validation succeeds."
+      },
+      {
+        "label": "D",
+        "text": "AWSCURRENT, indicating the new version is immediately active and the previous version is unlabeled."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Secrets Manager rotation follows a multi-step lifecycle. In the createSecret step, the rotation Lambda creates a new version labeled AWSPENDING. In setSecret, the new credentials are set in the target service. In testSecret, the credentials are validated. Only in finishSecret does the label move: AWSPENDING is removed, the new version gets AWSCURRENT, and the previously current version receives AWSPREVIOUS. AWSCURRENT (option A) is only assigned after successful validation in finishSecret. AWSPREVIOUS (option C) is given to the old version after rotation completes. AWSLATEST (option D) is not a valid Secrets Manager version stage label.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "secrets-manager",
+      "rotation",
+      "version-stages"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-013",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team wants to ensure that only principals from their own AWS account can use a KMS CMK, even if another account's IAM policy references the key ARN. Which KMS condition key enforces this restriction directly in the key policy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "kms:CallerAccount in an Allow statement restricting key usage to principals whose account matches the CMK owning account."
+      },
+      {
+        "label": "B",
+        "text": "kms:ViaService in a Deny statement blocking direct API calls from accounts outside the allowed service list."
+      },
+      {
+        "label": "C",
+        "text": "aws:SourceAccount in a Deny statement preventing cross-account calls originating from unexpected source accounts."
+      },
+      {
+        "label": "D",
+        "text": "aws:PrincipalAccount in a Deny statement blocking any principal whose account ID does not match the key owner."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "kms:CallerAccount is a KMS-specific condition key representing the account ID of the principal making the KMS API call. It can be used in key policy Allow statements to ensure only principals from the specified account can perform operations, for example: Condition: {StringEquals: {'kms:CallerAccount': '123456789012'}}. This prevents cross-account key use even if another account's IAM policy references the key ARN. aws:PrincipalAccount (option A) is a global condition key that also carries account context but kms:CallerAccount is the canonical KMS-specific key for this use case in key policies. aws:SourceAccount (option C) applies to service-to-service calls, not direct principal calls. kms:ViaService (option D) restricts which AWS services can call KMS on a principal's behalf, not which accounts can call directly.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "kms",
+      "key-policy",
+      "kms-caller-account",
+      "cross-account"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-014",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A data privacy team needs to serve S3 objects to downstream consumers but must automatically redact PII fields from JSON files on retrieval without modifying the stored originals. Which S3 feature enables this transformation at read time without additional compute infrastructure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 replication with a Lambda event trigger that redacts PII in the replicated copy while keeping the source intact."
+      },
+      {
+        "label": "B",
+        "text": "S3 Select with SQL expressions to project only non-PII columns from JSON objects at retrieval time."
+      },
+      {
+        "label": "C",
+        "text": "CloudFront with a Lambda@Edge viewer response function that intercepts and redacts S3 responses before delivery."
+      },
+      {
+        "label": "D",
+        "text": "S3 Object Lambda, which invokes a Lambda function to transform object data on GetObject requests before returning it."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "S3 Object Lambda allows you to register a Lambda function with an S3 Object Lambda Access Point. When a caller issues a GetObject request through that access point, S3 invokes the Lambda function with the original object bytes and the function returns the transformed response with PII fields redacted to the caller. The original object in S3 is never modified. S3 Select (option A) can filter columns but does not invoke custom logic for pattern-based PII redaction. S3 replication with Lambda (option C) creates a second modified copy rather than serving transformed data from originals. Lambda@Edge (option D) is a CloudFront feature requiring CDN distribution setup and is not a native S3 read-time transformation mechanism.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "s3-object-lambda",
+      "pii-redaction",
+      "data-transformation"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-015",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security engineer notices that ACM-issued public certificates for company domain names appear in external Certificate Transparency logs. A stakeholder asks whether CT logging can be disabled to prevent internal domain names from being publicly visible. What is the correct answer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "No, but only the certificate serial number is logged; the domain name is hashed and not publicly visible in CT logs."
+      },
+      {
+        "label": "B",
+        "text": "Yes, CT logging can be disabled account-wide through an ACM service control policy that blocks the logging API call."
+      },
+      {
+        "label": "C",
+        "text": "Yes, CT logging can be disabled per certificate by setting CertificateTransparencyLoggingPreference to DISABLED at request time."
+      },
+      {
+        "label": "D",
+        "text": "No, ACM-issued public certificates are always logged to Certificate Transparency logs and this cannot be opted out of."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Certificate Transparency logging is mandatory for all publicly trusted TLS certificates including those issued by ACM. Major browser vendors require CT logging and will distrust certificates not included in public logs. ACM automatically submits all public certificates to CT logs and this behavior cannot be disabled. For internal domains that must not appear in CT logs, the correct approach is to use AWS Private CA to issue private certificates, which are not submitted to public CT logs. Option A describes a preference flag that does not override the public CA requirement. Option C is incorrect as SCPs cannot block AWS-internal CT submission behavior. Option D is incorrect because full domain names are plainly visible in CT logs.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "acm",
+      "certificate-transparency",
+      "public-certificates"
+    ]
+  },
+  {
+    "id": "scs-d5-t5-016",
+    "domain": "domain-05",
+    "domain_name": "Data Protection",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An application needs asymmetric envelope encryption so many senders can encrypt data but only authorized recipients can decrypt it. Which KMS API call produces the required key material, and which component of the returned pair is used by senders to encrypt?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Call GenerateDataKey to get a symmetric key, then wrap it with the recipient's RSA public key for transmission."
+      },
+      {
+        "label": "B",
+        "text": "Call GetPublicKey for the asymmetric CMK; senders encrypt with that public key and call Decrypt with the CMK to retrieve plaintext."
+      },
+      {
+        "label": "C",
+        "text": "Call GenerateDataKeyPair to get an RSA key pair; senders use the returned plaintext public key to encrypt and only the KMS-protected private key can decrypt."
+      },
+      {
+        "label": "D",
+        "text": "Call GenerateDataKeyPairWithoutPlaintext so senders receive an encrypted private key to encrypt outbound data."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "GenerateDataKeyPair generates an asymmetric data key pair under a KMS CMK, returning a plaintext public key and an encrypted private key. In asymmetric envelope encryption, the plaintext public key is distributed to senders who use it to encrypt data or a data encryption key. The encrypted private key is stored alongside the ciphertext. Only a principal with kms:Decrypt permission on the KMS CMK can decrypt the private key and then use it to decrypt the data. GetPublicKey (option C) retrieves the public key of an asymmetric CMK for CMK-level operations, a different pattern from data key pair generation. GenerateDataKey (option A) produces a symmetric key used in symmetric envelope encryption, not asymmetric. GenerateDataKeyPairWithoutPlaintext (option D) omits the plaintext public key from the response, making it unsuitable for distributing to senders.",
+    "module_ref": "domain-05",
+    "tags": [
+      "aws-scs",
+      "domain-05",
+      "data-protection",
+      "kms",
+      "generate-data-key-pair",
+      "asymmetric-encryption",
+      "envelope-encryption"
+    ]
+  }
+]

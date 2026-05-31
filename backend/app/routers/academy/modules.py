@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 from typing import Optional
 
@@ -48,13 +49,14 @@ class AssignmentSummary(BaseModel):
 
 class ModuleOut(BaseModel):
     id: int
+    course: str = "aws"
     title: str
     description: str
     order_index: int
     difficulty_level: str
     certification_tags: list
     is_published: bool
-    created_by: int
+    created_by: uuid.UUID
     created_at: datetime
     lesson_count: int = 0
     completed_lesson_count: int = 0
@@ -98,6 +100,7 @@ def _build_module_out(module: Module, completed: set[int]) -> ModuleOut:
     completed_count = sum(1 for lid in lesson_ids if lid in completed)
     return ModuleOut(
         id=module.id,
+        course=module.course,
         title=module.title,
         description=module.description,
         order_index=module.order_index,
@@ -121,14 +124,14 @@ def list_modules(
     db: Session = Depends(get_db),
 ):
     query = db.query(Module).order_by(Module.order_index)
-    if current_user.role == "student":
+    if current_user.academy_role == "student":
         query = query.filter(Module.is_published.is_(True))
     if course:
         query = query.filter(Module.course == course)
     modules = query.all()
 
     all_lesson_ids = [l.id for m in modules for l in m.lessons]
-    if current_user.role == "student":
+    if current_user.academy_role == "student":
         completed = _completed_ids(db, current_user.id, all_lesson_ids)
     else:
         completed = set()
@@ -145,11 +148,11 @@ def get_module(
     module = db.get(Module, module_id)
     if module is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Module not found")
-    if current_user.role == "student" and not module.is_published:
+    if current_user.academy_role == "student" and not module.is_published:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Module not found")
 
     lesson_ids = [l.id for l in module.lessons]
-    if current_user.role == "student":
+    if current_user.academy_role == "student":
         completed = _completed_ids(db, current_user.id, lesson_ids)
     else:
         completed = set()

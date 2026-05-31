@@ -1,0 +1,545 @@
+[
+  {
+    "id": "scs-d1-t2-001",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "GuardDuty generates a UnauthorizedAccess:IAMUser/MaliciousIPCaller finding for an IAM user whose access key was recently committed to a public GitHub repository. As the incident responder, what is the FIRST action you should take?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Contact GitHub to remove the committed key from the repository so that external actors can no longer access the credentials."
+      },
+      {
+        "label": "B",
+        "text": "Immediately deactivate the compromised access key to stop any ongoing unauthorized activity, then assess what actions were taken using CloudTrail."
+      },
+      {
+        "label": "C",
+        "text": "Rotate the access key by creating a new one, then update all applications using the old key before deactivating the compromised key."
+      },
+      {
+        "label": "D",
+        "text": "Enable MFA on the IAM user account to prevent additional API calls from being made with just the access key and secret."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The immediate priority in a key compromise is containment \u2014 deactivate the key now to stop the bleeding. Rotating (creating a new key first) takes longer and leaves the window of exposure open. CloudTrail analysis follows containment.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "incident-response",
+      "access-key",
+      "containment"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-002",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A GuardDuty finding of type Trojan:EC2/BlackholeTraffic indicates that an EC2 instance is communicating with a known C2 domain. An automated incident response must isolate the instance without requiring human action. Which approach correctly automates this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an EventBridge rule matching GuardDuty Trojan:EC2/* findings that triggers a Lambda function moving the instance into an isolation security group with no inbound or outbound rules."
+      },
+      {
+        "label": "B",
+        "text": "Configure a CloudWatch alarm on GuardDuty findings that sends an email notification for a security engineer to manually isolate the instance."
+      },
+      {
+        "label": "C",
+        "text": "Use an AWS Config rule that evaluates GuardDuty findings and invokes an SSM Automation document to terminate the affected instance."
+      },
+      {
+        "label": "D",
+        "text": "Enable GuardDuty automated response mode, which natively quarantines EC2 instances flagged by Trojan finding types without additional configuration."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "GuardDuty does not natively isolate instances. The standard pattern is: GuardDuty finding \u2192 EventBridge rule matches the finding type \u2192 Lambda function updates the instance's security group to a deny-all isolation group.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "automated-response",
+      "eventbridge",
+      "lambda"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-003",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "During a forensic investigation of a compromised EC2 instance, you need to capture the volatile memory of the running instance. The instance cannot be rebooted or terminated yet. What is the correct approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Terminate the instance with the disableApiTermination flag removed and analyze the CloudTrail events for all prior API calls."
+      },
+      {
+        "label": "B",
+        "text": "Create an EBS snapshot of the root volume, then attach it to a forensic instance to examine file system artifacts including swap space."
+      },
+      {
+        "label": "C",
+        "text": "Enable VPC Flow Logs for the instance's subnet so that all network traffic during the investigation window is captured for later review."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Systems Manager Run Command to execute a memory acquisition tool (such as LiME) on the instance and stream the output to an S3 bucket for analysis."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Volatile memory exists only while the instance is running. SSM Run Command can execute a memory acquisition module (like LiME for Linux) on the live instance without rebooting, capturing RAM contents to S3. EBS snapshots capture disk, not RAM.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "forensics",
+      "memory-acquisition",
+      "ssm",
+      "ec2"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-004",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "GuardDuty produces a Persistence:IAMUser/UserPermissions finding indicating that an IAM user has been adding permissions to themselves. What does this finding specifically indicate, and what is the recommended remediation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The IAM user created a new IAM role; remediation is to require approval for role creation through AWS Service Catalog."
+      },
+      {
+        "label": "B",
+        "text": "The IAM user triggered a failed login attempt; remediation is to enforce MFA and lock the account after repeated failures."
+      },
+      {
+        "label": "C",
+        "text": "The IAM user attached policies or modified their own permissions in a way that suggests privilege escalation; the user's credentials and recent policy changes should be investigated and revoked."
+      },
+      {
+        "label": "D",
+        "text": "The IAM user exceeded their API rate limits by making too many iam:Get calls; remediation is to apply request throttling."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The Persistence:IAMUser/UserPermissions finding indicates the user modified IAM policies in a way that suggests privilege escalation or persistence (e.g., attaching AdministratorAccess to themselves). Immediate credential revocation and policy audit are required.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "privilege-escalation",
+      "iam",
+      "persistence"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-005",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security engineer needs to preserve a forensic copy of an EBS volume from a compromised EC2 instance while keeping the original instance running for live analysis. What is the correct procedure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Backup to create a backup of the EBS volume, then restore it to the same Availability Zone on the forensic workstation."
+      },
+      {
+        "label": "B",
+        "text": "Stop the compromised instance to ensure data consistency, then detach and reattach the volume to the forensic instance for analysis."
+      },
+      {
+        "label": "C",
+        "text": "Detach the EBS volume from the compromised instance, attach it to a forensic instance in the same AZ, and mount it read-only for analysis."
+      },
+      {
+        "label": "D",
+        "text": "Create an EBS snapshot of the volume while attached, then restore a new volume from that snapshot and attach it to a forensic instance in read-only mode."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Creating an EBS snapshot preserves a point-in-time copy without touching the running instance. A new volume is created from the snapshot and attached to the forensic instance read-only, preserving both the original evidence and the live state.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "forensics",
+      "ebs-snapshot",
+      "incident-response",
+      "ec2"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-006",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An organization receives a GuardDuty finding that an EC2 instance is performing a port scan against other instances in the VPC. The security team confirms this is expected behavior from a newly deployed vulnerability scanner. What is the correct way to prevent this finding from generating alerts in the future?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Delete and re-enable GuardDuty to reset the baseline behavior model, then the scanner's activity will be treated as normal."
+      },
+      {
+        "label": "B",
+        "text": "Add a suppression rule in GuardDuty that filters findings where the resource is the scanner's instance ID and the finding type is Recon:EC2/PortProbeUnprotectedPort."
+      },
+      {
+        "label": "C",
+        "text": "Add the scanner's EC2 instance to a GuardDuty trusted IP list so that all findings originating from that IP address are suppressed."
+      },
+      {
+        "label": "D",
+        "text": "Disable the Recon finding category in GuardDuty settings to stop all port scan-related findings from being generated."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "GuardDuty suppression rules use filter criteria (finding type, resource attributes) to automatically archive matching findings. This is the correct way to handle known-good behavior without disabling entire finding categories or altering the threat model.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "suppression-rules",
+      "false-positive"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-007",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "Amazon Detective is enabled for a GuardDuty finding showing unusual EC2 API calls from a role. What additional capability does Detective provide beyond what GuardDuty and CloudTrail alone offer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Detective automatically quarantines the affected role and generates a remediation script to remove its attached policies."
+      },
+      {
+        "label": "B",
+        "text": "Detective uses ML-powered graph analysis to visualize entity relationships and shows behavioral baselines to determine whether activity is truly anomalous."
+      },
+      {
+        "label": "C",
+        "text": "Detective provides raw CloudTrail log search with faster query performance than Athena, making it easier to find specific API events."
+      },
+      {
+        "label": "D",
+        "text": "Detective replaces GuardDuty by performing all threat detection natively without requiring a separate GuardDuty subscription."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Amazon Detective builds a behavior graph from CloudTrail, VPC Flow Logs, and GuardDuty data. It visualizes entity relationships and compares activity to historical baselines, helping investigators determine scope and whether activity is anomalous.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "amazon-detective",
+      "investigation",
+      "behavior-graph"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-008",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A GuardDuty finding of type CredentialAccess:Kubernetes/MaliciousIPCaller indicates API server calls from a known malicious IP. Which Kubernetes security configuration would prevent this threat at the source?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use IRSA to assign pod-level IAM roles, which prevents pods from using the node's instance profile credentials."
+      },
+      {
+        "label": "B",
+        "text": "Deploy a network policy in Kubernetes that blocks all ingress to pod namespaces, preventing lateral movement within the cluster."
+      },
+      {
+        "label": "C",
+        "text": "Configure the EKS cluster's API server endpoint to be private-only and restrict allowed CIDRs so that only trusted networks can reach the API server."
+      },
+      {
+        "label": "D",
+        "text": "Enable EKS audit logging to CloudWatch so that all malicious API calls are recorded and can be reviewed after the fact."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Making the EKS API server private-only and restricting allowed CIDRs prevents calls from external malicious IPs from ever reaching the API server. This addresses the root cause rather than just detecting or logging the calls.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "eks",
+      "kubernetes",
+      "api-server"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-009",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security team is reviewing a GuardDuty finding: Impact:S3/AnomalousBehavior. The finding shows that an IAM role retrieved 50,000 S3 objects in a two-hour period, far above its baseline. What is the most likely threat scenario and correct first response?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The role is being used for authorized data analytics; the team should add a suppression rule to prevent future alerts on high-volume S3 reads."
+      },
+      {
+        "label": "B",
+        "text": "The role's credentials may be compromised for data exfiltration; revoke active sessions via IAM policy and investigate source IPs in CloudTrail."
+      },
+      {
+        "label": "C",
+        "text": "The S3 bucket has public access enabled, allowing anonymous users to read objects without using the role's credentials."
+      },
+      {
+        "label": "D",
+        "text": "S3 replication is misconfigured and is causing the role to copy objects repeatedly; the fix is to review and correct replication rules."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "An AnomalousBehavior finding on S3 reads significantly above baseline is a data exfiltration indicator. Revoking active sessions via the AWSRevokeOlderSessions policy and using CloudTrail to identify source IPs is the correct immediate response.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "s3",
+      "data-exfiltration",
+      "incident-response"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-010",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An incident response playbook requires that when a GuardDuty HIGH severity finding is generated, an SNS notification is sent and the finding is stored in an S3 bucket for long-term retention. What is the minimal correct architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure GuardDuty to export findings directly to SNS and S3 using the built-in GuardDuty export feature available in the console."
+      },
+      {
+        "label": "B",
+        "text": "Create an EventBridge rule that matches GuardDuty findings with severity >= 7, targets SNS for notifications, and targets a Lambda function that writes the finding JSON to S3."
+      },
+      {
+        "label": "C",
+        "text": "Use CloudTrail to capture GuardDuty API calls and route those events to CloudWatch Logs, then export log groups to S3 using a log export job."
+      },
+      {
+        "label": "D",
+        "text": "Enable GuardDuty finding export to S3 in the GuardDuty settings, then create a separate Lambda that polls GuardDuty for new findings and publishes to SNS."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "EventBridge is the standard integration point for GuardDuty findings. A rule filters by severity and can simultaneously trigger SNS and Lambda. Lambda writes the finding JSON to S3. GuardDuty's native S3 export sends all findings, not just high-severity ones.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "eventbridge",
+      "sns",
+      "s3",
+      "incident-response"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-011",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "GuardDuty generates a finding: Execution:Lambda/SuspiciousUserAgent. What is the most accurate interpretation of this finding?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The Lambda function attempted to invoke an external URL that is listed on GuardDuty's threat intelligence list of known malicious domains."
+      },
+      {
+        "label": "B",
+        "text": "A Lambda invocation was made by a tool commonly associated with threat actors, which may indicate unauthorized use or reconnaissance."
+      },
+      {
+        "label": "C",
+        "text": "A Lambda function's execution role has too many permissions and is being flagged by GuardDuty's least-privilege analysis engine."
+      },
+      {
+        "label": "D",
+        "text": "The Lambda function's code contains a suspicious import statement that GuardDuty's static analysis engine identified as potentially malicious."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The SuspiciousUserAgent finding indicates that the Lambda function was invoked by a client using a user agent string associated with tools commonly used by threat actors (e.g., nmap, Kali, pentesting frameworks). This suggests the invocation may be unauthorized.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "lambda",
+      "threat-detection"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-012",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company runs GuardDuty across a 50-account AWS organization. They want to ensure that member accounts cannot disable GuardDuty or modify its settings. What is the correct configuration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable GuardDuty in all accounts individually and create cross-account IAM roles that allow the security team to manage settings centrally."
+      },
+      {
+        "label": "B",
+        "text": "Designate a delegated administrator account for GuardDuty in AWS Organizations, and attach an SCP that denies guardduty:DeleteDetector and guardduty:DisassociateFromAdministratorAccount in member accounts."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Config to monitor GuardDuty status in all accounts and create an automated remediation to re-enable GuardDuty if it is disabled."
+      },
+      {
+        "label": "D",
+        "text": "Enable GuardDuty in the management account only; GuardDuty automatically applies its detection to all member accounts through Organizations."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The delegated administrator manages GuardDuty across all member accounts. An SCP denying guardduty:DeleteDetector and guardduty:DisassociateFromAdministratorAccount prevents members from opting out or disabling their detectors.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "delegated-admin",
+      "scp",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d1-t2-013",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A threat analyst needs to determine whether a GuardDuty finding represents a true positive or a false positive. Which combination of services provides the most comprehensive investigation data?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Macie for data classification findings and Inspector for vulnerability data on the resources involved in the GuardDuty finding."
+      },
+      {
+        "label": "B",
+        "text": "Amazon Detective for visualizing entity behavior and relationships, plus CloudTrail for precise API-level audit of actions taken by the flagged principal."
+      },
+      {
+        "label": "C",
+        "text": "AWS Config for resource configuration history and Security Hub for aggregated findings from other services to contextualize the GuardDuty alert."
+      },
+      {
+        "label": "D",
+        "text": "AWS Trusted Advisor for security checks and AWS Cost Explorer for resource usage anomalies to correlate with the suspicious activity."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Amazon Detective provides behavior graph analysis showing whether the activity is anomalous relative to the entity's baseline. CloudTrail provides the exact API call sequence, source IPs, and timestamps needed to determine intent. Together they give the full investigative picture.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "amazon-detective",
+      "cloudtrail",
+      "investigation",
+      "guardduty"
+    ]
+  }
+]

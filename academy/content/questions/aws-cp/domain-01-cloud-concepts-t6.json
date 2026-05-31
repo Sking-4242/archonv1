@@ -1,0 +1,928 @@
+[
+  {
+    "id": "aws-cp-t6-01-001",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A CIO is concerned about moving to cloud because 'we lose control of our data.' How would you accurately characterize data control in AWS?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Data control depends on the AWS support plan tier"
+      },
+      {
+        "label": "B",
+        "text": "Customers retain ownership and control of their data at all times; AWS does not access customer data except as needed"
+      },
+      {
+        "label": "C",
+        "text": "This concern is valid \u2014 AWS owns data stored in their services under the shared responsibility model"
+      },
+      {
+        "label": "D",
+        "text": "AWS owns data stored in managed services like S3 and RDS, but customers own data on EC2"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Customers own their data completely on AWS. Customers control who accesses it (via IAM, bucket policies), whether it's encrypted (using KMS, SSE), where it resides (Region selection), and when it's deleted. AWS does not mine customer data for advertising or share it without consent. The shared responsibility model is about operational security tasks, not data ownership.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "data-ownership",
+      "shared-responsibility",
+      "cloud-misconceptions",
+      "control"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-002",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A development team wants to use a new AI/ML service that AWS just launched but it's only available in us-west-2. Their production data is in eu-west-1 due to GDPR requirements. What cloud architectural principle must they carefully evaluate before using the service?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cost Optimization \u2014 cross-region data transfer adds cost"
+      },
+      {
+        "label": "B",
+        "text": "Performance Efficiency \u2014 the service may be slower cross-region"
+      },
+      {
+        "label": "C",
+        "text": "Data residency and sovereignty \u2014 sending EU personal data to us-west-2 may."
+      },
+      {
+        "label": "D",
+        "text": "Operational Excellence \u2014 cross-region deployments increase operational complexity"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "GDPR restricts transferring EU residents' personal data to countries without adequate data protection. Sending this data to us-west-2 (USA) requires GDPR-compliant mechanisms (SCCs, adequacy decisions, etc.). This is the primary architectural constraint to evaluate. Cost and performance are secondary. Data residency and compliance must be evaluated first when personal data is involved.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "gdpr",
+      "data-residency",
+      "compliance",
+      "data-sovereignty"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-003",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company is designing a mission-critical application that must remain available even if an entire AWS Region becomes unavailable. What architectural approach achieves this level of resilience?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use a Reserved Instance in a backup AZ"
+      },
+      {
+        "label": "B",
+        "text": "Enable Multi-AZ on all RDS instances"
+      },
+      {
+        "label": "C",
+        "text": "Deploy active-active or active-passive across multiple AWS Regions with Route"
+      },
+      {
+        "label": "D",
+        "text": "Deploy in two Availability Zones within a single Region"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Multi-AZ within a single Region does not protect against a full regional outage (e.g., a major natural disaster affecting all AZs, a regional DNS outage). Cross-Region deployment with Route 53 failover routing redirects traffic to the healthy region if the primary becomes unavailable. This is the highest tier of AWS resilience. Multi-AZ RDS only spans AZs within one region.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "multi-region",
+      "disaster-recovery",
+      "route53",
+      "high-availability"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-004",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company architect explains that cloud's 'elasticity' is different from 'scalability.' Which statement correctly distinguishes these two concepts?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Scalability is the ability to handle increased load by adding resources"
+      },
+      {
+        "label": "B",
+        "text": "They are synonymous \u2014 elasticity and scalability mean the same thing in cloud"
+      },
+      {
+        "label": "C",
+        "text": "Elasticity means growing resources; scalability means shrinking resources"
+      },
+      {
+        "label": "D",
+        "text": "Elasticity applies only to horizontal scaling; scalability applies only to vertical scaling"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Scalability means the system can grow to handle more load. Elasticity adds the automatic bidirectional nature \u2014 the system not only scales up during demand but also scales back down to baseline when demand decreases, eliminating waste. Auto Scaling exemplifies elasticity. A system that can only grow (scale up, never down) is scalable but not elastic. Both directions are required for elasticity.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "elasticity",
+      "scalability",
+      "auto-scaling",
+      "cloud-concepts"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-005",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company is adopting a multi-cloud strategy (AWS + Azure). Their cloud architect warns this adds significant complexity. What is a specific technical challenge of multi-cloud that single-cloud avoids?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Multi-cloud is prohibited by AWS terms of service"
+      },
+      {
+        "label": "B",
+        "text": "Multi-cloud always doubles cost compared to single-cloud"
+      },
+      {
+        "label": "C",
+        "text": "Multi-cloud reduces vendor lock-in at the cost of increased operational complexity"
+      },
+      {
+        "label": "D",
+        "text": "AWS services cannot communicate with Azure services"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Multi-cloud reduces vendor dependency but introduces significant operational complexity: separate IAM and identity models, different networking abstractions (VPC vs. VNet), separate monitoring tooling, different billing/cost management, and teams needing expertise in two platforms. Single cloud allows teams to develop deep expertise in one set of APIs. Multi-cloud is technically feasible but the complexity cost must be justified.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "multi-cloud",
+      "vendor-lock-in",
+      "cloud-strategy",
+      "complexity"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-006",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "Which statement most accurately describes the relationship between AWS Regions, Availability Zones, and Edge Locations?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Regions contain AZs; Edge Locations are separate facilities used by CloudFront."
+      },
+      {
+        "label": "B",
+        "text": "AZs span multiple Regions to provide global redundancy"
+      },
+      {
+        "label": "C",
+        "text": "Regions and AZs are the same thing; Edge Locations are regional data centers"
+      },
+      {
+        "label": "D",
+        "text": "Edge Locations are small AZs within a larger Region"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS infrastructure hierarchy: Regions (geographic areas) \u2192 Availability Zones (physical data centers within a Region, connected by low-latency fiber) \u2192 Edge Locations (geographically distributed CloudFront/Route 53 PoPs for caching and DNS, not general compute/storage). There are far more Edge Locations (400+) than AZs, and they don't contain EC2 or S3 capacity. AZs never span regions.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "regions",
+      "availability-zones",
+      "edge-locations",
+      "infrastructure"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-007",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company ran a 6-month proof of concept on AWS. The PoC showed their application worked well but costs were 2x what they paid on-premises. A cloud advisor reviews the setup and finds instances were over-provisioned, no auto-scaling was used, and no Reserved Instances were purchased. What conclusion should be drawn?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The PoC was not properly optimized \u2014 a properly architected cloud deployment using right-sizing."
+      },
+      {
+        "label": "B",
+        "text": "Cloud is categorically more expensive than on-premises for this workload"
+      },
+      {
+        "label": "C",
+        "text": "The 2x cost difference proves on-premises is always better for production"
+      },
+      {
+        "label": "D",
+        "text": "The PoC results are valid as-is; PoC costs always reflect production costs"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "PoC environments commonly inflate cloud costs: over-provisioned instances, On-Demand pricing (40-72% higher than RIs), no auto-scaling (idle capacity), and test/dev traffic patterns. Production optimization \u2014 right-sizing, auto-scaling, commitment pricing, storage tiering \u2014 can dramatically reduce costs. The PoC results do not reflect properly optimized production architecture. Cloud economics depend heavily on architectural discipline.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "cloud-economics",
+      "poc",
+      "cost-optimization",
+      "right-sizing"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-008",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company is migrating from a traditional waterfall software development model to cloud-native development. Which cloud characteristic most enables faster experimentation and shorter release cycles?",
+    "options": [
+      {
+        "label": "A",
+        "text": "On-demand resource provisioning, IaC, managed services, and pay-per-use pricing lower the."
+      },
+      {
+        "label": "B",
+        "text": "Cloud providers offer software development tools not available on-premises"
+      },
+      {
+        "label": "C",
+        "text": "Cloud automatically generates software tests"
+      },
+      {
+        "label": "D",
+        "text": "Higher compute performance on cloud instances vs. on-premises"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Cloud enables agile development practices: developers can provision isolated test environments in minutes (vs. weeks on-premises), IaC makes environments reproducible, managed services eliminate infrastructure setup, and pay-per-use means test environments can be terminated after use. This reduces the cost and friction of experimentation, enabling shorter iteration cycles. Cloud doesn't inherently improve compute speed or generate tests.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "cloud-agility",
+      "devops",
+      "iac",
+      "test-environments"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-009",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "The AWS Well-Architected Framework's Sustainability pillar was added in 2021. What is the primary focus of this pillar?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Ensuring application uptime for long-term business sustainability addresses Reliability, not Sustainability, which focuses specifically on environmental impact."
+      },
+      {
+        "label": "B",
+        "text": "Sustaining development team productivity is an Operational Excellence concern focused on people and process, not the Sustainability pillar's environmental focus."
+      },
+      {
+        "label": "C",
+        "text": "Minimizing environmental impact through maximizing resource utilization, using energy-efficient hardware, and measuring the sustainability impact of cloud workloads."
+      },
+      {
+        "label": "D",
+        "text": "Minimizing cost through resource optimization is the goal of the Cost Optimization pillar, not the Sustainability pillar which targets environmental metrics."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Ensuring application uptime for long-term business sustainability addresses Reliability, not Sustainability, which focuses specifically on environmental impact.",
+      "B": "Sustaining development team productivity is an Operational Excellence concern focused on people and process, not the Sustainability pillar's environmental focus.",
+      "D": "Minimizing cost through resource optimization is the goal of the Cost Optimization pillar, not the Sustainability pillar which targets environmental metrics."
+    },
+    "explanation": "The Sustainability pillar focuses on environmental impact: understanding your cloud workload's carbon footprint, maximizing resource utilization to avoid waste, using AWS Regions powered by renewable energy where possible, and right-sizing to avoid provisioning unnecessary compute/storage. It's distinct from Cost Optimization (financial efficiency) \u2014 a workload can be cost-optimized but still wasteful from a sustainability standpoint.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "well-architected",
+      "sustainability",
+      "environmental",
+      "carbon-footprint"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-010",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A startup CTO asks: 'Why would we use multiple AWS accounts instead of one account with strict IAM permissions?' What is the strongest argument for multi-account architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Account-level isolation creates a hard security boundary \u2014 a breach or misconfiguration in one account cannot affect resources in another account."
+      },
+      {
+        "label": "B",
+        "text": "AWS requires multiple accounts for workloads exceeding $10,000 per month to ensure billing accuracy and proper resource attribution at scale."
+      },
+      {
+        "label": "C",
+        "text": "Multiple accounts reduce your AWS bill by distributing costs across accounts, which unlocks volume pricing tiers at lower per-account spending levels."
+      },
+      {
+        "label": "D",
+        "text": "Multiple accounts allow you to use different AWS Regions in each account, which is not possible when operating from a single consolidated AWS account."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS requires multiple accounts for workloads exceeding $10,000 per month to ensure billing accuracy and proper resource attribution at scale.",
+      "C": "Multiple accounts reduce your AWS bill by distributing costs across accounts, which unlocks volume pricing tiers at lower per-account spending levels.",
+      "D": "Multiple accounts allow you to use different AWS Regions in each account, which is not possible when operating from a single consolidated AWS account."
+    },
+    "explanation": "AWS accounts are the strongest isolation boundary. Even with perfect IAM, a single account means a compromised credential, a destructive terraform apply, or a service quota exhaustion in prod affects dev too. Multi-account separates environments at the account level: blast radius containment, separate service quotas, independent security controls, and cleaner cost attribution. IAM alone cannot enforce the same degree of isolation. Multiple accounts don't reduce billing \u2014 charges consolidate through Organizations.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "multi-account",
+      "account-isolation",
+      "security",
+      "organizations"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-011",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company migrating to AWS asks: 'Do we need to re-certify all our compliance certifications (ISO 27001, SOC 2) after moving to AWS?' How should you answer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Compliance certifications are not required for cloud workloads"
+      },
+      {
+        "label": "B",
+        "text": "Yes \u2014 all compliance certifications must be restarted from scratch on AWS"
+      },
+      {
+        "label": "C",
+        "text": "AWS's compliance certifications cover AWS infrastructure. Customer environments still need to be assessed."
+      },
+      {
+        "label": "D",
+        "text": "No \u2014 AWS's certifications automatically cover customer applications"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "AWS holds certifications (ISO 27001, SOC 1/2/3, PCI DSS, HIPAA eligibility, etc.) for its infrastructure. When a customer is audited, they can use AWS's reports (available via Artifact) as evidence that the infrastructure layer is compliant, reducing audit scope. However, the customer's applications, configurations, and operational controls still need to be assessed. AWS certifications don't automatically certify customer environments.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "compliance",
+      "iso27001",
+      "artifact",
+      "shared-responsibility"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-012",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company is designing for the AWS Well-Architected Reliability pillar. Their architect proposes 'testing recovery procedures.' What does this mean in practice?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Regularly running chaos engineering experiments and DR drills to validate."
+      },
+      {
+        "label": "B",
+        "text": "Setting up CloudWatch alarms for service health"
+      },
+      {
+        "label": "C",
+        "text": "Documenting disaster recovery runbooks without testing them"
+      },
+      {
+        "label": "D",
+        "text": "Enabling AWS Backup for all resources"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The Reliability pillar's 'test recovery procedures' design principle means actually executing failure scenarios to verify that backups can be restored, failovers work as expected, and RTO/RPO targets are achievable. Documentation and backups mean nothing if the recovery doesn't work when called upon. Chaos engineering (e.g., injecting AZ failures) validates resilience. CloudWatch alarms and AWS Backup are tools, not tests of recovery.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "well-architected",
+      "reliability",
+      "chaos-engineering",
+      "dr-testing"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-013",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's developers want to use the latest AWS features and services experimentally without risk to production. They currently have one AWS account for everything. What AWS Organizations concept specifically addresses this by providing separate environments?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config rules to detect unauthorized changes"
+      },
+      {
+        "label": "B",
+        "text": "IAM permission boundaries on developer roles"
+      },
+      {
+        "label": "C",
+        "text": "Separate Organizational Units (OUs) with distinct accounts for dev/test vs. production"
+      },
+      {
+        "label": "D",
+        "text": "Service Control Policies to restrict dev actions in prod"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Organizational Units in AWS Organizations allow grouping accounts by environment (dev/test OU, production OU) with different SCPs applying to each OU. Developers get broad permissions in sandbox/dev accounts to experiment freely, while production accounts have strict SCPs limiting what can be deployed. This is the AWS recommended multi-account strategy. IAM permission boundaries and Config rules work within a single account but don't provide the same isolation.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "organizations",
+      "ous",
+      "sandbox",
+      "account-strategy"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-014",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS CloudFormation for all infrastructure. They want to reuse common infrastructure patterns (VPC with standard subnets, security groups, logging) across 20 different applications without copy-pasting templates. Which CloudFormation feature addresses this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudFormation Change Sets \u2014 previews changes before applying"
+      },
+      {
+        "label": "B",
+        "text": "CloudFormation StackSets \u2014 deploys the same stack across multiple accounts"
+      },
+      {
+        "label": "C",
+        "text": "CloudFormation Nested Stacks or CloudFormation Modules \u2014 define reusable infrastructure components that"
+      },
+      {
+        "label": "D",
+        "text": "CloudFormation Drift Detection \u2014 identifies when stacks have diverged"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Nested Stacks allow you to create reusable CloudFormation templates (e.g., a 'standard VPC' template) that are referenced by parent stacks. CloudFormation Modules provide reusable, versioned infrastructure building blocks at the resource level. Both enable DRY principles for IaC. StackSets deploy across accounts/regions. Drift Detection identifies manual changes. Change Sets preview proposed changes.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "cloudformation",
+      "nested-stacks",
+      "modules",
+      "iac-reuse"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-015",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's CTO presents a report that says moving to cloud reduced their 'time to market' by 60%. Which specific cloud capabilities drive this measurement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS provides software development services that write code automatically"
+      },
+      {
+        "label": "B",
+        "text": "Cloud servers are faster than on-premises servers, so code runs 60% faster"
+      },
+      {
+        "label": "C",
+        "text": "Cloud improves developer productivity through better IDEs"
+      },
+      {
+        "label": "D",
+        "text": "On-demand provisioning (minutes vs. weeks), automated IaC deployments, managed services eliminating infrastructure setup, and"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Time to market is reduced by: (1) On-demand provisioning \u2014 no hardware procurement cycles, (2) IaC \u2014 environments reproduced in minutes, (3) Managed services \u2014 no database installation, no load balancer configuration from scratch, (4) CI/CD pipelines (CodePipeline, CodeDeploy) \u2014 automated deployment to production. These collectively eliminate weeks of infrastructure work that used to precede feature development.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "time-to-market",
+      "cloud-agility",
+      "iac",
+      "cicd"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-016",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's security policy states 'all infrastructure must be immutable \u2014 no SSH access for patching.' In a cloud context, what does 'immutable infrastructure' mean and what is the process for updates?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Infrastructure that cannot be changed once deployed \u2014 requires destroying the entire data center to make any change"
+      },
+      {
+        "label": "B",
+        "text": "Infrastructure where only the root account can make changes"
+      },
+      {
+        "label": "C",
+        "text": "Infrastructure that is encrypted and therefore immutable"
+      },
+      {
+        "label": "D",
+        "text": "Servers are never modified in place; instead, a new server image (AMI)."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Immutable infrastructure treats servers as disposable, never-modified units. Instead of SSH patching, you: (1) Update the base AMI/container image with the patch, (2) Deploy new instances from the updated image, (3) Route traffic to new instances, (4) Terminate old instances. This ensures all instances are identical (no snowflakes), changes are version-controlled, rollback is instant (redeploy old AMI), and the attack surface is reduced.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "immutable-infrastructure",
+      "ami",
+      "patching",
+      "no-ssh"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-017",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company asks their AWS Solutions Architect: 'Should we use a monolithic application or microservices?' How does cloud architecture influence this decision?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cloud infrastructure (containers, serverless, managed queues, API Gateway) lowers the operational cost."
+      },
+      {
+        "label": "B",
+        "text": "AWS requires microservices for all applications"
+      },
+      {
+        "label": "C",
+        "text": "Monolithic applications cannot run on AWS"
+      },
+      {
+        "label": "D",
+        "text": "Microservices are always cheaper on cloud because each service can use Spot Instances"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Cloud reduces the infrastructure barrier to microservices (ECS/EKS for containers, Lambda for functions, SQS/SNS for decoupling), but microservices introduce distributed systems complexity (network latency, partial failures, service discovery, distributed tracing). The decision depends on team size (Conway's Law), domain complexity, independent scaling needs, and deployment frequency. Both architectures run on AWS \u2014 it's an architectural trade-off, not a cloud mandate.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "microservices",
+      "monolith",
+      "architecture",
+      "cloud-native"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-018",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A manufacturing company wants to use AWS ML services to predict equipment failures before they happen, using sensor data from their factory floor. The sensor data is highly sensitive and cannot leave their building. Which AWS deployment option allows them to run AWS ML services on-premises?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EC2 in an on-premises data center"
+      },
+      {
+        "label": "B",
+        "text": "AWS Local Zones \u2014 near-premises AWS deployment"
+      },
+      {
+        "label": "C",
+        "text": "AWS Snowball Edge \u2014 provides ML inference at the edge"
+      },
+      {
+        "label": "D",
+        "text": "AWS Outposts \u2014 runs AWS infrastructure and services (including SageMaker)"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "AWS Outposts extends AWS infrastructure to the customer's on-premises facility. Services like SageMaker can run on Outposts, processing sensor data locally without leaving the building. Snowball Edge has ML inference capability but is designed for temporary edge/offline use cases. EC2 on-premises doesn't exist as a managed service. Local Zones are AWS-operated sites, not on customer premises.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "outposts",
+      "edge-computing",
+      "machine-learning",
+      "data-sovereignty"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-019",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's architects are debating whether to use spot instances for a critical database workload to save costs. What is the fundamental reason Spot Instances are NOT appropriate for this use case?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Spot Instances don't support EBS volumes"
+      },
+      {
+        "label": "B",
+        "text": "Spot Instances can be reclaimed by AWS with only a 2-minute warning."
+      },
+      {
+        "label": "C",
+        "text": "Spot Instances are more expensive than On-Demand for databases"
+      },
+      {
+        "label": "D",
+        "text": "Databases cannot run on Spot Instances because they require static IP addresses"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Spot Instances are interrupted with a 2-minute warning when AWS reclaims the capacity. For stateless, fault-tolerant workloads (batch processing, CI/CD, rendering), this is acceptable. For a database: interrupted writes cause data corruption, abrupt termination can cause extended recovery time, and the 2-minute window is often insufficient for graceful shutdown and flush to disk. Spot supports EBS and static IPs are unrelated to the interruption risk.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "spot-instances",
+      "database",
+      "interruption",
+      "production"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-020",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company successfully migrated to AWS 2 years ago. Now they are identifying opportunities to 'modernize' beyond lift-and-shift. Which approach delivers the MOST cloud-native benefits?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Re-architect \u2014 decompose the monolith into microservices using Lambda, API Gateway, DynamoDB, and SQS to achieve independent"
+      },
+      {
+        "label": "B",
+        "text": "Retain \u2014 keep the workload as-is on its current EC2 instances"
+      },
+      {
+        "label": "C",
+        "text": "Re-host \u2014 move workloads from EC2 to new EC2 instance types"
+      },
+      {
+        "label": "D",
+        "text": "Re-platform \u2014 move the database from EC2 self-managed MySQL to Amazon RDS MySQL without changing the application"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The '6 Rs' of migration range from least to most cloud-native value. Re-architecting (or re-factoring) involves fundamentally redesigning the application to use cloud-native patterns \u2014 serverless, microservices, managed databases. This delivers the highest benefits (independent scaling, reduced operational overhead, serverless economics) but also requires the most effort. Re-hosting delivers least value. Re-platforming delivers moderate value. Retain delivers no modernization.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "6-rs-migration",
+      "re-architecting",
+      "cloud-native",
+      "modernization"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-021",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "select-two",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company is assessing their cloud strategy and their CFO is concerned about 'unpredictable cloud costs.' Which TWO AWS features help make cloud costs more predictable?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Auto Scaling \u2014 automatically reduces instances to zero during off-peak hours"
+      },
+      {
+        "label": "B",
+        "text": "AWS Budgets with threshold alerts \u2014 proactively notify when spending approaches defined limits before the bill is finalized"
+      },
+      {
+        "label": "C",
+        "text": "Spot Instances \u2014 the lowest cost option reduces unpredictability"
+      },
+      {
+        "label": "D",
+        "text": "Reserved Instances and Savings Plans \u2014 fixed commitment pricing replaces variable On-Demand costs with predictable monthly charges"
+      }
+    ],
+    "correct": [
+      "B",
+      "D"
+    ],
+    "distractors": {
+      "A": "",
+      "C": ""
+    },
+    "explanation": "Budgets with proactive alerts notify teams before costs exceed expectations, enabling action before the bill surprises anyone. Reserved Instances and Savings Plans convert variable On-Demand costs to predictable fixed monthly charges \u2014 perfect for CFO predictability needs. Spot Instances are the LEAST predictable (variable availability and pricing). Auto Scaling optimizes for performance/cost but doesn't guarantee predictable billing.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "budgets",
+      "reserved-instances",
+      "cost-predictability",
+      "finops"
+    ]
+  },
+  {
+    "id": "aws-cp-t6-01-022",
+    "domain": 1,
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company's operations team is evaluating whether to use AWS managed services or self-managed alternatives on EC2. What is the PRIMARY argument for managed services?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Managed services allow more customization than self-managed alternatives is incorrect; self-managed deployments typically provide more configuration flexibility."
+      },
+      {
+        "label": "B",
+        "text": "Managed services offer better performance than self-managed alternatives is not universally true; self-managed databases tuned for specific workloads can outperform managed options."
+      },
+      {
+        "label": "C",
+        "text": "Managed services always cost less than self-managed alternatives is false; for large workloads managed services can sometimes be more expensive than self-managed EC2."
+      },
+      {
+        "label": "D",
+        "text": "Managed services transfer operational responsibility for patching, backups, failover, and scaling to AWS, freeing teams to focus on business logic."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Managed services allow more customization than self-managed alternatives is incorrect; self-managed deployments typically provide more configuration flexibility.",
+      "B": "Managed services offer better performance than self-managed alternatives is not universally true; self-managed databases tuned for specific workloads can outperform managed options.",
+      "C": "Managed services always cost less than self-managed alternatives is false; for large workloads managed services can sometimes be more expensive than self-managed EC2."
+    },
+    "explanation": "The primary argument for managed services is eliminating undifferentiated heavy lifting \u2014 routine operational tasks that provide no competitive advantage. With RDS, AWS handles patching, backups, Multi-AZ failover, and storage scaling. The team focuses on schema design, query optimization, and application logic. Managed services can cost more than self-managed (at scale), may offer less customization, and performance depends on the specific service.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "managed-services",
+      "operational-overhead",
+      "undifferentiated-heavy-lifting",
+      "cloud-benefits"
+    ]
+  }
+]

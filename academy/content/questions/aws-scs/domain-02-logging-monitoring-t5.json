@@ -1,0 +1,693 @@
+[
+  {
+    "id": "scs-d2-t5-001",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team needs to run complex SQL queries across 90 days of CloudTrail management events without managing an S3 bucket or Athena table definitions. They also require sub-minute query response times on recent events. Which solution best meets these requirements?",
+    "options": [
+      {
+        "text": "Deliver CloudTrail logs to S3 and query with Athena using a partitioned table on date prefixes.",
+        "label": "A"
+      },
+      {
+        "text": "Enable CloudTrail Lake with a 90-day retention event data store and query using Lake's SQL editor.",
+        "label": "B"
+      },
+      {
+        "text": "Send CloudTrail events to Security Lake and query via Athena using the OCSF-normalized tables.",
+        "label": "C"
+      },
+      {
+        "text": "Stream CloudTrail to CloudWatch Logs and use CloudWatch Logs Insights with filter patterns.",
+        "label": "D"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail Lake is a managed audit-activity platform that stores events in its own data store, requires no S3 bucket or Athena table management, and supports direct SQL queries with fast response times. S3+Athena (A) requires bucket and table setup. CloudWatch Logs Insights (B) uses filter patterns rather than full SQL and is not optimized for CloudTrail. Security Lake+Athena (D) adds OCSF normalization overhead and still requires Athena table management.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "cloudtrail-lake"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-002",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A SIEM platform outside AWS needs near-real-time delivery of Security Lake findings. The security architect wants the SIEM to receive push notifications when new objects land in Security Lake rather than polling S3 continuously. Which subscriber configuration achieves this with least operational overhead?",
+    "options": [
+      {
+        "text": "Configure a Security Lake subscriber with S3 direct access and enable S3 Event Notifications to an SNS topic that the SIEM polls.",
+        "label": "A"
+      },
+      {
+        "text": "Configure a Security Lake subscriber with SQS queue notification; the SIEM consumes messages from the queue to discover new S3 objects.",
+        "label": "B"
+      },
+      {
+        "text": "Use an EventBridge rule that triggers on S3 PutObject events in the Security Lake bucket and delivers payloads to the SIEM via API destination.",
+        "label": "C"
+      },
+      {
+        "text": "Deploy a Lambda function triggered by Security Lake findings in Security Hub and have Lambda POST objects to the SIEM endpoint.",
+        "label": "D"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Security Lake natively supports two subscriber access models: S3 direct access and notification via SQS queue. The SQS notification model pushes a message to a dedicated SQS queue whenever new data objects are available, enabling the SIEM to receive event-driven notifications without custom glue code. S3+SNS (A) requires manual wiring outside the Security Lake subscriber feature. EventBridge+API destination (C) and Lambda (D) both require custom infrastructure and are not native Security Lake subscriber patterns.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "security-lake",
+      "subscriber"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-003",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An enterprise uses a central monitoring account and wants CloudWatch metrics, logs, and dashboards from 50 spoke accounts to be visible in that account without deploying per-account agents or log shipping pipelines. Which CloudWatch feature satisfies this requirement?",
+    "options": [
+      {
+        "text": "Enable AWS Organizations integration with CloudWatch and set the management account as the delegated administrator for observability.",
+        "label": "A"
+      },
+      {
+        "text": "Deploy the CloudWatch unified agent on each spoke account's EC2 instances with a shared cross-account IAM role to push logs centrally.",
+        "label": "B"
+      },
+      {
+        "text": "Create a CloudWatch metric stream in each spoke account targeting a Kinesis Firehose that delivers to the central account S3 bucket.",
+        "label": "C"
+      },
+      {
+        "text": "Use CloudWatch cross-account observability: designate the monitoring account as a sink and link each spoke account as a source.",
+        "label": "D"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "CloudWatch cross-account observability allows a monitoring account to be configured as a sink and spoke accounts to establish observability links. Once linked, the monitoring account can view metrics, logs, and dashboards from source accounts natively in the console without data copying or custom pipelines. Metric streams to S3 (A) only cover metrics, not logs or dashboards. There is no CloudWatch delegated administrator model comparable to what is described in (C). Deploying unified agents (D) handles log shipping but requires per-account agent management and does not share dashboards.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "cloudwatch",
+      "cross-account"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-004",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "During a forensic investigation, a security engineer needs to capture the exact payload of suspicious TCP packets traversing a VPC for deep-packet inspection. VPC Flow Logs are already enabled. Why are VPC Flow Logs insufficient, and what should the engineer add?",
+    "options": [
+      {
+        "text": "VPC Flow Logs do not support TCP; enable Network Access Analyzer to inspect TCP session payloads.",
+        "label": "A"
+      },
+      {
+        "text": "VPC Flow Logs capture only metadata such as source/destination IP and port; enable VPC Traffic Mirroring to an inspection appliance for full packet capture.",
+        "label": "B"
+      },
+      {
+        "text": "VPC Flow Logs are delayed up to 15 minutes; deploy a GuardDuty Runtime agent to stream real-time packet data.",
+        "label": "C"
+      },
+      {
+        "text": "VPC Flow Logs lack timestamps; enable CloudTrail network events and correlate by request ID for packet-level detail.",
+        "label": "D"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "VPC Flow Logs record connection metadata \u2014 source/destination IP, port, protocol, bytes, and packets \u2014 but do not capture actual packet payloads. VPC Traffic Mirroring copies the raw network traffic from an ENI and sends it to a monitoring appliance or Network Load Balancer target, enabling full deep-packet inspection. VPC Flow Logs do support TCP (B is false). CloudTrail does not capture network packet data (C). GuardDuty Runtime Monitoring captures process-level activity, not raw packets (D).",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "vpc-flow-logs",
+      "traffic-mirroring"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-005",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company creates an AWS Organizations CloudTrail organization trail in the management account. A member account security engineer reports that IAM global service events (e.g., IAM CreateUser) do not appear in that member account's CloudTrail. What is the most likely cause?",
+    "options": [
+      {
+        "text": "The organization trail does not include member accounts; each member account must create its own trail to capture IAM events.",
+        "label": "A"
+      },
+      {
+        "text": "Global service events are suppressed in member accounts when a Service Control Policy denies cloudtrail:GetTrailStatus in those accounts.",
+        "label": "B"
+      },
+      {
+        "text": "IAM events require a data event trail type; management event trails do not capture IAM API calls across accounts.",
+        "label": "C"
+      },
+      {
+        "text": "Global service events for IAM are only written in us-east-1 and appear in the organization trail S3 bucket under the management account prefix, not the member account prefix.",
+        "label": "D"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "CloudTrail logs global service events (like IAM) only in the region where the trail is set to capture them, which defaults to us-east-1. For an organization trail, these events are written once into the S3 bucket under the management account's prefix, not replicated under each member account's prefix. This is a known visibility gap: member account engineers searching their own prefix will not see global service events. Organization trails do cover member accounts (B is false). IAM events are management events, not data events (C is false). SCPs do not suppress CloudTrail event delivery (D is false).",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "cloudtrail",
+      "organization-trail"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-006",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "After GuardDuty flags an EC2 instance for unusual API calls, the incident response team must determine which other AWS resources the compromised instance's IAM role interacted with over the past 30 days to scope lateral movement. Which tool provides an interactive resource interaction graph for this purpose?",
+    "options": [
+      {
+        "text": "Use Amazon Detective's entity timeline and behavior graph to visualize which resources interacted with the instance's role.",
+        "label": "A"
+      },
+      {
+        "text": "Enable Security Hub Insights filtered by the instance ARN to aggregate findings across services into a prioritized list.",
+        "label": "B"
+      },
+      {
+        "text": "Use AWS Config advanced queries to select all resources that share a VPC with the compromised instance.",
+        "label": "C"
+      },
+      {
+        "text": "Search CloudTrail for the instance's role ARN and manually correlate API calls across resource types in spreadsheet form.",
+        "label": "D"
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Amazon Detective automatically processes CloudTrail, VPC Flow Logs, and GuardDuty findings to build a behavior graph. The entity timeline view lets investigators drill into an IAM role or EC2 instance to see all resource interactions, API call volumes, and related entities over time \u2014 precisely the lateral movement scoping needed here. AWS Config advanced queries (A) reflect current resource state, not historical interaction graphs. Manual CloudTrail correlation (B) is possible but very labor-intensive and not an interactive graph. Security Hub Insights (D) aggregate findings but do not visualize resource interaction graphs.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "amazon-detective",
+      "incident-response"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-007",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company operates in six AWS regions and wants Security Hub findings from all regions consolidated so analysts see a single pane of glass. After enabling cross-region aggregation, the team notices findings from the designated aggregation region appear twice \u2014 once locally and once aggregated. What is the correct behavior, and how should it be interpreted?",
+    "options": [
+      {
+        "text": "This is a known bug in Security Hub cross-region aggregation; disable the aggregation region, wait 10 minutes, and re-enable it to clear any duplicate or phantom findings.",
+        "label": "A"
+      },
+      {
+        "text": "Security Hub replicates findings bidirectionally between all linked regions by design; disable cross-region aggregation and configure EventBridge cross-region rules as the recommended alternative.",
+        "label": "B"
+      },
+      {
+        "text": "Cross-region aggregation copies raw findings into the aggregation region while retaining originals in each source region; analysts must always apply a SourceRegion filter to avoid double-counting in dashboard metrics.",
+        "label": "C"
+      },
+      {
+        "text": "The aggregation region acts as both a home region for locally generated findings and the aggregation target for other regions; local findings are not duplicated but appear once in each view context.",
+        "label": "D"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "In Security Hub cross-region aggregation, the aggregation region serves as both the target for findings replicated from linked regions and as a normal home region for findings generated within it. Findings originating in the aggregation region are not duplicated \u2014 they appear once locally. Analysts viewing the aggregated console see all findings from linked regions alongside local ones, which can look like duplication if the region filter is set to 'All Regions.' This is expected behavior, not a bug. Option C incorrectly suggests raw copying that inflates metrics. Option D incorrectly characterizes bidirectional replication.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "security-hub",
+      "cross-region"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-008",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An application load balancer serves a multi-tenant SaaS platform. A security analyst suspects a single tenant is responsible for an unusually high share of 5xx error responses. They want to identify the top contributing client IPs from ALB access logs stored in CloudWatch Logs without writing a custom script. Which CloudWatch feature is best suited?",
+    "options": [
+      {
+        "text": "Enable GuardDuty for ALB and review the top offenders report in the GuardDuty console findings summary.",
+        "label": "A"
+      },
+      {
+        "text": "Export ALB access logs to Athena and run a GROUP BY client_ip query filtered on elb_status_code between 500 and 599.",
+        "label": "B"
+      },
+      {
+        "text": "Use CloudWatch Contributor Insights with a rule that parses the ALB log format to rank client IP addresses by 5xx response count.",
+        "label": "C"
+      },
+      {
+        "text": "Create a CloudWatch metric filter that extracts the HTTP status code field and graph the sum for status codes starting with 5.",
+        "label": "D"
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "CloudWatch Contributor Insights is purpose-built for identifying the top contributors to a metric from structured log data. A Contributor Insights rule can parse ALB access log fields and rank client IP addresses (or other dimensions) by their count of 5xx responses, providing a ranked leaderboard without custom scripting. A metric filter (A) only aggregates totals and cannot rank individual contributors. Athena queries (C) require log export and schema setup outside CloudWatch. GuardDuty (D) does not produce an ALB top-offender report.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "cloudwatch",
+      "contributor-insights"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-009",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A cloud governance team needs to query current resource configuration across 200 accounts and 4 regions to find all S3 buckets that have public access block disabled AND have a bucket policy allowing '*' as principal. Which AWS Config capability supports this cross-account SQL query?",
+    "options": [
+      {
+        "text": "Use AWS Config managed rule s3-bucket-public-access-prohibited and join results with a custom rule for bucket policy principal in the aggregator dashboard.",
+        "label": "A"
+      },
+      {
+        "text": "Export all AWS Config snapshots from each account to S3 and query with Athena using a JOIN between the S3 bucket resource type tables.",
+        "label": "B"
+      },
+      {
+        "text": "Run an AWS Config conformance pack that checks both conditions and review the non-compliant resource list in the aggregator.",
+        "label": "C"
+      },
+      {
+        "text": "Use AWS Config advanced queries with the SELECT syntax against a multi-account aggregator to filter on both configuration attributes simultaneously.",
+        "label": "D"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Config advanced queries supports a SQL-like SELECT syntax that can query the configuration item attributes of any resource type across all accounts and regions in a multi-account aggregator in a single query. This allows compound WHERE conditions across configuration fields such as publicAccessBlockConfiguration and bucketPolicy principal in one operation. Conformance packs (A) evaluate rules but do not support ad-hoc compound SQL queries. Joining managed rule results (C) is not a native Config feature and requires external tooling. Exporting to Athena (D) is feasible but operationally heavier than the built-in advanced query.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "aws-config",
+      "advanced-queries"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-010",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team in Account A wants to publish custom security events to an EventBridge event bus in a central Account B for aggregated processing. After creating the event bus in Account B, the events from Account A are not arriving. What configuration is most likely missing?",
+    "options": [
+      {
+        "text": "The EventBridge rule in Account A must specify the Account B event bus ARN as the source, not the target, of the rule.",
+        "label": "A"
+      },
+      {
+        "text": "Account B's event bus requires a resource-based policy granting Account A's principal permission to call events:PutEvents on the target bus.",
+        "label": "B"
+      },
+      {
+        "text": "An IAM role in Account A must have events:PutEvents permission; attach an inline policy granting this action to the EventBridge service principal.",
+        "label": "C"
+      },
+      {
+        "text": "Enable EventBridge schema discovery on the Account B event bus so it can recognize and accept events from external accounts.",
+        "label": "D"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "For cross-account event delivery, the destination event bus in Account B must have a resource-based policy (event bus policy) that explicitly grants the source account or principal permission to call events:PutEvents on it. Without this policy, AWS denies the cross-account PutEvents call. Account A also needs an IAM role with PutEvents permission (A is partially true) but the more commonly missing piece \u2014 and the one controlling cross-account authorization \u2014 is the resource policy on the target bus. Schema discovery (C) is for schema inference, not access control. EventBridge rules specify targets, not sources (D is incorrect).",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "eventbridge",
+      "cross-account"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-011",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company stores application artifacts in 500 S3 buckets. Enabling S3 data event logging for all objects across all buckets has tripled their CloudTrail costs. They need to retain data event logs only for objects in a specific /sensitive-data/ prefix. How should they configure CloudTrail to achieve this?",
+    "options": [
+      {
+        "text": "In the trail's data event configuration, specify advanced event selectors with an S3 object key prefix filter matching the /sensitive-data/ prefix for each bucket.",
+        "label": "A"
+      },
+      {
+        "text": "Enable AWS Config S3 object-level logging rule, which supports prefix-based filtering, and disable CloudTrail data events entirely.",
+        "label": "B"
+      },
+      {
+        "text": "Use CloudTrail Lake with a prefix filter in the event data store ingestion settings to exclude non-sensitive prefixes before storage.",
+        "label": "C"
+      },
+      {
+        "text": "Create a separate trail and use an S3 bucket policy that denies s3:PutObject logging for all prefixes except /sensitive-data/ to reduce event volume.",
+        "label": "D"
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail advanced event selectors for S3 data events include a field condition on the s3ObjectKey attribute, allowing prefix-based filtering so only events matching the /sensitive-data/ prefix are logged. This is the native, supported mechanism for reducing S3 data event volume. S3 bucket policies (A) do not control CloudTrail event generation. AWS Config does not provide S3 object-level data event logging equivalent to CloudTrail (C). CloudTrail Lake event data stores receive events from trails; the filtering must be applied at the trail's advanced event selector level before ingestion (D misrepresents the architecture).",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "cloudtrail",
+      "data-events",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-012",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "During an active security incident, a responder needs to observe new log entries appearing in a CloudWatch Logs log group in real time without writing queries or refreshing the console repeatedly. Which CloudWatch capability provides this experience?",
+    "options": [
+      {
+        "text": "Configure a CloudWatch metric filter to publish a custom metric and set an alarm that notifies the responder via SNS on each new log line.",
+        "label": "A"
+      },
+      {
+        "text": "Create a subscription filter that delivers log events to a Lambda function which posts each event to the responder's Slack channel.",
+        "label": "B"
+      },
+      {
+        "text": "Enable Enhanced Monitoring on the log group and use the CloudWatch console streaming view that activates automatically during alarms.",
+        "label": "C"
+      },
+      {
+        "text": "Use CloudWatch Logs Live Tail to stream incoming log events to the console in real time with optional filter pattern highlighting.",
+        "label": "D"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "CloudWatch Logs Live Tail is a feature that streams log events in real time directly in the CloudWatch console, supporting optional filter patterns to highlight relevant lines. It is designed for exactly this use case: real-time observation during active incidents without query setup. Metric filters and SNS alarms (A) provide notifications but not a streaming view of raw log content. Subscription filters with Lambda (C) can deliver logs elsewhere but require infrastructure and do not provide a console streaming experience. 'Enhanced Monitoring streaming view' (D) does not exist as described.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "cloudwatch",
+      "live-tail",
+      "incident-response"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-013",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses Amazon Security Lake and finds that older OCSF log data (90-365 days) is accessed infrequently by analysts but must be retained for compliance. They want to reduce storage costs for this older data while maintaining query accessibility. What is the recommended approach?",
+    "options": [
+      {
+        "text": "Delete Security Lake data after 90 days and rely on CloudTrail Lake's 7-year retention for compliance archival needs.",
+        "label": "A"
+      },
+      {
+        "text": "Export Security Lake data to S3 Glacier Deep Archive after 90 days using an EventBridge scheduled rule and Lambda copy job.",
+        "label": "B"
+      },
+      {
+        "text": "Create an S3 Lifecycle policy on the Security Lake bucket to transition objects older than 90 days to S3 Glacier Instant Retrieval storage class.",
+        "label": "C"
+      },
+      {
+        "text": "Configure a Security Lake retention setting that moves data older than 90 days to the infrequent access storage tier while retaining query capability.",
+        "label": "D"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Amazon Security Lake supports lifecycle configuration with two storage tiers: a frequent access tier for recently ingested data and an infrequent access tier for older data. Configuring the retention settings to transition data after 90 days to the infrequent access tier reduces cost while preserving Athena query accessibility. Manually applying an S3 Lifecycle policy (A) bypasses Security Lake's managed lifecycle and may break OCSF table metadata. Deleting and relying on CloudTrail Lake (C) loses non-CloudTrail source data. A custom Lambda copy job (D) moves data outside Security Lake's management, losing subscriber and query integration.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "security-lake",
+      "lifecycle",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-014",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security engineer is investigating repeated unauthorized access attempts against IoT devices in an AWS IoT Core deployment. They need to capture connect, disconnect, and Thing shadow update events to trace attack patterns. Which logging configuration provides this telemetry?",
+    "options": [
+      {
+        "text": "Enable AWS IoT Core message broker logs at the INFO level to capture connect, disconnect, subscribe, and Thing shadow events to CloudWatch Logs.",
+        "label": "A"
+      },
+      {
+        "text": "Use AWS IoT Device Defender audit to schedule weekly checks that detect unauthorized connect and shadow update patterns.",
+        "label": "B"
+      },
+      {
+        "text": "Enable VPC Flow Logs on the VPC where the IoT Core endpoint resides to capture TCP connection metadata for MQTT traffic.",
+        "label": "C"
+      },
+      {
+        "text": "Deploy a custom Lambda authorizer on IoT Core and log connect/disconnect events to DynamoDB from within the authorizer function.",
+        "label": "D"
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS IoT Core supports CloudWatch logging for the message broker, which at INFO level captures connect, disconnect, subscribe, publish, and Thing shadow operations. This provides the event-level telemetry needed to trace attack patterns against IoT devices. VPC Flow Logs (A) are not applicable because IoT Core is a managed service endpoint not within a customer VPC. A Lambda authorizer (C) only runs at connection time, not for shadow updates, and requires custom development. IoT Device Defender audit (D) runs periodic checks for configuration issues but does not provide real-time connect/disconnect event logging.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "iot-core",
+      "message-broker-logs"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-015",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security pipeline ingests high-volume application logs that must support event replay after a downstream SIEM failure and also guarantee ordering within a shard for forensic reconstruction. A second pipeline delivers logs to S3 for archival and does not require replay. Which services best fit each pipeline respectively?",
+    "options": [
+      {
+        "text": "Use Kinesis Data Firehose for the replay/ordering pipeline and Kinesis Data Streams for the S3 archival pipeline.",
+        "label": "A"
+      },
+      {
+        "text": "Use Kinesis Data Streams for the replay/ordering pipeline and Kinesis Data Firehose for the S3 archival pipeline.",
+        "label": "B"
+      },
+      {
+        "text": "Use SQS FIFO queues for the replay/ordering pipeline and SNS with S3 subscription for the archival pipeline.",
+        "label": "C"
+      },
+      {
+        "text": "Use Kinesis Data Streams for both pipelines since Firehose does not support S3 as a destination.",
+        "label": "D"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Kinesis Data Streams retains records for up to 365 days and supports shard-level ordering (records with the same partition key are delivered in order) and consumer replay from any position in the stream. These properties satisfy the forensic pipeline requirements. Kinesis Data Firehose is a fully managed delivery service that buffers and delivers data to destinations such as S3, Redshift, or OpenSearch without replay capability \u2014 ideal for the archival pipeline. Firehose cannot be used for the replay pipeline (A is reversed). SQS FIFO (C) has limited throughput and retention and is not a log streaming service. Option D is incorrect; Firehose does support S3.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "kinesis",
+      "data-streams",
+      "firehose"
+    ]
+  },
+  {
+    "id": "scs-d2-t5-016",
+    "domain": "domain-02",
+    "domain_name": "Security Logging and Monitoring",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An adversary compromises a long-lived IAM access key and begins making IAM API calls at an unusually high rate to enumerate permissions and create backdoor roles. The calls succeed individually but are anomalous in aggregate. Which CloudTrail feature is designed to detect this type of API volume anomaly automatically?",
+    "options": [
+      {
+        "text": "Use IAM Access Analyzer to detect when the attacker's newly created roles have cross-account trust policies granting external access.",
+        "label": "A"
+      },
+      {
+        "text": "Create a CloudWatch metric filter on CloudTrail logs that counts IAM API calls and triggers an alarm above a static threshold.",
+        "label": "B"
+      },
+      {
+        "text": "Enable CloudTrail log file integrity validation to detect if the attacker modifies log files to cover their tracks.",
+        "label": "C"
+      },
+      {
+        "text": "Enable CloudTrail Insights on the trail; it uses machine learning to detect unusual API call volumes and error rates, generating Insights events when anomalies occur.",
+        "label": "D"
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "CloudTrail Insights analyzes management API call patterns using machine learning to establish a baseline and generates Insights events when the call volume or error rate for an API deviates significantly from the baseline. This is precisely designed for detecting automated enumeration or abuse patterns like the one described. Log file integrity validation (A) protects log files from tampering but does not detect anomalous API activity. A static CloudWatch alarm threshold (B) requires manual tuning and does not adapt to seasonal variation the way ML-based baselining does. IAM Access Analyzer (D) identifies overly permissive policies but does not detect API call rate anomalies.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "logging-monitoring",
+      "cloudtrail-insights",
+      "anomaly-detection"
+    ]
+  }
+]

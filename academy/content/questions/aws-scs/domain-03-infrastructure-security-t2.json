@@ -1,0 +1,753 @@
+[
+  {
+    "id": "scs-d3-t2-001",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An application in a private subnet needs to call the S3 API without traversing the public internet. Traffic must stay within the AWS network. A Gateway VPC Endpoint for S3 is created. What additional configuration is required for the instances to use it?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Attach an Interface Endpoint for S3 to the private subnet's ENI so that DNS resolves the S3 endpoint to a private IP address."
+      },
+      {
+        "label": "B",
+        "text": "Configure a NAT Gateway in the private subnet and point S3 traffic to it; the NAT Gateway automatically routes S3 traffic through the VPC Endpoint."
+      },
+      {
+        "label": "C",
+        "text": "Update the route table associated with the private subnet to add a route for the S3 prefix list (pl-xxxxxxxx) pointing to the Gateway VPC Endpoint."
+      },
+      {
+        "label": "D",
+        "text": "Update the instance security groups to allow outbound HTTPS traffic to the S3 endpoint IP address range published by AWS."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Gateway VPC Endpoints work via routing, not DNS. The subnet's route table must have a route for the S3 managed prefix list with the Gateway Endpoint as the target. Without this route entry, traffic still exits via the internet gateway.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "vpc-endpoint",
+      "s3",
+      "routing",
+      "private-subnet"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-002",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security team wants to restrict an S3 bucket so that it only accepts requests from within a specific VPC (via the VPC Endpoint). All other requests, including those from IAM admins outside the VPC, should be denied. Which bucket policy condition enforces this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use a condition with aws:SourceIp StringEquals the private IP range of the VPC in a Deny statement to block non-VPC requests."
+      },
+      {
+        "label": "B",
+        "text": "Use a condition with aws:VpcSourceIp StringEquals the NAT Gateway's public IP to restrict requests to those passing through the VPC's NAT."
+      },
+      {
+        "label": "C",
+        "text": "Use a condition with s3:prefix StringLike the VPC ID in an Allow statement so that only VPC-prefixed object keys can be accessed."
+      },
+      {
+        "label": "D",
+        "text": "Use a condition with aws:SourceVpc StringEquals the VPC ID in a Deny statement so that requests not from that VPC are explicitly denied."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The aws:SourceVpc condition key evaluates the VPC ID from which a request originates when the request comes through a VPC Endpoint. A Deny on NotStringEquals ensures that requests not from the specified VPC are rejected, even from IAM admins.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "s3",
+      "vpc-endpoint",
+      "bucket-policy",
+      "aws-source-vpc"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-003",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company runs a three-tier web application. The web tier receives public traffic on port 443. The app tier should only accept traffic from the web tier, and the DB tier should only accept traffic from the app tier. Which security group configuration enforces this correctly?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Place each tier in a separate VPC and use VPC peering with restrictive route tables to control which tier can communicate with which downstream tier."
+      },
+      {
+        "label": "B",
+        "text": "Use NACLs to deny all inter-tier traffic by default, then add numbered allow rules for specific ports between the web, app, and database tiers."
+      },
+      {
+        "label": "C",
+        "text": "Configure the app tier security group with an inbound rule referencing the web tier security group ID, and the DB tier security group with an inbound rule referencing the app tier security group ID."
+      },
+      {
+        "label": "D",
+        "text": "Configure each tier security group with IP-based inbound rules using the private IP CIDR of the source tier to restrict traffic flow between layers."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Security groups support security group references as inbound sources. This is more robust than IP-based rules because it automatically accommodates auto-scaling: any new instance in the web tier SG can reach the app tier SG without IP rule updates.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "security-groups",
+      "vpc",
+      "layered-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-004",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An attacker attempts an HTTP request smuggling attack against an ALB. AWS WAF is deployed. Which WAF managed rule group is specifically designed to detect and block HTTP protocol anomalies including request smuggling?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The AWS-AWSManagedRulesHTTPProtocolRuleSet, which validates HTTP protocol compliance and blocks anomalies such as request smuggling and oversized headers."
+      },
+      {
+        "label": "B",
+        "text": "The AWS-AWSManagedRulesAmazonIpReputationList, which blocks requests from IP addresses with known bad reputation including bots."
+      },
+      {
+        "label": "C",
+        "text": "The AWS-AWSManagedRulesCommonRuleSet, which blocks common web exploits including SQL injection and cross-site scripting attacks."
+      },
+      {
+        "label": "D",
+        "text": "The AWS-AWSManagedRulesKnownBadInputsRuleSet, which blocks known bad inputs and exploits that can lead to vulnerabilities like log4j."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The AWSManagedRulesHTTPProtocolRuleSet is specifically designed to enforce HTTP protocol compliance. It detects anomalies like request smuggling (conflicting Content-Length and Transfer-Encoding headers), oversized bodies, and malformed headers.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "waf",
+      "http-protocol",
+      "request-smuggling"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-005",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company is worried about EC2 instance metadata being accessed by malicious code running on the instance. They want to ensure that only processes with explicit IAM intent can access the instance metadata service. What configuration achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Attach an IAM role with a deny policy on ec2:DescribeInstances to prevent applications from querying instance metadata via the SDK."
+      },
+      {
+        "label": "B",
+        "text": "Use an instance security group that blocks outbound traffic to the 169.254.169.254/32 address to prevent metadata endpoint access."
+      },
+      {
+        "label": "C",
+        "text": "Require IMDSv2 by setting HttpTokens to required on all instances; IMDSv2 requires a session-oriented request with a PUT call to obtain a token, preventing SSRF-based metadata access."
+      },
+      {
+        "label": "D",
+        "text": "Disable the instance metadata service entirely on all EC2 instances by setting HttpEndpoint to disabled in the instance metadata options."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "IMDSv2 requires a PUT request with a session TTL to obtain a token before any metadata can be retrieved. SSRF vulnerabilities typically use GET requests and cannot perform the PUT-then-GET flow, making them unable to steal metadata credentials.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "imdsv2",
+      "ssrf",
+      "ec2-metadata",
+      "security"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-006",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A Lambda function has been exploited and is making calls to the EC2 metadata endpoint to retrieve IAM credentials. Which architectural change eliminates this attack vector?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lambda functions do not have an EC2 metadata endpoint; the attack vector here is stealing the Lambda's execution role credentials via the AWS_LAMBDA_FUNCTION environment variable."
+      },
+      {
+        "label": "B",
+        "text": "Move the Lambda to a VPC and configure a security group that blocks outbound traffic to 169.254.169.254; Lambda functions in a VPC cannot reach the metadata endpoint."
+      },
+      {
+        "label": "C",
+        "text": "Enable Lambda SnapStart, which pre-initializes Lambda execution environments and prevents runtime credential access."
+      },
+      {
+        "label": "D",
+        "text": "Assign the Lambda function a resource-based policy that explicitly denies all calls to the 169.254.169.254 IP range."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "When a Lambda function runs in a VPC, it uses an ENI and can potentially reach 169.254.169.254 in that network context. Adding a security group rule that blocks outbound traffic to 169.254.169.254/32 prevents metadata endpoint access from the Lambda's network.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "lambda",
+      "metadata-endpoint",
+      "vpc",
+      "security-group"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-007",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs to inspect all traffic between VPCs for threats including intrusion attempts, malware signatures, and protocol anomalies. AWS Network Firewall is deployed. What is the correct traffic routing architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy Network Firewall in each VPC's private subnet and configure security groups on all instances to route traffic through the firewall ENI."
+      },
+      {
+        "label": "B",
+        "text": "Deploy Network Firewall in a dedicated inspection VPC, use Transit Gateway to route inter-VPC traffic through it, and configure route tables so all traffic passes through firewall endpoints."
+      },
+      {
+        "label": "C",
+        "text": "Deploy Network Firewall in the management account and use Organizations to push firewall rules to all member VPCs automatically."
+      },
+      {
+        "label": "D",
+        "text": "Deploy Network Firewall at the internet gateway and configure it to inspect only north-south traffic; east-west VPC traffic is handled by security groups."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The centralized inspection pattern uses a dedicated inspection VPC with Network Firewall. Transit Gateway routes traffic from all spoke VPCs through the inspection VPC. Appliance mode on TGW ensures symmetric routing through the firewall endpoints.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "network-firewall",
+      "transit-gateway",
+      "inspection-vpc",
+      "east-west-traffic"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-008",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "Amazon Inspector v2 scans an EC2 instance and reports a critical CVE in an installed package. The vulnerability has a CVSS score of 9.8. What information does Inspector provide to help prioritize remediation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Inspector provides a list of affected instances grouped by severity with a one-click remediation that patches the vulnerable package via SSM."
+      },
+      {
+        "label": "B",
+        "text": "Inspector provides only the CVE identifier and CVSS base score; remediation steps must be looked up separately in the NVD database."
+      },
+      {
+        "label": "C",
+        "text": "Inspector provides the CVE details, CVSS score, affected package version, fixed version, network reachability context, and an Amazon Inspector risk score that factors in exploitability and environment."
+      },
+      {
+        "label": "D",
+        "text": "Inspector provides the finding in Security Hub only; the Inspector console shows only a summary count of findings per severity level."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Inspector v2 enriches findings with CVE details, the specific package version, the fixed version available, network reachability context, and an Inspector risk score that adjusts the CVSS base score based on environmental factors like whether the port is reachable.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "inspector",
+      "cve",
+      "vulnerability-management"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-009",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A containerized application on ECS pulls secrets at startup using the AWS Secrets Manager SDK. A security review recommends eliminating long-lived credentials for secrets access. What is the correct architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use ECS secrets injection in the task definition, which embeds the secret value at task launch time by referencing the Secrets Manager ARN directly."
+      },
+      {
+        "label": "B",
+        "text": "Assign an ECS task role with secretsmanager:GetSecretValue permission to the task; ECS uses the task role's temporary credentials to call Secrets Manager, eliminating the need for embedded credentials."
+      },
+      {
+        "label": "C",
+        "text": "Store secrets as ECS task environment variables encrypted with KMS; the task retrieves the key on startup to decrypt the values."
+      },
+      {
+        "label": "D",
+        "text": "Generate a long-lived IAM access key specifically for ECS tasks, rotate it every 30 days, and store it in Parameter Store as a SecureString."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "ECS task roles provide temporary IAM credentials scoped to the task via the container metadata endpoint. The task calls Secrets Manager using these credentials, with no hardcoded keys. ECS secrets injection (option C) also works but embeds the value at launch rather than fetching dynamically.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "ecs",
+      "secrets-manager",
+      "task-role",
+      "least-privilege"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-010",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An organization uses Direct Connect for hybrid connectivity. They require Layer 2 encryption on the physical Direct Connect link between their data center and AWS. Which feature provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "TLS encryption configured on each application that uses Direct Connect, which provides end-to-end application-layer encryption."
+      },
+      {
+        "label": "B",
+        "text": "IPSec VPN over Direct Connect, which adds Layer 3 encryption on top of the Direct Connect connection using virtual private gateway."
+      },
+      {
+        "label": "C",
+        "text": "Direct Connect encryption mode, which activates AES-256 encryption on the logical virtual interface rather than the physical connection."
+      },
+      {
+        "label": "D",
+        "text": "Direct Connect MACsec, which provides IEEE 802.1AE Layer 2 encryption on the physical Direct Connect dedicated connection."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "MACsec (IEEE 802.1AE) is a Layer 2 security standard that provides encryption, integrity, and authenticity on the physical Direct Connect link. It is available on dedicated Direct Connect connections (not hosted connections). IPSec operates at Layer 3.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "direct-connect",
+      "macsec",
+      "layer2-encryption"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-011",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A DevSecOps team wants to prevent container images with known critical CVEs from being deployed to EKS. The check must happen before deployment and block images that fail the scan. Which approach is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a CodePipeline approval gate that requires a security engineer to manually review Inspector findings before each deployment."
+      },
+      {
+        "label": "B",
+        "text": "Enable ECR enhanced scanning (Inspector-powered) on the repository and configure a Kubernetes admission controller or OPA Gatekeeper policy that rejects pods using images with critical findings."
+      },
+      {
+        "label": "C",
+        "text": "Enable ECR basic scanning and configure a Lambda function that deletes images with critical CVEs from the repository daily."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Firewall Manager to push an EKS security policy that blocks pod creation for images with active Inspector findings."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "ECR enhanced scanning (powered by Inspector v2) provides continuous vulnerability scanning. An admission controller (e.g., OPA Gatekeeper or Kyverno) can query the ECR API or Security Hub at deploy time and reject pods whose images have critical findings, blocking deployment automatically.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "ecr",
+      "inspector",
+      "eks",
+      "admission-controller"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-012",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An application uses AWS PrivateLink to expose a service running behind an NLB to consumers in other VPCs. A consumer VPC adds the Interface Endpoint. What security mechanism controls which consumer accounts can access the endpoint service?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The endpoint service's allowed principals list controls which AWS accounts, IAM roles, or users can create endpoints to connect to the service."
+      },
+      {
+        "label": "B",
+        "text": "The service consumer's IAM policy must include an explicit Allow for the PrivateLink endpoint service ARN before the connection is permitted."
+      },
+      {
+        "label": "C",
+        "text": "Security groups on the NLB control which VPCs can reach the service; consumer VPCs must have the service provider's security group ID added to their allow list."
+      },
+      {
+        "label": "D",
+        "text": "VPC peering connection approval controls which consumer VPCs can access the PrivateLink service; the provider must accept each peering request."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "PrivateLink endpoint services have an allowed principals list (AWS account IDs, IAM ARNs, or OUs). Only principals on this list can create Interface Endpoints that connect to the service. The provider can also require manual acceptance of each connection request.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "privatelink",
+      "vpc-endpoint-service",
+      "access-control"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-013",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security engineer needs to SSH into production EC2 instances for troubleshooting without opening port 22 to the internet or using a bastion host. What is the correct approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use EC2 Instance Connect, which requires port 22 to be open but restricts access to AWS's published IP ranges rather than the open internet."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Systems Manager Session Manager, which establishes an encrypted tunnel over HTTPS (port 443) using the SSM agent, requiring no inbound ports or SSH keys."
+      },
+      {
+        "label": "C",
+        "text": "Use EC2 Serial Console access from the AWS console, which provides an out-of-band connection without requiring network connectivity or SSH."
+      },
+      {
+        "label": "D",
+        "text": "Create a temporary security group rule allowing SSH from the engineer's IP, perform the work, then remove the rule; this is the principle of just-in-time access."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "SSM Session Manager provides interactive shell access over HTTPS using the SSM agent. No inbound security group rules are needed, no SSH keys are managed, and all session activity is logged to CloudTrail and optionally to S3 or CloudWatch.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "ssm",
+      "session-manager",
+      "bastion",
+      "ssh"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-014",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An AWS WAF rule is configured with a rate-based rule set to block IPs sending more than 2,000 requests in any 5-minute window. An attacker uses a botnet of 500 IPs each sending 100 requests per 5 minutes. The rate-based rule is ineffective. What additional WAF capability addresses distributed low-rate attacks?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lower the rate-based rule threshold to 100 requests per 5 minutes per IP to block each bot individually."
+      },
+      {
+        "label": "B",
+        "text": "Add the AWSManagedRulesBotControlRuleSet, which uses advanced bot detection including browser fingerprinting and behavioral analysis to identify bot traffic regardless of per-IP rate."
+      },
+      {
+        "label": "C",
+        "text": "Add a geo-blocking rule to restrict traffic to the countries where legitimate users are located, reducing the botnet's effective surface."
+      },
+      {
+        "label": "D",
+        "text": "Enable AWS Shield Standard, which automatically detects distributed attack patterns and blocks botnet traffic at the network layer."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The Bot Control managed rule set uses browser fingerprinting, device attributes, and behavioral signals to identify bot traffic even when requests are distributed across many IPs. It catches botnets that evade per-IP rate-based rules.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "waf",
+      "bot-control",
+      "rate-limiting",
+      "ddos"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-015",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A network administrator needs to apply a NACL rule to block all traffic from a specific IP range across multiple subnets in a VPC. After applying the NACL, legitimate return traffic from established connections is being blocked. What is the cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The NACL rule number is higher than the allow-all rule (100), so the allow-all rule takes precedence and the block rule is never evaluated."
+      },
+      {
+        "label": "B",
+        "text": "NACLs are stateless and do not track connection state; a deny on inbound traffic does not affect outbound rules, and improperly scoped outbound rules can block legitimate return traffic ephemeral ports."
+      },
+      {
+        "label": "C",
+        "text": "NACL rules apply only at the subnet boundary for new connections; established connections bypass NACLs and are only subject to security group rules."
+      },
+      {
+        "label": "D",
+        "text": "NACLs are stateful and track connection state; the deny rule is incorrectly removing tracked connections for the blocked IP range."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "NACLs are stateless \u2014 return traffic for outbound requests must be explicitly allowed by an inbound rule (and vice versa). If the ephemeral port range for return traffic is not properly accounted for in the outbound rules, legitimate return flows can be blocked.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "nacl",
+      "stateless",
+      "vpc",
+      "network-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-016",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses AWS Firewall Manager to centrally manage WAF rules across 30 accounts. They want a new WAF rule group to be automatically deployed to all existing and future ALBs. What Firewall Manager configuration achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy a CloudFormation StackSet that creates the WAF ACL and associates it with ALBs in each account; new accounts must be added to the StackSet manually."
+      },
+      {
+        "label": "B",
+        "text": "Create a WAF ACL in the management account and use AWS RAM to share it with all member accounts so they can associate it with their ALBs."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Config with a managed rule for WAF association and configure auto-remediation to attach the WAF ACL to non-compliant ALBs in each account."
+      },
+      {
+        "label": "D",
+        "text": "Create a Firewall Manager WAF policy scoped to all accounts in the Organization, set the resource type to ALB, and enable auto-remediation; Firewall Manager creates and associates the WAF ACL with matching resources automatically."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Firewall Manager WAF policies are designed exactly for this use case: define a policy scoped to an OU or all accounts, select ALB as the resource type, and enable auto-remediation. Firewall Manager automatically creates and associates WAF ACLs on all current and future ALBs.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "firewall-manager",
+      "waf",
+      "alb",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-017",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security team wants to enforce that all new EC2 instances in an account must use encrypted EBS volumes. Instances launched without encryption must be detected and flagged automatically. Which solution achieves both enforcement and detection?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an IAM policy that denies ec2:RunInstances unless the BlockDeviceMapping includes an encryption flag, then use Config to audit all volumes."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Systems Manager Patch Manager to scan instances for unencrypted volumes and generate a compliance report for remediation."
+      },
+      {
+        "label": "C",
+        "text": "Enable the account-level EBS encryption by default setting, which forces encryption on all new volumes; use AWS Config encrypted-volumes rule to detect any pre-existing unencrypted volumes."
+      },
+      {
+        "label": "D",
+        "text": "Configure an S3 bucket policy on the AMI bucket that requires KMS encryption, preventing unencrypted instances from being launched."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The EBS encryption by default account setting ensures all new volumes (including root volumes) are encrypted automatically using KMS. The AWS Config encrypted-volumes managed rule detects any existing unencrypted volumes, providing both forward enforcement and backward detection.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "ebs",
+      "encryption",
+      "aws-config",
+      "ec2"
+    ]
+  },
+  {
+    "id": "scs-d3-t2-018",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company exposes an internal microservice to partner companies over the internet. They want each partner to authenticate using a client certificate (mTLS). Which AWS service supports terminating mTLS connections and validating client certificates?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS WAF with a custom rule that inspects client certificate headers forwarded by the load balancer and blocks requests with missing certificates."
+      },
+      {
+        "label": "B",
+        "text": "AWS Network Load Balancer with TLS listeners, which passes TCP traffic through to the backend where the application handles mTLS termination."
+      },
+      {
+        "label": "C",
+        "text": "Amazon API Gateway with mutual TLS (mTLS) authentication, which validates client certificates against a configured truststore and rejects connections with invalid certificates."
+      },
+      {
+        "label": "D",
+        "text": "Application Load Balancer with HTTPS listeners, which handles TLS termination but does not support client certificate validation natively."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Amazon API Gateway natively supports mutual TLS authentication. You upload a CA certificate bundle as a truststore; API Gateway validates incoming client certificates against it and rejects connections from clients without a valid certificate signed by the trusted CA.",
+    "module_ref": "scs-m3",
+    "tags": [
+      "api-gateway",
+      "mtls",
+      "client-certificate",
+      "authentication"
+    ]
+  }
+]

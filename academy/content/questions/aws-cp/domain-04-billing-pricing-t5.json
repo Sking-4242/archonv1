@@ -1,0 +1,464 @@
+[
+  {
+    "id": "aws-cp-t5-04-001",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's cloud finance team is building a monthly AWS cost report for leadership. They need to show costs broken down by department (Engineering, Marketing, Finance). Each department uses the same AWS account. What must be done to enable this breakdown?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Creating separate AWS accounts per department enables hard isolation of costs but adds significant administrative overhead and complicates cross-team resource sharing."
+      },
+      {
+        "label": "B",
+        "text": "Using AWS Budgets with one budget per department provides alerting when thresholds are crossed but requires manual tagging or account separation to actually attribute costs."
+      },
+      {
+        "label": "C",
+        "text": "Enabling AWS Cost Anomaly Detection per department identifies unusual spending spikes but does not provide the granular cost breakdown needed for ongoing department attribution."
+      },
+      {
+        "label": "D",
+        "text": "Activate cost allocation tags (e.g., Department=Engineering) and tag all resources accordingly"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Creating separate AWS accounts per department enables hard isolation of costs but adds significant administrative overhead and complicates cross-team resource sharing.",
+      "B": "Using AWS Budgets with one budget per department provides alerting when thresholds are crossed but requires manual tagging or account separation to actually attribute costs.",
+      "C": "Enabling AWS Cost Anomaly Detection per department identifies unusual spending spikes but does not provide the granular cost breakdown needed for ongoing department attribution."
+    },
+    "explanation": "Cost allocation tags allow costs within a single account to be attributed to specific dimensions (departments, projects, teams). After activating the tags in the Billing console, Cost Explorer can group and filter costs by tag value. Resources must be consistently tagged. Separate accounts is a valid approach but requires multi-account restructuring. Anomaly Detection and Budgets provide alerts but not retroactive cost attribution without tags.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "cost-allocation-tags",
+      "cost-explorer",
+      "chargeback",
+      "billing"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-04-002",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company is running a steady-state production workload on 20 m5.2xlarge On-Demand EC2 instances, running 24/7 for over a year. A FinOps review flags this as a cost optimization opportunity. What provides the MAXIMUM savings with a 3-year commitment?",
+    "options": [
+      {
+        "label": "A",
+        "text": "1-year Partial Upfront Reserved Instances"
+      },
+      {
+        "label": "B",
+        "text": "3-year All Upfront Standard Reserved Instances or 3-year All Upfront Compute."
+      },
+      {
+        "label": "C",
+        "text": "Convertible Reserved Instances \u2014 provides maximum flexibility and maximum savings"
+      },
+      {
+        "label": "D",
+        "text": "Spot Instances \u2014 saves 90% over On-Demand"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "3-year All Upfront Reserved Instances or Compute Savings Plans offer the highest discount (up to 72% for Standard RIs, up to 66% for Compute Savings Plans) compared to On-Demand. Spot Instances save up to 90% but can be interrupted \u2014 unsuitable for steady-state production. Convertible RIs sacrifice some savings (66%) for flexibility. 1-year commitments save 40% \u2014 significantly less than 3-year.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "reserved-instances",
+      "savings-plans",
+      "cost-optimization",
+      "finops"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-04-003",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An organization's AWS bill shows unexpected data transfer costs. Which data transfer scenario incurs the HIGHEST charges on AWS?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Data transfer from Amazon S3 to an EC2 instance in the same Region"
+      },
+      {
+        "label": "B",
+        "text": "Data transfer between EC2 instances in the same AZ using private IPs"
+      },
+      {
+        "label": "C",
+        "text": "Data transfer between AWS Regions"
+      },
+      {
+        "label": "D",
+        "text": "Data transfer from EC2 to the public internet (egress)"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Internet egress (data from EC2 to the public internet) is billed at the highest rates \u2014 currently $0.09/GB for the first 10 TB/month in us-east-1. Inter-region transfer is also charged ($0.02/GB typical). Intra-AZ transfer using private IPs is free. S3 to EC2 in the same region is free or very low cost. Internet egress is typically the largest unexpected data transfer cost.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "data-transfer",
+      "egress",
+      "cost",
+      "billing"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-04-004",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A startup is building on AWS and expects rapid but unpredictable growth. They want the most flexible compute pricing that still saves money compared to On-Demand, without committing to specific instance types or regions. Which option is best?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EC2 Instance Savings Plans \u2014 flexible within an instance family in a region"
+      },
+      {
+        "label": "B",
+        "text": "Standard Reserved Instances \u2014 maximum savings for specific instance types"
+      },
+      {
+        "label": "C",
+        "text": "Compute Savings Plans \u2014 savings apply across instance families, sizes, regions, and even Fargate/Lambda"
+      },
+      {
+        "label": "D",
+        "text": "Convertible Reserved Instances \u2014 can exchange between instance families"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Compute Savings Plans provide up to 66% savings with maximum flexibility: they apply automatically to any EC2 instance regardless of family, size, OS, or region, and also apply to Fargate and Lambda. This is ideal for startups whose architecture may change rapidly. Standard RIs lock to instance type and region. EC2 Instance Savings Plans lock to a family in a region. Convertible RIs are more flexible than Standard but less than Compute Savings Plans.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "compute-savings-plans",
+      "flexibility",
+      "startup",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-04-005",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company receives their AWS bill and notices that EC2 costs are $50,000 more than expected. They need to identify the specific instance types and regions responsible for the increase compared to the previous month. Which tool and approach provides this analysis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Pricing Calculator \u2014 re-estimate costs with new instance counts"
+      },
+      {
+        "label": "B",
+        "text": "AWS Budgets \u2014 shows variance from budget threshold"
+      },
+      {
+        "label": "C",
+        "text": "AWS Trusted Advisor \u2014 flags high-cost resources"
+      },
+      {
+        "label": "D",
+        "text": "AWS Cost Explorer \u2014 filter by service (EC2)."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Cost Explorer provides exactly this analysis: filter by EC2, group by instance type and region, select previous month vs. current month, and identify the delta. This retroactive cost investigation workflow is Cost Explorer's primary use case. Budgets alert when thresholds are crossed but don't provide drill-down analysis. Pricing Calculator is forward-looking. Trusted Advisor identifies idle resources but doesn't show historical cost delta by instance type.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "cost-explorer",
+      "cost-analysis",
+      "ec2",
+      "billing-investigation"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-04-006",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses AWS Organizations with 30 accounts. They purchase a 3-year Compute Savings Plan in the management account. Which accounts benefit from this Savings Plan, and can this behavior be changed?",
+    "options": [
+      {
+        "label": "A",
+        "text": "All accounts in the organization benefit automatically through consolidated billing; sharing can be disabled per member account if."
+      },
+      {
+        "label": "B",
+        "text": "Only member accounts benefit; the management account must purchase a separate plan"
+      },
+      {
+        "label": "C",
+        "text": "Savings Plans apply only to accounts that opt in via the AWS Billing console"
+      },
+      {
+        "label": "D",
+        "text": "Only the management account benefits; it cannot be shared with member accounts"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Savings Plans purchased in any account within an Organization are automatically shared across all member accounts through consolidated billing. The management account can disable Savings Plan sharing for specific member accounts if needed (e.g., for accurate chargeback). This is the same behavior as Reserved Instance sharing across consolidated billing.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "savings-plans",
+      "organizations",
+      "consolidated-billing",
+      "sharing"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-04-007",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company wants to prevent their AWS spending from exceeding $5,000 in any month. They want automatic enforcement, not just a notification, so that no new resources can be provisioned once the limit is approached. What combination achieves enforced spending limits?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Cost Anomaly Detection to block spending above $5,000"
+      },
+      {
+        "label": "B",
+        "text": "Set an AWS Budget at $5,000 with an SNS notification"
+      },
+      {
+        "label": "C",
+        "text": "Set a CloudWatch billing alarm at $5,000 to stop all EC2 instances"
+      },
+      {
+        "label": "D",
+        "text": "AWS does not provide hard spending caps \u2014 budgets with SNS notifications + Lambda automations."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "AWS does not offer hard spending caps that automatically block all resource creation. AWS Budgets can notify via SNS, which can trigger a Lambda function that applies restrictive SCPs or IAM policies to limit further provisioning. This approach approximates enforcement but requires engineering. Cost Anomaly Detection flags unusual patterns. CloudWatch billing alarms notify but cannot automatically stop EC2 or prevent new resource creation natively.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "budgets",
+      "spending-limits",
+      "cost-control",
+      "lambda-automation"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-04-008",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's Developer Support plan doesn't provide the response time they need. They experience a production database outage and need to speak with an AWS Cloud Support Engineer immediately by phone. What is the minimum support plan that provides <1 hour response for production system down AND phone support?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Developer Support"
+      },
+      {
+        "label": "B",
+        "text": "Business Support"
+      },
+      {
+        "label": "C",
+        "text": "Enterprise Support"
+      },
+      {
+        "label": "D",
+        "text": "Enterprise On-Ramp Support"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Business Support provides: 24/7 access to Cloud Support Engineers via phone, chat, and email, and <1 hour response time for production system down cases. Developer Support offers only business-hours email/chat with no phone support. Enterprise On-Ramp adds a pool of Technical Account Managers and 30-minute critical response. Enterprise adds a dedicated TAM and 15-minute response. Business is the minimum meeting both stated requirements.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "support-plans",
+      "business-support",
+      "production-outage",
+      "phone-support"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-04-009",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company is considering purchasing 1-year No Upfront Reserved Instances. Their financial controller asks: 'What happens if we no longer need these instances before the year is up?' What is the correct answer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Reserved Instances can be sold on the AWS Reserved Instance Marketplace (for Standard RIs) if they"
+      },
+      {
+        "label": "B",
+        "text": "You can cancel Reserved Instances at any time with a full refund"
+      },
+      {
+        "label": "C",
+        "text": "Reserved Instances automatically stop billing once the underlying instance is terminated"
+      },
+      {
+        "label": "D",
+        "text": "AWS provides a 30-day cancellation window for all Reserved Instances"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Standard Reserved Instances (1-year or 3-year) can be listed on the AWS Reserved Instance Marketplace to sell to other customers if no longer needed, though there's no guarantee of finding a buyer at full value. Convertible RIs cannot be sold on the marketplace. RIs are a billing commitment \u2014 you are billed for the reserved capacity whether or not you use it. There is no free cancellation or 30-day window.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "reserved-instances",
+      "ri-marketplace",
+      "commitment",
+      "flexibility"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-04-010",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses Amazon EC2, RDS, and S3. Their cloud spend has grown 40% month-over-month and they suspect there are unused resources. Which AWS service proactively identifies idle EC2 instances, underutilized RDS instances, and unattached EBS volumes?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon CloudWatch with billing alarms"
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor Cost Optimization category"
+      },
+      {
+        "label": "C",
+        "text": "AWS Budgets with cost anomaly detection"
+      },
+      {
+        "label": "D",
+        "text": "AWS Cost Explorer with resource-level data"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Trusted Advisor's Cost Optimization checks identify: idle EC2 instances (low CPU utilization), underutilized RDS instances, unassociated Elastic IP addresses, unattached EBS volumes, and underutilized Redshift clusters. These are actionable waste-finding checks. Cost Explorer shows historical spend but requires manual analysis to find idle resources. CloudWatch billing alarms alert on total spend. Budgets with anomaly detection flags unusual cost increases but doesn't identify specific idle resources.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "trusted-advisor",
+      "cost-optimization",
+      "idle-resources",
+      "waste"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-04-011",
+    "domain": 4,
+    "domain_name": "Billing, Pricing, and Support",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company is evaluating their current on-premises infrastructure TCO vs. migrating to AWS. Their on-premises environment costs $300,000/year in data center costs, $150,000/year in server hardware amortization, $200,000/year in IT staff for infrastructure management, and $50,000/year in software licenses. The equivalent AWS environment would cost $180,000/year. What is the annual TCO savings from migrating?",
+    "options": [
+      {
+        "label": "A",
+        "text": "$120,000 (only comparing hardware cost to AWS cost)"
+      },
+      {
+        "label": "B",
+        "text": "$520,000 per year ($700,000 on-premises total minus $180,000 AWS)"
+      },
+      {
+        "label": "C",
+        "text": "$270,000 per year (only comparing data center + hardware to AWS)"
+      },
+      {
+        "label": "D",
+        "text": "$0 \u2014 the AWS environment costs more when cloud-specific tools are included"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "True TCO includes ALL on-premises costs: data center ($300K) + hardware ($150K) + IT staff ($200K) + software licenses ($50K) = $700K/year. AWS replaces all of these. $700K - $180K = $520K annual savings. TCO analyses that only compare hardware costs to AWS costs dramatically understate cloud savings by ignoring facilities, labor, and licensing. A complete TCO calculation changes the conclusion significantly.",
+    "module_ref": "aws-cp/billing-pricing",
+    "tags": [
+      "tco",
+      "cost-comparison",
+      "migration",
+      "on-premises"
+    ]
+  }
+]

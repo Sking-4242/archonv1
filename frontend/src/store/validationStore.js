@@ -1,4 +1,22 @@
 import { create } from "zustand";
+import {
+  AZURE_CONFIG_RULES,
+  AZURE_IAM_RULES,
+  AZURE_NSG_RULES,
+  AZURE_TOPOLOGY_RULES,
+} from "./azureValidationRules";
+import {
+  GCP_CONFIG_RULES,
+  GCP_FIREWALL_RULES,
+  GCP_IAM_RULES,
+  GCP_TOPOLOGY_RULES,
+} from "./gcpValidationRules";
+import {
+  ONPREM_CONFIG_RULES,
+  ONPREM_FIREWALL_RULES,
+  ONPREM_TOPOLOGY_RULES,
+  resetHybridVpnFlag,
+} from "./onpremValidationRules";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -2670,568 +2688,21 @@ function saveAcknowledged(map) {
   } catch {}
 }
 
-// ─── Azure Config Rules ───────────────────────────────────────────────────────
-
-const AZURE_CONFIG_RULES = [
-  {
-    id: "azure_vm_password_auth",
-    level: "warning",
-    title: "Azure VM: password authentication enabled",
-    applies: (n) => n.type === "azure_vm",
-    check: (n) => n.data?.config?.disable_password_authentication === false,
-    message: (n) => `${n.data.label} allows password authentication. Use SSH keys only.`,
-    fix: "Set 'SSH Key Only' to true in the component config.",
-    suggestion: "Set `disable_password_authentication = true` on `azurerm_linux_virtual_machine` and use `admin_ssh_key` blocks.",
-    standards: ["CIS", "NIST"],
-  },
-  {
-    id: "azure_vm_no_boot_diagnostics",
-    level: "info",
-    title: "Azure VM: boot diagnostics not enabled",
-    applies: (n) => n.type === "azure_vm",
-    check: (n) => !n.data?.config?.boot_diagnostics_enabled,
-    message: (n) => `${n.data.label} does not have boot diagnostics enabled.`,
-    fix: "Enable 'Boot Diagnostics' in the component config.",
-    suggestion: "Add `boot_diagnostics {}` block to `azurerm_linux_virtual_machine`. Enables serial console and screenshot access for troubleshooting.",
-    standards: ["NIST"],
-  },
-  {
-    id: "azure_aks_rbac_disabled",
-    level: "critical",
-    title: "AKS: RBAC disabled",
-    applies: (n) => n.type === "azure_aks",
-    check: (n) => n.data?.config?.role_based_access_control_enabled === false,
-    message: (n) => `${n.data.label} has RBAC disabled. All users have unrestricted cluster access.`,
-    fix: "Enable 'RBAC' in the AKS component config.",
-    suggestion: "Set `role_based_access_control_enabled = true` on `azurerm_kubernetes_cluster`. Re-enabling after disable requires cluster recreation.",
-    standards: ["CIS", "NIST", "SOC2"],
-  },
-  {
-    id: "azure_aks_no_private_cluster",
-    level: "warning",
-    title: "AKS: API server not private",
-    applies: (n) => n.type === "azure_aks",
-    check: (n) => !n.data?.config?.private_cluster_enabled,
-    message: (n) => `${n.data.label} has a public-facing API server endpoint.`,
-    fix: "Enable 'Private Cluster' in the AKS component config.",
-    suggestion: "Set `private_cluster_enabled = true` in `azurerm_kubernetes_cluster`. Requires VNet integration and private DNS zone.",
-    standards: ["CIS", "NIST"],
-  },
-  {
-    id: "azure_aks_no_authorized_ips",
-    level: "warning",
-    title: "AKS: no authorized IP ranges on API server",
-    applies: (n) => n.type === "azure_aks",
-    check: (n) => !n.data?.config?.private_cluster_enabled && !n.data?.config?.api_server_authorized_ip_ranges,
-    message: (n) => `${n.data.label} API server is open to all IPs with no IP range restriction.`,
-    fix: "Set 'API Server Authorized IPs' in the AKS component config, or enable private cluster.",
-    suggestion: "Set `api_server_authorized_ip_ranges` or use `private_cluster_enabled = true` on `azurerm_kubernetes_cluster`.",
-    standards: ["CIS", "NIST"],
-  },
-  {
-    id: "azure_aks_no_network_policy",
-    level: "warning",
-    title: "AKS: no network policy configured",
-    applies: (n) => n.type === "azure_aks",
-    check: (n) => !n.data?.config?.network_policy,
-    message: (n) => `${n.data.label} has no network policy. All pods can communicate freely.`,
-    fix: "Set 'Network Policy' (azure or calico) in the AKS component config.",
-    suggestion: "Set `network_policy = 'azure'` or `'calico'` in the `network_profile` block of `azurerm_kubernetes_cluster`.",
-    standards: ["NIST", "SOC2"],
-  },
-  {
-    id: "azure_sql_tde_disabled",
-    level: "critical",
-    title: "Azure SQL: Transparent Data Encryption disabled",
-    applies: (n) => n.type === "azure_sql",
-    check: (n) => n.data?.config?.transparent_data_encryption_enabled === false,
-    message: (n) => `${n.data.label} has Transparent Data Encryption disabled.`,
-    fix: "Enable 'Transparent Data Encryption' in the SQL component config.",
-    suggestion: "Set `transparent_data_encryption_enabled = true` on `azurerm_mssql_database`.",
-    standards: ["CIS", "HIPAA", "PCI"],
-  },
-  {
-    id: "azure_sql_min_tls_old",
-    level: "warning",
-    title: "Azure SQL: minimum TLS version below 1.2",
-    applies: (n) => n.type === "azure_sql",
-    check: (n) => n.data?.config?.minimum_tls_version && n.data.config.minimum_tls_version !== "1.2",
-    message: (n) => `${n.data.label} accepts TLS versions older than 1.2.`,
-    fix: "Set minimum TLS version to 1.2 in the SQL component config.",
-    suggestion: "Set `minimum_tls_version = '1.2'` on `azurerm_mssql_server`.",
-    standards: ["CIS", "PCI"],
-  },
-  {
-    id: "azure_sql_no_auditing",
-    level: "warning",
-    title: "Azure SQL: auditing not enabled",
-    applies: (n) => n.type === "azure_sql",
-    check: (n) => !n.data?.config?.auditing_enabled,
-    message: (n) => `${n.data.label} does not have auditing enabled.`,
-    fix: "Enable 'Auditing' in the SQL component config.",
-    suggestion: "Generate `azurerm_mssql_server_extended_auditing_policy` with `storage_endpoint` and `retention_in_days >= 90`.",
-    standards: ["CIS", "SOC2", "PCI", "HIPAA"],
-  },
-  {
-    id: "azure_storage_public_access",
-    level: "critical",
-    title: "Azure Storage: public blob access allowed",
-    applies: (n) => ["azure_blob", "azure_files", "azure_datalake", "azure_table", "azure_queue"].includes(n.type),
-    check: (n) => n.data?.config?.allow_nested_items_to_be_public === true,
-    message: (n) => `${n.data.label} allows public blob/container access.`,
-    fix: "Set 'Allow Public Access' to false in the storage component config.",
-    suggestion: "Set `allow_nested_items_to_be_public = false` on `azurerm_storage_account`. Require SAS tokens or managed identity.",
-    standards: ["CIS", "NIST", "SOC2"],
-  },
-  {
-    id: "azure_storage_https_only",
-    level: "warning",
-    title: "Azure Storage: HTTPS not enforced",
-    applies: (n) => ["azure_blob", "azure_files", "azure_datalake", "azure_table", "azure_queue"].includes(n.type),
-    check: (n) => n.data?.config?.enable_https_traffic_only === false,
-    message: (n) => `${n.data.label} allows unencrypted HTTP traffic.`,
-    fix: "Enable 'HTTPS Only' in the storage component config.",
-    suggestion: "Set `enable_https_traffic_only = true` on `azurerm_storage_account`.",
-    standards: ["CIS", "PCI"],
-  },
-  {
-    id: "azure_storage_min_tls_old",
-    level: "warning",
-    title: "Azure Storage: minimum TLS below 1.2",
-    applies: (n) => ["azure_blob", "azure_files", "azure_datalake", "azure_table", "azure_queue"].includes(n.type),
-    check: (n) => n.data?.config?.min_tls_version && n.data.config.min_tls_version !== "TLS1_2",
-    message: (n) => `${n.data.label} accepts TLS versions older than 1.2.`,
-    fix: "Set min TLS version to TLS1_2 in the storage component config.",
-    suggestion: "Set `min_tls_version = 'TLS1_2'` on `azurerm_storage_account`.",
-    standards: ["CIS", "PCI"],
-  },
-  {
-    id: "azure_keyvault_soft_delete_disabled",
-    level: "critical",
-    title: "Key Vault: soft delete not enabled",
-    applies: (n) => n.type === "azure_keyvault",
-    check: (n) => n.data?.config?.soft_delete_retention_days === 0 || n.data?.config?.soft_delete_enabled === false,
-    message: (n) => `${n.data.label} does not have soft delete enabled. Secrets can be permanently deleted.`,
-    fix: "Set soft delete retention days to at least 7 in the Key Vault config.",
-    suggestion: "Set `soft_delete_retention_days = 90` on `azurerm_key_vault`.",
-    standards: ["CIS", "NIST", "SOC2"],
-  },
-  {
-    id: "azure_keyvault_purge_protection_disabled",
-    level: "critical",
-    title: "Key Vault: purge protection not enabled",
-    applies: (n) => n.type === "azure_keyvault",
-    check: (n) => n.data?.config?.purge_protection_enabled === false,
-    message: (n) => `${n.data.label} does not have purge protection enabled.`,
-    fix: "Enable 'Purge Protection' in the Key Vault component config.",
-    suggestion: "Set `purge_protection_enabled = true` on `azurerm_key_vault`.",
-    standards: ["CIS", "NIST", "SOC2"],
-  },
-  {
-    id: "azure_functions_https_only",
-    level: "warning",
-    title: "Azure Functions: HTTPS not enforced",
-    applies: (n) => n.type === "azure_functions",
-    check: (n) => n.data?.config?.https_only === false,
-    message: (n) => `${n.data.label} allows unencrypted HTTP traffic.`,
-    fix: "Enable 'HTTPS Only' in the Functions component config.",
-    suggestion: "Set `https_only = true` on `azurerm_linux_function_app`.",
-    standards: ["CIS", "PCI"],
-  },
-  {
-    id: "azure_app_service_https_only",
-    level: "warning",
-    title: "App Service: HTTPS not enforced",
-    applies: (n) => n.type === "azure_app_service",
-    check: (n) => n.data?.config?.https_only === false,
-    message: (n) => `${n.data.label} allows unencrypted HTTP traffic.`,
-    fix: "Enable 'HTTPS Only' in the App Service component config.",
-    suggestion: "Set `https_only = true` on `azurerm_linux_web_app` or `azurerm_windows_web_app`.",
-    standards: ["CIS", "PCI"],
-  },
-  {
-    id: "azure_app_service_min_tls_old",
-    level: "warning",
-    title: "App Service: minimum TLS below 1.2",
-    applies: (n) => n.type === "azure_app_service",
-    check: (n) => n.data?.config?.minimum_tls_version && n.data.config.minimum_tls_version !== "1.2",
-    message: (n) => `${n.data.label} accepts TLS versions below 1.2.`,
-    fix: "Set minimum TLS version to 1.2 in the App Service component config.",
-    suggestion: "Set `minimum_tls_version = '1.2'` in `site_config` on `azurerm_linux_web_app`.",
-    standards: ["CIS", "PCI"],
-  },
-  {
-    id: "azure_redis_non_ssl_port",
-    level: "warning",
-    title: "Azure Redis: non-SSL port enabled",
-    applies: (n) => n.type === "azure_redis",
-    check: (n) => n.data?.config?.enable_non_ssl_port === true,
-    message: (n) => `${n.data.label} has the unencrypted Redis port (6379) enabled.`,
-    fix: "Disable 'Non-SSL Port' in the Redis component config.",
-    suggestion: "Set `enable_non_ssl_port = false` on `azurerm_redis_cache`. Always use SSL port 6380.",
-    standards: ["CIS", "PCI"],
-  },
-  {
-    id: "azure_redis_min_tls_old",
-    level: "warning",
-    title: "Azure Redis: minimum TLS below 1.2",
-    applies: (n) => n.type === "azure_redis",
-    check: (n) => n.data?.config?.minimum_tls_version && n.data.config.minimum_tls_version !== "1.2",
-    message: (n) => `${n.data.label} accepts TLS versions below 1.2.`,
-    fix: "Set minimum TLS version to 1.2 in the Redis component config.",
-    suggestion: "Set `minimum_tls_version = '1.2'` on `azurerm_redis_cache`.",
-    standards: ["CIS", "PCI"],
-  },
-  {
-    id: "azure_postgres_ssl_disabled",
-    level: "critical",
-    title: "Azure PostgreSQL: SSL not enforced",
-    applies: (n) => n.type === "azure_postgres",
-    check: (n) => n.data?.config?.ssl_enforcement_enabled === false,
-    message: (n) => `${n.data.label} does not enforce SSL connections.`,
-    fix: "Enable 'SSL Enforcement' in the PostgreSQL component config.",
-    suggestion: "Set `ssl_enforcement_enabled = true` on `azurerm_postgresql_flexible_server`.",
-    standards: ["CIS", "HIPAA", "PCI"],
-  },
-  {
-    id: "azure_mysql_ssl_disabled",
-    level: "critical",
-    title: "Azure MySQL: SSL not enforced",
-    applies: (n) => n.type === "azure_mysql",
-    check: (n) => n.data?.config?.ssl_enforcement_enabled === false,
-    message: (n) => `${n.data.label} does not enforce SSL connections.`,
-    fix: "Enable 'SSL Enforcement' in the MySQL component config.",
-    suggestion: "Set `require_secure_transport = 'ON'` via `azurerm_mysql_flexible_server_configuration`.",
-    standards: ["CIS", "HIPAA", "PCI"],
-  },
-  {
-    id: "azure_acr_admin_enabled",
-    level: "warning",
-    title: "Container Registry: admin user enabled",
-    applies: (n) => n.type === "azure_acr",
-    check: (n) => n.data?.config?.admin_enabled === true,
-    message: (n) => `${n.data.label} has the admin user enabled. Use managed identity instead.`,
-    fix: "Disable 'Admin Enabled' in the Container Registry config.",
-    suggestion: "Set `admin_enabled = false` on `azurerm_container_registry`. Use `azurerm_role_assignment` with AcrPull/AcrPush roles.",
-    standards: ["CIS", "NIST"],
-  },
-  {
-    id: "azure_agw_no_waf",
-    level: "warning",
-    title: "Application Gateway: WAF not enabled",
-    applies: (n) => n.type === "azure_agw",
-    check: (n) => n.data?.config?.sku_name && !String(n.data.config.sku_name).startsWith("WAF"),
-    message: (n) => `${n.data.label} is not using the WAF_v2 SKU. Web traffic is not protected.`,
-    fix: "Set SKU to WAF_v2 in the Application Gateway config.",
-    suggestion: "Set `sku { name='WAF_v2' tier='WAF_v2' }` and add `waf_configuration { enabled=true mode='Prevention' }` on `azurerm_application_gateway`.",
-    standards: ["CIS", "PCI", "SOC2"],
-  },
-  {
-    id: "azure_cosmosdb_public_access",
-    level: "warning",
-    title: "CosmosDB: no network access restriction",
-    applies: (n) => n.type === "azure_cosmosdb",
-    check: (n) => !n.data?.config?.ip_range_filter && !n.data?.config?.virtual_network_rule,
-    message: (n) => `${n.data.label} is accessible from all networks with no IP filtering.`,
-    fix: "Set IP range filter or virtual network rule in the CosmosDB component config.",
-    suggestion: "Set `ip_range_filter` or `virtual_network_rule` blocks on `azurerm_cosmosdb_account` to restrict access.",
-    standards: ["CIS", "NIST"],
-  },
-  {
-    id: "azure_vpn_gateway_basic_sku",
-    level: "info",
-    title: "VPN Gateway: Basic SKU does not support SLAs",
-    applies: (n) => n.type === "azure_vpn_gateway",
-    check: (n) => n.data?.config?.sku === "Basic",
-    message: (n) => `${n.data.label} uses the Basic SKU which lacks SLA and zone-redundancy.`,
-    fix: "Upgrade to VpnGw1 or higher in the VPN Gateway config.",
-    suggestion: "Use `sku = 'VpnGw1'` or higher for production workloads on `azurerm_virtual_network_gateway`.",
-    standards: ["NIST"],
-  },
-];
-
-// ─── Azure Topology Rules ─────────────────────────────────────────────────────
-
-const AZURE_TOPOLOGY_RULES = [
-  {
-    id: "azure_no_keyvault",
-    level: "warning",
-    title: "No Key Vault in architecture",
-    applies: (n) => ["azure_sql", "azure_cosmosdb", "azure_postgres", "azure_mysql", "azure_redis", "azure_servicebus", "azure_eventhub"].includes(n.type),
-    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_keyvault"),
-    message: (n) => `Architecture has databases/services but no Key Vault for secrets management.`,
-    fix: "Add an Azure Key Vault component to store connection strings and secrets.",
-    suggestion: "Add `azurerm_key_vault` with `purge_protection_enabled = true`. Store all passwords and connection strings as Key Vault secrets.",
-    standards: ["CIS", "NIST", "SOC2"],
-  },
-  {
-    id: "azure_no_log_analytics",
-    level: "warning",
-    title: "No Log Analytics workspace",
-    applies: (n) => ["azure_aks", "azure_vm", "azure_app_service", "azure_functions"].includes(n.type),
-    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_log_analytics"),
-    message: (n) => `${n.data.label} has no Log Analytics workspace for centralized logging.`,
-    fix: "Add an Azure Log Analytics component to the architecture.",
-    suggestion: "Add `azurerm_log_analytics_workspace` and configure diagnostic settings on all resources to send logs/metrics to it.",
-    standards: ["CIS", "NIST", "SOC2"],
-  },
-  {
-    id: "azure_no_monitor",
-    level: "info",
-    title: "No Azure Monitor or App Insights",
-    applies: (n) => ["azure_app_service", "azure_functions", "azure_aks", "azure_vm"].includes(n.type),
-    check: (n, edges, nodes) => !nodes.some((x) => ["azure_monitor", "azure_app_insights"].includes(x.type)),
-    message: (n) => `${n.data.label} has no observability infrastructure (Monitor/App Insights).`,
-    fix: "Add Azure Monitor or Application Insights to the architecture.",
-    suggestion: "Add `azurerm_application_insights` for APM and `azurerm_monitor_metric_alert` for key metric thresholds.",
-    standards: ["NIST", "SOC2"],
-  },
-  {
-    id: "azure_no_backup",
-    level: "warning",
-    title: "No backup vault for stateful resources",
-    applies: (n) => ["azure_vm", "azure_sql", "azure_postgres", "azure_mysql"].includes(n.type),
-    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_backup"),
-    message: (n) => `${n.data.label} has no Azure Backup vault configured.`,
-    fix: "Add an Azure Backup component to the architecture.",
-    suggestion: "Add `azurerm_recovery_services_vault` and `azurerm_backup_policy_vm` to protect VMs and databases.",
-    standards: ["CIS", "NIST", "SOC2", "HIPAA"],
-  },
-  {
-    id: "azure_aks_no_acr",
-    level: "info",
-    title: "AKS without Container Registry",
-    applies: (n) => n.type === "azure_aks",
-    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_acr"),
-    message: (n) => `${n.data.label} has no Container Registry for storing container images.`,
-    fix: "Add an Azure Container Registry component linked to AKS.",
-    suggestion: "Add `azurerm_container_registry` (sku='Standard') and wire to AKS via `azurerm_role_assignment` with AcrPull role.",
-    standards: ["NIST"],
-  },
-  {
-    id: "azure_vm_no_bastion",
-    level: "warning",
-    title: "VMs present without Azure Bastion",
-    applies: (n) => n.type === "azure_vm",
-    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_bastion"),
-    message: (n) => `${n.data.label} is accessible without a Bastion host — RDP/SSH may be publicly exposed.`,
-    fix: "Add Azure Bastion to the architecture for secure VM access.",
-    suggestion: "Add `azurerm_bastion_host` in a dedicated AzureBastionSubnet. Disable public IPs on VMs.",
-    standards: ["CIS", "NIST"],
-  },
-  {
-    id: "azure_no_ddos_protection",
-    level: "info",
-    title: "No DDoS Protection Plan",
-    applies: (n) => n.type === "azure_vnet",
-    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_ddos"),
-    message: (n) => `${n.data.label} has no DDoS Protection Plan attached.`,
-    fix: "Add an Azure DDoS Protection component to the architecture.",
-    suggestion: "Add `azurerm_network_ddos_protection_plan` and reference it in the VNet `ddos_protection_plan` block.",
-    standards: ["NIST", "PCI"],
-  },
-  {
-    id: "azure_internet_facing_vm",
-    level: "critical",
-    title: "VM directly internet-facing",
-    applies: (n) => n.type === "azure_vm",
-    check: (n, edges, nodes) => {
-      const neighbors = neighborIds(n.id, edges);
-      const hasLBOrAGW = neighbors.some((nid) => {
-        const nb = nodes.find((x) => x.id === nid);
-        return nb && ["azure_agw", "azure_lb", "azure_frontdoor"].includes(nb.type);
-      });
-      const hasInternet = neighbors.some((nid) => {
-        const nb = nodes.find((x) => x.id === nid);
-        return nb && String(nb.data?.label ?? "").toLowerCase().includes("internet");
-      });
-      return hasInternet && !hasLBOrAGW;
-    },
-    message: (n) => `${n.data.label} appears to be directly internet-facing without a load balancer or Application Gateway.`,
-    fix: "Place an Application Gateway or Load Balancer in front of the VM.",
-    suggestion: "Add `azurerm_application_gateway` (WAF_v2) or `azurerm_lb` between the internet and the VM. Remove the VM public IP.",
-    standards: ["CIS", "NIST", "PCI"],
-  },
-  {
-    id: "azure_sql_no_private_endpoint",
-    level: "warning",
-    title: "Azure SQL: no Private Endpoint",
-    applies: (n) => n.type === "azure_sql",
-    check: (n, edges, nodes) => {
-      const neighbors = neighborIds(n.id, edges);
-      return !neighbors.some((nid) => nodes.find((x) => x.id === nid && x.type === "azure_private_endpoint"));
-    },
-    message: (n) => `${n.data.label} has no Private Endpoint. Database may be reachable over public internet.`,
-    fix: "Add a Private Endpoint component connected to the SQL database.",
-    suggestion: "Add `azurerm_private_endpoint` with subresource 'sqlServer'. Set `public_network_access_enabled = false` on the server.",
-    standards: ["CIS", "NIST", "PCI"],
-  },
-  {
-    id: "azure_storage_no_private_endpoint",
-    level: "info",
-    title: "Storage: no Private Endpoint",
-    applies: (n) => ["azure_blob", "azure_datalake"].includes(n.type),
-    check: (n, edges, nodes) => {
-      const neighbors = neighborIds(n.id, edges);
-      return !neighbors.some((nid) => nodes.find((x) => x.id === nid && x.type === "azure_private_endpoint"));
-    },
-    message: (n) => `${n.data.label} has no Private Endpoint. Storage is accessible over the public internet.`,
-    fix: "Add a Private Endpoint connected to the storage account.",
-    suggestion: "Add `azurerm_private_endpoint` with subresource 'blob' and set `public_network_access_enabled = false`.",
-    standards: ["NIST", "SOC2"],
-  },
-  {
-    id: "azure_apim_no_waf",
-    level: "warning",
-    title: "APIM: no WAF or Application Gateway in front",
-    applies: (n) => n.type === "azure_apim",
-    check: (n, edges, nodes) => {
-      const neighbors = neighborIds(n.id, edges);
-      return !neighbors.some((nid) => nodes.find((x) => x.id === nid && ["azure_agw", "azure_waf", "azure_frontdoor"].includes(x.type)));
-    },
-    message: (n) => `${n.data.label} has no WAF or Application Gateway protecting the gateway.`,
-    fix: "Add an Azure Application Gateway (WAF_v2) or Azure Front Door in front of APIM.",
-    suggestion: "Place `azurerm_application_gateway` with WAF_v2 SKU in front of APIM, or use Azure Front Door Premium with WAF policy.",
-    standards: ["CIS", "PCI", "SOC2"],
-  },
-  {
-    id: "azure_aks_no_defender",
-    level: "warning",
-    title: "AKS: Microsoft Defender for Containers not enabled",
-    applies: (n) => n.type === "azure_aks",
-    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_defender"),
-    message: (n) => `${n.data.label} has no Microsoft Defender for Containers.`,
-    fix: "Add an Azure Defender component to the architecture.",
-    suggestion: "Add `azurerm_security_center_subscription_pricing { resource_type='Containers' tier='Standard' }`.",
-    standards: ["CIS", "NIST"],
-  },
-  {
-    id: "azure_no_sentinel",
-    level: "info",
-    title: "No Microsoft Sentinel (SIEM)",
-    applies: (n) => n.type === "azure_log_analytics",
-    check: (n, edges, nodes) => !nodes.some((x) => x.type === "azure_sentinel"),
-    message: (n) => `Log Analytics workspace present but no Microsoft Sentinel SIEM enabled.`,
-    fix: "Add Microsoft Sentinel to the architecture for threat detection.",
-    suggestion: "Add `azurerm_sentinel_log_analytics_workspace_onboarding` referencing the Log Analytics workspace.",
-    standards: ["NIST", "SOC2"],
-  },
-];
-
-// ─── Azure NSG Rules ──────────────────────────────────────────────────────────
-
-const AZURE_NSG_RULES = [
-  {
-    id: "azure_nsg_ssh_open",
-    level: "critical",
-    title: "NSG: SSH (22) open to internet",
-    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 22) && isPublicCidr(r.source)),
-    message: (sg) => `NSG "${sg.name}" allows SSH (port 22) from the internet (0.0.0.0/0).`,
-    fix: "Restrict SSH to known IP ranges or use Azure Bastion.",
-    suggestion: "Replace source_address_prefix with your office IP or Bastion subnet CIDR. Use Azure Bastion for all admin access.",
-    canAcknowledge: true,
-    standards: ["CIS", "NIST", "PCI"],
-  },
-  {
-    id: "azure_nsg_rdp_open",
-    level: "critical",
-    title: "NSG: RDP (3389) open to internet",
-    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 3389) && isPublicCidr(r.source)),
-    message: (sg) => `NSG "${sg.name}" allows RDP (port 3389) from the internet (0.0.0.0/0).`,
-    fix: "Restrict RDP to known IP ranges or use Azure Bastion.",
-    suggestion: "Replace source_address_prefix with your office IP. Use Azure Bastion for all remote desktop access.",
-    canAcknowledge: true,
-    standards: ["CIS", "NIST", "PCI"],
-  },
-  {
-    id: "azure_nsg_all_traffic_open",
-    level: "critical",
-    title: "NSG: all inbound traffic allowed from internet",
-    check: (sg) => sgAllowsAllTrafficFromPublic(sg),
-    message: (sg) => `NSG "${sg.name}" allows all inbound traffic from the internet.`,
-    fix: "Remove the catch-all allow-all inbound rule.",
-    suggestion: "Replace the protocol=* allow-all rule with explicit rules for only the ports your application requires.",
-    canAcknowledge: false,
-    standards: ["CIS", "NIST", "PCI", "SOC2"],
-  },
-  {
-    id: "azure_nsg_sql_server_open",
-    level: "critical",
-    title: "NSG: SQL Server (1433) open to internet",
-    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 1433) && isPublicCidr(r.source)),
-    message: (sg) => `NSG "${sg.name}" allows SQL Server traffic (1433) from the internet.`,
-    fix: "Restrict SQL Server port to the application subnet CIDR only.",
-    suggestion: "Set source_address_prefix to the app subnet CIDR. Never expose database ports to the internet.",
-    canAcknowledge: false,
-    standards: ["CIS", "NIST", "PCI", "HIPAA"],
-  },
-  {
-    id: "azure_nsg_postgres_open",
-    level: "critical",
-    title: "NSG: PostgreSQL (5432) open to internet",
-    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 5432) && isPublicCidr(r.source)),
-    message: (sg) => `NSG "${sg.name}" allows PostgreSQL (5432) from the internet.`,
-    fix: "Restrict PostgreSQL to the app tier subnet only.",
-    suggestion: "Scope NSG rule source to the application subnet. Use Private Endpoint to remove public exposure entirely.",
-    canAcknowledge: false,
-    standards: ["CIS", "NIST", "PCI", "HIPAA"],
-  },
-  {
-    id: "azure_nsg_mysql_open",
-    level: "critical",
-    title: "NSG: MySQL (3306) open to internet",
-    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 3306) && isPublicCidr(r.source)),
-    message: (sg) => `NSG "${sg.name}" allows MySQL (3306) from the internet.`,
-    fix: "Restrict MySQL to the app tier subnet only.",
-    suggestion: "Scope NSG rule source to the application subnet. Use Private Endpoint to remove public exposure entirely.",
-    canAcknowledge: false,
-    standards: ["CIS", "NIST", "PCI", "HIPAA"],
-  },
-  {
-    id: "azure_nsg_redis_open",
-    level: "critical",
-    title: "NSG: Redis (6380) open to internet",
-    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 6380) && isPublicCidr(r.source)),
-    message: (sg) => `NSG "${sg.name}" allows Redis SSL port (6380) from the internet.`,
-    fix: "Restrict Redis to the app tier subnet only.",
-    suggestion: "Scope source_address_prefix to the application subnet CIDR. Redis should only be reachable from within the VNet.",
-    canAcknowledge: false,
-    standards: ["CIS", "NIST", "PCI"],
-  },
-  {
-    id: "azure_nsg_mongodb_open",
-    level: "critical",
-    title: "NSG: MongoDB (27017) open to internet",
-    check: (sg) => (sg.inbound ?? []).some((r) => ruleMatchesPort(r, 27017) && isPublicCidr(r.source)),
-    message: (sg) => `NSG "${sg.name}" allows MongoDB (27017) from the internet.`,
-    fix: "Restrict MongoDB port to the application subnet.",
-    suggestion: "Scope NSG rule source to the app subnet CIDR. Use Private Endpoint for CosmosDB/MongoDB API.",
-    canAcknowledge: false,
-    standards: ["CIS", "NIST", "PCI"],
-  },
-  {
-    id: "azure_nsg_wide_range_open",
-    level: "warning",
-    title: "NSG: wide port range open to internet",
-    check: (sg) => (sg.inbound ?? []).some((r) => isWideRange(r)),
-    message: (sg) => `NSG "${sg.name}" allows a wide port range from the internet.`,
-    fix: "Narrow the port range to only required ports.",
-    suggestion: "Replace wide port range rules with specific allowed ports per application requirement.",
-    canAcknowledge: true,
-    standards: ["CIS", "NIST"],
-  },
-];
-
-
 // ─── Main compute function ────────────────────────────────────────────────────
 
 function computeFindings(nodes, edges, securityGroups, iamRoles) {
   const sgs = Array.isArray(securityGroups) ? securityGroups : [];
   const roles = Array.isArray(iamRoles) ? iamRoles : [];
   const findings = [];
+  resetHybridVpnFlag();
 
-  // 1. Config-based rules (AWS + Azure)
-  const allConfigRules = [...CONFIG_RULES, ...AZURE_CONFIG_RULES];
+  // 1. Config-based rules (AWS + Azure + GCP + On-Prem)
+  const allConfigRules = [
+    ...CONFIG_RULES,
+    ...AZURE_CONFIG_RULES,
+    ...GCP_CONFIG_RULES,
+    ...ONPREM_CONFIG_RULES,
+  ];
   for (const node of nodes) {
     for (const rule of allConfigRules) {
       if (rule.applies(node) && rule.check(node, edges, nodes)) {
@@ -3254,8 +2725,13 @@ function computeFindings(nodes, edges, securityGroups, iamRoles) {
     }
   }
 
-  // 2. Topology-based rules (AWS + Azure)
-  const allTopologyRules = [...TOPOLOGY_RULES, ...AZURE_TOPOLOGY_RULES];
+  // 2. Topology-based rules (AWS + Azure + GCP + On-Prem)
+  const allTopologyRules = [
+    ...TOPOLOGY_RULES,
+    ...AZURE_TOPOLOGY_RULES,
+    ...GCP_TOPOLOGY_RULES,
+    ...ONPREM_TOPOLOGY_RULES,
+  ];
   for (const node of nodes) {
     for (const rule of allTopologyRules) {
       if (rule.applies(node) && rule.check(node, edges, nodes)) {
@@ -3278,8 +2754,13 @@ function computeFindings(nodes, edges, securityGroups, iamRoles) {
     }
   }
 
-  // 3. SG/NSG port inspection rules (AWS + Azure)
-  const allSGRules = [...SG_RULES, ...AZURE_NSG_RULES];
+  // 3. SG/NSG/firewall port inspection rules (AWS + Azure + GCP + On-Prem)
+  const allSGRules = [
+    ...SG_RULES,
+    ...AZURE_NSG_RULES,
+    ...GCP_FIREWALL_RULES,
+    ...ONPREM_FIREWALL_RULES,
+  ];
   const sgUsers = {};
   for (const node of nodes) {
     for (const sgId of node.data?.security_group_ids ?? []) {
@@ -3333,7 +2814,7 @@ function computeFindings(nodes, edges, securityGroups, iamRoles) {
 
   // 4. IAM-based rules
   for (const role of roles) {
-    for (const rule of IAM_RULES) {
+    for (const rule of [...IAM_RULES, ...AZURE_IAM_RULES, ...GCP_IAM_RULES]) {
       if (!rule.check(role)) continue;
       findings.push({
         id: `${rule.id}::${role.id}`,
@@ -3415,11 +2896,16 @@ const useValidationStore = create((set, get) => ({
     return [
       ...CONFIG_RULES,
       ...AZURE_CONFIG_RULES,
+      ...GCP_CONFIG_RULES,
       ...TOPOLOGY_RULES,
       ...AZURE_TOPOLOGY_RULES,
+      ...GCP_TOPOLOGY_RULES,
       ...SG_RULES,
       ...AZURE_NSG_RULES,
+      ...GCP_FIREWALL_RULES,
       ...IAM_RULES,
+      ...AZURE_IAM_RULES,
+      ...GCP_IAM_RULES,
     ];
   },
 }));

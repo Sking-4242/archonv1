@@ -1,0 +1,586 @@
+[
+  {
+    "id": "scs-d1-t7-001",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "GuardDuty generates an Exfiltration:S3/ObjectRead.Unusual finding for an S3 bucket containing sensitive customer records. The finding indicates that an IAM role is reading objects at a rate far above its historical baseline. What does this finding signal and what is the FIRST response step a security engineer should take?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The finding indicates a publicly exposed S3 bucket. Immediately enable S3 Block Public Access on the account to prevent further exposure."
+      },
+      {
+        "label": "B",
+        "text": "The finding indicates anomalous read behavior suggesting data exfiltration. Immediately revoke active sessions for the IAM role using an explicit Deny policy while preserving logs for investigation."
+      },
+      {
+        "label": "C",
+        "text": "The finding indicates a misconfigured S3 bucket ACL. Update the bucket ACL to remove any public grants and notify the data owner."
+      },
+      {
+        "label": "D",
+        "text": "The finding indicates a GuardDuty false positive caused by a new application deployment. Add a suppression rule to silence the finding and continue monitoring."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Exfiltration:S3/ObjectRead.Unusual signals that an IAM principal is reading S3 objects at a volume or pattern that deviates significantly from its baseline, which is a strong indicator of credential compromise or insider data theft. The first containment step is to revoke the role's active sessions by attaching an explicit Deny policy (or removing the role's trust relationship), stopping further reads while preserving CloudTrail and S3 access logs for forensic investigation. Enabling Block Public Access is unrelated because the finding involves an authenticated IAM role, not public access. Modifying ACLs does not address credential misuse. Adding a suppression rule without investigation would mask a real exfiltration event.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "s3",
+      "exfiltration"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-002",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A GuardDuty finding of type CryptoCurrency:EC2/BitcoinTool.B is generated for an EC2 instance in a production VPC. The security team needs to contain the threat before beginning forensic analysis. Which sequence of containment steps is MOST appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Isolate the instance by replacing its security group with one that denies all inbound and outbound traffic, then take an EBS snapshot and memory capture before any further changes."
+      },
+      {
+        "label": "B",
+        "text": "Terminate the instance immediately, then restore from the most recent AMI backup to resume production workloads as quickly as possible."
+      },
+      {
+        "label": "C",
+        "text": "Increase the instance type to reduce CPU impact from mining, then schedule a maintenance window to investigate the root cause during off-hours."
+      },
+      {
+        "label": "D",
+        "text": "Move the instance to a quarantine VPC by changing its subnet, then disable CloudTrail logging to prevent the attacker from detecting the investigation."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The correct containment sequence is to isolate the instance by swapping its security group to a deny-all group (preserving the instance for forensics), then immediately capture volatile evidence \u2014 memory dump and an EBS snapshot \u2014 before any changes destroy evidence. Terminating the instance destroys volatile memory data critical for forensics. Increasing instance size does not stop the threat. Moving to a different subnet does not change the security group rules, and disabling CloudTrail removes the audit trail needed for the investigation.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "ec2",
+      "cryptomining",
+      "containment"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-003",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security team receives frequent GuardDuty findings from an external vulnerability scanner whose IP ranges are known and authorized. They want to stop these findings from cluttering the console without missing real threats from other sources. Should they use a GuardDuty threat intel list or a suppression rule, and why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use a suppression rule configured to permanently delete findings from the scanner so they never appear in the findings list or consume storage quota."
+      },
+      {
+        "label": "B",
+        "text": "Use a threat intel list of the scanner's IPs marked as trusted so GuardDuty raises alerts only when traffic originates from untrusted sources."
+      },
+      {
+        "label": "C",
+        "text": "Use a suppression rule matching the scanner's IP ranges and finding types, because suppression auto-archives matching findings while preserving their record for audit and compliance review."
+      },
+      {
+        "label": "D",
+        "text": "Use a threat intel list to whitelist the scanner, because threat intel lists can hold both malicious and trusted IP sets and GuardDuty will ignore matching traffic entirely."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "A suppression rule is the correct mechanism for handling known authorized sources. Suppression rules automatically archive \u2014 not delete \u2014 matching findings, so they remain available for audit and compliance review while not cluttering the active findings console. Threat intel lists in GuardDuty are used to add known-malicious IPs or domains that should trigger alerts; they cannot be used as a whitelist or trusted-source list. Suppression rules archive findings with ARCHIVED status so the full history is preserved.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "suppression",
+      "threat-intel"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-004",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "GuardDuty generates a PenTest:IAMUser/KaliLinux finding against an IAM user in a production account. The security team is unsure whether this is an authorized penetration test or a real attack. What is the origin of this finding type and what is the MOST appropriate initial response?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The finding originates from GuardDuty's custom threat intel list. Remove the Kali Linux entry from the threat intel list and re-enable the IAM user's permissions."
+      },
+      {
+        "label": "B",
+        "text": "The finding originates from VPC Flow Logs detecting unusual port scans. Immediately block all outbound traffic from the IAM user's last known source IP using a network ACL."
+      },
+      {
+        "label": "C",
+        "text": "The finding originates from API calls with Kali Linux-associated user-agent strings detected in CloudTrail. Confirm with the penetration testing team whether the test is authorized and, if not, disable the IAM user's credentials immediately."
+      },
+      {
+        "label": "D",
+        "text": "The finding originates from DNS query logs indicating connections to Kali Linux update servers. Rotate all IAM access keys in the account as a precautionary measure."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "PenTest:IAMUser/KaliLinux findings are generated when GuardDuty detects AWS API calls made with tools that include Kali Linux-associated user-agent strings in CloudTrail events. The correct initial step is to determine whether an authorized penetration test is underway \u2014 if it is, the team can suppress the finding; if not, the IAM user's credentials should be disabled immediately. VPC Flow Logs do not capture IAM user-agent strings. DNS logs are not the source of this finding. The finding comes from GuardDuty's built-in analysis, not a custom threat intel list.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "iam",
+      "pentest",
+      "cloudtrail"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-005",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security architect is designing an automated incident response playbook triggered by GuardDuty high-severity findings. The flow is: EventBridge rule \u2192 SNS topic \u2192 Lambda function \u2192 Systems Manager Automation. What does each stage accomplish in the correct sequence?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SNS fans out the finding to Lambda and other subscribers; Lambda isolates the resource by modifying security groups or IAM policies; Systems Manager runs an Automation document to capture a forensic snapshot and run investigation commands."
+      },
+      {
+        "label": "B",
+        "text": "SNS stores the finding directly in an S3 bucket for archival; Lambda reads the S3 object and logs a summary to CloudWatch Logs; Systems Manager forwards the log entry to a security analyst dashboard."
+      },
+      {
+        "label": "C",
+        "text": "SNS triggers a CloudWatch alarm that temporarily pauses GuardDuty finding generation; Lambda re-enables GuardDuty after a configurable delay; Systems Manager applies OS patches to the instance using Patch Manager."
+      },
+      {
+        "label": "D",
+        "text": "SNS publishes the finding to SQS for deduplication and ordering; Lambda sends an email notification to the on-call team; Systems Manager restarts the affected EC2 instance to clear the malicious process."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "In the standard automated IR playbook, EventBridge captures the GuardDuty finding and publishes it to an SNS topic, which fans out to Lambda and other subscribers (email, ticketing). Lambda executes the containment logic \u2014 isolating the EC2 instance by replacing its security group with a deny-all group or attaching an explicit Deny policy to an IAM role. Systems Manager Automation then executes a runbook to capture a forensic EBS snapshot, collect memory artifacts, or run investigation scripts on the isolated instance via SSM Agent. Restarting the instance destroys forensic evidence. Pausing GuardDuty defeats the purpose of detection. Storing findings in S3 via SNS is not the correct flow for automated response.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "incident-response",
+      "guardduty",
+      "lambda",
+      "sns",
+      "systems-manager",
+      "automation"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-006",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security analyst wants to use Amazon Detective to investigate a suspicious IAM role that appears in multiple GuardDuty findings over the past 30 days. Which data sources does Amazon Detective natively ingest to build its behavior graph?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudWatch metrics, AWS X-Ray traces, and Application Load Balancer access logs to reconstruct API call patterns."
+      },
+      {
+        "label": "B",
+        "text": "AWS CloudTrail management events, VPC Flow Logs, and GuardDuty findings, which Detective correlates into a unified behavior graph."
+      },
+      {
+        "label": "C",
+        "text": "Amazon Inspector findings, AWS Config configuration snapshots, and AWS Trusted Advisor recommendations for the affected account."
+      },
+      {
+        "label": "D",
+        "text": "AWS Security Hub aggregated findings, Amazon Macie data classification results, and AWS WAF web ACL logs."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Amazon Detective automatically ingests three primary data sources: AWS CloudTrail management event logs (API activity), VPC Flow Logs (network traffic), and GuardDuty findings (threat detections). It builds a behavior graph from these sources to allow analysts to pivot from a finding to related entities \u2014 IAM roles, EC2 instances, IP addresses \u2014 and visualize activity timelines. Inspector, Config, Trusted Advisor, CloudWatch metrics, X-Ray, ALB logs, Security Hub, Macie, and WAF logs are not natively ingested by Detective.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "detective",
+      "cloudtrail",
+      "vpc-flow-logs",
+      "guardduty"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-007",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "An organization uses GuardDuty in a multi-account setup with a designated administrator account and 12 member accounts. A security analyst in a member account wants to view GuardDuty findings generated specifically for that account. Where can those findings be seen?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Only in the AWS Security Hub console of the member account, because GuardDuty automatically forwards all findings to Security Hub in multi-account setups."
+      },
+      {
+        "label": "B",
+        "text": "Only in the Amazon Detective behavior graph, which aggregates all member account findings and replaces the GuardDuty console view for member accounts."
+      },
+      {
+        "label": "C",
+        "text": "Only in the GuardDuty console of the administrator account \u2014 member account consoles have no access to GuardDuty findings at all."
+      },
+      {
+        "label": "D",
+        "text": "In both the GuardDuty console of the member account and the administrator account \u2014 findings for a member account are visible in both consoles simultaneously."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "In a GuardDuty multi-account setup, findings generated for a member account are visible in both the member account's own GuardDuty console and the administrator account's console. The administrator account has aggregated visibility across all member accounts, while each member account retains the ability to view its own findings locally. Security Hub is a separate service and GuardDuty findings are not exclusively forwarded there. Detective is an investigation tool, not a replacement for the GuardDuty findings console.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "multi-account",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-008",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "During forensic acquisition of a compromised EC2 instance, the incident response team captures memory before taking an EBS snapshot. Why is memory acquisition prioritized over disk imaging in EC2 forensics?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS mandates memory acquisition before EBS snapshots to comply with the shared responsibility model's evidence handling requirements for cloud incidents."
+      },
+      {
+        "label": "B",
+        "text": "Memory contains volatile artifacts \u2014 running processes, decrypted keys, active network connections, and in-memory malware \u2014 that are permanently lost when the instance is stopped, while EBS data persists across reboots."
+      },
+      {
+        "label": "C",
+        "text": "Memory acquisition is much faster than EBS snapshots, so it reduces overall incident response time and minimizes impact to the business."
+      },
+      {
+        "label": "D",
+        "text": "EBS snapshot APIs are unavailable while the instance is in a running state, so memory must be captured first and the instance stopped before a snapshot can proceed."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Memory is captured first because it contains volatile forensic evidence that is permanently destroyed if the instance is stopped, rebooted, or terminated. This includes running process lists, decrypted encryption keys, active network socket state, bash history loaded in memory, and fileless malware payloads that exist only in RAM. EBS volumes are non-volatile and persist across instance stops, so a snapshot can be taken at any time. Speed is not the primary consideration \u2014 evidence preservation is. There is no AWS requirement mandating memory-before-disk ordering, and EBS snapshot APIs work while the instance is running.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "incident-response",
+      "forensics",
+      "ec2",
+      "memory",
+      "ebs"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-009",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "GuardDuty raises a Discovery:EC2/TorIPCaller finding for an EC2 instance in a non-production account. The finding indicates that an IP address associated with a Tor exit node is making EC2 API calls against the account. What are the primary implications of this finding?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The instance's Elastic IP is listed in GuardDuty's Tor exit node threat intel feed, requiring EIP disassociation and reassignment to a new address."
+      },
+      {
+        "label": "B",
+        "text": "The instance has an open security group port that allows inbound connections from Tor nodes, but Tor traffic cannot reach AWS APIs so no credential compromise is involved."
+      },
+      {
+        "label": "C",
+        "text": "The EC2 instance's IAM instance profile credentials have likely been exfiltrated and are being used anonymously via Tor to enumerate the environment for reconnaissance."
+      },
+      {
+        "label": "D",
+        "text": "A Tor browser installed on the instance is connecting to the Tor network, and GuardDuty detected this via its DNS query log analysis capability."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Discovery:EC2/TorIPCaller indicates that AWS API calls (reconnaissance actions such as Describe* operations) are being made from an IP address identified as a Tor exit node. Since Tor is commonly used to anonymize traffic, this strongly implies that the EC2 instance profile's credentials have been stolen and are being used from a Tor exit node to probe the environment anonymously \u2014 a reconnaissance phase preceding further attack stages. Tor exit nodes can make HTTPS calls to AWS APIs. The finding is about API calls from Tor IPs, not about inbound port traffic to the instance, not about the EIP being flagged, and not about a browser installed on the instance.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "tor",
+      "reconnaissance",
+      "ec2"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-010",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "GuardDuty generates a CredentialAccess:SecretsManager/MaliciousIPCaller finding, indicating that a known malicious IP called GetSecretValue on multiple secrets. What response steps should the security team take specifically involving AWS Secrets Manager?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Immediately rotate the affected secrets to invalidate any values the attacker retrieved, and audit all applications consuming those secrets to assess downstream impact."
+      },
+      {
+        "label": "B",
+        "text": "Migrate the secrets to AWS Parameter Store SecureString parameters, which are not monitored by GuardDuty, to reduce recurring findings of this type."
+      },
+      {
+        "label": "C",
+        "text": "Delete the affected secrets immediately and recreate them with new names and values to ensure the attacker cannot retrieve the compromised values again."
+      },
+      {
+        "label": "D",
+        "text": "Enable automatic rotation on the affected secrets with a 90-day schedule so that the compromised values will be replaced within the next rotation window."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "When a CredentialAccess:SecretsManager/MaliciousIPCaller finding is confirmed, the priority is to immediately rotate the affected secrets so that any values already retrieved by the attacker are no longer valid. Immediate manual rotation invalidates the compromised values within minutes. The team must also identify all applications and services consuming those secrets to coordinate the update and prevent outages. Deleting and recreating secrets breaks ARN references and dependent applications. Setting a 90-day rotation schedule does nothing about currently compromised values. Moving to Parameter Store does not address the breach and would break existing Secrets Manager integrations.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "incident-response",
+      "guardduty",
+      "secrets-manager",
+      "credential-access",
+      "rotation"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-011",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security engineer enables GuardDuty RDS Protection for an Amazon Aurora MySQL cluster. What specific threat activity does this protection plan detect, and what data source does it analyze?",
+    "options": [
+      {
+        "label": "A",
+        "text": "RDS Protection detects publicly exposed RDS snapshots by continuously scanning snapshot permissions and generating findings when public access is enabled on any snapshot."
+      },
+      {
+        "label": "B",
+        "text": "RDS Protection detects anomalous login patterns \u2014 unusual source IPs, brute-force attempts, and logins by previously unseen database users \u2014 by analyzing RDS login audit events against an established baseline."
+      },
+      {
+        "label": "C",
+        "text": "RDS Protection detects SQL injection attempts in query content by parsing RDS Performance Insights data and matching queries against known injection signatures."
+      },
+      {
+        "label": "D",
+        "text": "RDS Protection detects unencrypted RDS instances by evaluating AWS Config compliance rules for encryption-at-rest and forwarding non-compliant findings to GuardDuty."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "GuardDuty RDS Protection (available for Amazon Aurora) analyzes RDS login activity events \u2014 the authentication audit log recording login attempts, successes, and failures \u2014 and uses machine learning to establish a baseline of normal access patterns. It generates findings for anomalous behaviors such as logins from unusual IP addresses, logins at unusual times, previously unseen database users, and brute-force credential attack patterns. It does not scan snapshot permissions (a separate Config or Security Hub check), does not parse SQL query content, and is not related to encryption compliance.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "rds",
+      "aurora",
+      "rds-protection"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-012",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "GuardDuty generates a high-severity Impact:IAMUser/AnomalousBehavior finding for an IAM user. What does this specific finding type indicate about the IAM user's recent API activity?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The IAM user exceeded their permission boundary and attempted actions outside their allowed scope, which GuardDuty detected via IAM policy evaluation logs."
+      },
+      {
+        "label": "B",
+        "text": "The IAM user logged in from a new geographic region not in their historical baseline, indicating a potential account takeover requiring MFA re-enrollment."
+      },
+      {
+        "label": "C",
+        "text": "The IAM user is making API calls consistent with impact-phase tactics \u2014 such as high-volume data deletion, bulk resource creation for cryptomining, or encryption patterns consistent with ransomware \u2014 at rates anomalous compared to their baseline."
+      },
+      {
+        "label": "D",
+        "text": "The IAM user attempted to modify their own IAM policy or attach new permissions to their user, which GuardDuty classifies as an impact-phase privilege escalation finding."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Impact:IAMUser/AnomalousBehavior is generated when GuardDuty's ML models detect that an IAM user is performing API calls consistent with MITRE ATT&CK impact-phase tactics \u2014 actions that cause direct harm to confidentiality, integrity, or availability \u2014 at volumes or patterns deviating from their established baseline. Examples include unexpected mass deletion of S3 objects, high-volume EC2 instance launches for cryptomining infrastructure, or API patterns matching ransomware staging behavior. Permission boundary violations are not tracked by GuardDuty findings. Geographic anomalies produce different finding types such as UnauthorizedAccess. Privilege escalation attempts produce separate PrivilegeEscalation finding types.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "threat-detection",
+      "guardduty",
+      "iam",
+      "anomalous-behavior",
+      "impact"
+    ]
+  },
+  {
+    "id": "scs-d1-t7-013",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security analyst needs to reconstruct a 45-day timeline of an S3 data breach by correlating S3 CloudTrail data events with related GuardDuty findings. The dataset involves millions of S3 API calls. Which Athena-based approach is MOST effective?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Athena query logging and then use CloudWatch Logs Insights to search those Athena query logs for patterns matching the affected S3 bucket name."
+      },
+      {
+        "label": "B",
+        "text": "Create an Athena table over the GuardDuty findings S3 export bucket only, then query findings by severity to identify the affected bucket and approximate time window."
+      },
+      {
+        "label": "C",
+        "text": "Query CloudTrail data event logs in S3 using Athena, filtering by the affected bucket ARN and GuardDuty finding timeframe, and join with GuardDuty findings data to correlate API call patterns with the detected threat activity."
+      },
+      {
+        "label": "D",
+        "text": "Configure Athena Federated Query to stream live CloudTrail data events directly without S3 storage, enabling real-time correlation queries as new events arrive."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The most effective approach is to create Athena tables over the CloudTrail data event logs (stored in S3 as partitioned JSON) and the GuardDuty findings export (JSONL format in S3). Querying CloudTrail data events filtered to the specific bucket ARN and the GuardDuty finding's timeframe reveals every GetObject, PutObject, and DeleteObject call, the principals involved, source IPs, and user agents \u2014 enabling full exfiltration timeline reconstruction. Querying only GuardDuty findings gives coarse timing but not the detailed API call sequence needed. Querying Athena's own query logs is irrelevant to the investigation. CloudTrail does not support live Federated Query streaming; logs must be stored in S3 first.",
+    "module_ref": "domain-01",
+    "tags": [
+      "aws-scs",
+      "domain-01",
+      "incident-response",
+      "cloudtrail",
+      "athena",
+      "s3",
+      "forensics",
+      "guardduty"
+    ]
+  }
+]

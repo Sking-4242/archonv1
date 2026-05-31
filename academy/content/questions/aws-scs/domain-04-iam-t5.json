@@ -1,0 +1,628 @@
+[
+  {
+    "id": "scs-d4-t5-001",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security audit reveals that an IAM user has the permissions iam:CreatePolicyVersion and iam:SetDefaultPolicyVersion on all resources. An attacker with access to this user's credentials wants to escalate privileges to AdministratorAccess. Which sequence of API calls would achieve this privilege escalation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Call iam:CreatePolicyVersion on an existing managed policy the user can access, set the new version as default, and gain permissions from that updated policy document."
+      },
+      {
+        "label": "B",
+        "text": "Call iam:PutUserPolicy to add an inline policy with AdministratorAccess, bypassing managed policy version limits and directly modifying the user's effective permissions."
+      },
+      {
+        "label": "C",
+        "text": "Call iam:UpdateAssumeRolePolicy on an admin role trust policy, then call sts:AssumeRole to assume that admin role and obtain elevated credentials."
+      },
+      {
+        "label": "D",
+        "text": "Call iam:CreatePolicy to create a new admin policy, then iam:AttachUserPolicy to attach it directly to the compromised user account."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "iam:CreatePolicyVersion allows creating a new version of an existing managed policy with arbitrary content (including AdministratorAccess), and iam:SetDefaultPolicyVersion activates it. If the user or an attached role already references that policy, the escalated permissions take effect immediately. Option A requires iam:CreatePolicy and iam:AttachUserPolicy, which the user does not have. Option C requires iam:PutUserPolicy. Option D requires iam:UpdateAssumeRolePolicy.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "privilege-escalation",
+      "iam:CreatePolicyVersion"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-002",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A SaaS vendor's AWS Lambda function assumes a role in customer accounts to perform backups. A security review finds the vendor's role trust policy only checks aws:PrincipalArn. A threat actor registers as a customer and tricks the vendor's Lambda into assuming the customer's role in a target account. Which condition key added to the customer's trust policy would BEST prevent this confused deputy attack?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add aws:PrincipalOrgID matching the vendor's AWS Organization ID to ensure only principals from the vendor org can assume the role."
+      },
+      {
+        "label": "B",
+        "text": "Add aws:MultiFactorAuthPresent: true so the vendor Lambda must have MFA active before assuming the customer role in any account."
+      },
+      {
+        "label": "C",
+        "text": "Add sts:ExternalId with a unique, unguessable secret shared only with the vendor so the vendor must present it on each AssumeRole call targeting that account."
+      },
+      {
+        "label": "D",
+        "text": "Add aws:SourceIp restricting calls to the vendor's known egress IP range so cross-account assume requests from unknown IPs are denied automatically."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The confused deputy problem occurs when a trusted service can be manipulated into acting on behalf of an attacker. sts:ExternalId in the trust policy requires the caller to supply a secret that only the legitimate customer and the vendor know, preventing a malicious customer from redirecting the vendor to assume roles in other accounts. PrincipalOrgID only validates org membership, not which customer account is targeted. MFA is not applicable to Lambda role assumptions. IP restrictions are brittle and do not address the core delegation confusion.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "confused-deputy",
+      "sts:ExternalId",
+      "cross-account"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-003",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A DevSecOps team wants to catch overly permissive IAM policies before they are deployed via CloudFormation. They want to validate that no policy grants broad resource wildcards on sensitive actions. Which IAM Access Analyzer capability should they integrate into their CI/CD pipeline?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure Access Analyzer with a custom archive rule to auto-archive findings matching expected patterns, reducing noise while allowing pipelines to proceed unblocked."
+      },
+      {
+        "label": "B",
+        "text": "Enable IAM Access Analyzer in the account and review console findings, then block deployments manually when new external-access findings appear in the dashboard."
+      },
+      {
+        "label": "C",
+        "text": "Use the Access Analyzer ValidatePolicy API to check policy documents against AWS best practices and security standards programmatically before stack deployment."
+      },
+      {
+        "label": "D",
+        "text": "Run aws iam simulate-principal-policy in the pipeline to test whether the policy would allow specific actions, failing the build if any checked action is allowed."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The ValidatePolicy API performs automated policy validation against IAM best practices and AWS-managed security standards, returning warnings and errors as structured output ideal for blocking CI/CD pipelines when policies contain wildcard resources on sensitive actions. Option A requires manual review and does not provide pre-deployment checks. Option C manages existing findings but does not prevent deployment. simulate-principal-policy tests access for existing principals but does not validate the policy document structure for broad permissions.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "access-analyzer",
+      "ValidatePolicy",
+      "cicd",
+      "iac"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-004",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company federates employees through an external SAML 2.0 IdP into AWS IAM Identity Center. They want employees' department attribute from the SAML assertion to automatically determine which permission set is assigned. Which IAM Identity Center feature enables this without manually assigning users to each permission set?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure attribute-based access control in IAM Identity Center by mapping the SAML department attribute and writing permission set assignments conditioned on that attribute value."
+      },
+      {
+        "label": "B",
+        "text": "Use IAM Identity Center's automatic provisioning with SCIM to sync group memberships from the IdP, then assign permission sets to those synced groups in each account."
+      },
+      {
+        "label": "C",
+        "text": "Create a Lambda function triggered by the SSO EventBridge rule that reads the SAML assertion and calls CreateAccountAssignment based on the department claim value."
+      },
+      {
+        "label": "D",
+        "text": "Create a custom identity source connector that parses SAML assertions and writes attribute metadata to DynamoDB for consumption by downstream permission-set assignment automation."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "IAM Identity Center supports ABAC natively: you map incoming SAML attributes (like department) to Identity Center session attributes, then write permission set and account assignment policies that evaluate those attributes. This enables dynamic, attribute-driven assignment without manual mapping. SCIM provisioning syncs users and groups but still requires explicit permission set assignments per group. Options B and D are custom workarounds that add complexity without leveraging the native capability.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "identity-center",
+      "saml",
+      "abac",
+      "attribute-mapping"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-005",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A legacy on-premises application authenticates to AWS using GetFederationToken with a long-term IAM user credential. A security engineer recommends switching to AssumeRole instead. Which behavioral difference MOST strongly justifies this change from a security perspective?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AssumeRole sessions have a configurable maximum duration up to 12 hours, whereas GetFederationToken sessions are always limited to 36 hours regardless of the use case."
+      },
+      {
+        "label": "B",
+        "text": "AssumeRole requires MFA by default and triggers a stricter policy evaluation path than GetFederationToken, which bypasses resource-based policy evaluations during authorization."
+      },
+      {
+        "label": "C",
+        "text": "AssumeRole credentials are scoped to a role rather than long-term user keys, enabling automatic rotation, role-attributed CloudTrail logging, and easier revocation via trust policy."
+      },
+      {
+        "label": "D",
+        "text": "GetFederationToken cannot be used with session policies, so all permissions from the parent IAM user are always fully inherited without any further restriction on the temporary session."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AssumeRole eliminates long-term IAM user credentials, provides role-attributed CloudTrail logging (every API call shows the assumed role ARN), and allows instant revocation by modifying the trust policy or revoking active sessions \u2014 making it the preferred pattern for temporary access. The option stating AssumeRole sessions last up to 12 hours and GetFederationToken up to 36 hours has the durations correct in isolation, but session duration alone is not the primary security advantage. AssumeRole does not require MFA by default \u2014 MFA enforcement is optional via a Condition in the trust policy. GetFederationToken can accept session policies to further restrict the parent user's permissions; it does not bypass policy evaluation.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "sts",
+      "GetFederationToken",
+      "AssumeRole",
+      "federation"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-006",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team discovers that an IAM role's credentials have been exfiltrated. They want to immediately invalidate all active sessions for that role without deleting the role or impacting future legitimate use. Which approach CORRECTLY revokes existing sessions while preserving the role for future use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Attach an inline deny policy to the role using the aws:TokenIssueTime condition to deny all actions for tokens issued before the current timestamp, invalidating existing sessions immediately."
+      },
+      {
+        "label": "B",
+        "text": "Call sts:RevokeSession for each suspected session token ARN to immediately invalidate those credentials and prevent further API calls from the compromised sessions."
+      },
+      {
+        "label": "C",
+        "text": "Rotate the role's trust policy to require a new ExternalId value; existing sessions lack the new ExternalId and will fail authorization checks on subsequent API calls."
+      },
+      {
+        "label": "D",
+        "text": "Delete and recreate the role with the same name and policies; existing sessions referencing the old role ARN will fail because the role's internal unique ID has changed."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The aws:TokenIssueTime condition key allows denying all actions for sessions whose tokens were issued before a specific datetime. Attaching an inline deny policy with this condition immediately invalidates all currently active sessions without disrupting future sessions issued after the revocation time. The AWS console 'Revoke active sessions' button uses exactly this mechanism. Option A affects new AssumeRole calls, not existing sessions. Option C: sts:RevokeSession does not exist as an API action. Option D destroys and recreates the role, causing downtime and losing the original ARN.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "session-revocation",
+      "aws:TokenIssueTime",
+      "incident-response"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-007",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A developer's automation script assumes RoleA (max session 8 hours), then from within that session assumes RoleB (max session 4 hours). The developer expects the RoleB session to last 4 hours. What is the ACTUAL maximum session duration for the RoleB session, and why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The lesser of 4 hours or the remaining lifetime of the RoleA session, because AWS propagates the parent session's expiry ceiling through any subsequent chained role assumptions."
+      },
+      {
+        "label": "B",
+        "text": "1 hour, because IAM enforces a hard limit of 3,600 seconds on role-chaining sessions regardless of either role's configured maximum session duration setting."
+      },
+      {
+        "label": "C",
+        "text": "8 hours, because the session inherits RoleA's maximum duration and RoleB's shorter setting only applies when assuming RoleB from a non-role identity like an IAM user."
+      },
+      {
+        "label": "D",
+        "text": "4 hours, because each AssumeRole call independently enforces the target role's own maximum session duration regardless of how the caller originally obtained their credentials."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "IAM role chaining\u2014assuming a role from credentials that are themselves the result of an AssumeRole call\u2014is subject to a hard 1-hour (3,600 second) maximum session duration, overriding any longer setting on either role. This AWS-enforced limit reduces the blast radius of chained credential abuse. The developer will receive 1-hour RoleB credentials even though RoleB allows 4 hours. This limit does not apply when assuming a role directly from an IAM user or federated identity.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "role-chaining",
+      "session-duration",
+      "sts"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-008",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An SCP attached to an OU denies s3:PutObject on all resources. An S3 bucket in a member account has a bucket policy explicitly allowing s3:PutObject for an IAM role in the same account. A Lambda function using that role attempts to write to the bucket. What is the outcome?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The write succeeds because SCPs only restrict IAM identity-based policies and do not affect the evaluation of resource-based policies attached to S3 buckets."
+      },
+      {
+        "label": "B",
+        "text": "The write succeeds because the S3 bucket policy is a resource-based policy and resource-based policies in the same account are exempt from SCP restrictions by design."
+      },
+      {
+        "label": "C",
+        "text": "The write is denied only if the Lambda function's execution role is explicitly named in the SCP's principal target; roles not named in the SCP are unaffected by its deny statement."
+      },
+      {
+        "label": "D",
+        "text": "The write is denied because the SCP applies to all principals in the account and a deny in an SCP cannot be overridden by any identity-based or resource-based policy in that account."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "SCPs act as guardrails constraining the maximum permissions available to all principals in an AWS account, including the root user. An explicit or implicit deny in an SCP cannot be overridden by any identity-based policy, resource-based policy, or permission boundary within that account. The S3 bucket policy granting s3:PutObject is irrelevant once the SCP denies it. Options A and C incorrectly claim resource-based policies bypass SCPs. Option D is incorrect because SCPs apply to all principals in the account, not only explicitly named targets.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "scp",
+      "policy-evaluation",
+      "resource-based-policy",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-009",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An S3 bucket policy grants s3:GetObject to the condition aws:PrincipalServiceName: 'cloudfront.amazonaws.com'. A security engineer needs to ensure ONLY CloudFront can read the bucket, not even the bucket owner's IAM roles directly. Which additional bucket policy element makes this restriction effective?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable S3 Block Public Access and set the bucket ACL to private; this implicitly restricts access to only the service principals explicitly allowed in the bucket policy."
+      },
+      {
+        "label": "B",
+        "text": "Add an SCP to the account denying s3:GetObject for all principals except the CloudFront service role, and remove the aws:PrincipalServiceName condition from the bucket policy."
+      },
+      {
+        "label": "C",
+        "text": "Add a Deny statement for Principal: '*' with a condition that aws:PrincipalServiceName is not 'cloudfront.amazonaws.com', blocking all non-CloudFront access including IAM roles in the owner account."
+      },
+      {
+        "label": "D",
+        "text": "Add a Deny statement for aws:PrincipalType: 'AssumedRole' so all role sessions are explicitly blocked while the CloudFront service principal remains allowed to read objects."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "A bucket policy Deny on Principal \"*\" with StringNotEquals on aws:PrincipalServiceName blocks every caller that is not the CloudFront service principal, including IAM roles and users in the owning account. This is the correct zero-trust pattern for S3 origins behind CloudFront using Origin Access Control (OAC). S3 Block Public Access and private ACLs (the first wrong option) do not restrict access from IAM roles in the same account \u2014 they only block public/anonymous access. An SCP approach (the second wrong option) cannot target specific S3 buckets and would block legitimate bucket access from other services in the account. Denying aws:PrincipalType: \"AssumedRole\" (the fourth option) would block all role sessions including legitimate Lambda, EC2, and other service roles that may need bucket access.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "s3-bucket-policy",
+      "service-principal",
+      "aws:PrincipalServiceName",
+      "cloudfront"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-010",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses ABAC with session tags to control access to DynamoDB tables tagged by project. An IAM role policy allows dynamodb:* when aws:ResourceTag/Project matches sts:RoleSessionTagKey/Project. A developer's Lambda assumes the role but the session tag is not being applied. Which permission is MISSING from the Lambda's execution role?",
+    "options": [
+      {
+        "label": "A",
+        "text": "sts:AssumeRole on the target role resource so the Lambda's execution role is authorized to assume the ABAC role and receive scoped session credentials."
+      },
+      {
+        "label": "B",
+        "text": "sts:TagSession on the target role resource so the Lambda's execution role is allowed to pass session tags during the AssumeRole call that creates the tagged session."
+      },
+      {
+        "label": "C",
+        "text": "iam:PassRole on the target role resource so the Lambda service can pass the ABAC role ARN into the AssumeRole request with the associated session tag values."
+      },
+      {
+        "label": "D",
+        "text": "sts:SetSourceIdentity on the target role resource so the session's source identity propagates the project tag downstream through any subsequent role chaining."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "To pass session tags during AssumeRole, the calling principal must have sts:TagSession permission on the target role. Without it, AWS silently drops the session tags and the ABAC conditions that rely on those tags will not match, causing access denials. sts:AssumeRole is needed to assume the role at all but does not enable tag passing. iam:PassRole is for passing roles to AWS services, not for session tag injection. sts:SetSourceIdentity sets a different attribute unrelated to project tags.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "abac",
+      "session-tags",
+      "sts:TagSession",
+      "attribute-based-access"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-011",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security team writes an SCP that denies all actions when aws:RequestedRegion is not in an approved list of regions. After deployment, users report that Route 53 hosted zone management and IAM user creation are broken even from approved regions. What is the MOST likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The SCP uses a Deny effect, but global services require an explicit Allow in a separate SCP that overrides the region restriction specifically for iam and route53 service namespaces."
+      },
+      {
+        "label": "B",
+        "text": "The aws:RequestedRegion condition key applies to the region where the API call is signed, not where the resource resides, so multi-region services route requests to unexpected regions."
+      },
+      {
+        "label": "C",
+        "text": "Route 53 and IAM are global services whose API endpoints resolve to us-east-1; the SCP blocks these calls because us-east-1 is the RequestedRegion value and it is not in the approved list."
+      },
+      {
+        "label": "D",
+        "text": "SCPs using StringNotLike on aws:RequestedRegion do not evaluate correctly for services that use regional endpoint routing through AWS PrivateLink instead of public regional endpoints."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Global services such as IAM, Route 53, CloudFront, and AWS Support use the us-east-1 endpoint, and their API calls present us-east-1 as the aws:RequestedRegion value regardless of the calling user's location. If the SCP's approved region list does not include us-east-1 or use a NotAction exclusion for global service namespaces, these calls will be denied. The fix is to exclude global service namespaces via NotAction or add us-east-1 with a scoped condition. Options A, C, and D mischaracterize how the condition and SCP logic work.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "scp",
+      "aws:RequestedRegion",
+      "global-services",
+      "region-restriction"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-012",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "During a quarterly least-privilege review, a security engineer uses IAM Access Analyzer's unused access findings. A finding shows a role with iam:PassRole last accessed 94 days ago and s3:DeleteObject never accessed. The engineer wants to remove only the permissions that pose the highest blast-radius risk if the role is compromised. Which action should be prioritized?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Remove s3:DeleteObject first because it has never been accessed and represents dead code in the policy with zero operational impact if it is removed immediately."
+      },
+      {
+        "label": "B",
+        "text": "Defer removal and set a CloudWatch alarm on CloudTrail for any use of either permission so the team can observe usage before removing potentially needed permissions from production."
+      },
+      {
+        "label": "C",
+        "text": "Remove both permissions simultaneously using an automated policy update to minimize the window during which either unused permission could be exploited by a compromised session."
+      },
+      {
+        "label": "D",
+        "text": "Remove iam:PassRole first because an attacker can use it to assign a powerful existing role to a compute resource they control, enabling indirect privilege escalation."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "iam:PassRole is a high-blast-radius permission because an attacker can use it to assign an existing admin role to a compute resource (EC2, Lambda, ECS task) they control, achieving indirect privilege escalation far beyond the current role's own permissions. Although s3:DeleteObject poses data-destruction risk, iam:PassRole poses greater systemic risk because it enables privilege escalation. Access Analyzer unused-access findings should be triaged by both recency and potential blast radius, prioritizing IAM-related permissions that enable escalation paths.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "access-analyzer",
+      "unused-access",
+      "least-privilege",
+      "iam:PassRole"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-013",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A mobile application authenticates users via Amazon Cognito User Pools and then needs to call DynamoDB directly from the device. A developer proposes passing the Cognito User Pool JWT directly as a bearer token to the DynamoDB API. Why will this approach FAIL, and what is the correct architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cognito User Pool tokens only work with services in the same AWS region; the app must use Cognito Identity Pools with a matching regional endpoint for successful DynamoDB authentication."
+      },
+      {
+        "label": "B",
+        "text": "DynamoDB requires SigV4-signed requests using AWS credentials; User Pool JWTs are OIDC tokens, not AWS credentials. The app must exchange the JWT through a Cognito Identity Pool to obtain temporary IAM credentials for signing API calls."
+      },
+      {
+        "label": "C",
+        "text": "DynamoDB does not support Cognito authentication; the correct pattern is to place API Gateway in front of DynamoDB with a Cognito User Pool authorizer to validate JWTs before forwarding requests."
+      },
+      {
+        "label": "D",
+        "text": "Cognito User Pool JWTs are too short-lived for DynamoDB API calls; the correct fix is to use Cognito Sync to cache credentials locally and refresh them in the background automatically."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS service APIs including DynamoDB require AWS Signature Version 4 signing with temporary IAM credentials (AccessKeyId, SecretAccessKey, SessionToken). Cognito User Pool JWTs are OpenID Connect tokens for application-layer authentication and cannot be used to sign AWS API requests. Cognito Identity Pools act as a broker: they accept a validated User Pool JWT and return short-term IAM credentials via STS, which the app then uses to sign DynamoDB calls. Option A is incorrect about JWT lifetime. Option C incorrectly states DynamoDB cannot use Cognito. Option D is false\u2014Identity Pools work across regions.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "cognito",
+      "user-pool",
+      "identity-pool",
+      "federation",
+      "sigv4"
+    ]
+  },
+  {
+    "id": "scs-d4-t5-014",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company grants a third-party auditing firm cross-account access to read CloudTrail logs in an S3 bucket. The auditor's account ID is known. The security team wants to prevent the confused deputy problem where the auditor inadvertently grants their own customers access to this bucket via the auditor's role. Which trust policy element SPECIFICALLY addresses this threat?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add aws:MultiFactorAuthPresent: true to the trust policy so all auditor role assumptions require MFA, preventing automated re-delegation without human approval in the process."
+      },
+      {
+        "label": "B",
+        "text": "Add aws:SourceAccount matching the auditor's account ID alongside the Principal ARN to create a redundant identity check preventing any other account from completing the assumption."
+      },
+      {
+        "label": "C",
+        "text": "Add a required sts:ExternalId condition set to a unique secret shared only between the company and the auditor, which the auditor must supply on every AssumeRole call targeting this account."
+      },
+      {
+        "label": "D",
+        "text": "Add aws:PrincipalOrgID matching the auditor's AWS Organization, ensuring only principals within the auditor's organization can assume the cross-account read role at all."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The confused deputy problem in cross-account third-party access arises when the third party can be manipulated into assuming the role on behalf of an unauthorized party. sts:ExternalId requires the auditor to supply a unique secret that only the company and the auditor know. The auditor's own customers cannot know this secret, so even if the auditor's role is misconfigured to trust those customers, they cannot supply the correct ExternalId and the AssumeRole call is denied. PrincipalOrgID validates org membership but does not prevent the auditor from re-delegating within their org. MFA does not prevent re-delegation. Option D is redundant with the Principal ARN and adds no confused-deputy protection.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "confused-deputy",
+      "external-id",
+      "cross-account",
+      "third-party"
+    ]
+  }
+]

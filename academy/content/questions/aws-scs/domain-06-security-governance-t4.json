@@ -1,0 +1,571 @@
+[
+  {
+    "id": "scs-d6-t4-001",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A governance team wants to enforce that every EC2 instance across all AWS Organizations member accounts has a 'CostCenter' tag with a value matching a predefined list. Untagged or incorrectly tagged resources should be flagged. Which AWS Organizations feature is designed specifically for this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy an AWS Config rule requiring-tags across all accounts using an organization conformance pack to check for the CostCenter tag."
+      },
+      {
+        "label": "B",
+        "text": "Create an AWS Organizations tag policy that defines allowed values for the CostCenter key and attach it at the root; use the tag compliance report to identify non-compliant resources."
+      },
+      {
+        "label": "C",
+        "text": "Enable AWS Security Hub and configure a custom insight that filters findings for resources missing the CostCenter tag across the organization."
+      },
+      {
+        "label": "D",
+        "text": "Write an SCP that denies RunInstances unless the request includes the CostCenter tag, attached at the root to prevent non-compliant launches."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Organizations tag policies are the purpose-built feature for enforcing consistent tagging governance across an organization. They define allowed tag keys and values, and the tag compliance report shows which resources are non-compliant. Config rules detect missing tags but cannot enforce allowed values centrally; SCPs can block launches without tags but are coarse and cannot validate value lists; Security Hub is a findings aggregator, not a tagging governance tool.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "tag-policies",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-002",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer reviews Security Hub findings and identifies a HIGH severity finding for an EC2 instance that is intentionally internet-facing due to a documented business exception. The engineer wants to stop this finding from appearing in the active findings dashboard without deleting it, while preserving the audit trail. What is the correct Security Hub action?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Set the finding workflow status to RESOLVED to indicate the underlying issue no longer exists and archive the finding from the dashboard."
+      },
+      {
+        "label": "B",
+        "text": "Disable the specific Security Hub control that generated the finding to prevent it from producing results for any resource."
+      },
+      {
+        "label": "C",
+        "text": "Delete the finding using the BatchDeleteFindings API so it no longer occupies dashboard space or counts against metrics."
+      },
+      {
+        "label": "D",
+        "text": "Set the finding workflow status to SUPPRESSED; the finding remains in Security Hub with its history intact but is excluded from the active findings view and metrics."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "SUPPRESSED is the correct workflow status for known acceptable findings where a business exception exists. It removes the finding from the default active view and excludes it from compliance scores while preserving the full audit trail. RESOLVED should only be used when the underlying issue is actually fixed. Deleting findings removes the audit trail entirely. Disabling a control affects all resources, not just the excepted one.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "security-hub",
+      "suppression"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-003",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An enterprise uses AWS Control Tower and needs to automatically deploy a standardized set of CloudFormation stacks and SCPs whenever a new account is vended through Account Factory. The solution must be version-controlled and integrated with a CI/CD pipeline. Which mechanism is purpose-built for this pattern?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an EventBridge rule that triggers a Lambda function on CreateManagedAccount events to invoke CloudFormation stack creation in each new account."
+      },
+      {
+        "label": "B",
+        "text": "Configure AWS Config organization conformance packs to deploy the required rules and remediation actions to each new account upon enrollment in the organization."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Service Catalog to create a portfolio of approved products, then configure Account Factory to launch the portfolio into each new account automatically."
+      },
+      {
+        "label": "D",
+        "text": "Customizations for AWS Control Tower (CfCT), which provides a CodePipeline-based framework that deploys CloudFormation StackSets and SCPs from a manifest file stored in a versioned S3 or CodeCommit repository whenever accounts are created."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Customizations for AWS Control Tower (CfCT) is the AWS-published solution that integrates a CodePipeline CI/CD pipeline with Control Tower. It reads a manifest.yaml from a versioned repository and automatically applies CloudFormation StackSets and SCPs to accounts or OUs, including newly vended accounts. Service Catalog handles pre-approved templates but lacks the pipeline integration. Config conformance packs deploy Config rules, not arbitrary CloudFormation stacks. A custom Lambda solution works but is not the purpose-built, supported mechanism.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "control-tower",
+      "cfct",
+      "account-vending"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-004",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A compliance team needs to demonstrate that all 500 AWS accounts in their organization meet a PCI-DSS baseline consisting of 30 AWS Config rules. They want a single artifact showing aggregate compliance status across all accounts and regions without manually deploying each rule separately. Which feature best addresses this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Security Hub across the organization and use the PCI DSS standard, which activates controls mapped to Config rules and aggregates compliance scores by account."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Audit Manager with a PCI DSS framework to automatically collect evidence from Config and generate a compliance report across accounts."
+      },
+      {
+        "label": "C",
+        "text": "Create an AWS Config organization conformance pack containing all 30 rules, deploy it from the management or delegated administrator account, and view aggregated compliance in the conformance pack dashboard."
+      },
+      {
+        "label": "D",
+        "text": "Deploy a CloudFormation StackSet that creates all 30 Config rules in each account and use a Config aggregator to collect and view compliance data centrally."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "An AWS Config organization conformance pack is the purpose-built feature for bundling multiple Config rules into a single deployable unit across an entire organization. It can be deployed from the management account or a delegated administrator, applies to all member accounts and regions, and provides an aggregated compliance dashboard. StackSets with a Config aggregator achieve the same result but with more operational overhead. Security Hub PCI DSS maps to similar controls but is not a Config conformance pack. Audit Manager collects evidence but is an audit workflow tool, not a Config rule deployment mechanism.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "config",
+      "conformance-pack",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-005",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A cloud architect is recommending tools to a CISO who wants both security posture findings AND cost optimization recommendations from a single AWS-native service. The CISO also wants the solution to require no additional AWS service enablement. Which service provides both cost and security checks natively?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Compute Optimizer, which analyzes usage patterns for cost savings and also flags security misconfigurations in EC2 and Lambda configurations."
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor, which provides checks across cost optimization, performance, security, fault tolerance, and service limits without requiring additional service enablement beyond a qualifying support plan."
+      },
+      {
+        "label": "C",
+        "text": "AWS Security Hub, which aggregates security findings from multiple AWS services and partner tools and includes a cost savings category for underutilized resources."
+      },
+      {
+        "label": "D",
+        "text": "AWS Cost Explorer with anomaly detection, which surfaces both unexpected spending and security-related cost spikes from services like GuardDuty and Security Hub."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Trusted Advisor is the service that covers cost optimization, security, performance, fault tolerance, and service limits in a single dashboard. It requires no additional service enablement \u2014 it is automatically available, with more checks available at Business and Enterprise support tiers. Security Hub is security-only and does not provide cost recommendations. Compute Optimizer focuses on rightsizing, not security misconfigurations. Cost Explorer with anomaly detection is a billing tool, not a security posture tool.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "trusted-advisor",
+      "security-hub"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-006",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A platform team wants to allow application teams to self-service provision VPCs, RDS instances, and IAM roles, but only using configurations that have been reviewed and approved by security. Application teams should not be able to modify the underlying CloudFormation templates. Which AWS service is designed for this governance model?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS CloudFormation StackSets with IAM permission boundaries, so application teams can deploy stacks but only within boundary-constrained permissions."
+      },
+      {
+        "label": "B",
+        "text": "AWS Control Tower Account Factory, which provisions new accounts with pre-approved guardrails, limiting infrastructure choices to compliant configurations."
+      },
+      {
+        "label": "C",
+        "text": "AWS Config with proactive evaluation mode, which checks CloudFormation templates before deployment and blocks non-compliant resource configurations."
+      },
+      {
+        "label": "D",
+        "text": "AWS Service Catalog portfolios, where security-approved CloudFormation templates are packaged as products; application teams can self-service launch approved products without viewing or modifying the underlying templates."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Service Catalog is purpose-built for this governance model. The platform team (portfolio administrator) creates products backed by approved CloudFormation templates and grants end users (application teams) launch permissions without granting access to the underlying templates. End users see a curated catalog and can self-service provision only approved configurations. StackSets with permission boundaries manage deployment scope but do not provide a self-service catalog. Control Tower Account Factory provisions accounts, not individual resources. Config proactive evaluation checks templates but does not provide a self-service provisioning interface.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "service-catalog",
+      "self-service"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-007",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer configures an AWS Config rule to detect S3 buckets with public access enabled. They also want non-compliant buckets to be automatically remediated by disabling public access. The remediation must be scoped to only the specific non-compliant resource, not all S3 buckets in the account. Which remediation configuration achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Attach an SCP to the AWS Organizations root that denies s3:PutBucketPublicAccessBlock with a Deny effect, preventing any changes to public access settings organization-wide."
+      },
+      {
+        "label": "B",
+        "text": "Configure automatic remediation on the Config rule using an SSM Automation document (such as AWS-DisableS3BucketPublicReadWrite), passing the non-compliant resource ID as the target parameter so remediation applies only to that specific bucket."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Security Hub automated response to trigger a remediation playbook when an S3.2 finding is generated, applying the fix across all S3 buckets in the account simultaneously."
+      },
+      {
+        "label": "D",
+        "text": "Create a Lambda function that scans all S3 buckets hourly and disables public access on any bucket where it is enabled, triggered by a CloudWatch Events schedule."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Config remediation actions use SSM Automation documents scoped to the specific non-compliant resource. When Config marks a resource as non-compliant, it passes the resource ID to the SSM Automation document, so remediation targets only that resource. The AWS-DisableS3BucketPublicReadWrite document is an example of a managed SSM document for this purpose. A Lambda scheduled scan is not resource-scoped and has latency. An SCP denying PutBucketPublicAccessBlock would prevent remediation, not enable it. Security Hub automated response applies to findings but does not natively scope remediation to the specific resource.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "config",
+      "remediation",
+      "ssm-automation"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-008",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security architect is designing an SCP strategy for AWS Organizations. They must choose between a deny-list approach and an allow-list approach. A key consideration is that the management account must retain full access to all AWS services for break-glass operations. Which statement about SCP behavior and management account impact is accurate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An allow-list SCP attached to the root restricts the management account to only the listed services, which makes allow-list strategies risky without careful management account exclusions."
+      },
+      {
+        "label": "B",
+        "text": "SCPs never apply to the management account regardless of where they are attached; both deny-list and allow-list SCPs are enforced only on member accounts and the management account retains full access by design."
+      },
+      {
+        "label": "C",
+        "text": "SCPs apply to the management account only if they are attached directly to the management account's OU, not when attached at the root; root SCPs affect only member accounts."
+      },
+      {
+        "label": "D",
+        "text": "SCPs attached to the root apply to the management account; a deny-list strategy is therefore safer because explicit denies in the management account can be selectively removed for break-glass access."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "SCPs never apply to the management account. This is a fundamental AWS Organizations design constraint: the management account is exempt from all SCPs regardless of attachment point (root, OU, or account). This means the management account always retains full access to all AWS services, making it the natural break-glass account. Both deny-list and allow-list SCPs only affect member accounts. This also means the management account should not be used for workloads, as it cannot be restricted by SCPs.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "scp",
+      "organizations",
+      "management-account"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-009",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A third-party security tool sends findings to AWS Security Hub using the Security Finding Format (ASFF). The tool assigns its own severity as a numeric score of 55. A security analyst queries Security Hub and sees the finding labeled as MEDIUM. Which Security Hub feature produced this label and what numeric range does MEDIUM correspond to?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Security Hub severity normalization maps the ASFF Severity.Normalized field (0-100) to standard labels: 0=INFORMATIONAL, 1-39=LOW, 40-69=MEDIUM, 70-89=HIGH, 90-100=CRITICAL; a score of 55 maps to MEDIUM."
+      },
+      {
+        "label": "B",
+        "text": "The MEDIUM label comes from GuardDuty's severity normalization, which Security Hub inherits; GuardDuty classifies scores 4.0-6.9 as MEDIUM and Security Hub displays that label."
+      },
+      {
+        "label": "C",
+        "text": "Security Hub applies its own risk scoring algorithm that factors in asset criticality and exposure; MEDIUM is assigned when the combined risk score falls between 40 and 69."
+      },
+      {
+        "label": "D",
+        "text": "Security Hub maps the finding to MEDIUM because the originating product is not AWS-native; all third-party findings default to MEDIUM until manually reclassified by an analyst."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Security Hub uses the Severity.Normalized field in the ASFF (a 0-100 integer) to assign a severity label. The mapping is: 0 = INFORMATIONAL, 1-39 = LOW, 40-69 = MEDIUM, 70-89 = HIGH, 90-100 = CRITICAL. A normalized score of 55 falls in the 40-69 range and maps to MEDIUM. This normalization allows findings from different products with different native severity scales to be compared consistently within Security Hub.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "security-hub",
+      "severity-normalization",
+      "asff"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-010",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company uses AWS Control Tower and needs every account added to their 'Production' OU to automatically have a specific CloudFormation stack deployed. The stack creates mandatory security resources. The solution must work for future accounts without any manual steps after OU assignment. Which feature provides this automatic deployment?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a Service Catalog portfolio assigned to the Production OU and configure auto-launch so the security product deploys when accounts are added."
+      },
+      {
+        "label": "B",
+        "text": "Write a Lambda function triggered by CloudTrail events for account creation that assumes a role in each new account and creates the CloudFormation stack."
+      },
+      {
+        "label": "C",
+        "text": "Configure a Control Tower mandatory guardrail on the Production OU that deploys the security stack via an embedded CloudFormation template when accounts are enrolled."
+      },
+      {
+        "label": "D",
+        "text": "Use CloudFormation StackSets with automatic deployment enabled, targeting the Production OU; StackSets automatically deploy stack instances to new accounts added to the OU and remove them when accounts leave."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "CloudFormation StackSets with automatic deployment enabled for AWS Organizations integration is the purpose-built mechanism for deploying stacks to all current and future accounts in an OU. When automatic deployment is enabled, StackSets automatically create stack instances in new accounts added to the targeted OU and delete them when accounts are removed. Control Tower guardrails deploy AWS Config rules, not arbitrary CloudFormation stacks. Service Catalog auto-launch is a different workflow. Custom Lambda solutions add operational overhead and are not the recommended native approach.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "cloudformation",
+      "stacksets",
+      "organizations"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-011",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An auditor requires evidence that AWS Config was continuously evaluating compliance for a set of resources throughout an audit period, not just at a single point in time. A security engineer is setting up AWS Audit Manager for an upcoming SOC 2 audit. Which Audit Manager evidence collection approach satisfies the continuous monitoring requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Config configuration history delivery to S3, then use Audit Manager to query S3 and generate a one-time compliance report at the audit's conclusion."
+      },
+      {
+        "label": "B",
+        "text": "Configure Audit Manager to take a point-in-time snapshot of all resource configurations at the start and end of the audit period, comparing the two states to identify changes."
+      },
+      {
+        "label": "C",
+        "text": "Use Audit Manager's continuous evidence collection, which automatically collects evidence from AWS Config, CloudTrail, and Security Hub on a scheduled basis throughout the assessment period, building a timeline of compliance state."
+      },
+      {
+        "label": "D",
+        "text": "Export Config compliance history to S3 and provide the raw JSON files to the auditor as evidence of continuous evaluation."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Audit Manager supports continuous evidence collection, where it automatically gathers evidence from integrated data sources \u2014 including AWS Config compliance checks, CloudTrail API activity, and Security Hub findings \u2014 on a scheduled cadence throughout the assessment period. This produces a timeline of compliance state rather than a single point-in-time snapshot. Point-in-time snapshots do not satisfy continuous monitoring requirements. Manual S3 exports lack the structured, auditor-ready format that Audit Manager provides and do not demonstrate Audit Manager's integration.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "audit-manager",
+      "continuous-evidence",
+      "compliance"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-012",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A DevOps team uses AWS Control Tower Account Factory to create new AWS accounts. They want to automatically apply additional configurations \u2014 such as enabling a SIEM integration and creating baseline IAM roles \u2014 immediately after each account is successfully enrolled in Control Tower. Which event-driven mechanism should they use to trigger this automation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure an AWS Config rule that triggers on new account creation events and invokes an SSM Automation document to apply the SIEM integration and IAM roles."
+      },
+      {
+        "label": "B",
+        "text": "Use the AWS Control Tower Account Factory API to register a post-provisioning hook that runs a CloudFormation stack in the new account upon account creation completion."
+      },
+      {
+        "label": "C",
+        "text": "Create an Amazon EventBridge rule that matches the Control Tower lifecycle event CreateManagedAccount with a status of SUCCESS, and invoke a Step Functions workflow or Lambda function to perform the post-provisioning configuration."
+      },
+      {
+        "label": "D",
+        "text": "Subscribe an SNS topic to Control Tower account vending notifications and invoke a Lambda function that polls the new account until CloudFormation stacks are complete before applying configurations."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Control Tower publishes lifecycle events to Amazon EventBridge, including CreateManagedAccount (when Account Factory vends a new account) and UpdateManagedAccount. An EventBridge rule matching the CreateManagedAccount event with a SUCCESS status can directly trigger Lambda, Step Functions, or other targets to perform post-provisioning automation. This is the documented and recommended pattern for account creation automation. Config rules do not trigger on account creation events. Control Tower does not expose a post-provisioning hook API. SNS is not the Control Tower event bus mechanism; EventBridge is.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "control-tower",
+      "eventbridge",
+      "lifecycle-events",
+      "account-vending"
+    ]
+  },
+  {
+    "id": "scs-d6-t4-013",
+    "domain": "domain-06",
+    "domain_name": "Management and Security Governance",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A compliance officer wants to use the AWS Well-Architected Tool to demonstrate alignment with NIST SP 800-53 controls during a federal audit. They need to map the Tool's Security Pillar questions to specific NIST control families. Which statement best describes how the AWS Well-Architected Tool supports this mapping?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The Well-Architected Tool automatically generates a FedRAMP System Security Plan (SSP) with NIST control narratives populated from the workload review answers."
+      },
+      {
+        "label": "B",
+        "text": "The Well-Architected Tool Security Pillar best practices align with NIST SP 800-53; the Tool produces improvement plan reports that compliance teams cross-reference to NIST control families such as AC, AU, IA, and SC."
+      },
+      {
+        "label": "C",
+        "text": "The Well-Architected Tool replaces the need for Audit Manager and Security Hub when auditing against NIST SP 800-53, as it provides authoritative compliance attestation recognized by federal auditors."
+      },
+      {
+        "label": "D",
+        "text": "The Well-Architected Tool integrates with AWS Audit Manager's NIST SP 800-53 framework so that answering Security Pillar questions automatically populates Audit Manager evidence for matching controls."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The AWS Well-Architected Tool Security Pillar best practices are designed to align with established security frameworks including NIST SP 800-53. While the Tool does not auto-generate SSPs or directly integrate with Audit Manager evidence collection, it produces workload review reports and improvement plans that compliance teams map to NIST control families (AC=Access Control, AU=Audit and Accountability, IA=Identification and Authentication, SC=System and Communications Protection). The Tool is an assessment and improvement aid, not an authoritative compliance attestation service, and does not replace Audit Manager or Security Hub for continuous compliance evidence.",
+    "module_ref": "domain-06",
+    "tags": [
+      "aws-scs",
+      "domain-06",
+      "security-governance",
+      "well-architected",
+      "nist",
+      "security-pillar"
+    ]
+  }
+]

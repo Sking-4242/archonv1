@@ -1,7 +1,18 @@
 // Relative base — requests go to the same origin (localhost:3001) and are
 // proxied to the backend by Vite's dev server. No CORS, no hardcoded URLs.
-// See vite.config.js proxy config for the forwarding target.
 const BASE_URL = "";
+
+const PUBLIC_AUTH_PATHS = [
+  "/auth/login",
+  "/auth/register",
+  "/auth/mfa/verify",
+  "/auth/password/forgot",
+  "/auth/password/reset",
+];
+
+function isPublicAuthPath(path) {
+  return PUBLIC_AUTH_PATHS.some((prefix) => path.startsWith(prefix));
+}
 
 function getStoredToken() {
   try {
@@ -14,8 +25,14 @@ function getStoredToken() {
   }
 }
 
+async function parseErrorDetail(res) {
+  const err = await res.json().catch(() => ({ detail: res.statusText }));
+  return typeof err.detail === "string" ? err.detail : err.detail || "Request failed";
+}
+
 async function request(method, path, body, token) {
-  const resolvedToken = token ?? getStoredToken();
+  const publicAuth = isPublicAuthPath(path);
+  const resolvedToken = publicAuth ? null : token ?? getStoredToken();
   const headers = { "Content-Type": "application/json" };
   if (resolvedToken) headers["Authorization"] = `Bearer ${resolvedToken}`;
 
@@ -31,28 +48,28 @@ async function request(method, path, body, token) {
   }
 
   if (res.status === 401) {
-    // Token is missing, expired, or references a deleted user.
-    // Clear stored auth and redirect to login so the user can re-authenticate.
+    const detail = await parseErrorDetail(res);
+    if (publicAuth) {
+      throw new Error(detail === "Unauthorized" ? "Invalid email or password" : detail);
+    }
     try {
       localStorage.removeItem("archon-academy-auth");
     } catch {}
     window.location.href = "/login";
-    // Throw so callers don't try to parse a non-existent body.
     throw new Error("Session expired. Please log in again.");
   }
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(err.detail || "Request failed");
+    throw new Error(await parseErrorDetail(res));
   }
 
   return res.json();
 }
 
 export const api = {
-  get:    (path, token)       => request("GET",    path, null, token),
-  post:   (path, body, token) => request("POST",   path, body, token),
-  put:    (path, body, token) => request("PUT",    path, body, token),
-  patch:  (path, body, token) => request("PATCH",  path, body, token),
-  delete: (path, token)       => request("DELETE", path, null, token),
+  get: (path, token) => request("GET", path, null, token),
+  post: (path, body, token) => request("POST", path, body, token),
+  put: (path, body, token) => request("PUT", path, body, token),
+  patch: (path, body, token) => request("PATCH", path, body, token),
+  delete: (path, token) => request("DELETE", path, null, token),
 };

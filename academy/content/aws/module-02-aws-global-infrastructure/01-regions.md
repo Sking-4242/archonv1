@@ -35,6 +35,48 @@ Compliance always comes first. If a regulation mandates your data stay in German
 
 AWS Regions are independent geographic areas containing multiple data centers. They are fully isolated from each other for maximum fault tolerance. Region selection is driven by compliance requirements first, then latency, service availability, and pricing. us-east-1 (N. Virginia) has the broadest service catalog and lowest pricing for most services.
 
+## Examples
+
+A global e-commerce company launching its first cloud workload chose us-east-1 (N. Virginia) as its primary Region because it had the broadest service catalog and the lowest pricing — a straightforward, beginner-friendly choice for a US-based team with no international compliance obligations. They got access to every AWS service they needed from day one without any gotchas.
+
+A European fintech startup building a payments platform was subject to GDPR and PSD2, both of which required that customer financial data remain within the EU. Despite their engineering team being based in the US, they deployed to eu-central-1 (Frankfurt). This is the compliance-first principle in action: the regulation chose the Region, not the architects. They accepted slightly higher costs and a bit more latency for their US employees without question.
+
+A healthcare analytics company building on AWS wanted to use Amazon HealthLake — an AWS service for storing and querying FHIR health records. They discovered HealthLake was only available in a handful of Regions. This forced them to reconcile their HIPAA compliance requirements, their patients' geographic distribution, and service availability simultaneously — the kind of real constraint that makes Region selection genuinely difficult and underscores why verifying service availability is a non-negotiable step.
+
+## Think About It
+
+1. Why does AWS isolate Regions from each other rather than treating all global data centers as one large pool? What would break if a failure in one location could cascade to another?
+2. If your company's users are split 60% in the US and 40% in Southeast Asia, how would you decide whether to run a single Region or multiple Regions? What additional information would you need?
+3. A startup tells you they're deploying to eu-west-1 (Ireland) because they read it's a popular Region. What's wrong with this reasoning, and what questions should they be asking first?
+4. us-east-1 is both the cheapest and the most feature-rich Region. Does that mean you should always default to it? What scenarios would make that the wrong choice?
+5. What trade-offs exist between deploying to a new Region (closer to your users) versus waiting until that Region has broader service availability?
+
+## Quick Check
+
+**Q1.** Which factor should always be evaluated first when selecting an AWS Region?
+- A) Latency to end users
+- B) Pricing
+- C) Compliance and data residency requirements
+- D) Service availability
+
+**Answer: C** — Compliance and data residency requirements are the first filter; legal mandates override latency, pricing, and service preference.
+
+**Q2.** As of 2024, approximately how many AWS Regions are launched globally?
+- A) 10
+- B) 22
+- C) 33
+- D) 450
+
+**Answer: C** — AWS operates 33 launched Regions as of 2024; the 450+ figure refers to Edge Locations, not Regions.
+
+**Q3.** Which AWS Region typically has the broadest service availability and lowest pricing for most services?
+- A) eu-west-1 (Ireland)
+- B) ap-southeast-1 (Singapore)
+- C) us-west-2 (Oregon)
+- D) us-east-1 (N. Virginia)
+
+**Answer: D** — us-east-1 is AWS's oldest and largest Region, so it receives new services first and carries the lowest base pricing for most resources.
+
 ## What's Next
 
 Next: Availability Zones — the data centers within a Region, and why spreading your workload across them is non-negotiable for production systems.

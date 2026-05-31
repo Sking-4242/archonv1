@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { listModules } from "../../api/modules";
+import useAccessStore from "../../store/accessStore";
+import UpgradePrompt from "../ui/UpgradePrompt";
+import { canAccessCourseProvider, canAccessModule } from "../../utils/tierGates";
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -71,15 +74,19 @@ function ProgressBar({ completed, total }) {
 
 // ── Module card ───────────────────────────────────────────────────────────────
 
-function ModuleCard({ module, onClick }) {
+function ModuleCard({ module, course, locked, onClick }) {
   const diff = DIFFICULTY_CONFIG[module.difficulty_level] ?? DIFFICULTY_CONFIG.beginner;
   const isComplete =
     module.lesson_count > 0 && module.completed_lesson_count === module.lesson_count;
 
   return (
     <button
-      onClick={() => onClick(module.id)}
-      className="bg-white border border-gray-200 rounded-xl p-5 text-left hover:border-blue-300 hover:shadow-sm transition-all group w-full flex flex-col gap-4"
+      onClick={() => onClick(module, locked)}
+      className={`bg-white border rounded-xl p-5 text-left transition-all group w-full flex flex-col gap-4 ${
+        locked
+          ? "border-gray-200 opacity-80 hover:border-amber-300"
+          : "border-gray-200 hover:border-blue-300 hover:shadow-sm"
+      }`}
     >
       {/* Header row */}
       <div className="flex items-start justify-between gap-3">
@@ -91,6 +98,11 @@ function ModuleCard({ module, onClick }) {
             {isComplete && (
               <span className="text-xs bg-green-50 text-green-700 border border-green-200 rounded-full px-2 py-0.5 flex-shrink-0">
                 ✓ Complete
+              </span>
+            )}
+            {locked && (
+              <span className="text-xs bg-amber-50 text-amber-800 border border-amber-200 rounded-full px-2 py-0.5 flex-shrink-0">
+                🔒 License required
               </span>
             )}
           </div>
@@ -153,19 +165,41 @@ const PROVIDERS = [
 
 export default function StudentModules() {
   const navigate = useNavigate();
+  const canUse = useAccessStore((s) => s.canUse);
   const [provider, setProvider] = useState("aws");
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("all"); // "all" | difficulty | cert tag
+  const [filter, setFilter] = useState("all");
+  const [upgradeFeature, setUpgradeFeature] = useState(null);
+
+  const providerLocked = !canAccessCourseProvider(provider, canUse);
 
   useEffect(() => {
     setLoading(true);
     setFilter("all");
+    setUpgradeFeature(null);
     listModules(provider)
       .then(setModules)
       .catch(() => setModules([]))
       .finally(() => setLoading(false));
   }, [provider]);
+
+  function handleModuleClick(module, locked) {
+    if (locked) {
+      setUpgradeFeature("academy_all_certs");
+      return;
+    }
+    navigate(`/modules/${module.id}`);
+  }
+
+  function handleProviderChange(next) {
+    if (!canAccessCourseProvider(next, canUse)) {
+      setUpgradeFeature("academy_all_certs");
+      return;
+    }
+    setProvider(next);
+    setUpgradeFeature(null);
+  }
 
   const allCerts = [...new Set(modules.flatMap((m) => m.certification_tags || []))];
 
@@ -193,7 +227,7 @@ export default function StudentModules() {
           {PROVIDERS.map((p) => (
             <button
               key={p.id}
-              onClick={() => setProvider(p.id)}
+              onClick={() => handleProviderChange(p.id)}
               className={`flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg border transition-all ${
                 provider === p.id ? p.active : p.inactive
               }`}
@@ -204,6 +238,17 @@ export default function StudentModules() {
           ))}
         </div>
       </div>
+
+      {upgradeFeature && (
+        <UpgradePrompt feature={upgradeFeature} compact />
+      )}
+
+      {providerLocked && !upgradeFeature && (
+        <UpgradePrompt
+          feature="academy_all_certs"
+          message="Azure and GCP certification tracks require an Academy license."
+        />
+      )}
 
       {/* Filter pills */}
       {modules.length > 0 && (
@@ -273,13 +318,19 @@ export default function StudentModules() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filtered.map((module) => (
-            <ModuleCard
-              key={module.id}
-              module={module}
-              onClick={(id) => navigate(`/modules/${id}`)}
-            />
-          ))}
+          {filtered.map((module) => {
+            const moduleWithCourse = { ...module, course: module.course || provider };
+            const locked = !canAccessModule(moduleWithCourse, canUse);
+            return (
+              <ModuleCard
+                key={module.id}
+                module={module}
+                course={provider}
+                locked={locked}
+                onClick={handleModuleClick}
+              />
+            );
+          })}
         </div>
       )}
     </div>

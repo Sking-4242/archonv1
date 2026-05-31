@@ -43,6 +43,48 @@ For the CCP exam, you don't need to memorize specific prices (they change). You 
 
 AWS pricing is built on three principles: pay for what you use, pay less when you reserve, and pay less as AWS grows. The three main cost drivers are compute (per hour/second), storage (per GB/month), and data transfer out (per GB). Use the AWS Pricing Calculator to estimate costs before building, and use Cost Explorer to understand costs after building.
 
+## Examples
+
+A small e-commerce startup launches its first online store on AWS. They use S3 for product images, EC2 for the web tier, and RDS for the database — paying only for what they consume each month. In the first month, with minimal traffic, their bill is under $50. This is the pay-for-what-you-use principle in action: no upfront infrastructure purchase, no idle server costs, and no minimum commitment.
+
+A mid-sized SaaS company has a stable customer base and predictable monthly active users. Their application tier runs 10 EC2 instances around the clock. By purchasing Savings Plans for that baseline capacity, they lock in a 40% discount over on-demand pricing. They still use on-demand instances to handle occasional traffic spikes above that baseline — blending models to optimize cost without sacrificing flexibility.
+
+A global media streaming company notices that AWS has quietly reduced data transfer pricing for their primary Region — without any action on their part, their monthly bill dropped by 8%. This is the pay-less-as-AWS-grows principle at work. Unlike traditional data center contracts, customers automatically benefit from AWS's efficiency gains over time. This dynamic rewards long-term customers and raises an interesting architectural question: should you optimize aggressively today, or wait for AWS price reductions to do some of the work for you?
+
+## Think About It
+
+1. AWS says data transfer into the cloud is free, but data transfer out is not. Why might AWS structure pricing this way, and what architectural decisions does this incentivize?
+2. EBS charges for provisioned capacity, not used capacity. If a team provisions a 1 TB volume but only uses 50 GB, they pay for 1 TB. What organizational habits or processes could prevent this kind of waste at scale?
+3. AWS has reduced prices over 100 times since 2006. If you were signing a 3-year Reserved Instance contract today, how would the possibility of future price reductions affect your decision?
+4. The AWS Pricing Calculator estimates cost before you build. What are its limitations — what costs might it underestimate, and why?
+5. If compute, storage, and data transfer are the three pillars of AWS cost, which one do you think surprises new AWS users the most, and why?
+
+## Quick Check
+
+**Q1.** Which of the following best describes the "pay less when you reserve" principle?
+- A) AWS automatically reduces your bill when you use fewer resources
+- B) Committing to 1 or 3 years of usage results in discounts of 30–72% off on-demand rates
+- C) AWS charges less per GB as your total storage increases
+- D) Inbound data transfer is free
+
+**Answer: B** — Reserving capacity for 1 or 3 years (via Reserved Instances or Savings Plans) earns significant discounts in exchange for the usage commitment.
+
+**Q2.** A company transfers 10 TB of data from their S3 bucket to users on the internet. Which cost dimension does this charge fall under?
+- A) Compute
+- B) Storage
+- C) Data transfer out
+- D) API requests
+
+**Answer: C** — Sending data from AWS to the internet is billed as data transfer out, charged per GB, and is one of the most commonly underestimated cost drivers.
+
+**Q3.** What is the primary purpose of the AWS Pricing Calculator?
+- A) Analyzing historical spending on your AWS account
+- B) Setting alerts when your monthly bill exceeds a threshold
+- C) Estimating the expected cost of a planned architecture before you build it
+- D) Recommending Reserved Instance purchases based on usage history
+
+**Answer: C** — The AWS Pricing Calculator (calculator.aws) is a pre-build estimation tool; Cost Explorer and AWS Budgets handle post-build cost tracking and alerting.
+
 ## What's Next
 
 Next: The AWS Free Tier — what's included, for how long, and how to use it to learn AWS without incurring charges.

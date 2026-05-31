@@ -10,7 +10,7 @@ This guide covers integrating `archon-cli` into your development workflow: pre-c
 
 | Command | What it does | Exit code |
 |---|---|---|
-| `validate` | Runs 49 architecture rules against a TF plan | 1 if any CRITICAL findings |
+| `validate` | Runs architecture rules against a TF plan (153 AWS, 164 Azure, 163 GCP, 30 On-Prem) | 1 if any CRITICAL findings |
 | `cost` | Shows monthly cost delta for a TF plan | 0 always |
 | `discover` | Scans live AWS infrastructure | 0 always |
 
@@ -42,6 +42,17 @@ To skip the hook when you need to commit without a clean plan (not recommended):
 ```bash
 git commit --no-verify
 ```
+
+### Pre-commit hook verified
+
+The hook in `.github/hooks/pre-commit` is tested in CI (Linux) via `archon-cli/tests/test_gitops.py`. Install locally with:
+
+```bash
+cp .github/hooks/pre-commit .git/hooks/pre-commit
+chmod +x .git/hooks/pre-commit
+```
+
+Workflow templates use `-o` / `--output` for report files (Windows-safe). See `.github/workflow-templates/archon-validate.yml`.
 
 ### Team-wide install with pre-commit framework
 
@@ -76,8 +87,8 @@ cp .github/workflow-templates/archon-validate.yml .github/workflows/archon-valid
 `.github/workflow-templates/archon-validate.yml` runs on every PR that touches `.tf` or `plan.json` files. It:
 
 1. Installs `archon-cli` from the repo
-2. Runs `archon-cli validate plan.json --format github` and posts the output as a PR comment
-3. Runs `archon-cli cost plan.json --format github` and posts the cost delta as a PR comment
+2. Runs `archon-cli validate plan.json --format github -o validate-report.md` and posts the output as a PR comment
+3. Runs `archon-cli cost plan.json --format github -o cost-report.md` and posts the cost delta as a PR comment
 4. Fails the job (blocks merge) if any CRITICAL findings are present
 
 #### Wiring up Terraform plan generation
@@ -219,7 +230,7 @@ Check that branch protection rules require the `archon-validate` job to pass bef
 The Terraform plan generation step must run before `archon-cli`. Verify the plan step outputs to `plan.json` in the working directory, not a subdirectory.
 
 **Findings appear for resources I don't own**
-`archon-cli validate` checks everything in the plan, including resources from modules. Use `--standard` to scope findings to a specific compliance standard, or review the full findings list to identify which module is triggering the rule.
+`archon-cli validate` checks every rule that applies to resources in the plan across AWS, Azure, GCP, and On-Prem providers. Use `--standard` to scope findings to a specific compliance standard, or review the full findings list to identify which module is triggering the rule.
 
 **The cost estimate shows static pricing**
-`archon-cli cost` uses bundled static pricing data — it does not call any cloud pricing API and does not require credentials. The estimate is an approximation. For exact pricing, use the live pricing feature in Archon Pro.
+`archon-cli cost` uses bundled static pricing data — it does not call any cloud pricing API and does not require credentials. The estimate is an approximation. For live pricing APIs and usage-based models, sign in to Archon Pro and use the Estimate panel.

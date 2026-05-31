@@ -1,0 +1,545 @@
+[
+  {
+    "id": "aws-scs-t1-01-001",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security engineer wants a fully managed service that continuously monitors AWS accounts and workloads for malicious activity using threat intelligence feeds, VPC Flow Logs, DNS logs, and CloudTrail. Which service best meets this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon GuardDuty continuously analyzes multiple AWS data sources using threat intelligence and machine learning to identify suspicious activity across accounts."
+      },
+      {
+        "label": "B",
+        "text": "AWS Security Hub aggregates security findings from multiple services into a single dashboard but does not perform its own threat detection on raw data sources."
+      },
+      {
+        "label": "C",
+        "text": "Amazon Inspector performs automated security assessments of EC2 instance configurations and container images but does not monitor account-level threat activity."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config continuously monitors and records AWS resource configurations and evaluates them against desired rules, but does not analyze network or DNS logs for threats."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS Security Hub aggregates security findings from multiple services into a single dashboard but does not perform its own threat detection on raw data sources.",
+      "C": "Amazon Inspector performs automated security assessments of EC2 instance configurations and container images but does not monitor account-level threat activity.",
+      "D": "AWS Config continuously monitors and records AWS resource configurations and evaluates them against desired rules, but does not analyze network or DNS logs for threats."
+    },
+    "explanation": "Amazon GuardDuty is AWS's managed threat detection service. It ingests VPC Flow Logs, DNS query logs, and CloudTrail management and data events, then applies machine learning models and threat intelligence feeds to identify threats such as cryptocurrency mining, credential compromise, and unusual API activity. No agents or additional log infrastructure are required.",
+    "module_ref": "scs/threat-detection/guardduty",
+    "tags": [
+      "guardduty",
+      "threat-detection",
+      "managed-service"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-002",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An organization discovers that an IAM access key has been exposed in a public GitHub repository. What is the correct FIRST step in the incident response process?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Immediately deactivate or delete the exposed IAM access key to stop any ongoing unauthorized use before investigating the extent of the compromise."
+      },
+      {
+        "label": "B",
+        "text": "Review CloudTrail logs to determine what actions were taken with the exposed key before taking any action to preserve forensic evidence."
+      },
+      {
+        "label": "C",
+        "text": "Rotate the access key by creating a new one and updating application configurations, then delete the old key once all services are updated."
+      },
+      {
+        "label": "D",
+        "text": "Contact GitHub support to remove the repository containing the exposed key and request that search engines remove cached versions of the page."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Review CloudTrail logs to determine what actions were taken with the exposed key before taking any action to preserve forensic evidence.",
+      "C": "Rotate the access key by creating a new one and updating application configurations, then delete the old key once all services are updated.",
+      "D": "Contact GitHub support to remove the repository containing the exposed key and request that search engines remove cached versions of the page."
+    },
+    "explanation": "In credential compromise incidents, containment takes priority over investigation. The exposed key must be deactivated immediately to stop active misuse. CloudTrail review, key rotation, and external notifications are all important follow-up steps, but every second the key remains active allows a potential attacker to cause further damage.",
+    "module_ref": "scs/incident-response/credential-compromise",
+    "tags": [
+      "incident-response",
+      "iam",
+      "credentials",
+      "containment"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-003",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "GuardDuty generates a finding of type UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B. What does this finding indicate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A successful AWS Console login occurred from an IP address on GuardDuty's threat intelligence list of known malicious actors."
+      },
+      {
+        "label": "B",
+        "text": "An IAM user attempted to log into the AWS Console but failed authentication multiple times, suggesting a brute-force attempt."
+      },
+      {
+        "label": "C",
+        "text": "An IAM role assumed a cross-account trust relationship that was not previously observed in the account's baseline behavior."
+      },
+      {
+        "label": "D",
+        "text": "A root account login occurred without MFA enabled, triggering a mandatory security notification from GuardDuty."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "An IAM user attempted to log into the AWS Console but failed authentication multiple times, suggesting a brute-force attempt.",
+      "C": "An IAM role assumed a cross-account trust relationship that was not previously observed in the account's baseline behavior.",
+      "D": "A root account login occurred without MFA enabled, triggering a mandatory security notification from GuardDuty."
+    },
+    "explanation": "The GuardDuty finding type UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B indicates that a successful AWS Management Console sign-in occurred from an IP address that is included in a threat intelligence feed. The '.B' suffix denotes a specific subtype within the broader finding category. This is a high-priority finding because the IP is externally flagged as malicious.",
+    "module_ref": "scs/threat-detection/guardduty-findings",
+    "tags": [
+      "guardduty",
+      "finding-types",
+      "console-login"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-004",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "Which AWS service provides a centralized security findings aggregator that collects alerts from GuardDuty, Inspector, Macie, and partner tools, and maps them to security standards like CIS and PCI DSS?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Security Hub aggregates and normalizes findings from multiple AWS security services and third-party tools, mapping them to compliance frameworks."
+      },
+      {
+        "label": "B",
+        "text": "Amazon Detective analyzes findings from GuardDuty and automatically determines the root cause of security issues using graph-based analysis."
+      },
+      {
+        "label": "C",
+        "text": "AWS Config aggregates compliance results from across multiple accounts and provides a centralized view of resource configuration violations."
+      },
+      {
+        "label": "D",
+        "text": "Amazon CloudWatch collects metrics and logs from security services and provides dashboards for monitoring security posture across accounts."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Amazon Detective analyzes findings from GuardDuty and automatically determines the root cause of security issues using graph-based analysis.",
+      "C": "AWS Config aggregates compliance results from across multiple accounts and provides a centralized view of resource configuration violations.",
+      "D": "Amazon CloudWatch collects metrics and logs from security services and provides dashboards for monitoring security posture across accounts."
+    },
+    "explanation": "AWS Security Hub is the central security findings aggregation service. It ingests findings from GuardDuty, Inspector, Macie, IAM Access Analyzer, Firewall Manager, and integrated third-party tools. It normalizes findings into the AWS Security Finding Format (ASFF) and runs automated compliance checks against CIS AWS Foundations Benchmark, PCI DSS, and NIST frameworks.",
+    "module_ref": "scs/threat-detection/security-hub",
+    "tags": [
+      "security-hub",
+      "findings-aggregation",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-005",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security team needs to isolate a potentially compromised EC2 instance immediately while preserving forensic evidence for analysis. Which combination of actions achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an EBS snapshot of the instance volumes, move the instance to an isolated security group with no inbound or outbound rules, and preserve the original instance without termination."
+      },
+      {
+        "label": "B",
+        "text": "Terminate the instance immediately to stop any active malware, then restore from the most recent AMI backup to return to a known-good state."
+      },
+      {
+        "label": "C",
+        "text": "Stop the instance using the AWS Console to pause all processes, then restart it in a different Availability Zone to isolate it from other workloads."
+      },
+      {
+        "label": "D",
+        "text": "Reboot the instance to clear any in-memory malware, then run AWS Inspector to scan for vulnerabilities before returning it to production traffic."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Terminate the instance immediately to stop any active malware, then restore from the most recent AMI backup to return to a known-good state.",
+      "C": "Stop the instance using the AWS Console to pause all processes, then restart it in a different Availability Zone to isolate it from other workloads.",
+      "D": "Reboot the instance to clear any in-memory malware, then run AWS Inspector to scan for vulnerabilities before returning it to production traffic."
+    },
+    "explanation": "Proper EC2 incident response follows the containment-preserve pattern: (1) snapshot EBS volumes for forensic analysis, (2) replace the instance's security group with an isolated 'quarantine' security group that denies all traffic, and (3) keep the instance running or stopped but not terminated so memory and disk state is preserved. Termination destroys forensic evidence and should be a last resort.",
+    "module_ref": "scs/incident-response/ec2-isolation",
+    "tags": [
+      "incident-response",
+      "ec2",
+      "forensics",
+      "containment"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-006",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "Which AWS service uses machine learning to analyze billions of events across VPC Flow Logs, CloudTrail, and GuardDuty findings to automatically build an interactive graph model that helps investigators visualize and determine the root cause of a security incident?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Detective builds behavior graphs from AWS log sources and uses machine learning to help security teams investigate and understand the full scope of incidents."
+      },
+      {
+        "label": "B",
+        "text": "AWS Security Hub provides a compliance dashboard and finding aggregation but does not build graph models or perform deep behavioral analysis for investigation."
+      },
+      {
+        "label": "C",
+        "text": "Amazon Macie uses machine learning to discover sensitive data in S3 but does not analyze network behavior or help investigate security incidents."
+      },
+      {
+        "label": "D",
+        "text": "Amazon GuardDuty generates threat findings but does not provide an investigation interface or graph-based analysis of related events across accounts."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS Security Hub provides a compliance dashboard and finding aggregation but does not build graph models or perform deep behavioral analysis for investigation.",
+      "C": "Amazon Macie uses machine learning to discover sensitive data in S3 but does not analyze network behavior or help investigate security incidents.",
+      "D": "Amazon GuardDuty generates threat findings but does not provide an investigation interface or graph-based analysis of related events across accounts."
+    },
+    "explanation": "Amazon Detective is purpose-built for security investigation. It automatically processes and retains up to 12 months of log data from VPC Flow Logs, CloudTrail, and GuardDuty findings, and builds a behavior graph that visualizes relationships between resources, IP addresses, and API calls. This enables security teams to quickly determine if a GuardDuty finding is a true positive and understand the full blast radius.",
+    "module_ref": "scs/incident-response/detective",
+    "tags": [
+      "detective",
+      "investigation",
+      "graph-analysis",
+      "machine-learning"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-007",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A GuardDuty finding indicates that an EC2 instance is communicating with a known command-and-control server. The security team wants to automatically quarantine any future instances that trigger this finding type. Which approach achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an EventBridge rule that matches the GuardDuty finding type, triggers a Lambda function that moves the affected instance to an isolation security group automatically."
+      },
+      {
+        "label": "B",
+        "text": "Enable GuardDuty automated response mode, which natively isolates affected EC2 instances by modifying their security groups without requiring additional configuration."
+      },
+      {
+        "label": "C",
+        "text": "Configure AWS Config with a remediation action rule targeting EC2 instances, which will automatically isolate any instance that fails a security check."
+      },
+      {
+        "label": "D",
+        "text": "Set up Amazon Inspector to continuously scan EC2 instances and trigger an SNS notification when a high-severity finding is generated on a running instance."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Enable GuardDuty automated response mode, which natively isolates affected EC2 instances by modifying their security groups without requiring additional configuration.",
+      "C": "Configure AWS Config with a remediation action rule targeting EC2 instances, which will automatically isolate any instance that fails a security check.",
+      "D": "Set up Amazon Inspector to continuously scan EC2 instances and trigger an SNS notification when a high-severity finding is generated on a running instance."
+    },
+    "explanation": "GuardDuty publishes findings as events to Amazon EventBridge. You can create an EventBridge rule that matches specific GuardDuty finding types and invokes a Lambda function as the target. The Lambda function can use the EC2 API to replace the affected instance's security group with a pre-created isolation security group that denies all traffic. GuardDuty has no built-in automated remediation capability.",
+    "module_ref": "scs/incident-response/automated-remediation",
+    "tags": [
+      "guardduty",
+      "eventbridge",
+      "lambda",
+      "automated-response"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-008",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An organization uses AWS Organizations with multiple member accounts. A security engineer wants GuardDuty findings from all member accounts to be centrally visible and managed in a single designated administrator account. How is this configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Designate a GuardDuty administrator account in Organizations and invite or auto-enable member accounts \u2014 findings from all members aggregate into the administrator account."
+      },
+      {
+        "label": "B",
+        "text": "Create an S3 bucket in the central account and configure each member account's GuardDuty to export findings to that bucket using cross-account IAM roles."
+      },
+      {
+        "label": "C",
+        "text": "Enable GuardDuty in each member account separately and use AWS Security Hub with cross-account aggregation to pull findings into the central account."
+      },
+      {
+        "label": "D",
+        "text": "Use Amazon EventBridge cross-account event buses to forward GuardDuty events from each member account to a central account for processing and review."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Create an S3 bucket in the central account and configure each member account's GuardDuty to export findings to that bucket using cross-account IAM roles.",
+      "C": "Enable GuardDuty in each member account separately and use AWS Security Hub with cross-account aggregation to pull findings into the central account.",
+      "D": "Use Amazon EventBridge cross-account event buses to forward GuardDuty events from each member account to a central account for processing and review."
+    },
+    "explanation": "GuardDuty supports multi-account management through AWS Organizations. A designated GuardDuty administrator account can centrally manage GuardDuty for all organization member accounts. The administrator can enable GuardDuty in member accounts, configure settings, and view all findings from all member accounts within their own GuardDuty console. This is the recommended and most operationally efficient multi-account approach.",
+    "module_ref": "scs/threat-detection/guardduty-multi-account",
+    "tags": [
+      "guardduty",
+      "organizations",
+      "multi-account",
+      "delegated-admin"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-009",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "After a security incident, a forensic analyst wants to capture memory from a running EC2 instance for analysis. The instance must remain running during capture. Which approach allows in-memory forensics on an EC2 instance?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Systems Manager Run Command to execute a memory acquisition tool on the live instance, capturing memory to a forensic S3 bucket without logging into the instance."
+      },
+      {
+        "label": "B",
+        "text": "Take an EBS snapshot of the root volume \u2014 EBS snapshots capture both disk and current memory state, providing a complete forensic copy of the running instance."
+      },
+      {
+        "label": "C",
+        "text": "Create an AMI from the running instance \u2014 Amazon Machine Images capture both the operating system disk and active memory contents for forensic purposes."
+      },
+      {
+        "label": "D",
+        "text": "Stop the EC2 instance before taking a snapshot to ensure that all in-memory state is flushed to disk and captured in the EBS snapshot."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Take an EBS snapshot of the root volume \u2014 EBS snapshots capture both disk and current memory state, providing a complete forensic copy of the running instance.",
+      "C": "Create an AMI from the running instance \u2014 Amazon Machine Images capture both the operating system disk and active memory contents for forensic purposes.",
+      "D": "Stop the EC2 instance before taking a snapshot to ensure that all in-memory state is flushed to disk and captured in the EBS snapshot."
+    },
+    "explanation": "EBS snapshots and AMIs capture only disk state \u2014 they do not capture RAM contents. To acquire memory from an EC2 instance, you must run a memory acquisition tool (such as LiME, winpmem, or Magnet RAM Capture) on the live instance. AWS Systems Manager Run Command enables you to execute commands on EC2 instances without SSH access. The memory dump should be written directly to an S3 forensic bucket with appropriate access controls.",
+    "module_ref": "scs/incident-response/forensics",
+    "tags": [
+      "forensics",
+      "ec2",
+      "memory-acquisition",
+      "ssm"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-010",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "GuardDuty generates the finding CryptoCurrency:EC2/BitcoinTool.B!DNS. What does this finding indicate and what is the recommended response?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An EC2 instance is querying DNS names associated with Bitcoin or cryptocurrency mining pools, suggesting the instance may be compromised and mining cryptocurrency."
+      },
+      {
+        "label": "B",
+        "text": "An EC2 instance attempted to connect to an AWS Marketplace service for cryptocurrency but the connection was blocked by a VPC security group rule."
+      },
+      {
+        "label": "C",
+        "text": "GuardDuty detected that an IAM user made API calls to provision EC2 instances for a known cryptocurrency mining operation in the account."
+      },
+      {
+        "label": "D",
+        "text": "An EC2 instance received inbound DNS queries from external cryptocurrency mining pools, indicating the instance is being targeted for recruitment."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "An EC2 instance attempted to connect to an AWS Marketplace service for cryptocurrency but the connection was blocked by a VPC security group rule.",
+      "C": "GuardDuty detected that an IAM user made API calls to provision EC2 instances for a known cryptocurrency mining operation in the account.",
+      "D": "An EC2 instance received inbound DNS queries from external cryptocurrency mining pools, indicating the instance is being targeted for recruitment."
+    },
+    "explanation": "The CryptoCurrency:EC2/BitcoinTool.B!DNS finding means an EC2 instance is making DNS requests to domains associated with cryptocurrency mining pools. This typically indicates the instance has been compromised \u2014 either through an exploited vulnerability or leaked credentials \u2014 and malware has been installed to mine cryptocurrency at the account owner's expense. The recommended response is to isolate the instance, capture forensics, and investigate how access was gained.",
+    "module_ref": "scs/threat-detection/guardduty-findings",
+    "tags": [
+      "guardduty",
+      "cryptocurrency",
+      "ec2-compromise",
+      "finding-types"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-011",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security team receives a GuardDuty finding but determines it is a false positive because the flagged behavior is expected for a specific application. How should they handle this to prevent future alerts for the same pattern?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a GuardDuty suppression rule that automatically archives future findings matching the same criteria \u2014 such as finding type, resource, and IP \u2014 without disabling GuardDuty entirely."
+      },
+      {
+        "label": "B",
+        "text": "Disable the specific GuardDuty finding type in the GuardDuty settings to prevent it from ever being generated again for any resource in the account."
+      },
+      {
+        "label": "C",
+        "text": "Delete the finding from GuardDuty and add the associated IP address to the trusted IP list so GuardDuty will not analyze traffic from that source."
+      },
+      {
+        "label": "D",
+        "text": "Mark the finding as archived in Security Hub, which automatically creates a suppression rule in GuardDuty to prevent future findings of the same type."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Disable the specific GuardDuty finding type in the GuardDuty settings to prevent it from ever being generated again for any resource in the account.",
+      "C": "Delete the finding from GuardDuty and add the associated IP address to the trusted IP list so GuardDuty will not analyze traffic from that source.",
+      "D": "Mark the finding as archived in Security Hub, which automatically creates a suppression rule in GuardDuty to prevent future findings of the same type."
+    },
+    "explanation": "GuardDuty suppression rules allow you to define criteria (finding type, resource tags, IP, etc.) and automatically archive matching findings without disabling detection entirely. This is the correct way to handle known-good behavior that triggers findings. Disabling a finding type globally would create blind spots. Trusted IP lists stop GuardDuty from analyzing traffic from those IPs entirely, which is too broad for most use cases.",
+    "module_ref": "scs/threat-detection/guardduty-suppression",
+    "tags": [
+      "guardduty",
+      "suppression-rules",
+      "false-positives",
+      "tuning"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-012",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "Which AWS service helps security teams understand the timeline and scope of a GuardDuty finding by visualizing connections between AWS resources, user activity, and IP addresses over a specified time window?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Detective builds an interactive behavior graph from GuardDuty findings, CloudTrail, and VPC Flow Logs to help investigate the scope and timeline of incidents."
+      },
+      {
+        "label": "B",
+        "text": "AWS CloudTrail Lake provides a queryable event archive with SQL-based analysis, enabling timeline reconstruction for specific API calls across a time window."
+      },
+      {
+        "label": "C",
+        "text": "Amazon CloudWatch Logs Insights provides log querying capabilities that can correlate events across multiple log groups to reconstruct an attack timeline."
+      },
+      {
+        "label": "D",
+        "text": "AWS Security Hub provides a finding timeline view that links related findings across services and displays affected resources on an investigation graph."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS CloudTrail Lake provides a queryable event archive with SQL-based analysis, enabling timeline reconstruction for specific API calls across a time window.",
+      "C": "Amazon CloudWatch Logs Insights provides log querying capabilities that can correlate events across multiple log groups to reconstruct an attack timeline.",
+      "D": "AWS Security Hub provides a finding timeline view that links related findings across services and displays affected resources on an investigation graph."
+    },
+    "explanation": "Amazon Detective is specifically designed for incident investigation. It pre-processes data from GuardDuty, CloudTrail, VPC Flow Logs, and EKS audit logs into a behavior graph. When you receive a GuardDuty finding, Detective provides direct links to visualize which resources were involved, what API calls were made, which IPs communicated with the resource, and how the activity compares to historical baselines \u2014 all in a single interactive interface.",
+    "module_ref": "scs/incident-response/detective",
+    "tags": [
+      "detective",
+      "investigation",
+      "scope",
+      "timeline"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-01-013",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to ensure that when GuardDuty generates a high-severity finding, an on-call security engineer is immediately notified via SMS. Which architecture achieves this with the least operational overhead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an EventBridge rule matching high-severity GuardDuty findings, targeting an SNS topic with an SMS subscription to the engineer's phone number."
+      },
+      {
+        "label": "B",
+        "text": "Enable GuardDuty SNS notifications in the GuardDuty console, which sends SMS messages directly to configured phone numbers without requiring EventBridge."
+      },
+      {
+        "label": "C",
+        "text": "Write a Lambda function that polls the GuardDuty findings API every minute and uses Amazon Pinpoint to send SMS messages for high-severity findings."
+      },
+      {
+        "label": "D",
+        "text": "Configure GuardDuty to export findings to CloudWatch Logs and create a metric filter and alarm that triggers an SNS notification when the pattern is matched."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Enable GuardDuty SNS notifications in the GuardDuty console, which sends SMS messages directly to configured phone numbers without requiring EventBridge.",
+      "C": "Write a Lambda function that polls the GuardDuty findings API every minute and uses Amazon Pinpoint to send SMS messages for high-severity findings.",
+      "D": "Configure GuardDuty to export findings to CloudWatch Logs and create a metric filter and alarm that triggers an SNS notification when the pattern is matched."
+    },
+    "explanation": "GuardDuty automatically publishes findings as events to Amazon EventBridge. An EventBridge rule can filter for findings where severity >= 7.0 (high) and route them to an SNS topic. SNS supports SMS subscriptions directly. This is a serverless, event-driven architecture with no polling, no custom code, and no persistent compute. GuardDuty does not have a built-in SNS notification feature \u2014 the integration is done through EventBridge.",
+    "module_ref": "scs/threat-detection/guardduty-notifications",
+    "tags": [
+      "guardduty",
+      "eventbridge",
+      "sns",
+      "notifications"
+    ]
+  }
+]

@@ -1,0 +1,1062 @@
+[
+  {
+    "id": "aws-cp-01-t4-001",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company runs a mission-critical application on-premises and is evaluating AWS. Their legal team insists on knowing exactly who at AWS has physical access to the servers running their workload. Why is this request incompatible with how AWS operates?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS does not log physical access to data centers"
+      },
+      {
+        "label": "B",
+        "text": "Customers can request a dedicated data center with full audit access under the Enterprise Support plan"
+      },
+      {
+        "label": "C",
+        "text": "AWS operates a shared physical infrastructure model \u2014 workloads run on hardware shared across customers."
+      },
+      {
+        "label": "D",
+        "text": "AWS employees are prohibited from accessing any data center"
+      },
+      {
+        "label": "E",
+        "text": "Physical access logs are available through AWS CloudTrail"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS's multi-tenant model means multiple customers share the same physical hardware. No customer owns specific servers. AWS demonstrates physical security through third-party audits (SOC 2, ISO 27001) available via AWS Artifact \u2014 the answer to compliance questions about physical access is the audit report, not direct access logs.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "shared-responsibility",
+      "physical-security",
+      "multi-tenant",
+      "compliance",
+      "artifact"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-002",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company migrates from on-premises to AWS and initially sees higher monthly bills than expected. Their on-premises team says cloud is more expensive. A cloud architect disagrees. What is the most likely explanation for why the comparison is misleading?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cloud costs are higher because data egress always exceeds on-premises WAN costs"
+      },
+      {
+        "label": "B",
+        "text": "AWS bills are higher because of hidden fees not listed in the pricing calculator"
+      },
+      {
+        "label": "C",
+        "text": "The company should switch to a different cloud provider for lower costs"
+      },
+      {
+        "label": "D",
+        "text": "The on-premises cost comparison omits capital depreciation, facilities staff, power, cooling, and the idle capacity reserved for peak."
+      },
+      {
+        "label": "E",
+        "text": "AWS bills are always higher \u2014 cloud is not cost-effective for enterprises"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "On-premises cost comparisons often show only marginal costs (servers already purchased) while ignoring full TCO: hardware refresh amortization, facilities lease, power/cooling, physical security staff, and the cost of over-provisioning for peak. A proper TCO comparison typically shows cloud is cost-competitive or cheaper once all factors are included.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "tco",
+      "cloud-economics",
+      "capex",
+      "opex",
+      "cost-comparison"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-003",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "An architect is asked to design a system that continues to serve read traffic even if the primary database region becomes completely unavailable for up to 72 hours. Which characteristic \u2014 beyond high availability \u2014 does this require?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Durability \u2014 data is not lost during a regional failure"
+      },
+      {
+        "label": "B",
+        "text": "High availability \u2014 multi-AZ deployment in the primary region"
+      },
+      {
+        "label": "C",
+        "text": "Fault tolerance \u2014 redundant components within a single region"
+      },
+      {
+        "label": "D",
+        "text": "Elasticity \u2014 automatically scale reads during regional outage"
+      },
+      {
+        "label": "E",
+        "text": "Disaster recovery with defined RTO and RPO"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "A full regional outage lasting 72 hours requires a disaster recovery strategy \u2014 specifically cross-region replication with a defined Recovery Time Objective (RTO) of \u226472 hours. HA (multi-AZ) and fault tolerance operate within a single region and cannot address complete regional loss.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "disaster-recovery",
+      "rto",
+      "rpo",
+      "cross-region",
+      "high-availability"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-004",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A startup's CTO says they should build everything on-premises because 'the cloud is just renting someone else's computers and you never own anything.' Which response most accurately addresses the business trade-off?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The CTO is wrong \u2014 cloud is always cheaper than on-premises"
+      },
+      {
+        "label": "B",
+        "text": "Cloud provides full ownership of the hardware through Dedicated Hosts"
+      },
+      {
+        "label": "C",
+        "text": "The CTO is correct \u2014 ownership is always preferable to renting"
+      },
+      {
+        "label": "D",
+        "text": "Owning infrastructure provides control but requires large upfront capital, long procurement cycles."
+      },
+      {
+        "label": "E",
+        "text": "Cloud and on-premises are identical in cost when amortized over 5 years"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "The 'renting vs. owning' framing misses the point. Owning infrastructure means capital tied up in depreciating hardware, 6-12 month procurement cycles, and capacity decisions that can't be reversed. Cloud provides speed to market, elastic capacity, and OpEx cost structure \u2014 trade-offs that are particularly valuable for startups.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "cloud-economics",
+      "capex",
+      "opex",
+      "trade-offs",
+      "startup"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-005",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company uses SaaS (Software as a Service) for email and IaaS (Infrastructure as a Service) for their application servers. They ask about adding a PaaS layer for their developers. What correctly describes how the customer's management responsibility changes across IaaS \u2192 PaaS \u2192 SaaS?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SaaS requires the customer to manage the application layer"
+      },
+      {
+        "label": "B",
+        "text": "PaaS gives the customer more control than IaaS"
+      },
+      {
+        "label": "C",
+        "text": "IaaS means AWS manages OS patching; PaaS means the customer patches the OS"
+      },
+      {
+        "label": "D",
+        "text": "As you move from IaaS to PaaS to SaaS, the customer manages progressively less of."
+      },
+      {
+        "label": "E",
+        "text": "Responsibility is identical across all three \u2014 the customer always manages everything"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "IaaS: customer manages OS, middleware, runtime, applications. PaaS: provider manages OS and runtime \u2014 customer manages applications and data. SaaS: provider manages everything \u2014 customer manages only data and user access. Each step up the stack transfers more management responsibility to the provider.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "iaas",
+      "paas",
+      "saas",
+      "shared-responsibility",
+      "cloud-service-models"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-006",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A financial services company is required by regulation to have a physical audit of the infrastructure running their workload. They have selected AWS. Which approach satisfies this requirement without violating AWS's operational model?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS provides SOC 2 Type II, ISO 27001, and PCI DSS reports."
+      },
+      {
+        "label": "B",
+        "text": "Enterprise Support customers receive annual data center tours"
+      },
+      {
+        "label": "C",
+        "text": "Physical audits are not required for cloud workloads under any regulation"
+      },
+      {
+        "label": "D",
+        "text": "The company visits the AWS data center and performs a physical audit themselves"
+      },
+      {
+        "label": "E",
+        "text": "The company uses AWS GovCloud which permits customer physical audits"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS cannot allow individual customers to audit data centers \u2014 doing so would expose all other customers' workloads. The accepted industry solution is for AWS to undergo independent third-party audits (SOC 2, ISO 27001, PCI DSS) and provide the reports via Artifact. Regulators broadly accept these as sufficient.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "compliance",
+      "audit",
+      "artifact",
+      "soc2",
+      "physical-security"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-007",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's architecture uses tightly coupled components where each service calls the next synchronously. They experience cascading failures \u2014 when one service slows down, all upstream services back up and fail. Which AWS architectural pattern resolves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add more Availability Zones to spread the failure impact"
+      },
+      {
+        "label": "B",
+        "text": "Place a CloudFront distribution in front of all services to absorb traffic"
+      },
+      {
+        "label": "C",
+        "text": "Deploy all services on larger EC2 instances to reduce slowdowns"
+      },
+      {
+        "label": "D",
+        "text": "Enable Auto Scaling on each service so they scale up when requests pile up"
+      },
+      {
+        "label": "E",
+        "text": "Introduce asynchronous communication through SQS queues between services, isolating failures behind queue depth rather than call."
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Cascading failures in synchronous chains occur because one slow component blocks all callers. SQS decouples this \u2014 the caller writes to a queue and returns immediately. The downstream service reads from the queue at its own pace. Slowness manifests as queue depth, not cascading timeouts.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "loose-coupling",
+      "sqs",
+      "cascading-failures",
+      "resilience",
+      "architecture"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-008",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company is evaluating whether to run stateful vs. stateless application tiers on AWS. Their architect explains that stateless tiers scale better. Why is this true in a cloud context?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Stateful applications cannot run on AWS EC2"
+      },
+      {
+        "label": "B",
+        "text": "Stateless instances can be terminated and replaced without data loss"
+      },
+      {
+        "label": "C",
+        "text": "Stateless tiers use less memory per instance"
+      },
+      {
+        "label": "D",
+        "text": "AWS pricing discounts are higher for stateless workloads"
+      },
+      {
+        "label": "E",
+        "text": "Stateless tiers require fewer Availability Zones"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Stateless tiers store no per-request session data locally \u2014 any instance can handle any request. This means Auto Scaling can freely add instances to handle load and terminate them when not needed. Stateful tiers must route each user to the same instance (sticky sessions) or externalize state, which complicates horizontal scaling.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "stateless",
+      "auto-scaling",
+      "scalability",
+      "architecture",
+      "twelve-factor"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-009",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company deploys their application in us-east-1 using three Availability Zones. They assume this architecture protects them from any AWS outage. A major us-east-1 regional event takes down all three AZs. What does this reveal about their architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "They should have used more than 3 AZs in the same region"
+      },
+      {
+        "label": "B",
+        "text": "This proves cloud is unreliable \u2014 they should return to on-premises"
+      },
+      {
+        "label": "C",
+        "text": "Multi-AZ is sufficient for any realistic failure scenario"
+      },
+      {
+        "label": "D",
+        "text": "Multi-AZ protects against AZ-level failures but not regional failures \u2014 protection against regional events requires a."
+      },
+      {
+        "label": "E",
+        "text": "The failure was caused by insufficient instance types \u2014 larger instances would have prevented it"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "AWS designs Regions to be highly isolated from each other. Multi-AZ provides protection against localized failures (AZ hardware, power, cooling). A full regional outage (extremely rare) requires multi-region architecture with Route 53 failover or Global Accelerator to achieve continuity.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "multi-az",
+      "multi-region",
+      "regional-failure",
+      "architecture",
+      "resilience"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-010",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "Two companies both use AWS. Company A uses EC2, RDS, and manages their own OS. Company B uses Lambda, DynamoDB, and Fargate. Both suffer a critical OS vulnerability. Why is Company B less affected?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Company B's services are in a different AWS Region, so the vulnerability doesn't apply"
+      },
+      {
+        "label": "B",
+        "text": "Company B is affected equally \u2014 all AWS services share the same OS"
+      },
+      {
+        "label": "C",
+        "text": "Lambda, DynamoDB, and Fargate are managed/serverless services \u2014 AWS patches the underlying OS and runtime"
+      },
+      {
+        "label": "D",
+        "text": "Company B uses more expensive services, which include automatic security patches"
+      },
+      {
+        "label": "E",
+        "text": "The vulnerability only affects EC2 instance types"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Under the shared responsibility model, managed/serverless services shift OS and runtime patching to AWS. Company B has no EC2 OS to patch \u2014 Lambda and Fargate runtimes are AWS's responsibility. Company A must patch their EC2 guest OSes themselves.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "shared-responsibility",
+      "serverless",
+      "os-patching",
+      "lambda",
+      "fargate"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-011",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's product team wants to run A/B tests on new features by deploying experimental versions alongside production. On-premises, this is expensive because it requires duplicate hardware. How does AWS make this economically viable?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Variable pricing means spinning up a parallel environment costs only the hours."
+      },
+      {
+        "label": "B",
+        "text": "AWS provides a dedicated A/B testing service"
+      },
+      {
+        "label": "C",
+        "text": "AWS Auto Scaling automatically creates A/B test environments"
+      },
+      {
+        "label": "D",
+        "text": "AWS provides free instances for A/B testing workloads"
+      },
+      {
+        "label": "E",
+        "text": "CloudFront handles A/B testing at the CDN layer for free"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "On-premises, A/B testing requires purchasing duplicate hardware for the experimental version \u2014 capital that may be wasted if the test fails. On AWS, you provision the test environment, run it for days or weeks, and pay only for that time. Failed experiments cost a fraction of a hardware purchase.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "pay-as-you-go",
+      "experimentation",
+      "agility",
+      "a-b-testing",
+      "variable-expense"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-012",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's database write volume exceeds what a single RDS instance can handle. They want to scale writes horizontally. Which AWS service and architecture supports horizontal write scaling for relational-like workloads?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add RDS Multi-AZ \u2014 the standby handles write overflow"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Aurora with Aurora Serverless v2 \u2014 automatically scales ACUs for write capacity"
+      },
+      {
+        "label": "C",
+        "text": "Amazon DynamoDB with table partitioning \u2014 horizontal write scaling across partitions"
+      },
+      {
+        "label": "D",
+        "text": "Increase the RDS instance size (vertical scaling) until it handles the load"
+      },
+      {
+        "label": "E",
+        "text": "RDS Read Replicas \u2014 add more read replicas to absorb write load"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "True horizontal write scaling for relational databases is extremely difficult \u2014 most approaches (Aurora Global) still have a single write endpoint. DynamoDB partitions data across physical nodes and routes writes to the appropriate partition \u2014 enabling effectively unlimited write throughput by adding partitions.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "horizontal-scaling",
+      "write-scaling",
+      "dynamodb",
+      "partitioning",
+      "scalability"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-013",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A government agency requires all data to remain on US soil and cannot use foreign-operated cloud infrastructure. They are evaluating AWS. Which AWS offering is specifically designed to meet these requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Outposts in the agency's own data center"
+      },
+      {
+        "label": "B",
+        "text": "AWS Dedicated Hosts in us-east-1 \u2014 physical server isolation satisfies government requirements"
+      },
+      {
+        "label": "C",
+        "text": "AWS PrivateLink \u2014 keeps data within the agency's VPC"
+      },
+      {
+        "label": "D",
+        "text": "AWS GovCloud (US) \u2014 operated by US persons on US soil, designed"
+      },
+      {
+        "label": "E",
+        "text": "Any US AWS Region \u2014 all US Regions meet government data requirements"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "AWS GovCloud (US) Regions are operated exclusively by US citizens on US soil, meet FedRAMP High authorization, and are designed for ITAR, EAR, and DoD workloads. Standard AWS Regions do not meet these specific regulatory requirements.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "govcloud",
+      "fedramp",
+      "itar",
+      "government",
+      "data-sovereignty"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-014",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company is designing for 'chaos engineering' \u2014 intentionally injecting failures to verify resilience. Which AWS Well-Architected principle underpins this practice?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Design for failure and test recovery procedures"
+      },
+      {
+        "label": "B",
+        "text": "Stop guessing capacity \u2014 verify by actually running at scale"
+      },
+      {
+        "label": "C",
+        "text": "Economies of scale \u2014 lower cost allows more experiments"
+      },
+      {
+        "label": "D",
+        "text": "Implement elasticity \u2014 scale during the injected failure"
+      },
+      {
+        "label": "E",
+        "text": "Use managed services \u2014 they are immune to injected failures"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "The AWS Well-Architected Reliability pillar principle 'test recovery procedures' includes practicing failure injection. Chaos engineering operationalizes this \u2014 you validate that failover mechanisms, queue backlogs, and circuit breakers actually work as designed under controlled failure conditions.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "chaos-engineering",
+      "reliability",
+      "design-for-failure",
+      "well-architected",
+      "testing"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-015",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company discovers their application is using EC2 instances that are consistently at 8% CPU utilization. They are spending $40,000/month on compute. A consultant recommends right-sizing. What does right-sizing mean and what outcome should they expect?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switching all instances to Spot to reduce cost while keeping the same instance sizes"
+      },
+      {
+        "label": "B",
+        "text": "Adding more instances to distribute the 8% load more evenly"
+      },
+      {
+        "label": "C",
+        "text": "Enabling Auto Scaling to automatically adjust instance count"
+      },
+      {
+        "label": "D",
+        "text": "Replacing over-provisioned instances with smaller types that match actual utilization"
+      },
+      {
+        "label": "E",
+        "text": "Migrating to a different AWS Region with lower instance pricing"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "Right-sizing means analyzing utilization patterns and selecting the minimum instance type that meets workload requirements. An instance at 8% CPU is likely 5-10x over-provisioned \u2014 moving to an instance with 1/4 the CPU and memory could reduce compute costs by 60-75% while still meeting actual demand.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "right-sizing",
+      "cost-optimization",
+      "utilization",
+      "ec2",
+      "waste-reduction"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-016",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company is building a new application and has the choice between deploying to a single AWS Region with three AZs or deploying to two AWS Regions with two AZs each. For a standard web application with no regulatory restrictions, which best describes the decision framework?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Single Region with 3 AZs handles the vast majority of failure scenarios at lower operational complexity."
+      },
+      {
+        "label": "B",
+        "text": "Two Regions is cheaper because you can use smaller instances in each"
+      },
+      {
+        "label": "C",
+        "text": "Multi-Region is required for compliance with AWS best practices"
+      },
+      {
+        "label": "D",
+        "text": "Single AZ is sufficient for most web applications \u2014 multi-AZ adds unnecessary cost"
+      },
+      {
+        "label": "E",
+        "text": "Two Regions is always better \u2014 more is always more resilient"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Multi-AZ within a single Region provides 99.99%+ availability for most applications and protects against the vast majority of realistic failure scenarios. Multi-Region adds protection against the rare regional event, global read latency reduction, or regulatory data residency needs \u2014 but at significantly higher cost and complexity.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "multi-az",
+      "multi-region",
+      "architecture-decisions",
+      "availability",
+      "cost-vs-resilience"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-017",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A cloud architect describes immutable infrastructure as a key cloud principle. A developer asks why they can't just SSH into instances to fix bugs in production. What is the correct explanation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Immutable infrastructure means servers are never modified after deployment \u2014 bugs are fixed."
+      },
+      {
+        "label": "B",
+        "text": "AWS prohibits SSH access on production instances for security reasons"
+      },
+      {
+        "label": "C",
+        "text": "Immutable infrastructure only applies to containers, not EC2"
+      },
+      {
+        "label": "D",
+        "text": "Fixing bugs via SSH is acceptable as long as the same fix is also applied to the AMI"
+      },
+      {
+        "label": "E",
+        "text": "SSH is blocked by default on EC2 instances in production"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Immutable infrastructure: once deployed, servers are never changed. Configuration drift (where production diverges from version control) causes undocumented states that are hard to debug and reproduce. Fixes go through CI/CD as code changes, new AMIs are baked and deployed \u2014 old instances are replaced, not patched.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "immutable-infrastructure",
+      "configuration-drift",
+      "cicd",
+      "best-practice",
+      "devops"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-018",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company wants to maximize the performance of a data-intensive application. Their current architecture has EC2 instances in us-east-1a communicating with an S3 bucket and an RDS instance. An architect notices data transfer costs are high. Which design change reduces cost without sacrificing performance?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Move EC2 instances to us-west-2 to use cheaper bandwidth pricing"
+      },
+      {
+        "label": "B",
+        "text": "Use CloudFront to cache all S3 and RDS content"
+      },
+      {
+        "label": "C",
+        "text": "Use Direct Connect to reduce S3 access costs"
+      },
+      {
+        "label": "D",
+        "text": "Move to Reserved Instances to reduce data transfer costs"
+      },
+      {
+        "label": "E",
+        "text": "Ensure EC2 instances, S3 bucket, and RDS instance are all in the same."
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Same-Region S3-to-EC2 transfers are free. A VPC Gateway Endpoint routes S3 traffic over the AWS private network \u2014 eliminating NAT Gateway data processing charges (which apply per GB). Co-location in the same Region and endpoint optimization together eliminate most internal data transfer costs.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "data-transfer",
+      "vpc-endpoint",
+      "cost-optimization",
+      "same-region",
+      "nat-gateway"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-019",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's operations team is concerned that their cloud architecture is becoming a 'snowflake' \u2014 every environment is slightly different due to years of manual changes. Which combination of practices addresses this most effectively?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Tagging all resources consistently and reviewing tags quarterly"
+      },
+      {
+        "label": "B",
+        "text": "Using the same EC2 instance types across all environments"
+      },
+      {
+        "label": "C",
+        "text": "Manual documentation of all changes and a quarterly review"
+      },
+      {
+        "label": "D",
+        "text": "AWS Config to detect and alert on configuration drift"
+      },
+      {
+        "label": "E",
+        "text": "Infrastructure as code with version control and immutable deployments."
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Snowflake environments result from manual changes accumulating over time. The solution is to eliminate manual changes entirely: IaC defines desired state, CI/CD deploys it, and immutable infrastructure means environments are replaced (not patched) \u2014 guaranteeing all environments derive from the same versioned code.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "iac",
+      "immutable-infrastructure",
+      "cicd",
+      "configuration-drift",
+      "devops"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-020",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's architecture review identifies that their application will not scale past 10,000 concurrent users because the session state is stored in memory on individual EC2 instances. Auto Scaling cannot help because new instances don't have existing session data. What architectural change solves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Spot Instances to reduce cost while keeping in-memory sessions"
+      },
+      {
+        "label": "B",
+        "text": "Externalize session state to Amazon ElastiCache or DynamoDB \u2014 instances become stateless and any"
+      },
+      {
+        "label": "C",
+        "text": "Enable sticky sessions on the ALB so each user always hits the same instance"
+      },
+      {
+        "label": "D",
+        "text": "Use larger EC2 instances with more memory to store more sessions"
+      },
+      {
+        "label": "E",
+        "text": "Deploy more EC2 instances and accept that some users will lose sessions"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Externalizing session state to a shared cache (ElastiCache) or database (DynamoDB) makes application instances stateless. Any instance can serve any user \u2014 Auto Scaling can freely add and remove instances without affecting user sessions, removing the scaling ceiling.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "stateless",
+      "session-state",
+      "elasticache",
+      "dynamodb",
+      "horizontal-scaling"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-021",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "multiple",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company is designing a disaster recovery strategy. Their RPO is 1 hour and their RTO is 4 hours. Which TWO architectural components are necessary to meet these requirements? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cross-region database replication running continuously to limit data loss to \u22641 hour"
+      },
+      {
+        "label": "B",
+        "text": "CloudTrail enabled in the DR region"
+      },
+      {
+        "label": "C",
+        "text": "A pre-built CloudFormation stack in the DR region that can"
+      },
+      {
+        "label": "D",
+        "text": "Multi-AZ deployment in the primary region"
+      },
+      {
+        "label": "E",
+        "text": "Daily S3 Glacier archives of the database"
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "distractors": {
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "1-hour RPO requires continuous replication (not daily backups) to a DR region \u2014 so at most 1 hour of data is at risk. 4-hour RTO requires infrastructure that can be provisioned quickly \u2014 pre-built CloudFormation in the DR region that can be deployed within the window.",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "disaster-recovery",
+      "rpo",
+      "rto",
+      "cross-region",
+      "cloudformation"
+    ]
+  },
+  {
+    "id": "aws-cp-01-t4-022",
+    "domain": "1",
+    "domain_name": "Cloud Concepts",
+    "type": "multiple",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A solutions architect is explaining the AWS Well-Architected Framework's Reliability pillar. Which TWO practices does this pillar specifically recommend? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Choose the cheapest EC2 instance type to minimize cost"
+      },
+      {
+        "label": "B",
+        "text": "Automatically recover from failure by monitoring and triggering recovery when thresholds are breached"
+      },
+      {
+        "label": "C",
+        "text": "Encrypt all data at rest using KMS customer-managed keys"
+      },
+      {
+        "label": "D",
+        "text": "Deploy all workloads in AWS GovCloud for maximum compliance"
+      },
+      {
+        "label": "E",
+        "text": "Scale horizontally to replace one large resource with multiple smaller resources, eliminating single points of failure"
+      }
+    ],
+    "correct": [
+      "B",
+      "E"
+    ],
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The Reliability pillar includes: automatically recover from failure (CloudWatch alarms triggering Auto Scaling or runbook automation), and scale horizontally to eliminate single points of failure (replace one monolithic server with multiple smaller instances behind a load balancer).",
+    "module_ref": "aws-cp/cloud-concepts",
+    "tags": [
+      "reliability",
+      "well-architected",
+      "automatic-recovery",
+      "horizontal-scaling",
+      "spof"
+    ]
+  }
+]

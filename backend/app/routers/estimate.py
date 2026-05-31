@@ -1,10 +1,15 @@
 from datetime import datetime, timezone
 from typing import Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from pydantic import BaseModel
+from sqlalchemy.orm import Session
 
+from app.db import get_db
+from app.dependencies.auth import get_optional_user
 from app.models.graph import Graph
+from app.models.user import User
+from app.services.access_service import resolve_access
 from app.services.live_pricing import fetch_live_price
 from app.services.pricing import estimate_component as estimate_aws
 from app.services.pricing import PRICES_AS_OF as AWS_STATIC_DATE
@@ -102,31 +107,34 @@ def _static_estimate(
 
 
 def _estimate_component(
-    infra_provider: str, component, region: str, usage: dict = None
+    infra_provider: str,
+    component,
+    region: str,
+    usage: dict | None = None,
+    *,
+    allow_live_pricing: bool = False,
 ) -> dict | None:
     """
     Build a cost estimate for one component.
 
-    Tries the live pricing API first; falls back to static values when
-    the live call returns None (no credentials, unsupported type, etc.).
-    Usage params are passed through to the static pricing engine for
-    usage-billed services. Live pricing overrides the computed cost but
-    the usage-derived description is preserved.
+    Tries the live pricing API first when allowed; falls back to static values when
+    the live call returns None (no credentials, unsupported type, etc.) or when
+    the caller does not have live pricing access.
     """
     base = _static_estimate(infra_provider, component, region, usage or {})
     if base is None:
         return None
 
-    live_cost = fetch_live_price(
-        infra_provider,
-        component.type,
-        component.config or {},
-        region,
-    )
-
-    if live_cost is not None:
-        base["monthly_cost"] = live_cost
-        base["live"] = True
+    if allow_live_pricing:
+        live_cost = fetch_live_price(
+            infra_provider,
+            component.type,
+            component.config or {},
+            region,
+        )
+        if live_cost is not None:
+            base["monthly_cost"] = live_cost
+            base["live"] = True
 
     return base
 
@@ -139,16 +147,28 @@ class EstimateRequest(BaseModel):
 
 
 @router.post("", response_model=EstimateResponse)
-def estimate(body: EstimateRequest) -> EstimateResponse:
+def estimate(
+    body: EstimateRequest,
+    db: Session = Depends(get_db),
+    current_user: User | None = Depends(get_optional_user),
+) -> EstimateResponse:
     graph = body.graph
     usage_params = body.usage_params or {}
     infra_provider = (graph.provider or "aws").lower()
+    access = resolve_access(db, current_user)
+    allow_live_pricing = access.has_full_access or access.features.get("live_pricing", False)
     line_items: list[LineItem] = []
     any_live = False
 
     for component in graph.components:
         node_usage = usage_params.get(component.id, {})
-        result = _estimate_component(infra_provider, component, graph.region, node_usage)
+        result = _estimate_component(
+            infra_provider,
+            component,
+            graph.region,
+            node_usage,
+            allow_live_pricing=allow_live_pricing,
+        )
         if result is None:
             continue
         if result.get("live"):
@@ -186,5 +206,5 @@ def estimate(body: EstimateRequest) -> EstimateResponse:
         region=graph.region,
         excluded_note=_EXCLUDED_NOTES.get(infra_provider, ""),
         live_prices=any_live,
-        live_attempted=infra_provider in ("aws", "azure", "gcp"),
+        live_attempted=allow_live_pricing and infra_provider in ("aws", "azure", "gcp"),
     )

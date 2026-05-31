@@ -1,0 +1,779 @@
+[
+  {
+    "id": "aws-saa-t4-04-001",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company has 15 EC2 instances running on-demand (m5.4xlarge) as part of their steady-state production workload that has run unchanged for 2 years. The finance team identifies this as an optimization opportunity. A solutions architect evaluates Reserved Instances vs. Compute Savings Plans. The company has no plans to change instance families. Which is more cost-effective and why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Compute Savings Plans \u2014 more flexibility and roughly the same discount as RIs"
+      },
+      {
+        "label": "B",
+        "text": "EC2 Instance Savings Plans \u2014 locked to m5 family in the current region, provides higher discount than Compute Savings Plans"
+      },
+      {
+        "label": "C",
+        "text": "Standard Reserved Instances for m5.4xlarge \u2014 provides the highest possible discount (~60-72%) for steady-state same-family workloads"
+      },
+      {
+        "label": "D",
+        "text": "On-Demand \u2014 provides maximum flexibility for an unpredictable workload"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "For a 2-year proven steady-state workload with no plans to change instance families, Standard RIs provide the maximum discount: 3-year All Upfront Standard RIs give ~60-72% off On-Demand. EC2 Instance Savings Plans give ~54% off but with some flexibility (size flexibility within family). Compute Savings Plans give ~66% off with maximum flexibility across families/regions. But since there's NO flexibility needed (same family, 2 years of stability), Standard RIs win on pure discount percentage at the cost of flexibility that isn't needed. The key insight: flexibility has a cost \u2014 if you don't need it, don't pay for it.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "reserved-instances",
+      "savings-plans",
+      "ec2",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-002",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company runs Fargate tasks for a data pipeline. The pipeline runs continuously (24/7) with predictable load. The team is paying On-Demand Fargate rates. The CFO asks for cost reduction. There are no EC2 instances in the account to apply EC2 Instance Savings Plans. What purchasing option directly reduces Fargate costs?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch Fargate tasks to ECS on EC2 with Reserved Instances for the underlying instances"
+      },
+      {
+        "label": "B",
+        "text": "Purchase Fargate Reserved Capacity \u2014 Fargate has its own reservation model"
+      },
+      {
+        "label": "C",
+        "text": "Purchase EC2 Reserved Instances \u2014 they apply to Fargate through capacity pooling"
+      },
+      {
+        "label": "D",
+        "text": "Purchase Compute Savings Plans \u2014 they apply to Fargate, EC2, and Lambda across all regions"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Compute Savings Plans are the ONLY way to get committed discounts on Fargate (up to 52% off). There is no 'Fargate Reserved Capacity' \u2014 Fargate does not have its own reservation model. EC2 Reserved Instances apply to EC2 instances only (not Fargate). Switching to ECS on EC2 with RIs would provide savings but requires managing EC2 instances (adding operational overhead). Compute Savings Plans are the clean, serverless-compatible answer for Fargate cost reduction.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "fargate",
+      "savings-plans",
+      "ecs",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-003",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's AWS costs increased 40% after deploying a new feature. Cost Explorer shows the increase is in NAT Gateway data processing. Engineers added a service in a private subnet that downloads OS packages and Docker images from the internet on every container start (20 MB per container, 10,000 container starts/day). What change reduces this cost most effectively?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Compress the packages before downloading to reduce data volume"
+      },
+      {
+        "label": "B",
+        "text": "Move the containers to public subnets to bypass NAT Gateway fees"
+      },
+      {
+        "label": "C",
+        "text": "Reduce container start frequency by using EC2 launch type instead of Fargate"
+      },
+      {
+        "label": "D",
+        "text": "Use VPC endpoints for the specific AWS services; cache OS packages in an S3 bucket."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "NAT Gateway charges $0.045/GB processed. 20 MB \u00d7 10,000 starts/day = 200 GB/day \u00d7 30 days = 6 TB/month \u00d7 $0.045 = $270/month from data processing alone. The fix: use VPC endpoints \u2014 ECR has an Interface Endpoint (eliminates NAT for Docker image pulls); OS packages can be hosted in S3 (Gateway Endpoint, free) or mirrored in CodeArtifact (Interface Endpoint). Moving to public subnets exposes containers to the internet (security anti-pattern). EC2 launch type doesn't change the data routing. Compression reduces volume but doesn't eliminate NAT fees.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "nat-gateway",
+      "vpc-endpoint",
+      "ecr",
+      "cost-optimization",
+      "fargate"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-004",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company is analyzing whether to use Spot Instances or On-Demand for their data processing fleet. Historical Spot pricing for their instance type averages 30% of On-Demand. However, the Spot interruption rate for this instance type in their AZ is 15% per hour. The data processing jobs take 4 hours and don't support checkpointing. What is the expected cost per successful job completion using Spot vs. On-Demand, accounting for interruptions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "On-Demand is more cost-effective \u2014 a 15% per-hour interruption rate means most 4-hour jobs will be interrupted"
+      },
+      {
+        "label": "B",
+        "text": "Spot is always cheaper \u2014 30% of On-Demand cost even with interruptions"
+      },
+      {
+        "label": "C",
+        "text": "Use a mix of 50% Spot and 50% On-Demand to balance cost and reliability"
+      },
+      {
+        "label": "D",
+        "text": "Spot with checkpointing is the answer \u2014 since the job doesn't support checkpointing, neither Spot nor On-Demand is correct"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "With 15% hourly interruption rate: probability of surviving 1 hour = 85%; surviving 4 hours = 0.85^4 = 52%. So ~48% of jobs will be interrupted before completion. Each interrupted job wastes its accumulated Spot compute costs and must restart from scratch. Expected cost per successful completion = (On-Demand \u00d7 0.30) / P(completion) = 0.30/0.52 \u2248 57.7% of On-Demand \u2014 plus the overhead of restart time. At 15% hourly interruption, On-Demand at 100% cost is more predictable and comparable in total cost. The break-even point where Spot equals On-Demand depends on interruption rate and job length \u2014 high interruption rates erode Spot savings quickly.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "spot-instances",
+      "cost-analysis",
+      "interruption-rate",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-005",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company runs multiple development environments that are only used during business hours. Each environment has: 5 EC2 instances, 2 RDS instances, and 1 ElastiCache cluster. What is the most complete cost-saving approach for evenings and weekends (120 hours/week of idle time)?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Stop EC2 instances; RDS and ElastiCache cannot be stopped"
+      },
+      {
+        "label": "B",
+        "text": "Purchase Reserved Instances for all resources to reduce the hourly cost"
+      },
+      {
+        "label": "C",
+        "text": "Terminate all resources each evening and recreate them each morning using CloudFormation"
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Instance Scheduler for EC2 and RDS; stop ElastiCache clusters via CLI during off-hours."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Complete cost savings during 120 off-hours/week requires stopping all billable compute: (1) EC2: Instance Scheduler automates start/stop; (2) RDS: Instance Scheduler supports RDS start/stop (RDS can be stopped for up to 7 days); (3) ElastiCache Redis: cluster mode can be stopped (not deleted) via stop-replication-group in newer Redis versions, or deleted/recreated from a snapshot. Terminating and recreating via CloudFormation (option C) works but is slower and risks configuration drift. RIs reduce per-hour cost but don't eliminate charges for 120 idle hours. Option A is incorrect \u2014 RDS CAN be stopped.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "instance-scheduler",
+      "ec2",
+      "rds",
+      "elasticache",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-006",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company uses Cost Explorer to analyze their AWS bill. They see a large 'Other' charge under EC2. Further investigation shows this is 'EC2-Other' including data transfer charges. The largest component is 'DataTransfer-Regional-Bytes' between EC2 instances in the same region. The instances are in different AZs. What architectural change eliminates this charge?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Data transfer between EC2 instances in different AZs in the same region costs $0.01/GB."
+      },
+      {
+        "label": "B",
+        "text": "Enable Enhanced Networking on all instances to reduce data transfer overhead"
+      },
+      {
+        "label": "C",
+        "text": "Use CloudFront to cache traffic between AZs"
+      },
+      {
+        "label": "D",
+        "text": "Use VPC peering between AZs to route traffic for free"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Inter-AZ data transfer within the same region costs $0.01/GB in each direction ($0.02/GB round trip). For high-volume inter-AZ traffic, this is significant. Collocating instances in the same AZ eliminates the charge (same-AZ traffic between instances using private IPs is free). However, same-AZ colocation eliminates AZ-level HA \u2014 this is an architectural trade-off. VPC peering is for cross-VPC traffic, not intra-VPC inter-AZ (and intra-region peering still has cross-AZ charges). Enhanced Networking improves throughput and reduces CPU overhead but doesn't change billing for inter-AZ data transfer.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "data-transfer",
+      "ec2",
+      "cost-optimization",
+      "inter-az"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-007",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company wants to use AWS Cost Anomaly Detection. They configure a monitor for their main account. A spike occurs on Tuesday (EC2 costs 300% above normal) but the alert is not received until Thursday. Why might there be a 2-day delay and how should the alerting be optimized?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cost Anomaly Detection processes billing data with a 24-48 hour delay"
+      },
+      {
+        "label": "B",
+        "text": "The anomaly threshold was set too high \u2014 lower the threshold to detect smaller spikes faster"
+      },
+      {
+        "label": "C",
+        "text": "Cost Anomaly Detection only evaluates weekly \u2014 change to daily evaluation"
+      },
+      {
+        "label": "D",
+        "text": "The SNS topic for the alert had delivery failures \u2014 check SNS CloudWatch metrics"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS billing data has an inherent 24-48 hour delay \u2014 usage from Tuesday may not appear in the billing system until Wednesday or Thursday. Cost Anomaly Detection evaluates anomalies based on available billing data, so a Tuesday spike might only be detectable on Wednesday or Thursday. This is a known limitation of cost alerting systems. Optimizations: use CloudWatch Billing alarms (which can alert on estimated charges with ~6-hour granularity) for faster detection of sudden cost spikes; use Cost Anomaly Detection for trend-based anomaly detection with the understanding of the lag. Evaluation frequency in Cost Anomaly Detection is daily, not weekly.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "cost-anomaly-detection",
+      "billing",
+      "alerting",
+      "cloudwatch"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-008",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company has a 3-year Compute Savings Plan covering $10,000/month of compute. Their actual monthly spend is $12,000 for EC2+Fargate+Lambda. 6 months later, they refactor the application: EC2 is reduced to $2,000/month, Fargate is eliminated, and Lambda is $1,000/month. Total compute is now $3,000/month. What happens to the Savings Plan?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The Savings Plan still commits to $10,000/month in hourly spend"
+      },
+      {
+        "label": "B",
+        "text": "The Savings Plan automatically adjusts to cover only $3,000/month"
+      },
+      {
+        "label": "C",
+        "text": "The Savings Plan can be cancelled with a prorated refund for the remaining term"
+      },
+      {
+        "label": "D",
+        "text": "AWS refunds the unused Savings Plan commitment"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Savings Plans are a financial commitment to spend a minimum $/hour for 1 or 3 years. The commitment is fixed \u2014 if actual compute usage drops below the commitment level, AWS charges the shortfall at the On-Demand rate anyway (the commitment covers $10K/month; if usage is $3K, you pay $10K total \u2014 $3K at discounted rate + $7K wasted). Savings Plans cannot be cancelled, reduced, or automatically adjusted. There are no refunds. They can be sold on the Reserved Instance Marketplace (but Savings Plans cannot currently be listed there \u2014 only RIs can). This illustrates the risk of over-committing on Savings Plans.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "savings-plans",
+      "cost-optimization",
+      "commitment",
+      "billing"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-009",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company stores data in S3 with a complex lifecycle policy. They notice unexpected S3 charges for objects smaller than 128 KB in S3 Standard-IA. Investigation shows thousands of tiny objects are being transitioned from S3 Standard to Standard-IA via lifecycle rules. What is causing the unexpected charges?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Standard-IA charges a lifecycle transition fee of $0.01 per 1,000 transitions"
+      },
+      {
+        "label": "B",
+        "text": "S3 Standard-IA has a minimum billable object size of 128 KB \u2014 objects smaller than 128 KB are charged as if."
+      },
+      {
+        "label": "C",
+        "text": "S3 Standard-IA requires a 30-day minimum storage duration \u2014 objects created and transitioned in the same 30-day window are charged for 30 days"
+      },
+      {
+        "label": "D",
+        "text": "Objects smaller than 128 KB cannot be stored in S3 Standard-IA"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "S3 Standard-IA, One Zone-IA, and Glacier Instant Retrieval all have a MINIMUM BILLABLE OBJECT SIZE of 128 KB. An object of 1 KB stored in Standard-IA is charged as 128 KB \u2014 making tiny objects more expensive per GB than S3 Standard (which has no minimum size). Additionally, Standard-IA charges per-GET retrieval fees. Tiny objects that are frequently accessed become significantly MORE expensive in Standard-IA. Lifecycle policies should exclude objects below 128 KB from Standard-IA transition. Option D is also valid (30-day minimum storage) but option A is the 'unexpected charge' specifically mentioned.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "s3",
+      "standard-ia",
+      "minimum-object-size",
+      "lifecycle-policy",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-010",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company has purchased a 1-year All Upfront Standard Reserved Instance for a db.r5.2xlarge RDS Multi-AZ instance. Three months later, they need to downsize to a db.r5.xlarge due to reduced load. What are their options for the existing RI?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Standard RIs can be modified to a smaller instance size within the same instance family"
+      },
+      {
+        "label": "B",
+        "text": "The company can convert the Standard RI to a Convertible RI and then modify the instance type"
+      },
+      {
+        "label": "C",
+        "text": "AWS will refund the unused portion of the All Upfront RI"
+      },
+      {
+        "label": "D",
+        "text": "Standard RIs cannot be modified or sold \u2014 they must be held for the full 1-year term"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Standard Reserved Instances can be modified (not the same as Convertible exchange): within the same instance family, you can change the size (e.g., r5.2xlarge \u2192 2\u00d7 r5.xlarge) or AZ. The RI value is preserved. For RDS, you can modify between DB instance sizes within the same instance family. All Upfront RIs that are no longer needed can also be listed on the AWS Reserved Instance Marketplace for resale (except RDS RIs \u2014 only EC2 RIs can be sold on the marketplace). Option B is incorrect \u2014 Standard RIs can be modified within the family. Converting Standard to Convertible is not possible \u2014 you can only exchange a Convertible.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "reserved-instances",
+      "modification",
+      "rds",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-011",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company runs a high-traffic web application. The solutions architect proposes using CloudFront in front of an ALB to reduce data transfer costs. The current setup transfers 200 TB/month directly from the ALB to users. What is the key cost difference that makes this potentially cost-saving?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudFront is always more expensive than direct ALB \u2014 it adds another service layer"
+      },
+      {
+        "label": "B",
+        "text": "CloudFront data transfer to internet is free \u2014 all 200 TB would have no cost"
+      },
+      {
+        "label": "C",
+        "text": "CloudFront eliminates data transfer costs by serving from S3 instead of the ALB"
+      },
+      {
+        "label": "D",
+        "text": "Data transfer from ALB to internet costs ~$0.085/GB; CloudFront data transfer to internet costs ~$0.0085-$0.085/GB (varies."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "EC2/ALB to internet transfer costs $0.085/GB (us-east-1). CloudFront data transfer out is $0.085/GB (US/EU) to lower in other regions, with a free tier. More importantly, CloudFront reduces ORIGIN data transfer by caching: a cache hit serves the user from the edge without hitting the ALB \u2014 origin data transfer (CloudFront \u2192 ALB) is typically $0.0078-$0.011/GB, far less than $0.085/GB for the user response. High cache hit ratios can dramatically reduce total data transfer costs even accounting for CloudFront fees. CloudFront also reduces origin load. The cost benefit depends on cache hit ratio.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "cloudfront",
+      "data-transfer",
+      "alb",
+      "cost-optimization",
+      "caching"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-012",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's DynamoDB table costs $8,000/month in provisioned capacity. The CloudWatch ProvisionedCapacityUtilization metric shows: read capacity averages 8% utilization, write capacity averages 12% utilization, with occasional spikes to 95% during business hours. What is the most cost-effective capacity configuration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch to DynamoDB On-Demand mode \u2014 pay only for actual requests, eliminating idle provisioned capacity costs"
+      },
+      {
+        "label": "B",
+        "text": "Keep provisioned capacity but enable Auto Scaling with min=25% of current, max=current, target=70% utilization"
+      },
+      {
+        "label": "C",
+        "text": "Enable DynamoDB DAX to reduce read capacity consumption and lower the required provisioned RCU"
+      },
+      {
+        "label": "D",
+        "text": "Reduce provisioned capacity to match average utilization (8% read, 12% write) to minimize costs"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The metrics show consistent underutilization with occasional spikes \u2014 classic Auto Scaling territory. DynamoDB Auto Scaling adjusts capacity between min and max based on target utilization. Setting min=25% of current (matching average usage), target=70% (allows headroom), and max=current (handles spikes) can reduce costs by 70-75% while maintaining capacity for spikes. On-Demand mode (option B) costs ~$1.25 per million WRU + $0.25 per million RRU \u2014 for high-throughput provisioned tables, On-Demand is often MORE expensive than right-sized provisioned + Auto Scaling. Reducing to average utilization (option A) causes throttling during spikes.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "dynamodb",
+      "auto-scaling",
+      "cost-optimization",
+      "capacity"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-013",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company is designing a new application and choosing between RDS and DynamoDB. The finance team asks the solutions architect to compare the 5-year TCO for a 10 TB database with 5,000 reads/second and 500 writes/second. Which factor most significantly impacts the cost comparison?",
+    "options": [
+      {
+        "label": "A",
+        "text": "RDS is always cheaper than DynamoDB for relational workloads ignores the fact that RDS requires provisioned instance sizes that may be over-provisioned for variable demand."
+      },
+      {
+        "label": "B",
+        "text": "DynamoDB charges for storage at $0.25/GB/month, making 10 TB cost $2,500/month in storage alone, while RDS gp3 storage is $0.115/GB/month for $1,150/month"
+      },
+      {
+        "label": "C",
+        "text": "RDS licensing costs always make DynamoDB cheaper for large databases is false; DynamoDB's per-request and storage pricing can exceed RDS costs at high sustained throughput."
+      },
+      {
+        "label": "D",
+        "text": "DynamoDB pricing is per request unit; at 5,000 reads/second and 500 writes/second, DynamoDB provisioned capacity costs may exceed RDS instance costs depending on item sizes"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "RDS is always cheaper than DynamoDB for relational workloads ignores the fact that RDS requires provisioned instance sizes that may be over-provisioned for variable demand.",
+      "B": "",
+      "C": "RDS licensing costs always make DynamoDB cheaper for large databases is false; DynamoDB's per-request and storage pricing can exceed RDS costs at high sustained throughput."
+    },
+    "explanation": "DynamoDB pricing is nuanced: 1 RCU = 1 read of an item up to 4 KB (eventually consistent reads = 0.5 RCU). At 5,000 reads/second of large items (e.g., 8 KB each), you need 10,000 RCU = $0.00013/RCU-hour \u00d7 10,000 \u00d7 730 = $949/month. For writes (500 WPS \u00d7 1 WCU): $0.00065/WCU-hour \u00d7 500 \u00d7 730 = $237/month. Plus $0.25/GB \u00d7 10,000 GB = $2,500/month storage. Total DynamoDB: ~$3,700/month. RDS db.r5.2xlarge ($0.48/hr) = $350/month + 10 TB gp3 = $1,150/month = ~$1,500/month total. RDS can be cheaper for large relational workloads \u2014 TCO comparison requires detailed analysis of item sizes and access patterns.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "dynamodb",
+      "rds",
+      "tco",
+      "cost-comparison",
+      "database"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-014",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company has a consolidated billing setup with 20 member accounts. They purchase Reserved Instances in the management account. Only 10 of the 20 member accounts are using EC2 instances that match the RI specifications. The finance team wants to ensure RI benefits are shared only with accounts in the 'Production' OU and not with 'Development' OU accounts. How can this be configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Turn off RI sharing at the organizational level, then enable it per-account \u2014 selectively enable sharing only for Production OU accounts"
+      },
+      {
+        "label": "B",
+        "text": "RI sharing can be controlled per-account: disable RI sharing for each Development OU account via the Billing console or AWS CLI (modify-instance-credit-specifications equivalent."
+      },
+      {
+        "label": "C",
+        "text": "Disable RI sharing in consolidated billing and manually apply RIs to specific accounts"
+      },
+      {
+        "label": "D",
+        "text": "RI sharing is all-or-nothing in consolidated billing \u2014 either all accounts share or none do"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS allows per-account RI sharing control via the master/management account in consolidated billing. You can turn off RI discount sharing for specific member accounts, preventing Development accounts from consuming Production RI discounts. This is done via the AWS Billing console \u2192 Cost Management \u2192 Billing Preferences \u2192 or via `modify-reserved-instances` \u2192 RI sharing settings per linked account. Option A is incorrect \u2014 sharing is configurable per account. This level of RI control is important for accurate chargeback and preventing dev workloads from consuming production commitments.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "reserved-instances",
+      "consolidated-billing",
+      "organizations",
+      "cost-allocation"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-015",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company runs Lambda functions for API backends. They have 500 Lambda functions, each triggered by API Gateway. The functions process user requests in 200-500ms. Monthly Lambda invocations total 2 billion. The CTO asks whether migrating to EC2 with Reserved Instances would be cheaper. What analysis framework should the solutions architect use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EC2 is always cheaper than Lambda for more than 1 million monthly invocations"
+      },
+      {
+        "label": "B",
+        "text": "Lambda is always cheaper than EC2 for high-volume workloads"
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Pricing Calculator to get an exact comparison without doing the math manually"
+      },
+      {
+        "label": "D",
+        "text": "Calculate Lambda monthly cost (requests + duration charges) vs. EC2 RI cost to handle the equivalent TPS."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Lambda cost = ($0.20 per million requests \u00d7 2,000 million/month = $400) + duration (2B \u00d7 avg 350ms \u00d7 memory allocation). For 500ms avg at 1GB memory: $0.0000166667/GB-second \u00d7 500ms \u00d7 1GB \u00d7 2B = $16,667/month. Total Lambda: ~$17,000/month. EC2 equivalent: 2B requests at 350ms average = ~700,000 concurrent-seconds/month; peak TPS \u00f7 throughput per instance determines instance count. At sustained high concurrency, EC2 RIs become cheaper. The crossover point varies but Lambda typically exceeds EC2 RI cost when running at >40-50% consistent utilization equivalent. This calculation framework is the correct approach.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "lambda",
+      "ec2",
+      "tco",
+      "cost-comparison",
+      "serverless"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-016",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "select-two",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company's S3 costs are unexpectedly high. Investigation shows they have 50 million small objects (avg 1 KB) in S3 Standard being listed and read millions of times per day by a Lambda function. The Lambda reads each object individually using GetObject. What cost optimizations should be applied? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Consolidate small objects into larger aggregate files (e.g., combine 1,000 \u00d7 1 KB objects into"
+      },
+      {
+        "label": "B",
+        "text": "Use Amazon S3 Intelligent-Tiering to automatically move infrequently accessed objects to cheaper tiers"
+      },
+      {
+        "label": "C",
+        "text": "Use S3 Select to read only needed data from each object"
+      },
+      {
+        "label": "D",
+        "text": "Use S3 Batch Operations to process all objects in one job"
+      },
+      {
+        "label": "E",
+        "text": "Switch to S3 Express One Zone for microsecond access latency"
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "distractors": {
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Two cost drivers: (1) API requests \u2014 S3 charges $0.0004/1,000 GET requests. 50M objects \u00d7 daily reads = millions of API calls/day. Consolidating 1,000 \u00d7 1 KB objects into 1 \u00d7 1 MB file reduces GetObject calls by 1,000x \u2014 massive API cost reduction. (2) Data scanning \u2014 if Lambda only needs specific fields from each object (JSON/CSV), S3 Select extracts only the required data, reducing data transfer and processing cost. Batch Operations processes objects for bulk operations (copy, tag, restore), not for optimization of real-time reads. S3 Express One Zone adds cost for high-frequency access but doesn't reduce request count. Intelligent-Tiering helps storage cost for infrequently accessed objects \u2014 here they're accessed daily so it wouldn't help.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "s3",
+      "cost-optimization",
+      "api-requests",
+      "s3-select",
+      "object-consolidation"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-017",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company wants to implement showback (visibility, not billing) for AWS costs per application team. They have 50 teams sharing 5 AWS accounts. What is the minimum tagging strategy required to enable per-team cost reporting in Cost Explorer?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create IAM groups per team and track costs by IAM group in Cost Explorer"
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Budgets with per-team thresholds to track and report costs"
+      },
+      {
+        "label": "C",
+        "text": "Create separate AWS accounts per team (50 accounts) to get native per-account billing isolation"
+      },
+      {
+        "label": "D",
+        "text": "Apply a 'Team' cost allocation tag to all resources; activate the tag in Billing."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Cost allocation tags are the mechanism for sub-account cost attribution. A 'Team' tag applied to all resources (EC2, RDS, Lambda, etc.) and activated in the Billing console allows Cost Explorer to filter/group costs by team across all 5 accounts. This provides per-team showback without restructuring the account model. IAM groups are for access control \u2014 Cost Explorer cannot attribute costs to IAM groups. Budgets monitors spend limits \u2014 it doesn't generate per-team cost reports. Creating 50 accounts provides perfect isolation but is operationally complex and wasn't asked for.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "cost-allocation-tags",
+      "cost-explorer",
+      "showback",
+      "billing"
+    ]
+  },
+  {
+    "id": "aws-saa-t4-04-018",
+    "domain": 4,
+    "domain_name": "Design Cost-Optimized Architectures",
+    "type": "select-two",
+    "difficulty": "above",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company spends $500,000/month on AWS. The CTO wants to identify the top 5 cost-reduction opportunities without impacting production availability. Which combination of AWS tools provides the most comprehensive automated recommendations? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS CloudTrail \u2014 analyzes API calls to identify unused services"
+      },
+      {
+        "label": "B",
+        "text": "AWS Cost Explorer RI/Savings Plans recommendations \u2014 analyzes historical usage and recommends optimal commitment purchases"
+      },
+      {
+        "label": "C",
+        "text": "AWS Config \u2014 identifies resource misconfigurations that cause cost waste"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Inspector \u2014 scans for vulnerabilities that could cause expensive security incidents"
+      },
+      {
+        "label": "E",
+        "text": "AWS Trusted Advisor \u2014 identifies idle/underutilized resources, unattached EBS volumes, low-utilization EC2 instances, idle RDS instances"
+      }
+    ],
+    "correct": [
+      "B",
+      "E"
+    ],
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Trusted Advisor cost optimization checks automatically identify: idle EC2 instances (CPU <10%), underutilized EBS volumes (low IOPS), unassociated Elastic IPs, idle RDS instances, and low-utilization Reserved Instances \u2014 all actionable cost-reduction opportunities with no availability impact. Cost Explorer's RI/SP recommendations analyze the past 7-60 days of usage and recommend specific RI/Savings Plan purchases with projected savings \u2014 directly actionable commitments. Inspector is a security vulnerability scanner \u2014 not relevant to cost optimization. Config tracks configuration compliance, not cost. CloudTrail logs API calls \u2014 doesn't generate cost recommendations.",
+    "module_ref": "aws-saa/cost",
+    "tags": [
+      "trusted-advisor",
+      "cost-explorer",
+      "savings-plans",
+      "cost-optimization"
+    ]
+  }
+]

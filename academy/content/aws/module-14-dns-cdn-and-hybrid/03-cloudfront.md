@@ -35,6 +35,48 @@ CloudFront enforces HTTPS at the viewer side and can use HTTPS for origin connec
 
 CloudFront delivers content globally from 400+ edge locations with low latency. Origins can be S3 (with OAC), ALB, or custom HTTP. Cache behaviors control what's cached and for how long. Lambda@Edge and CloudFront Functions enable edge compute. WAF and Shield integrate at the CloudFront layer for perimeter security. CloudFront is the standard answer for global content delivery, TLS termination, and DDoS protection.
 
+## Examples
+
+A marketing agency hosts a global campaign microsite on S3. They create a CloudFront distribution with the S3 bucket as the origin, enable Origin Access Control so the bucket has no public access, and attach an ACM certificate for their custom domain. The site's images, CSS, and JavaScript are served from CloudFront edge locations near each visitor. During a viral campaign moment, CloudFront absorbs millions of requests while the S3 origin handles only cache misses — origin costs stay flat regardless of traffic spikes.
+
+A SaaS platform deploys a React single-page application through CloudFront. Instead of cache-busting with invalidations (which cost money and take time to propagate), their build pipeline appends a content hash to every JavaScript and CSS filename: `main.a3f9b2.js`. The CloudFront TTL for these assets is set to one year. When they deploy a new version, the new hashed filenames are automatically treated as new cache objects and fetched fresh, while stale browsers still hitting the old filename get the cached old version safely. This versioning strategy eliminates invalidation costs and ensures instantaneous propagation.
+
+A media company wants to A/B test a new homepage layout for 10% of their traffic without touching their origin servers. They deploy a Lambda@Edge function on the viewer request event that reads a `test-cohort` cookie: users without the cookie are randomly assigned to group A or B, the cookie is set, and the request is routed to different origin paths accordingly. This logic runs in under 5 milliseconds at the edge without a single request reaching the origin for routing decisions — demonstrating the power of edge compute for traffic shaping that would otherwise require origin-side logic or separate load balancer rules.
+
+## Think About It
+
+1. Why is a high cache hit ratio desirable, and what are two specific things you could change about your cache behavior configuration to improve it?
+2. What would happen if you used a CNAME for your CloudFront distribution's alternate domain name but forgot to attach an ACM certificate from the us-east-1 region?
+3. How would you decide whether to use CloudFront Functions or Lambda@Edge for a new edge transformation — what questions would you ask to guide that decision?
+4. An Origin Group has a primary S3 bucket in us-east-1 and a secondary in eu-west-1. Under what exact condition does CloudFront fail over to the secondary, and what are the latency implications for users during failover?
+5. What trade-offs arise from setting a very long TTL (e.g., one year) on a frequently updated API response versus a static binary asset — and how does the nature of the content change your caching strategy?
+
+## Quick Check
+
+**Q1.** You want to serve an S3-hosted website through CloudFront while keeping the S3 bucket completely private (no public bucket policy). Which CloudFront feature enables this?
+- A) Signed URLs
+- B) Origin Access Control (OAC)
+- C) Field-level encryption
+- D) Lambda@Edge on the origin response
+
+**Answer: B** — Origin Access Control restricts bucket access to the CloudFront distribution's service principal, allowing you to block all public S3 access while CloudFront continues to fetch and serve content.
+
+**Q2.** Your ACM certificate for a CloudFront custom domain must be created in which AWS region?
+- A) The region where your origin (e.g., ALB) is deployed
+- B) us-west-2
+- C) Any region — CloudFront auto-replicates certificates
+- D) us-east-1
+
+**Answer: D** — CloudFront is a global service that only integrates with ACM certificates provisioned in us-east-1, regardless of where your origin or users are located.
+
+**Q3.** Which approach is recommended over cache invalidation for updating static assets served through CloudFront?
+- A) Set TTL to 0 for all assets
+- B) Use versioned or hashed filenames for each deployment
+- C) Attach a Lambda@Edge function to clear cache on every request
+- D) Disable caching and always pass requests to the origin
+
+**Answer: B** — Versioned filenames (e.g., `app.v2.js`) cause CloudFront to treat updated files as new cache objects, avoiding invalidation charges and providing instant global propagation without waiting for edge cache purges.
+
 ## What's Next
 
 Next up: Global Accelerator — network-layer acceleration for TCP/UDP applications.

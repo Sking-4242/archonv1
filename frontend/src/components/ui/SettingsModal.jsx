@@ -1,4 +1,6 @@
+import { useState } from "react";
 import useSettingsStore from "../../store/settingsStore";
+import AccountPanel from "./AccountPanel";
 
 const PROVIDER_LABELS = {
   anthropic: "Anthropic",
@@ -20,7 +22,8 @@ const PROVIDER_MODELS = {
   xai: ["grok-3", "grok-3-fast", "grok-3-mini"],
 };
 
-export default function SettingsModal({ onClose }) {
+export default function SettingsModal({ onClose, initialTab = "llm" }) {
+  const [tab, setTab] = useState(initialTab);
   const {
     provider,
     models,
@@ -35,9 +38,9 @@ export default function SettingsModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4">
+      <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between px-6 py-4 border-b">
-          <h2 className="text-lg font-semibold text-gray-900">LLM Settings</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Settings</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 text-xl leading-none"
@@ -46,71 +49,97 @@ export default function SettingsModal({ onClose }) {
           </button>
         </div>
 
-        <div className="px-6 py-5 space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Provider
-            </label>
-            <select
-              value={provider}
-              onChange={(e) => setProvider(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        <div className="flex border-b px-6 gap-4">
+          {[
+            ["llm", "LLM"],
+            ["account", "Account"],
+          ].map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              onClick={() => setTab(id)}
+              className={`py-2 text-sm font-medium border-b-2 -mb-px ${
+                tab === id
+                  ? "border-indigo-600 text-indigo-600"
+                  : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
             >
-              {providers.map((p) => (
-                <option key={p} value={p}>
-                  {PROVIDER_LABELS[p]}
-                </option>
-              ))}
-            </select>
-          </div>
+              {label}
+            </button>
+          ))}
+        </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Model
-            </label>
-            <select
-              value={models[provider]}
-              onChange={(e) => setModel(provider, e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              {(PROVIDER_MODELS[provider] ?? [models[provider]]).map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="px-6 py-5 space-y-5 overflow-y-auto flex-1">
+          {tab === "account" ? (
+            <AccountPanel />
+          ) : (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Provider
+                </label>
+                <select
+                  value={provider}
+                  onChange={(e) => setProvider(e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  {providers.map((p) => (
+                    <option key={p} value={p}>
+                      {PROVIDER_LABELS[p]}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          {provider !== "ollama" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                API Key
-              </label>
-              <input
-                type="password"
-                value={apiKeys[provider] ?? ""}
-                onChange={(e) => setApiKey(provider, e.target.value)}
-                placeholder="Enter your API key"
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-              <p className="mt-1 text-xs text-gray-400">
-                Saved locally in your browser. Never sent to any third party.
-              </p>
-            </div>
-          )}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Model
+                </label>
+                <select
+                  value={models[provider]}
+                  onChange={(e) => setModel(provider, e.target.value)}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                >
+                  {(PROVIDER_MODELS[provider] ?? [models[provider]]).map((m) => (
+                    <option key={m} value={m}>
+                      {m}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          {provider === "ollama" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Ollama Base URL
-              </label>
-              <input
-                type="text"
-                value={ollamaBaseUrl}
-                onChange={(e) => setOllamaBaseUrl(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-            </div>
+              {provider !== "ollama" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    API Key
+                  </label>
+                  <input
+                    type="password"
+                    value={apiKeys[provider] ?? ""}
+                    onChange={(e) => setApiKey(provider, e.target.value)}
+                    placeholder="Enter your API key"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                  <p className="mt-1 text-xs text-gray-400">
+                    Saved locally in your browser. Never sent to any third party.
+                  </p>
+                </div>
+              )}
+
+              {provider === "ollama" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Ollama Base URL
+                  </label>
+                  <input
+                    type="text"
+                    value={ollamaBaseUrl}
+                    onChange={(e) => setOllamaBaseUrl(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
 

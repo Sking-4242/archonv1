@@ -4,7 +4,7 @@ import { persist } from "zustand/middleware";
 const useAuthStore = create(
   persist(
     (set) => ({
-      user: null,   // { id, name, email, role: "student" | "instructor" }
+      user: null,   // { id, name, display_name, email, role: "student" | "instructor", academy_role }
       token: null,
 
       login: (user, token) => set({ user, token }),

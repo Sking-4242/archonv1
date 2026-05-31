@@ -1,0 +1,1439 @@
+[
+  {
+    "id": "aws-cp-03-t3-001",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A media company needs to store video transcoding jobs in a queue and process them one at a time, in strict first-in-first-out order. Which SQS queue type is required?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon SNS topic \u2014 delivers in order to all subscribers"
+      },
+      {
+        "label": "B",
+        "text": "SQS Standard queue \u2014 highest throughput, best-effort ordering"
+      },
+      {
+        "label": "C",
+        "text": "SQS FIFO queue \u2014 preserves message order and ensures exactly-once processing"
+      },
+      {
+        "label": "D",
+        "text": "Amazon EventBridge \u2014 routes events in order to targets"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Kinesis \u2014 ensures ordered stream processing"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "SQS FIFO queues guarantee that messages are processed in the exact order they are sent and each message is delivered exactly once. Required for use cases where job processing order matters (transcoding queue, financial transactions, etc.).",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "sqs",
+      "fifo",
+      "ordering",
+      "exactly-once",
+      "queue"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-002",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An application tier consists of 6 EC2 instances behind an ALB. Two instances are in us-east-1a and four are in us-east-1b. If us-east-1a loses all connectivity, what happens to application availability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The application goes down because 2 of 6 instances are unreachable"
+      },
+      {
+        "label": "B",
+        "text": "The application fails over to a standby Region automatically"
+      },
+      {
+        "label": "C",
+        "text": "Auto Scaling immediately launches 2 replacement instances in us-east-1a"
+      },
+      {
+        "label": "D",
+        "text": "The ALB continues routing all traffic to the 4 healthy instances in us-east-1b"
+      },
+      {
+        "label": "E",
+        "text": "The ALB splits traffic 50/50 regardless of AZ health"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "The ALB continuously health-checks all registered targets. When us-east-1a instances fail their checks, the ALB removes them from rotation and routes all traffic to the 4 healthy us-east-1b instances \u2014 the application remains available.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "alb",
+      "availability-zones",
+      "health-checks",
+      "high-availability",
+      "failover"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-003",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A startup wants to build a mobile app backend that handles authentication, data storage, and real-time updates without managing servers. Which AWS service is purpose-built for mobile and web backends?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon S3 static website with Lambda"
+      },
+      {
+        "label": "B",
+        "text": "AWS Elastic Beanstalk with a Java backend"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EC2 with a Node.js server"
+      },
+      {
+        "label": "D",
+        "text": "Amazon RDS with a REST API on EC2"
+      },
+      {
+        "label": "E",
+        "text": "AWS Amplify / AWS AppSync with DynamoDB"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Amplify provides frontend hosting and CI/CD; AppSync provides a managed GraphQL API with real-time subscriptions; Cognito handles authentication; DynamoDB handles data \u2014 together these form a fully managed, serverless mobile/web backend.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "amplify",
+      "appsync",
+      "mobile-backend",
+      "serverless",
+      "graphql"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-004",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company runs a large-scale Hadoop data processing cluster on-premises. They want to migrate to AWS and still use Hadoop-compatible processing frameworks without managing the cluster nodes themselves. Which service should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Glue is a fully managed extract, transform, and load service that makes it easy to prepare and load data for analytics."
+      },
+      {
+        "label": "B",
+        "text": "Amazon EMR (Elastic MapReduce)"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Redshift is a fast, fully managed, petabyte-scale data warehouse service that makes it simple and cost-effective to analyze your data."
+      },
+      {
+        "label": "D",
+        "text": "Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability."
+      },
+      {
+        "label": "E",
+        "text": "Amazon Kinesis Data Analytics"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "AWS Glue is a fully managed extract, transform, and load service that makes it easy to prepare and load data for analytics.",
+      "C": "Amazon Redshift is a fast, fully managed, petabyte-scale data warehouse service that makes it simple and cost-effective to analyze your data.",
+      "D": "Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability.",
+      "E": ""
+    },
+    "explanation": "Amazon EMR is a managed service for running big data frameworks including Apache Hadoop, Spark, Hive, and HBase. AWS manages the cluster provisioning and configuration \u2014 customers just run their jobs.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "emr",
+      "hadoop",
+      "spark",
+      "big-data",
+      "managed-cluster"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-005",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An EC2 instance running a web server needs to access an S3 bucket in the same Region. Which option provides the most secure, low-cost path without routing traffic over the internet?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use S3 Transfer Acceleration for low-latency access"
+      },
+      {
+        "label": "B",
+        "text": "Configure a NAT Gateway for the private subnet to reach S3"
+      },
+      {
+        "label": "C",
+        "text": "Assign a public IP to the EC2 instance and use S3 over HTTPS"
+      },
+      {
+        "label": "D",
+        "text": "Use a VPC Gateway Endpoint for S3 \u2014 traffic stays within AWS network"
+      },
+      {
+        "label": "E",
+        "text": "Use Direct Connect to route all S3 traffic through your data center"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "A VPC Gateway Endpoint for S3 routes traffic from EC2 to S3 entirely within the AWS private network \u2014 no internet gateway, NAT gateway, or public IP required. There is no data transfer charge for traffic through the endpoint.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "vpc-endpoint",
+      "s3",
+      "private-connectivity",
+      "cost-optimization",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-006",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A development team wants to build a chatbot that understands natural language questions about their product catalog. Which AWS service provides a managed natural language understanding framework for building conversational interfaces?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Comprehend \u2014 extracts entities and sentiment from text"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Rekognition \u2014 analyzes images for object detection"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Lex \u2014 builds conversational interfaces with NLU and ASR"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Transcribe \u2014 converts speech to text"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Polly \u2014 converts text to speech"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon Lex provides the same deep learning technologies that power Alexa \u2014 automatic speech recognition (ASR) and natural language understanding (NLU). It manages intent recognition, dialog flows, and session state for building chatbots.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "lex",
+      "chatbot",
+      "nlu",
+      "conversational-ai",
+      "asr"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-007",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's application writes data to Amazon S3 and uses Amazon Athena to query it with SQL. Their S3 data is stored as JSON but queries are slow. Which data format change would most improve Athena query performance and reduce cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Convert data to Parquet or ORC \u2014 columnar formats optimized for analytical queries"
+      },
+      {
+        "label": "B",
+        "text": "Enable S3 Intelligent-Tiering \u2014 queries run faster on frequently accessed objects"
+      },
+      {
+        "label": "C",
+        "text": "Use S3 Replication to create a read replica of the data"
+      },
+      {
+        "label": "D",
+        "text": "Move data to RDS \u2014 relational databases are faster than S3 for SQL"
+      },
+      {
+        "label": "E",
+        "text": "Convert data to CSV \u2014 simpler format for SQL engines"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Athena charges per TB of data scanned. Columnar formats (Parquet, ORC) store data column-by-column \u2014 Athena reads only the columns needed for each query, dramatically reducing scan volume, improving speed, and cutting cost.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "athena",
+      "parquet",
+      "columnar-format",
+      "query-optimization",
+      "s3"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-008",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to create a serverless data pipeline that automatically extracts data from S3, transforms it, and loads it into Redshift \u2014 all without managing ETL servers. Which service is purpose-built for this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Lambda \u2014 custom ETL code triggered by S3 events"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Kinesis Data Firehose \u2014 streams data in real time"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EMR \u2014 managed Hadoop cluster for ETL"
+      },
+      {
+        "label": "D",
+        "text": "AWS Glue \u2014 serverless ETL with automatic schema discovery"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Redshift Spectrum \u2014 queries data in S3 directly"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "AWS Glue is a fully managed serverless ETL service. It crawls data sources, discovers schemas, and generates ETL code that can transform and load data between S3, Redshift, RDS, and other targets \u2014 no server provisioning needed.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "glue",
+      "etl",
+      "serverless",
+      "data-pipeline",
+      "redshift"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-009",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company hosts an e-commerce website. During checkout, customers select shipping options that require calling a third-party shipping API. If the shipping API is slow, the checkout page hangs. Which architectural change would prevent the shipping API's slowness from affecting the checkout experience?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Place an SQS queue between checkout and the shipping API call"
+      },
+      {
+        "label": "B",
+        "text": "Move the shipping API call to a Lambda function"
+      },
+      {
+        "label": "C",
+        "text": "Increase the timeout on the checkout page to 60 seconds"
+      },
+      {
+        "label": "D",
+        "text": "Add more EC2 instances to the checkout service"
+      },
+      {
+        "label": "E",
+        "text": "Cache the shipping API response in ElastiCache"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "SQS decouples the checkout (writes order to queue, completes immediately) from the shipping API call (processed asynchronously). The customer receives a confirmation instantly \u2014 shipping details are updated moments later without blocking the checkout flow.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "sqs",
+      "async",
+      "decoupling",
+      "loose-coupling",
+      "e-commerce"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-010",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A software team uses multiple AWS accounts and wants a single place to view all security findings, compliance scores, and threat detections across every account. Which service provides this unified security view?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Security Hub \u2014 aggregates security findings from multiple services."
+      },
+      {
+        "label": "B",
+        "text": "AWS Config \u2014 aggregates configuration compliance across accounts"
+      },
+      {
+        "label": "C",
+        "text": "Amazon GuardDuty \u2014 provides a multi-account threat dashboard"
+      },
+      {
+        "label": "D",
+        "text": "AWS CloudTrail \u2014 aggregates API logs across accounts"
+      },
+      {
+        "label": "E",
+        "text": "Amazon CloudWatch \u2014 aggregates metrics across accounts"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS Security Hub acts as the central aggregation point for security findings across accounts and services. It ingests from GuardDuty, Inspector, Macie, Config, IAM Access Analyzer, and integrated third-party tools into a single prioritized dashboard.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "security-hub",
+      "multi-account",
+      "security-findings",
+      "centralized-security"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-011",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to send transactional emails (order confirmations, password resets) to millions of customers from their AWS-hosted application. Which AWS service is designed for bulk and transactional email delivery?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Pinpoint \u2014 sends push notifications to mobile apps"
+      },
+      {
+        "label": "B",
+        "text": "AWS Lambda \u2014 sends emails using the SMTP protocol"
+      },
+      {
+        "label": "C",
+        "text": "Amazon SNS \u2014 sends SMS and email notifications"
+      },
+      {
+        "label": "D",
+        "text": "Amazon SQS \u2014 queues email messages for processing"
+      },
+      {
+        "label": "E",
+        "text": "Amazon SES (Simple Email Service) \u2014 managed email sending for high-volume delivery"
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Amazon SES is a cloud-based email sending service designed for transactional and marketing emails at scale. It provides high deliverability, bounce/complaint handling, DKIM/SPF support, and dedicated IP options.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "ses",
+      "email",
+      "transactional-email",
+      "bulk-email",
+      "deliverability"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-012",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses AWS CloudFormation to manage infrastructure. A new developer accidentally deletes a production CloudFormation stack, which destroys the database. Which CloudFormation feature should have been enabled to prevent this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config \u2014 records stack deletion events"
+      },
+      {
+        "label": "B",
+        "text": "CloudFormation Change Sets \u2014 requires review before applying changes"
+      },
+      {
+        "label": "C",
+        "text": "AWS Backup \u2014 backs up CloudFormation templates"
+      },
+      {
+        "label": "D",
+        "text": "CloudFormation Termination Protection \u2014 prevents a stack from being deleted"
+      },
+      {
+        "label": "E",
+        "text": "CloudFormation Rollback \u2014 reverts failed deployments"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "CloudFormation Termination Protection, when enabled on a stack, prevents the stack from being accidentally deleted. Any delete attempt returns an error \u2014 the protection must be explicitly disabled before deletion can proceed.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudformation",
+      "termination-protection",
+      "stack-deletion",
+      "protection"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-013",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company needs to extract text and data from millions of scanned PDF forms to populate a database. Which AWS service automates this without requiring custom ML code?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Glue \u2014 crawls PDFs and extracts structured data"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Transcribe \u2014 converts speech in PDFs to text"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Rekognition \u2014 detects text in images"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Textract \u2014 extracts text, tables, and form data from documents"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Comprehend \u2014 extracts entities from text"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "Amazon Textract uses ML to extract printed text, handwriting, tables, and form fields from scanned documents and PDFs. It returns structured output including key-value pairs from forms \u2014 ideal for document processing pipelines.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "textract",
+      "document-processing",
+      "ocr",
+      "forms",
+      "pdf"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-014",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company runs EC2 instances that must comply with a licensing requirement allowing only a specific number of sockets. They need to track which physical servers their instances run on. Which EC2 option provides this visibility and control?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EC2 Auto Scaling groups \u2014 track instance distribution"
+      },
+      {
+        "label": "B",
+        "text": "EC2 Dedicated Hosts \u2014 provides visibility into the specific physical"
+      },
+      {
+        "label": "C",
+        "text": "Placement Groups \u2014 control instance placement in a cluster"
+      },
+      {
+        "label": "D",
+        "text": "Reserved Instances \u2014 specify instance type"
+      },
+      {
+        "label": "E",
+        "text": "EC2 Spot Instances \u2014 run on unused capacity of any host"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "EC2 Dedicated Hosts give you a dedicated physical server with full visibility into the number of sockets, cores, and host IDs. This is essential for BYOL (Bring Your Own License) software with per-socket or per-core licensing.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "dedicated-hosts",
+      "byol",
+      "licensing",
+      "physical-host",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-015",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses multiple microservices, each with complex dependencies and retry logic. They want to orchestrate these services into a workflow with error handling, retries, and branching \u2014 without building custom orchestration code. Which service handles this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EventBridge \u2014 routes events between services"
+      },
+      {
+        "label": "B",
+        "text": "Amazon SNS \u2014 fans out messages to all services"
+      },
+      {
+        "label": "C",
+        "text": "AWS Step Functions \u2014 visual serverless workflow orchestration"
+      },
+      {
+        "label": "D",
+        "text": "Amazon SQS \u2014 chains queues between services"
+      },
+      {
+        "label": "E",
+        "text": "Amazon MQ \u2014 broker for messaging between services"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS Step Functions orchestrates Lambda functions and other AWS services into visual workflows with built-in state management, branching, parallel execution, retry logic, and error handling \u2014 removing the need for custom orchestration code.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "step-functions",
+      "workflow",
+      "orchestration",
+      "microservices",
+      "serverless"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-016",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company stores 500 TB of data on-premises and wants to extend this to AWS, using AWS for overflow capacity while keeping frequently accessed data on-premises. Which service provides seamless on-premises to cloud storage extension?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Snowball \u2014 ships data to AWS"
+      },
+      {
+        "label": "B",
+        "text": "AWS DataSync \u2014 migrates data to S3"
+      },
+      {
+        "label": "C",
+        "text": "AWS Storage Gateway \u2014 presents AWS storage as local"
+      },
+      {
+        "label": "D",
+        "text": "AWS Direct Connect \u2014 provides a private network to AWS"
+      },
+      {
+        "label": "E",
+        "text": "Amazon EFS \u2014 provides a network file system"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS Storage Gateway presents AWS storage (S3, S3 Glacier, EBS) as standard local storage protocols (NFS, SMB, iSCSI). Applications continue using local protocols \u2014 Gateway caches hot data on-premises and stores cold data in AWS automatically.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "storage-gateway",
+      "hybrid-storage",
+      "on-premises",
+      "cloud-extension"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-017",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to run their application containers in AWS and requires Kubernetes. They want the underlying nodes to be managed by AWS so they don't have to patch worker nodes. Which approach achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Batch \u2014 managed container job scheduling"
+      },
+      {
+        "label": "B",
+        "text": "EKS with self-managed EC2 node groups \u2014 customer manages nodes"
+      },
+      {
+        "label": "C",
+        "text": "ECS with EC2 launch type \u2014 customer manages cluster nodes"
+      },
+      {
+        "label": "D",
+        "text": "EKS with EKS Managed Node Groups \u2014 AWS handles node provisioning."
+      },
+      {
+        "label": "E",
+        "text": "EC2 instances with kubeadm installation \u2014 full self-managed Kubernetes"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "EKS Managed Node Groups let AWS handle node provisioning, AMI updates, and draining/terminating nodes for updates \u2014 the customer specifies desired configuration and AWS manages the worker node lifecycle.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "eks",
+      "managed-node-groups",
+      "kubernetes",
+      "containers",
+      "managed-service"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-018",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An application must translate user-submitted text between 75 languages in real time. The team has no ML expertise. Which fully managed AWS service handles this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Lex \u2014 understands multiple languages in conversation"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Comprehend \u2014 detects language but doesn't translate"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Translate \u2014 neural machine translation between languages"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Polly \u2014 converts text to speech in multiple languages"
+      },
+      {
+        "label": "E",
+        "text": "Amazon SageMaker \u2014 train a custom translation model"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon Translate is a neural machine translation service supporting 75+ languages. It integrates with a simple API call \u2014 no ML expertise or model training required.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "translate",
+      "nlp",
+      "machine-translation",
+      "pre-built-ai"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-019",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company needs to run a database that handles complex graph relationships (social connections, fraud detection networks). Which AWS database service is designed for graph data?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon ElastiCache \u2014 in-memory caching for relationships"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Neptune \u2014 managed graph database"
+      },
+      {
+        "label": "C",
+        "text": "Amazon DynamoDB \u2014 NoSQL key-value and document store"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Redshift \u2014 data warehouse for analytics"
+      },
+      {
+        "label": "E",
+        "text": "Amazon RDS \u2014 relational database for structured data"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon Neptune is a fully managed graph database supporting Gremlin and SPARQL query languages. It is optimized for querying highly connected datasets like social networks, recommendation engines, and fraud detection graphs.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "neptune",
+      "graph-database",
+      "social-graph",
+      "fraud-detection"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-020",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's application logs to Amazon CloudWatch Logs and they want to search for error patterns, create metrics from log data, and set alarms. Which CloudWatch feature enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudWatch Synthetics \u2014 synthetic monitoring canaries"
+      },
+      {
+        "label": "B",
+        "text": "CloudWatch Metric Filters \u2014 extract metric data from log events"
+      },
+      {
+        "label": "C",
+        "text": "CloudWatch Contributor Insights \u2014 identify top contributors to traffic"
+      },
+      {
+        "label": "D",
+        "text": "CloudWatch Container Insights \u2014 monitor container performance"
+      },
+      {
+        "label": "E",
+        "text": "CloudWatch Dashboards \u2014 visualize metrics in graphs"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "CloudWatch Metric Filters parse log events in CloudWatch Logs, extract numeric values matching a pattern (e.g., count ERROR occurrences), and publish them as custom CloudWatch metrics that can then be used in alarms and dashboards.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudwatch",
+      "metric-filters",
+      "log-analysis",
+      "custom-metrics",
+      "alarms"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-021",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company runs a three-tier application. The web tier EC2 instances in a public subnet need to communicate with the app tier in a private subnet. What controls the traffic flow between these two subnets?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Elastic IPs \u2014 assign public IPs to private subnet instances"
+      },
+      {
+        "label": "B",
+        "text": "VPC Peering \u2014 connect public and private subnets"
+      },
+      {
+        "label": "C",
+        "text": "Route tables \u2014 determine where subnet traffic is directed"
+      },
+      {
+        "label": "D",
+        "text": "Direct Connect \u2014 private connectivity between subnets"
+      },
+      {
+        "label": "E",
+        "text": "Internet Gateway \u2014 routes traffic between subnets"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Within a VPC, traffic between subnets is routed by the VPC router using route tables (subnets in the same VPC can communicate by default). Security groups on the app tier instances control which source IPs and ports are allowed \u2014 typically only from the web tier's security group.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "vpc",
+      "route-tables",
+      "security-groups",
+      "subnet-communication",
+      "three-tier"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-022",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to provide their customers with an interactive voice response (IVR) system using AWS. Customers call a phone number, speak their request, and the system responds. Which two services are core to this solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Lambda (custom voice processing) and Amazon SQS (queue calls)"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Connect (cloud contact center) with Amazon Lex \u2014 managed telephony with NLU"
+      },
+      {
+        "label": "C",
+        "text": "Amazon SES (email) and Amazon SNS (SMS notifications)"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Polly (text to speech) and Amazon Rekognition (voice analysis)"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Transcribe (speech to text) and Amazon Lex (NLU and dialog) \u2014 voice input to intelligent IVR"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Amazon Connect is a managed cloud contact center that handles telephony (phone numbers, call routing). It integrates natively with Amazon Lex for NLU and intent-based IVR \u2014 together providing a fully managed intelligent phone system.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "connect",
+      "lex",
+      "ivr",
+      "telephony",
+      "contact-center"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-023",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's Amazon RDS database storage is 80% full and growing. Which RDS feature ensures storage grows automatically without downtime or manual intervention?",
+    "options": [
+      {
+        "label": "A",
+        "text": "RDS Multi-AZ \u2014 standby replica takes over when primary is full"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Aurora Serverless \u2014 auto-scales compute and storage simultaneously"
+      },
+      {
+        "label": "C",
+        "text": "RDS Read Replicas \u2014 additional instances absorb write overflow"
+      },
+      {
+        "label": "D",
+        "text": "RDS Storage Auto Scaling \u2014 automatically increases storage when utilization is high"
+      },
+      {
+        "label": "E",
+        "text": "RDS Snapshot Restore \u2014 restore to a larger instance when full"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "E": ""
+    },
+    "explanation": "RDS Storage Auto Scaling monitors free storage and automatically scales up storage capacity when it reaches a configured threshold \u2014 without any downtime or manual intervention from the customer.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "rds",
+      "storage-auto-scaling",
+      "automatic-scaling",
+      "database"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-024",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's disaster recovery plan requires their application to be restored in a different AWS Region within 4 hours if the primary Region becomes unavailable. Which approach achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Pilot Light \u2014 keep minimal infrastructure running in the DR Region."
+      },
+      {
+        "label": "B",
+        "text": "Store backups in S3 Standard in the primary Region"
+      },
+      {
+        "label": "C",
+        "text": "Enable CloudTrail in the DR Region \u2014 logs provide recovery information"
+      },
+      {
+        "label": "D",
+        "text": "Deploy identical infrastructure in both Regions and route traffic equally"
+      },
+      {
+        "label": "E",
+        "text": "Multi-AZ deployment \u2014 deploys across AZs in the same Region"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Pilot Light keeps core components (database replication, pre-built AMIs) running in the DR Region. During a disaster, you scale up the pre-built components to full capacity \u2014 achievable in under 4 hours at lower ongoing cost than full active-active.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "disaster-recovery",
+      "pilot-light",
+      "cross-region",
+      "rto",
+      "dr-strategies"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-025",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to build a data lake on AWS to store raw data from multiple sources including S3, RDS, and DynamoDB, and make it queryable with SQL. Which combination of services forms this architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EC2 with Hadoop + Amazon S3 + Amazon EMR"
+      },
+      {
+        "label": "B",
+        "text": "Amazon RDS + Amazon Redshift + Amazon DynamoDB"
+      },
+      {
+        "label": "C",
+        "text": "Amazon S3 (storage) + AWS Glue (catalog + ETL) +"
+      },
+      {
+        "label": "D",
+        "text": "Amazon S3 + Amazon CloudFront + Amazon Route 53"
+      },
+      {
+        "label": "E",
+        "text": "Amazon DynamoDB + Amazon ElastiCache + Amazon Kinesis"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "The serverless AWS data lake architecture: S3 stores raw and curated data, Glue crawls sources and maintains the schema catalog, and Athena queries S3 data directly with SQL using the Glue catalog \u2014 all serverless, no infrastructure to manage.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "data-lake",
+      "s3",
+      "glue",
+      "athena",
+      "analytics"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-026",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company needs to monitor their entire AWS infrastructure health, including EC2 instance status, ELB request counts, and custom application metrics \u2014 all in a single customizable dashboard. Which service provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor \u2014 monitors infrastructure best practices"
+      },
+      {
+        "label": "B",
+        "text": "AWS Health Dashboard \u2014 shows service status for all Regions"
+      },
+      {
+        "label": "C",
+        "text": "AWS Systems Manager \u2014 manages infrastructure operations"
+      },
+      {
+        "label": "D",
+        "text": "AWS Config \u2014 records resource configuration state"
+      },
+      {
+        "label": "E",
+        "text": "Amazon CloudWatch \u2014 collects metrics, logs, and events."
+      }
+    ],
+    "correct": "E",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Amazon CloudWatch collects metrics from AWS services (EC2, ELB, RDS) and custom application sources. CloudWatch Dashboards provide customizable, shareable views of these metrics in real-time graphs.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudwatch",
+      "dashboards",
+      "monitoring",
+      "metrics",
+      "infrastructure"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-027",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A global e-commerce company needs their checkout flow to have sub-50ms database response times for customers worldwide. Which database architecture should they consider?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon RDS Read Replicas in each Region with manual failover"
+      },
+      {
+        "label": "B",
+        "text": "DynamoDB in one Region with ElastiCache"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Aurora Global Database \u2014 replicates to multiple Regions."
+      },
+      {
+        "label": "D",
+        "text": "Amazon Redshift in one Region with CloudFront in front"
+      },
+      {
+        "label": "E",
+        "text": "Amazon RDS with Multi-AZ in one Region"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "Aurora Global Database spans multiple Regions with under 1-second replication lag. Secondary Regions serve reads with local latency. If the primary Region fails, a secondary can be promoted with minimal downtime \u2014 enabling truly global database access.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "aurora",
+      "global-database",
+      "multi-region",
+      "low-latency",
+      "global"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-028",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to automatically apply OS patches to hundreds of EC2 instances on a defined schedule without logging into each instance individually. Which AWS service provides centralized patch management?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config \u2014 remediates non-compliant patch levels automatically"
+      },
+      {
+        "label": "B",
+        "text": "AWS Systems Manager Patch Manager \u2014 automates OS patching across instances"
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudFormation \u2014 redeploy instances with new AMIs"
+      },
+      {
+        "label": "D",
+        "text": "EC2 Image Builder \u2014 creates new AMIs with patches applied"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Inspector \u2014 scans for missing patches and applies them"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": "",
+      "E": ""
+    },
+    "explanation": "AWS Systems Manager Patch Manager automates the patching of EC2 instances (and on-premises servers) at scale. You define patch baselines and maintenance windows \u2014 SSM applies approved patches on schedule without requiring SSH access.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "systems-manager",
+      "patch-manager",
+      "os-patching",
+      "automation",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-029",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "multiple",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A solutions architect is designing a cost-effective architecture for a startup. Which TWO AWS services allow them to run code or containers without paying for idle server time? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EC2 On-Demand \u2014 pay per hour while running"
+      },
+      {
+        "label": "B",
+        "text": "AWS Fargate \u2014 runs containers serverlessly; billed per vCPU and memory consumed"
+      },
+      {
+        "label": "C",
+        "text": "Amazon RDS \u2014 managed relational database"
+      },
+      {
+        "label": "D",
+        "text": "Amazon EBS \u2014 block storage billed per GB provisioned"
+      },
+      {
+        "label": "E",
+        "text": "AWS Lambda \u2014 runs functions in response to events; billed per invocation and duration"
+      }
+    ],
+    "correct": [
+      "B",
+      "E"
+    ],
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Lambda charges only when code is executing (per-millisecond billing). Fargate charges per vCPU/memory second consumed during container execution. Neither charges for idle time \u2014 they are true pay-per-use compute services.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "lambda",
+      "fargate",
+      "serverless",
+      "pay-per-use",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-03-t3-030",
+    "domain": "3",
+    "domain_name": "Technology and Services",
+    "type": "multiple",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company is evaluating AWS database services for different use cases. Which TWO statements correctly match a service to its primary use case? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon RDS \u2014 best for storing images and video files"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Redshift \u2014 best for OLTP banking transactions requiring immediate consistency"
+      },
+      {
+        "label": "C",
+        "text": "Amazon ElastiCache \u2014 best for reducing repeated read queries from a relational database"
+      },
+      {
+        "label": "D",
+        "text": "Amazon DynamoDB \u2014 best for a product catalog requiring single-digit millisecond reads at any scale"
+      },
+      {
+        "label": "E",
+        "text": "Amazon Neptune \u2014 best for storing large volumes of log files"
+      }
+    ],
+    "correct": [
+      "C",
+      "D"
+    ],
+    "distractors": {
+      "A": "",
+      "B": "",
+      "E": ""
+    },
+    "explanation": "DynamoDB's NoSQL architecture delivers consistent low-latency reads regardless of scale \u2014 ideal for catalog lookups. ElastiCache caches frequently accessed query results in memory, reducing database load and response time for repeated reads.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "dynamodb",
+      "elasticache",
+      "database-selection",
+      "use-cases"
+    ]
+  }
+]

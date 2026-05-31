@@ -1,0 +1,1144 @@
+[
+  {
+    "id": "aws-saa-t3-01-001",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company stores customer PII in an S3 bucket. Compliance requires that all objects be encrypted using customer-managed keys so that the security team can audit and rotate keys independently. Objects must remain accessible even if the primary key is temporarily disabled. Which encryption configuration meets these requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SSE-S3 with automatic key rotation"
+      },
+      {
+        "label": "B",
+        "text": "Client-side encryption using a locally managed key before uploading to S3"
+      },
+      {
+        "label": "C",
+        "text": "SSE-KMS with a customer-managed CMK that has a key policy"
+      },
+      {
+        "label": "D",
+        "text": "SSE-KMS with an AWS-managed key (aws/s3)"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "SSE-KMS with a customer-managed CMK gives the security team full control: they own the key policy, can audit usage via CloudTrail, and rotate the key manually or automatically. Key policies can allow multiple IAM principals, so access is maintained even during key administrative operations. SSE-S3 uses AWS-managed keys with no customer visibility. The AWS-managed key (aws/s3) cannot have its policy modified by the customer. Client-side encryption places key management burden on the application and loses S3-native key audit capability.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "s3",
+      "kms",
+      "encryption",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-002",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A solutions architect is designing a three-tier web application. The web tier, app tier, and database tier run in separate subnets. The security requirement states that only the app tier should be able to reach the database tier, and only on port 5432. Which is the most maintainable way to enforce this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a NACL on the database subnet that allows inbound port 5432 from the app subnet CIDR"
+      },
+      {
+        "label": "B",
+        "text": "Attach a security group to the database instances that allows inbound port 5432 from the app tier security group."
+      },
+      {
+        "label": "C",
+        "text": "Create an IAM policy that denies database connections from the web tier"
+      },
+      {
+        "label": "D",
+        "text": "Use VPC Flow Logs to detect unauthorized connections and alert via CloudWatch"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Security group referencing (allowing inbound port 5432 from the app tier SG ID) is the most maintainable approach \u2014 it automatically tracks which instances belong to the app tier regardless of IP changes, requires no CIDR management, and is stateful (return traffic is automatically allowed). NACL rules require CIDR-based management that becomes stale as IPs change, and NACLs are stateless requiring explicit inbound and outbound rules. IAM policies don't control network-layer database connections. VPC Flow Logs are detective, not preventive.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "security-groups",
+      "vpc",
+      "network-security"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-003",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses AWS Organizations with multiple OUs. The security team wants to prevent any account in the 'Development' OU from creating IAM users with long-term access keys, while still allowing developers to use IAM roles. Which mechanism enforces this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Set an IAM password policy in each development account that prevents access key creation"
+      },
+      {
+        "label": "B",
+        "text": "Attach an IAM permission boundary to all IAM roles in development accounts"
+      },
+      {
+        "label": "C",
+        "text": "Enable AWS Config with a rule that detects IAM access key creation and triggers remediation"
+      },
+      {
+        "label": "D",
+        "text": "Attach an SCP to the Development OU that denies iam:CreateAccessKey"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "SCPs attached to an OU apply to all accounts within that OU and their member accounts. A Deny SCP for iam:CreateAccessKey prevents any principal (including account root) in Development OU accounts from creating long-term access keys, while IAM role usage (iam:AssumeRole) is unaffected. Permission boundaries restrict what permissions a role/user can have but don't prevent the creation of access keys. Config is detective and remediation is asynchronous \u2014 keys can exist briefly. Password policies don't control access key creation.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "organizations",
+      "scp",
+      "iam",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-004",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An application running on EKS needs to write objects to an S3 bucket and query DynamoDB. The security team requires that no long-term credentials be stored in pods and that each pod receives only the permissions it needs. Which solution meets these requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an EC2 instance profile on the EKS worker nodes with S3 and DynamoDB permissions"
+      },
+      {
+        "label": "B",
+        "text": "Store AWS credentials in Kubernetes Secrets and mount them as environment variables in each pod"
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Secrets Manager to store IAM access keys and retrieve them at pod startup"
+      },
+      {
+        "label": "D",
+        "text": "Use IAM Roles for Service Accounts (IRSA) to associate a distinct IAM role with each Kubernetes service account"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "IRSA (IAM Roles for Service Accounts) uses OIDC federation between EKS and IAM, allowing Kubernetes service accounts to assume IAM roles. Each pod's service account maps to an IAM role with the exact required permissions \u2014 no long-term credentials are stored. The EC2 instance profile approach grants all pods on a node the same permissions, violating least privilege. Kubernetes Secrets store credentials in etcd (potentially insecure) and are long-term. Retrieving access keys from Secrets Manager at startup still results in long-term credentials in the container environment.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "eks",
+      "irsa",
+      "iam",
+      "least-privilege"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-005",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company receives an alert that an EC2 instance is communicating with a known command-and-control server IP address. The security team needs to isolate the instance immediately without losing forensic evidence. What should the solutions architect do first?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Terminate the EC2 instance immediately to stop the malicious activity"
+      },
+      {
+        "label": "B",
+        "text": "Stop the instance and take an EBS snapshot for forensic analysis"
+      },
+      {
+        "label": "C",
+        "text": "Change the IAM role attached to the instance to an empty role with no permissions"
+      },
+      {
+        "label": "D",
+        "text": "Detach the instance from its current security group and attach an isolation security group."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Attaching an isolation security group (all inbound/outbound denied) immediately stops network communication with the C2 server while preserving the running instance state, memory, and processes for forensic investigation. This is the standard AWS incident response isolation technique. Terminating the instance destroys forensic evidence (memory, process state). Stopping the instance (then snapshotting EBS) preserves disk but loses memory forensics and is slower. Changing the IAM role stops AWS API calls but doesn't stop network-level C2 communication.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "incident-response",
+      "security-groups",
+      "forensics",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-006",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company runs a public API on API Gateway. The security team observes that a specific IP address is sending 10,000 requests per second, causing throttling for legitimate users. Which solution blocks this IP with the least operational overhead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add a NACL deny rule on the public subnet for the offending IP"
+      },
+      {
+        "label": "B",
+        "text": "Create a WAF Web ACL with an IP match rule to block the IP and associate"
+      },
+      {
+        "label": "C",
+        "text": "Scale up the API Gateway usage plan throttling limit to absorb the traffic"
+      },
+      {
+        "label": "D",
+        "text": "Update the API Gateway resource policy to deny the IP address"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS WAF with an IP match rule is the purpose-built solution for blocking specific IPs at the application layer on API Gateway. It requires minimal configuration, applies before the request reaches API Gateway, and can be updated in real time. NACLs operate at the subnet level on EC2/ALB resources but API Gateway is a managed service with no VPC subnet to apply NACLs to (unless using a private API with VPC endpoints). API Gateway resource policies can deny IPs but are less flexible and require redeployment. Scaling throttle limits just absorbs more abusive traffic rather than blocking it.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "waf",
+      "api-gateway",
+      "ddos",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-007",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company needs to share a confidential file securely with an external auditor who does not have an AWS account. The file is stored in a private S3 bucket. The link must expire after 24 hours. Which solution meets these requirements with minimal configuration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use S3 Transfer Acceleration to send the file directly to the auditor's email"
+      },
+      {
+        "label": "B",
+        "text": "Make the S3 bucket temporarily public and provide the object URL"
+      },
+      {
+        "label": "C",
+        "text": "Generate a pre-signed URL with a 24-hour expiration for the specific object"
+      },
+      {
+        "label": "D",
+        "text": "Create an IAM user for the auditor with S3 read access"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Pre-signed URLs embed the requester's credentials and an expiration timestamp into the URL. The auditor can download the object using only the URL \u2014 no AWS account required. The URL becomes invalid after 24 hours. Making the bucket public exposes all objects, not just the one needed. Creating an IAM user requires ongoing credential management and offboarding. S3 Transfer Acceleration is for upload/download performance optimization, not file sharing \u2014 it cannot send files via email.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "s3",
+      "pre-signed-url",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-008",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to centrally manage secrets (database passwords, API keys) across 20 AWS accounts in an Organization. Applications should automatically receive rotated credentials without code changes. Which solution meets these requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use IAM roles with inline policies that embed secrets as environment variables"
+      },
+      {
+        "label": "B",
+        "text": "Store secrets in SSM Parameter Store SecureString parameters in each account"
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Secrets Manager with cross-account resource policies and enable automatic rotation"
+      },
+      {
+        "label": "D",
+        "text": "Store secrets in S3 with SSE-KMS encryption and use signed URLs for access"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Secrets Manager supports automatic rotation (Lambda-based, built-in for RDS, Redshift, DocumentDB) and resource-based policies that allow cross-account access \u2014 applications in member accounts can retrieve secrets from a central account using IAM roles. The SDK automatically fetches the latest version after rotation, requiring no application code changes. SSM Parameter Store doesn't support native automatic rotation (rotation requires custom Lambda). S3 is not designed for secrets management. Embedding secrets in IAM policies is insecure and requires redeployment on rotation.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "secrets-manager",
+      "rotation",
+      "organizations",
+      "cross-account"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-009",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company runs a multi-account AWS environment and needs a unified view of security findings across all accounts, including GuardDuty, Security Hub, and Inspector results. The security team wants to triage findings from a single console. Which service provides this aggregated view?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config aggregator collects configuration data across accounts and Regions but does not aggregate security findings or provide the compliance score Security Hub offers."
+      },
+      {
+        "label": "B",
+        "text": "Amazon Detective helps investigate the root cause of security findings but requires Security Hub or GuardDuty as a source; it does not aggregate findings itself."
+      },
+      {
+        "label": "C",
+        "text": "AWS Security Hub with a delegated administrator account"
+      },
+      {
+        "label": "D",
+        "text": "CloudWatch cross-account dashboards display operational metrics across accounts but do not aggregate security findings or provide compliance scoring capabilities."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "AWS Config aggregator collects configuration data across accounts and Regions but does not aggregate security findings or provide the compliance score Security Hub offers.",
+      "B": "Amazon Detective helps investigate the root cause of security findings but requires Security Hub or GuardDuty as a source; it does not aggregate findings itself.",
+      "D": "CloudWatch cross-account dashboards display operational metrics across accounts but do not aggregate security findings or provide compliance scoring capabilities."
+    },
+    "explanation": "Security Hub with a delegated administrator account aggregates findings from GuardDuty, Inspector, Macie, Firewall Manager, and third-party tools across all member accounts in an Organization. The security team can view, filter, and prioritize all findings from a single console. Config aggregator collects resource configuration data, not security findings. Detective is for deep-dive investigation of specific incidents, not triage across all accounts. CloudWatch dashboards are for metrics, not security findings.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "security-hub",
+      "guardduty",
+      "inspector",
+      "multi-account"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-010",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An application uses Cognito User Pools for authentication. After login, users need temporary AWS credentials to directly call DynamoDB from a mobile app. Which Cognito feature provides this capability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "API Gateway with Cognito authorizer that proxies DynamoDB calls"
+      },
+      {
+        "label": "B",
+        "text": "Cognito Identity Pools (Federated Identities) to exchange User Pool tokens for STS temporary."
+      },
+      {
+        "label": "C",
+        "text": "Cognito User Pool app clients with DynamoDB full access"
+      },
+      {
+        "label": "D",
+        "text": "Cognito User Pools JWT tokens with IAM policy conditions"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Cognito Identity Pools exchange identity tokens (from User Pools, or social IdPs) for temporary AWS credentials via STS. These credentials are scoped to an IAM role mapped to the authenticated identity pool role, allowing direct DynamoDB calls from the mobile app. User Pool JWTs are for application authentication, not AWS API access. User Pool app clients have OAuth2 scopes, not IAM permissions. API Gateway proxying works but adds latency and complexity when direct SDK access is the goal.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cognito",
+      "identity-pools",
+      "sts",
+      "mobile"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-011",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "select-two",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company needs to ensure that all EBS volumes attached to EC2 instances in a specific account are encrypted. New volumes must be encrypted automatically, and existing unencrypted volumes must be detected. Which combination achieves this? (Select TWO)",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable GuardDuty to detect unencrypted EBS volumes"
+      },
+      {
+        "label": "B",
+        "text": "Enable EBS encryption by default in the account settings for all new volumes"
+      },
+      {
+        "label": "C",
+        "text": "Create a Lambda function that runs daily to check EBS volume encryption status"
+      },
+      {
+        "label": "D",
+        "text": "Create an SCP that denies ec2:CreateVolume if the volume is not encrypted"
+      },
+      {
+        "label": "E",
+        "text": "Use an AWS Config rule (encrypted-volumes) to detect existing unencrypted volumes"
+      }
+    ],
+    "correct": [
+      "B",
+      "E"
+    ],
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Enabling EBS encryption by default in account settings ensures all new volumes, snapshots, and copies are automatically encrypted with the default CMK \u2014 no per-volume configuration required. AWS Config's managed rule `encrypted-volumes` continuously evaluates all EBS volumes and flags non-compliant (unencrypted) volumes, enabling detection of existing violations. SCPs can enforce encryption but require careful implementation; the simpler account-level default is preferred. GuardDuty does not detect EBS encryption status. A custom Lambda is unnecessary when Config provides a managed rule.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "ebs",
+      "encryption",
+      "config",
+      "account-settings"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-012",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A financial services company requires that all API calls to AWS services be logged and that the logs be tamper-proof for compliance audits. Which configuration meets this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable AWS Config to record all resource changes and store them in S3"
+      },
+      {
+        "label": "B",
+        "text": "Enable CloudTrail in all regions, deliver logs to an S3 bucket in a dedicated logging account."
+      },
+      {
+        "label": "C",
+        "text": "Enable CloudWatch Logs for all services and restrict log group permissions with resource policies"
+      },
+      {
+        "label": "D",
+        "text": "Enable VPC Flow Logs for all VPCs and aggregate them in a central S3 bucket"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudTrail records all AWS API calls (management plane events). Delivering to a dedicated logging account's S3 bucket (where the workload account has no delete permissions) prevents tampering. Enabling CloudTrail log file integrity validation creates SHA-256 hash digests signed by AWS \u2014 any modification of log files is detectable. CloudWatch Logs record application/service logs, not all AWS API calls. Config records resource configurations, not API calls. VPC Flow Logs capture network traffic metadata, not API-level calls.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cloudtrail",
+      "log-integrity",
+      "compliance",
+      "audit"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-013",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to enforce that all new S3 buckets created in their account block public access at bucket creation. Which is the simplest way to enforce this organization-wide?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use a Lambda function triggered by S3 bucket creation CloudTrail events to enable block public access"
+      },
+      {
+        "label": "B",
+        "text": "Create an AWS Config rule that detects public buckets and automatically enables block public access"
+      },
+      {
+        "label": "C",
+        "text": "Create a CloudFormation StackSet that applies block public access to all existing buckets"
+      },
+      {
+        "label": "D",
+        "text": "Enable the S3 Block Public Access account-level setting and enforce it via SCP"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "The S3 Block Public Access account-level setting prevents all new and existing buckets from being made public \u2014 it overrides any bucket policy or ACL that grants public access. Enforcing this setting via SCP (deny s3:PutBucketPublicAccessBlock with a condition that allows only enabling it) prevents it from being disabled. This is a two-line preventive control. Config + auto-remediation is reactive (a window exists where a public bucket can receive traffic). CloudFormation StackSets require ongoing maintenance for new accounts. Lambda remediation is also reactive.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "s3",
+      "block-public-access",
+      "scp",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-014",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's security team must be notified within 5 minutes when any IAM root account login occurs. Which solution implements this with the least latency?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a CloudTrail-based EventBridge rule that matches ConsoleLogin events with userIdentity.type = Root and triggers SNS"
+      },
+      {
+        "label": "B",
+        "text": "Set up a daily Athena query against CloudTrail logs in S3 to detect root logins"
+      },
+      {
+        "label": "C",
+        "text": "Enable GuardDuty and configure findings for root account activity to send to SNS"
+      },
+      {
+        "label": "D",
+        "text": "Enable AWS Config with a custom rule that checks for root account logins"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "EventBridge (formerly CloudWatch Events) with a CloudTrail rule matches specific API events in near real-time (<1 minute). The rule pattern `{\"detail\":{\"userIdentity\":{\"type\":[\"Root\"]}},\"detail-type\":[\"AWS Console Sign In via CloudTrail\"]}` triggers an SNS notification immediately on root login. Config evaluates compliance periodically, not event-by-event. GuardDuty does detect root logins but alert latency depends on finding generation (5-15 minutes) \u2014 not guaranteed <5 minutes. Daily Athena queries are far too slow for real-time alerting.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cloudtrail",
+      "eventbridge",
+      "sns",
+      "root-account",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-015",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company allows developers to deploy Lambda functions. The security policy requires that Lambda functions may never call IAM or Organizations APIs. Which control enforces this without modifying individual function execution roles?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Config to detect Lambda functions with IAM permissions and alert the security team"
+      },
+      {
+        "label": "B",
+        "text": "Create a Service Control Policy that applies to the entire account, denying iam:* and organizations:* for all principals except a specific admin role"
+      },
+      {
+        "label": "C",
+        "text": "Attach a permission boundary to all Lambda execution roles that excludes iam:* and organizations:*"
+      },
+      {
+        "label": "D",
+        "text": "Create an SCP that denies iam:* and organizations:* when the principal is a Lambda execution role"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Permission boundaries cap the maximum permissions an IAM role can have. Attaching a permission boundary to all Lambda execution roles (via an IAM policy that excludes iam:* and organizations:*) ensures no Lambda function can call those APIs regardless of what's in the execution role's inline/attached policies. This can be enforced via SCP by requiring all new IAM roles to have the boundary attached (deny iam:CreateRole without the boundary condition). SCPs that target specific role types (option B) are complex \u2014 SCPs apply to all principals in the account, not just Lambda roles. Config is detective. Option D would break account administration.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "permission-boundaries",
+      "lambda",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-016",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's VPC has private subnets with no internet gateway. EC2 instances in these subnets need to access S3 and DynamoDB without traversing the internet. Which solution provides this access most cost-effectively?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy a proxy EC2 instance in a public subnet to forward requests to S3 and DynamoDB"
+      },
+      {
+        "label": "B",
+        "text": "Attach a NAT Gateway to route traffic from private subnets to S3 and DynamoDB"
+      },
+      {
+        "label": "C",
+        "text": "Create a VPC Gateway Endpoint for S3 and DynamoDB and update route tables to point to the endpoint"
+      },
+      {
+        "label": "D",
+        "text": "Use AWS PrivateLink Interface Endpoints for S3 and DynamoDB in each AZ"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "VPC Gateway Endpoints for S3 and DynamoDB are free \u2014 there is no hourly charge or data processing fee. They route traffic from private subnets directly to S3/DynamoDB over the AWS network by adding an entry to the route table, with no internet traversal. NAT Gateway charges $0.045/hour + $0.045/GB of data processed \u2014 expensive for high-volume S3/DynamoDB access. Interface Endpoints (PrivateLink) charge $0.01/AZ/hour + $0.01/GB \u2014 more expensive than free gateway endpoints for S3 and DynamoDB. The proxy EC2 instance adds cost and a single point of failure.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "vpc",
+      "gateway-endpoint",
+      "s3",
+      "dynamodb",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-017",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A SaaS company onboards new enterprise customers who require federated SSO using their own corporate SAML 2.0 identity providers. Users should log in with their corporate credentials and receive appropriate application permissions. Which AWS service enables this? This is a customer-facing application login \u2014 end users are enterprise customers, not internal employees accessing AWS accounts.",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Cognito User Pools with SAML identity provider federation"
+      },
+      {
+        "label": "B",
+        "text": "IAM Identity Center (AWS SSO) with external SAML IdP configuration per customer"
+      },
+      {
+        "label": "C",
+        "text": "Direct IAM SAML 2.0 federation with STS AssumeRoleWithSAML"
+      },
+      {
+        "label": "D",
+        "text": "AWS Directory Service AD Connector for each customer's Active Directory"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Cognito User Pools support multiple SAML 2.0 identity providers per user pool \u2014 each enterprise customer can configure their own IdP. Users authenticate against their corporate IdP via the Cognito-managed SAML flow, and Cognito issues JWT tokens that the SaaS application uses for authorization. This scales to many customers without creating separate AWS accounts or IAM configurations. IAM Identity Center is for AWS console/CLI access, not multi-tenant SaaS user authentication. Direct IAM SAML federation requires an IAM role per IdP/customer \u2014 complex at scale. AD Connector is for extending on-premises AD to AWS services, not SaaS federation.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cognito",
+      "saml",
+      "federation",
+      "saas"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-018",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company has an S3 bucket containing sensitive financial records. An internal audit finds that some records were deleted 3 months ago but no alerts were triggered. What should be configured to detect future S3 object deletions in near real-time?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable S3 server access logging and query logs in Athena"
+      },
+      {
+        "label": "B",
+        "text": "Enable CloudTrail S3 data events for the bucket and create an EventBridge rule for GetObject."
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 Versioning to preserve deleted objects"
+      },
+      {
+        "label": "D",
+        "text": "Configure a daily Lambda function to compare the current object list with a previous baseline"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudTrail data events (S3 object-level API calls) capture DeleteObject and DeleteObjects events. An EventBridge rule matching these CloudTrail events for the specific bucket triggers an SNS notification in near real-time (<1 minute). This is the correct detective control for unauthorized deletion alerting. S3 server access logs are not delivered in real-time and require manual analysis. S3 Versioning preserves deleted objects (preventing data loss) but does not alert on deletions. Daily Lambda comparison has a 24-hour detection gap.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "cloudtrail",
+      "s3",
+      "eventbridge",
+      "data-events",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-019",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company is deploying a new application to AWS and must ensure it meets PCI DSS requirements. The security team needs to continuously monitor for compliance drift across EC2 instances, security groups, and S3 bucket policies. Which service provides this continuous compliance monitoring?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config with managed rules (e.g., restricted-ssh, s3-bucket-public-read-prohibited) and a conformance pack"
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor security checks"
+      },
+      {
+        "label": "C",
+        "text": "AWS Security Hub with PCI DSS standard enabled"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Inspector for vulnerability scanning of EC2 instances"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Security Hub's PCI DSS standard provides a pre-built set of automated security checks specifically mapped to PCI DSS requirements, continuously evaluating resource configurations (security groups, S3 policies, encryption, logging) against PCI controls and generating a compliance score. It integrates findings from Config, GuardDuty, and Inspector. Config with individual managed rules works but requires manual mapping to PCI DSS controls \u2014 the Security Hub PCI DSS standard does this mapping automatically. Inspector focuses on CVEs/vulnerability findings. Trusted Advisor checks are not PCI DSS-mapped and run periodically, not continuously.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "security-hub",
+      "pci-dss",
+      "compliance",
+      "config"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-020",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company stores encryption keys in AWS KMS. A compliance requirement states that all KMS key usage (encrypt, decrypt, generate data key) must be auditable, with logs retained for 7 years. Which configuration satisfies this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable KMS key rotation and store rotation history in S3"
+      },
+      {
+        "label": "B",
+        "text": "Use CloudWatch Metrics for KMS API call counts with a 7-year retention period"
+      },
+      {
+        "label": "C",
+        "text": "Enable KMS key usage audit logging in the KMS console"
+      },
+      {
+        "label": "D",
+        "text": "Enable CloudTrail management events and configure the trail to deliver to an S3 bucket."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "KMS API calls (Encrypt, Decrypt, GenerateDataKey, etc.) are automatically recorded in CloudTrail as management events \u2014 no additional KMS configuration is required. Configuring the CloudTrail trail to deliver to S3 with a lifecycle policy for 7-year retention (via S3 Glacier Deep Archive for cost efficiency) meets the audit requirement. There is no separate 'KMS audit logging' feature in the console beyond what CloudTrail provides. CloudWatch Metrics show API call counts but not the identity, context, or key material details required for compliance audit logs.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "kms",
+      "cloudtrail",
+      "audit",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-021",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A startup's AWS environment has grown organically with many manually created IAM users and attached policies. The security team wants to identify IAM users with excessive permissions that have not been used in the last 90 days. Which approach is most efficient?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use IAM Access Analyzer to identify external access to resources"
+      },
+      {
+        "label": "B",
+        "text": "Review IAM credential reports and use IAM Access Advisor to identify unused permissions per user"
+      },
+      {
+        "label": "C",
+        "text": "Enable GuardDuty to detect inactive IAM users"
+      },
+      {
+        "label": "D",
+        "text": "Write a Lambda function that calls IAM ListUsers and checks the last login date"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "IAM Access Advisor shows the last-accessed timestamp for each AWS service for a user, role, or policy \u2014 identifying exactly which services/permissions have not been used in the past 90 days. Combined with the IAM credential report (which shows last console/API usage), the security team can identify excessive permissions for revocation. IAM Access Analyzer identifies resources accessible by external principals (cross-account, internet), not unused permissions within an account. GuardDuty detects threats, not unused permissions. Custom Lambda duplicates what IAM natively provides.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam",
+      "access-advisor",
+      "least-privilege",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-022",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company runs a workload in a VPC that needs to communicate with a third-party SaaS API hosted in another VPC (owned by the SaaS provider). The SaaS provider wants to ensure their API is only accessible via private network and not over the internet. Which connectivity option meets both parties' requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Transit Gateway to connect both VPCs over the AWS backbone"
+      },
+      {
+        "label": "B",
+        "text": "Use AWS PrivateLink \u2014 the SaaS provider creates a VPC Endpoint Service"
+      },
+      {
+        "label": "C",
+        "text": "Create a VPC peering connection between the company VPC and the SaaS provider VPC"
+      },
+      {
+        "label": "D",
+        "text": "Configure a Site-to-Site VPN between the two VPCs"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS PrivateLink is purpose-built for this pattern: the SaaS provider creates a VPC Endpoint Service (backed by a Network Load Balancer) exposing their API; the customer creates a VPC Interface Endpoint that connects to the service. Traffic never traverses the internet and the SaaS provider's VPC CIDR is never exposed (unlike peering, which exposes full VPC routing). VPC peering exposes full VPC routes and has CIDR conflict risks. VPN adds complexity and requires ongoing certificate/tunnel management. Transit Gateway is designed for hub-and-spoke multi-VPC architectures, not bilateral SaaS connectivity.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "privatelink",
+      "vpc",
+      "saas",
+      "network-security"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-023",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company needs to run a vulnerability scan on all EC2 instances when a new instance is launched and weekly thereafter. Findings must be automatically remediated for critical OS vulnerabilities. Which solution implements this with minimal operational overhead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy a third-party vulnerability scanner on a dedicated EC2 instance and write scripts to scan new instances"
+      },
+      {
+        "label": "B",
+        "text": "Enable Amazon Inspector with SSM Agent on all EC2 instances; configure EventBridge to trigger SSM Patch Manager."
+      },
+      {
+        "label": "C",
+        "text": "Schedule AWS Systems Manager Patch Manager maintenance windows to run weekly"
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Config to detect missing patches and trigger Lambda to install patches"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Amazon Inspector continuously scans EC2 instances (using SSM Agent) for CVEs and network exposure, triggering scans automatically on instance launch and on a schedule. For critical findings, an EventBridge rule matches Inspector findings with severity=CRITICAL and invokes SSM Patch Manager's RunPatchBaseline document to auto-remediate. This is the fully integrated AWS-native approach with minimal custom code. Third-party scanners require EC2 deployment and scripting. Config detects configuration drift, not CVEs. Patch Manager maintenance windows alone don't integrate with Inspector findings for event-driven remediation.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "inspector",
+      "ssm",
+      "patch-manager",
+      "vulnerability-management"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-024",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses AWS Config to monitor resource compliance. A Config rule marks an EC2 security group as non-compliant when it allows inbound access on port 22 from 0.0.0.0/0. The security team wants non-compliant security groups to be automatically remediated. Which configuration implements auto-remediation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a CloudWatch alarm on the Config compliance metric that triggers a Lambda function"
+      },
+      {
+        "label": "B",
+        "text": "Configure a Config rule remediation action using an SSM Automation document to remove the non-compliant inbound rule"
+      },
+      {
+        "label": "C",
+        "text": "Enable Security Hub and configure automated response workflows"
+      },
+      {
+        "label": "D",
+        "text": "Create an EventBridge rule that matches Config compliance change events and calls a Lambda function"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Config supports native remediation actions: a managed or custom SSM Automation document can be associated directly with a Config rule. When the rule marks a resource non-compliant, Config can automatically (or manually) trigger the SSM document to remediate \u2014 in this case, removing the 0.0.0.0/0:22 inbound rule. This is the purpose-built, zero-custom-code remediation path. CloudWatch alarms on Config metrics and EventBridge + Lambda both work but require more custom development. Security Hub workflows add another layer of indirection.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "config",
+      "ssm-automation",
+      "remediation",
+      "security-groups"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-025",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company processes sensitive healthcare data in AWS. HIPAA compliance requires that all data at rest be encrypted and that a Business Associate Agreement (BAA) be in place with AWS. Where does the company obtain the BAA and which service is NOT covered?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The BAA must be negotiated directly with AWS Enterprise Support; all services are covered once signed"
+      },
+      {
+        "label": "B",
+        "text": "No BAA is required when using AWS as AWS is responsible for PHI security under the shared responsibility model"
+      },
+      {
+        "label": "C",
+        "text": "The BAA is signed via AWS Artifact; all AWS services are covered by the BAA"
+      },
+      {
+        "label": "D",
+        "text": "The BAA is signed via AWS Artifact; the company must review the HIPAA eligibility list as not all services are covered"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "AWS provides a standard HIPAA BAA via AWS Artifact (Agreements section) \u2014 no negotiation required. However, not all AWS services are HIPAA-eligible. The company must verify each service they use against the published HIPAA Eligible Services list. Services outside this list (some preview/newer services) cannot be used for PHI workloads even with a BAA in place. AWS Enterprise Support is not required for the BAA. AWS is a Business Associate, not the covered entity \u2014 the customer remains responsible for PHI handling on eligible services.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "hipaa",
+      "artifact",
+      "compliance",
+      "baa"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-026",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's security policy requires that S3 objects containing financial data are automatically classified and that any publicly accessible objects are detected. Which service should the solutions architect enable?",
+    "options": [
+      {
+        "label": "A",
+        "text": "GuardDuty S3 protection to monitor S3 API activity"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Macie to automatically discover and classify sensitive data in S3."
+      },
+      {
+        "label": "C",
+        "text": "Amazon Inspector to scan S3 buckets for vulnerabilities"
+      },
+      {
+        "label": "D",
+        "text": "AWS Config with the s3-bucket-public-read-prohibited rule"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Amazon Macie is purpose-built for S3 data classification and privacy. It uses machine learning to automatically discover sensitive data (PII, financial data, credentials) in S3, generates findings for public buckets/objects, and provides a data privacy posture across all S3 buckets. Inspector scans for software vulnerabilities, not data classification. Config's rule detects public buckets (boolean compliance) but doesn't classify data content. GuardDuty S3 protection monitors for suspicious API activity (e.g., unusual data exfiltration) but doesn't classify data.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "macie",
+      "s3",
+      "data-classification",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-saa-t3-01-027",
+    "domain": 1,
+    "domain_name": "Design Secure Architectures",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses IAM Identity Center (AWS SSO) for workforce access to multiple AWS accounts. A developer should have read-only access to production accounts and full access to sandbox accounts. How should the solutions architect configure this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create two Permission Sets in IAM Identity Center: ReadOnly and AdministratorAccess; assign the developer to production accounts with ReadOnly and sandbox accounts with AdministratorAccess"
+      },
+      {
+        "label": "B",
+        "text": "Create two IAM users per developer \u2014 one for production (read-only) and one for sandbox (full access)"
+      },
+      {
+        "label": "C",
+        "text": "Create a single Permission Set with a condition that grants full access only when signing in from the sandbox account"
+      },
+      {
+        "label": "D",
+        "text": "Use SCPs on the production OU to limit permissions and grant admin access at the sandbox account level"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "IAM Identity Center Permission Sets define the IAM policies applied when a user accesses an account. The developer is assigned to accounts individually: ReadOnly Permission Set for production accounts, AdministratorAccess Permission Set for sandbox accounts. This is the standard IAM Identity Center multi-account access model with no additional complexity. Creating IAM users defeats the purpose of centralized SSO and creates credential management overhead. SCPs restrict what's possible in an account for all principals \u2014 they don't provide per-user granularity. Conditional Permission Sets based on account context are not supported natively.",
+    "module_ref": "aws-saa/secure",
+    "tags": [
+      "iam-identity-center",
+      "permission-sets",
+      "multi-account",
+      "access-management"
+    ]
+  }
+]

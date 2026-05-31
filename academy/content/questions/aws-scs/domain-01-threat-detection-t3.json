@@ -1,0 +1,549 @@
+[
+  {
+    "id": "scs-d1-t3-001",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "GuardDuty generates a finding: UnauthorizedAccess:EC2/MetadataDNSRebind. What attack technique does this finding indicate and what is the primary risk?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An EC2 instance performed a DNS query to a domain on GuardDuty's threat list, indicating the instance may be communicating with a command-and-control server."
+      },
+      {
+        "label": "B",
+        "text": "An EC2 instance's DNS resolver is misconfigured and returning the metadata IP for unrelated queries, causing application connectivity issues."
+      },
+      {
+        "label": "C",
+        "text": "An EC2 instance resolved an external domain to an RFC-1918 private address, which allows an attacker on that domain to port-scan the internal VPC network."
+      },
+      {
+        "label": "D",
+        "text": "An EC2 instance is querying a domain that resolves to 169.254.169.254, which is a DNS rebinding attack enabling external websites to steal IAM credentials from the metadata service."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "DNS rebinding attacks trick a browser or application into resolving an attacker-controlled domain to 169.254.169.254 (the metadata endpoint). This lets JavaScript from an external site read IAM credentials. IMDSv2 mitigates this by requiring a PUT-based session token.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "dns-rebinding",
+      "imds",
+      "credential-theft"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-002",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An incident responder receives a GuardDuty finding that an IAM role assumed via SAML federation is performing API calls from an IP in a foreign country not associated with normal activity. The SAML assertion was valid. What is the most appropriate first investigative action?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Revoke all active sessions for the IAM role immediately using the AWSRevokeOlderSessions condition and notify the identity provider to disable the user's SSO account."
+      },
+      {
+        "label": "B",
+        "text": "Disable the SAML identity provider in IAM to prevent any further federation until the investigation is complete."
+      },
+      {
+        "label": "C",
+        "text": "Add a geo-restriction condition to the role's trust policy to deny assumption from the foreign country going forward."
+      },
+      {
+        "label": "D",
+        "text": "Check CloudTrail for the AssumeRoleWithSAML event to identify source IP and assertions, then correlate with IdP login logs to determine whether the account was compromised."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The first investigative step is to understand the scope. CloudTrail's AssumeRoleWithSAML event contains the SAML assertion attributes and source IP. Correlating this with IdP login logs reveals whether the IdP account was compromised. Immediate revocation without investigation risks disrupting legitimate users.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "saml",
+      "federation",
+      "investigation"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-003",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security team receives a GuardDuty finding: Exfiltration:S3/AnomalousBehavior where a role downloaded 200 GB from S3 in 30 minutes \u2014 far above the 100 MB baseline. The team confirms the role's credentials were not leaked. What is the next most likely explanation to investigate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A bug in the S3 SDK caused the application using the role to download the same objects repeatedly in a loop due to a retry storm."
+      },
+      {
+        "label": "B",
+        "text": "An authorized but unannounced large data migration or ETL job was run by a developer using the role, which would explain the volume without credential compromise."
+      },
+      {
+        "label": "C",
+        "text": "S3 replication is misconfigured to use the role's credentials rather than a dedicated replication role, causing all replicated data to appear as reads by that role."
+      },
+      {
+        "label": "D",
+        "text": "GuardDuty's baseline model is newly established and has not yet learned the role's typical behavior, resulting in a false positive."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "When credentials are confirmed not leaked, the next investigation priority is authorized but unannounced usage \u2014 developers running large migrations, backfills, or exports using elevated roles. Verifying with the team whether a planned job ran is the most efficient next step.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "s3",
+      "false-positive",
+      "investigation"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-004",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "AWS GuardDuty generates a finding: Backdoor:EC2/XSRF.B. What does this finding indicate and what immediate containment step should be taken?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The instance is communicating with an IP associated with a known XSRF-exploiting botnet and may be part of a botnet; containment is to move it to an isolation security group."
+      },
+      {
+        "label": "B",
+        "text": "The instance triggered a WAF rule for cross-site scripting; the WAF has already blocked the traffic and no containment action is needed."
+      },
+      {
+        "label": "C",
+        "text": "The instance's IAM role was used to create unauthorized cross-account role trust relationships; revoke the role's iam:CreateRole and sts:AssumeRole permissions."
+      },
+      {
+        "label": "D",
+        "text": "The instance's web application has a cross-site request forgery vulnerability; the fix is to rotate the CSRF token in the application's session configuration."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "GuardDuty's Backdoor:EC2/XSRF.B finding indicates the instance is communicating with known botnet infrastructure. The XSRF in the finding name refers to the botnet family, not a web vulnerability. Containment is isolating the instance by moving it to a deny-all security group.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "backdoor",
+      "botnet",
+      "containment"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-005",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security engineer is building a playbook for the GuardDuty finding Policy:S3/BucketBlockPublicAccessDisabled. What sequence of automated steps should the playbook execute?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Receive finding via EventBridge, invoke Lambda to call s3:PutBucketPublicAccessBlock re-enabling all four Block Public Access flags, then notify via SNS and create a Jira ticket for review."
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS Config remediation for the s3-bucket-level-public-access-prohibited rule, which will automatically remediate the issue without a custom Lambda."
+      },
+      {
+        "label": "C",
+        "text": "Notify via SNS, then delete the bucket policy that disabled Block Public Access, and restore the S3 Block Public Access settings to enabled."
+      },
+      {
+        "label": "D",
+        "text": "Archive the finding in GuardDuty, enable S3 server access logging on the bucket, and alert the data owner to assess whether any public access occurred."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The correct automated playbook is: EventBridge captures the finding \u2192 Lambda calls s3:PutBucketPublicAccessBlock to re-enable all four BPA flags \u2192 SNS notification and ticketing for human review. This restores the control immediately while ensuring the event is tracked.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "s3",
+      "block-public-access",
+      "automated-response"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-006",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "During a security incident, a forensic analyst needs to acquire network traffic from a running EC2 instance in a VPC without installing agents or rebooting. What is the best option using native AWS capabilities?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable CloudTrail network event logging for the VPC; CloudTrail captures all packet-level data for API-related network connections."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Network Firewall in monitoring mode to capture all packets matching the instance's private IP and store them in S3 for analysis."
+      },
+      {
+        "label": "C",
+        "text": "Enable VPC Flow Logs on the instance's subnet; Flow Logs capture full packet payloads for all traffic to and from the instance."
+      },
+      {
+        "label": "D",
+        "text": "Configure VPC Traffic Mirroring to copy packets from the instance's ENI to a monitoring ENI attached to a traffic capture instance running Wireshark or tcpdump."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "VPC Traffic Mirroring copies raw packets from source ENIs to a target ENI or NLB without touching the source instance. It enables full packet capture including payload content. VPC Flow Logs only capture metadata (IPs, ports, bytes) \u2014 not packet content.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "forensics",
+      "traffic-mirroring",
+      "network-capture",
+      "ec2"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-007",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "GuardDuty produces a Stealth:S3/ServerAccessLoggingDisabled finding for a bucket that stores sensitive data. An attacker likely disabled logging to cover their tracks. What should the responder verify in CloudTrail to assess the extent of the unauthorized activity?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Search CloudTrail for s3:PutBucketLogging events to find when logging was disabled and which principal performed the action, then review all S3 data events for that bucket in the period when logging was disabled."
+      },
+      {
+        "label": "B",
+        "text": "Check S3 server access logs for the bucket; even when logging is disabled the last 24 hours of logs are retained in a buffer that can be recovered."
+      },
+      {
+        "label": "C",
+        "text": "Review GuardDuty finding history for the bucket; GuardDuty reconstructs all S3 API calls from its own log analysis independent of S3 server access logging."
+      },
+      {
+        "label": "D",
+        "text": "Use Amazon Macie to scan the bucket for data that was added or removed during the period when logging was disabled."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail management events record s3:PutBucketLogging (the API that disables logging). CloudTrail data events for S3 are separate from S3 server access logging \u2014 if data events were enabled on the trail, object-level activity during the logging-disabled window is still captured in CloudTrail.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "s3",
+      "cloudtrail",
+      "log-tampering"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-008",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An organization wants GuardDuty to monitor Amazon EKS audit logs for threats like privileged container creation and anonymous API calls. What must be enabled for GuardDuty to analyze EKS activity?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable EKS control plane logging to CloudWatch Logs; GuardDuty reads from CloudWatch Logs to analyze EKS audit events."
+      },
+      {
+        "label": "B",
+        "text": "Deploy the GuardDuty agent DaemonSet to all EKS worker nodes; the agent collects audit logs and forwards them to GuardDuty for analysis."
+      },
+      {
+        "label": "C",
+        "text": "Enable CloudTrail data events for EKS; GuardDuty's EKS threat detection reads from the CloudTrail EKS data event stream."
+      },
+      {
+        "label": "D",
+        "text": "Enable the GuardDuty EKS Protection feature, which directly integrates with EKS audit log streams without requiring manual log delivery configuration."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "GuardDuty EKS Protection is a dedicated feature that must be enabled within GuardDuty. Once enabled, it directly receives EKS audit log events and analyzes them for threats like privileged containers, anonymous API calls, and compromised credentials \u2014 without manual log routing.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "eks",
+      "kubernetes",
+      "audit-logs"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-009",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A security operations team wants a 30-day historical view of all GuardDuty findings including those already archived. Where can the team access the full 90-day finding history including archived findings?",
+    "options": [
+      {
+        "label": "A",
+        "text": "GuardDuty retains active findings for 90 days; archived findings are deleted immediately and cannot be recovered after archiving."
+      },
+      {
+        "label": "B",
+        "text": "Query Security Hub, which retains all GuardDuty findings for 365 days regardless of their archived status in GuardDuty."
+      },
+      {
+        "label": "C",
+        "text": "Use the GuardDuty console with the archived findings filter enabled; GuardDuty retains all findings (active and archived) for 90 days in the service."
+      },
+      {
+        "label": "D",
+        "text": "Configure GuardDuty to export all findings (including archived) to an S3 bucket or CloudWatch Events in real time; the S3 bucket provides indefinite retention."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "GuardDuty retains all findings \u2014 active and archived \u2014 for 90 days. The console and API allow filtering to show archived findings. For longer retention, exporting findings to S3 via EventBridge is the recommended approach.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "finding-retention",
+      "archived-findings"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-010",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company's incident response plan requires that when a GuardDuty finding involves an EC2 instance, a snapshot of the instance's root EBS volume must automatically be tagged with the finding ID for forensic preservation. How is this implemented?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an EventBridge rule matching GuardDuty EC2 findings that triggers Lambda; Lambda creates an EBS snapshot and tags it with the GuardDuty finding ID."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Backup with a GuardDuty integration plan; Backup automatically captures snapshots whenever GuardDuty generates findings for EC2 resources."
+      },
+      {
+        "label": "C",
+        "text": "Configure an AWS Config remediation action for GuardDuty findings that invokes a Systems Manager document to snapshot affected volumes."
+      },
+      {
+        "label": "D",
+        "text": "Enable GuardDuty automated snapshot in the console; GuardDuty natively creates and tags EBS snapshots for any EC2 finding."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "GuardDuty does not natively snapshot volumes. The pattern is EventBridge \u2192 Lambda. The Lambda extracts the instance ID and finding ID from the event, creates an EBS snapshot via the EC2 API, and tags it with the finding ID for forensic chain-of-custody tracking.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "ebs-snapshot",
+      "eventbridge",
+      "lambda",
+      "forensics"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-011",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A GuardDuty finding of type Recon:EC2/Portscan is generated for an instance running an authorized penetration test. The security team wants to exclude this specific instance from all GuardDuty scanning permanently. What is the correct mechanism?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a suppression rule in GuardDuty that matches on the instance ID and the Recon finding type to automatically archive future matching findings."
+      },
+      {
+        "label": "B",
+        "text": "Disable the Recon finding category in the GuardDuty settings console for the duration of the penetration test."
+      },
+      {
+        "label": "C",
+        "text": "Add the instance's private IP to the GuardDuty trusted IP list, which prevents GuardDuty from generating findings for activity originating from that IP."
+      },
+      {
+        "label": "D",
+        "text": "Add the instance's Elastic IP or the scanner's source IP to the GuardDuty trusted IP list, which suppresses findings where that IP is the source of suspicious activity."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Suppression rules are the recommended way to handle known-good activity from specific resources. A rule matching the instance ID and Recon finding type automatically archives matching findings without affecting other instances or disabling entire finding categories.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "suppression-rules",
+      "pen-test",
+      "false-positive"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-012",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An incident response team discovers that an attacker used a compromised Lambda function's execution role to call sts:AssumeRole on a cross-account role. Which CloudTrail event fields are most important for tracing this lateral movement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The errorCode and errorMessage fields in the AssumeRole event, which describe why the cross-account assumption was permitted."
+      },
+      {
+        "label": "B",
+        "text": "The userIdentity.type, userIdentity.sessionContext.sessionIssuer, requestParameters.roleArn, and responseElements.assumedRoleUser fields in the AssumeRole CloudTrail event across both accounts."
+      },
+      {
+        "label": "C",
+        "text": "The sourceIPAddress and userAgent fields in the Lambda invocation CloudTrail event to identify the client that triggered the Lambda function."
+      },
+      {
+        "label": "D",
+        "text": "The requestParameters.durationSeconds and responseElements.credentials.expiration fields to determine when the temporary credentials expire."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "For lateral movement via role assumption: userIdentity fields identify the source principal (the Lambda role), requestParameters.roleArn shows which role was assumed in the target account, and responseElements.assumedRoleUser shows the resulting session identity used for subsequent actions.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "cloudtrail",
+      "sts",
+      "lateral-movement",
+      "lambda",
+      "investigation"
+    ]
+  },
+  {
+    "id": "scs-d1-t3-013",
+    "domain": 1,
+    "domain_name": "Threat Detection and Incident Response",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A GuardDuty finding of type Impact:EC2/BitcoinDomainRequest.Reputation is generated. The instance is confirmed to be cryptomining. After containment, what should the incident response team do to understand the full blast radius?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Review all API calls made by the instance's IAM role during the compromise window for lateral movement, data access, and any new resources created."
+      },
+      {
+        "label": "B",
+        "text": "Review the instance's security group history in AWS Config to identify when the attack vector (open port) was introduced."
+      },
+      {
+        "label": "C",
+        "text": "Terminate the instance immediately to stop cryptomining costs, then use the AWS Cost Explorer to determine total cryptomining expenses incurred."
+      },
+      {
+        "label": "D",
+        "text": "Scan all other EC2 instances with Amazon Inspector to identify whether the same vulnerability was exploited across the fleet."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Blast radius assessment requires reviewing all actions taken using the compromised instance's IAM role \u2014 not just the cryptomining activity. CloudTrail provides the full API call history to detect data exfiltration, lateral movement, new IAM entities created, or other resources provisioned by the attacker.",
+    "module_ref": "scs-m1",
+    "tags": [
+      "guardduty",
+      "cryptomining",
+      "blast-radius",
+      "cloudtrail"
+    ]
+  }
+]

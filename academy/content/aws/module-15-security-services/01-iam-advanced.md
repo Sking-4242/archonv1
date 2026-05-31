@@ -35,6 +35,51 @@ IAM Access Analyzer continuously monitors resource policies (S3 bucket policies,
 
 Advanced IAM: permission boundaries limit maximum permissions for delegated admin; SCPs are organization-level guardrails. Cross-account assumes roles use STS temporary credentials. ABAC scales access control with tags instead of role proliferation. Access Analyzer finds unintended external access automatically. These concepts are the difference between basic IAM use and real security architecture.
 
+## Examples
+
+A fast-growing SaaS startup has a single engineering team deploying to both staging and production. Rather than creating separate IAM roles for every environment, they implement ABAC: all S3 buckets and RDS instances are tagged `Environment=staging` or `Environment=prod`, and each developer's IAM role carries the matching `Environment` tag. A single policy — `Allow s3:* where ResourceTag/Environment == PrincipalTag/Environment` — ensures that staging engineers never touch production data, with no role proliferation as the team scales.
+
+A financial services company running a multi-account AWS Organization needs to guarantee that no workload in their "Payments" OU can ever disable CloudTrail or delete audit logs, even if a compromised admin role gains those permissions. They attach an SCP to the Payments OU that explicitly denies `cloudtrail:StopLogging`, `cloudtrail:DeleteTrail`, and `s3:DeleteObject` on the log bucket. Because SCPs are evaluated before any IAM policy — including root — the guardrail holds regardless of identity.
+
+A platform engineering team wants to let individual product squads create their own IAM roles for Lambda functions without risking privilege escalation. They use permission boundaries: each squad can create roles freely, but only if the role has the company-standard boundary policy attached. The boundary caps maximum permissions at what the squad legitimately needs, preventing any squad from granting itself S3 full access or IAM admin rights. IAM Access Analyzer then continuously flags any role that can be assumed from outside the organization.
+
+## Think About It
+
+1. Why does combining an SCP and a permission boundary provide stronger security than either one alone? What attack scenario does each one block that the other cannot?
+2. What would happen if you attached a permission boundary that is MORE permissive than the identity policy? Does the boundary ever expand what a principal can do?
+3. How would you decide whether to use ABAC or traditional role-per-team RBAC for a team that works across 50 different AWS accounts and 200 S3 buckets?
+4. A principal in Account A has `sts:AssumeRole` for a role in Account B, but the role's trust policy does not list Account A's principal. Will the assume-role call succeed? Why or why not?
+5. IAM Access Analyzer generates a finding for an S3 bucket accessible from outside your organization. What factors would you weigh before deciding whether to remove that external access or accept the finding?
+
+## Quick Check
+
+**Q1.** A permission boundary is attached to an IAM role. The identity policy grants `s3:*`. The boundary allows only `s3:GetObject` and `s3:PutObject`. What operations can the role perform on S3?
+
+- A) All S3 operations, because the identity policy grants `s3:*`
+- B) Only `s3:GetObject` and `s3:PutObject`, because effective permissions are the intersection
+- C) No S3 operations, because there is a conflict between the two policies
+- D) All operations except delete, because boundaries only restrict destructive actions
+
+**Answer: B** — Effective permissions are the intersection of the identity policy and the permission boundary; the boundary caps what the identity policy can grant.
+
+**Q2.** Which statement about Service Control Policies (SCPs) is correct?
+
+- A) SCPs grant permissions to IAM users in an AWS account
+- B) SCPs can be applied to individual IAM users within an account
+- C) An SCP denying an action blocks it even for the account's root user
+- D) SCPs override permission boundaries when both are present
+
+**Answer: C** — SCPs set the maximum permissions available to all identities in an account, including root; a deny in an SCP cannot be overridden by any identity policy.
+
+**Q3.** For cross-account role assumption, which two components are required?
+
+- A) A long-term access key in Account B, and an IAM policy in Account A allowing its use
+- B) A role in Account B with a trust policy allowing Account A, and `sts:AssumeRole` permission in Account A
+- C) VPC peering between Account A and Account B, and an IAM group in Account B
+- D) An SCP allowing cross-account access, and a KMS key shared between both accounts
+
+**Answer: B** — The role's trust policy grants permission to be assumed from Account A, and the calling principal in Account A must have explicit `sts:AssumeRole` permission for that role ARN.
+
 ## What's Next
 
 Next up: AWS KMS — key management, envelope encryption, and key policies.

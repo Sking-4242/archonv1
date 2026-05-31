@@ -1,0 +1,1131 @@
+[
+  {
+    "id": "aws-cp-02-001",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Responsibility is shared equally between AWS and the customer"
+      },
+      {
+        "label": "B",
+        "text": "AWS, because EC2 is a managed service"
+      },
+      {
+        "label": "C",
+        "text": "AWS patches the OS automatically during maintenance windows"
+      },
+      {
+        "label": "D",
+        "text": "The customer, because EC2 is an infrastructure service where the customer controls."
+      }
+    ],
+    "correct": "D",
+    "explanation": "EC2 is an Infrastructure as a Service (IaaS) offering. The customer has full control over and responsibility for the guest operating system, including patching, security configuration, and any software installed on the instance. AWS is responsible for the underlying hardware and hypervisor.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-security-compliance-01",
+    "active": true,
+    "type": "single",
+    "stem": "Under the AWS shared responsibility model, who is responsible for patching the operating system on an Amazon EC2 instance?",
+    "tags": [
+      "shared responsibility",
+      "EC2",
+      "OS patching",
+      "IaaS"
+    ]
+  },
+  {
+    "id": "aws-cp-02-002",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Maintaining the physical security of AWS data centers"
+      },
+      {
+        "label": "B",
+        "text": "Managing user access credentials and IAM policies"
+      },
+      {
+        "label": "C",
+        "text": "Encrypting customer data stored in Amazon S3"
+      },
+      {
+        "label": "D",
+        "text": "Configuring security groups on EC2 instances"
+      }
+    ],
+    "correct": "A",
+    "explanation": "Physical security of AWS data centers \u2014 including building security, hardware maintenance, and environmental controls \u2014 is always AWS's responsibility. Customers never have physical access to or responsibility for the underlying infrastructure.",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-01",
+    "active": true,
+    "type": "single",
+    "stem": "Under the AWS shared responsibility model, which of the following is always AWS's responsibility?",
+    "tags": [
+      "shared responsibility",
+      "physical security",
+      "AWS responsibility",
+      "data centers"
+    ]
+  },
+  {
+    "id": "aws-cp-02-003",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "A service that provides firewall protection for web applications"
+      },
+      {
+        "label": "B",
+        "text": "A service that controls who can access AWS resources and what"
+      },
+      {
+        "label": "C",
+        "text": "A service that manages encryption keys for AWS services"
+      },
+      {
+        "label": "D",
+        "text": "A service that monitors network traffic for threats"
+      }
+    ],
+    "correct": "B",
+    "explanation": "AWS IAM is a service that enables you to manage access to AWS resources. With IAM you create users, groups, and roles, and attach policies that define what actions are allowed or denied on which resources. IAM is a foundational security service used across all AWS accounts.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-02",
+    "active": true,
+    "type": "single",
+    "stem": "What is AWS Identity and Access Management (IAM)?",
+    "tags": [
+      "IAM",
+      "access control",
+      "identity management",
+      "permissions"
+    ]
+  },
+  {
+    "id": "aws-cp-02-004",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Restricting access to AWS only during business hours"
+      },
+      {
+        "label": "B",
+        "text": "Giving all users administrator access to simplify management"
+      },
+      {
+        "label": "C",
+        "text": "Granting users and services only the minimum permissions required to perform their tasks"
+      },
+      {
+        "label": "D",
+        "text": "Requiring all users to use MFA before accessing any service"
+      }
+    ],
+    "correct": "C",
+    "explanation": "The principle of least privilege means granting only the permissions necessary for a user, application, or service to perform its intended function \u2014 nothing more. This limits the potential damage from compromised credentials or accidental actions by minimizing the blast radius of any security incident.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-02",
+    "active": true,
+    "type": "single",
+    "stem": "What is the principle of least privilege in the context of AWS IAM?",
+    "tags": [
+      "least privilege",
+      "IAM",
+      "permissions",
+      "security best practices"
+    ]
+  },
+  {
+    "id": "aws-cp-02-005",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "A security feature requiring users to provide a second form of verification"
+      },
+      {
+        "label": "B",
+        "text": "A service that requires multiple AWS administrators to approve changes"
+      },
+      {
+        "label": "C",
+        "text": "A method of encrypting data using multiple encryption keys"
+      },
+      {
+        "label": "D",
+        "text": "A compliance framework requiring multiple audits per year"
+      }
+    ],
+    "correct": "A",
+    "explanation": "Multi-Factor Authentication (MFA) adds a second layer of security to AWS account sign-in. In addition to a username and password, users must provide a time-based one-time code from an MFA device (hardware or virtual authenticator app). This protects against unauthorized access even if a password is compromised.",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-02",
+    "active": true,
+    "type": "single",
+    "stem": "What is AWS Multi-Factor Authentication (MFA)?",
+    "tags": [
+      "MFA",
+      "multi-factor authentication",
+      "account security",
+      "IAM"
+    ]
+  },
+  {
+    "id": "aws-cp-02-006",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Delete the root user once IAM users have been created"
+      },
+      {
+        "label": "B",
+        "text": "Share the root user credentials with the entire IT team"
+      },
+      {
+        "label": "C",
+        "text": "Use the root user for all daily administrative tasks"
+      },
+      {
+        "label": "D",
+        "text": "Enable MFA on the root user and avoid using it for everyday tasks"
+      }
+    ],
+    "correct": "D",
+    "explanation": "AWS strongly recommends enabling MFA on the root user account and using it only for tasks that specifically require root access (such as changing account settings or closing the account). Daily administrative tasks should be performed using IAM users or roles with appropriate permissions.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-security-compliance-02",
+    "active": true,
+    "type": "single",
+    "stem": "What is the AWS best practice recommendation for the root user of an AWS account?",
+    "tags": [
+      "root user",
+      "account security",
+      "MFA",
+      "IAM best practices"
+    ]
+  },
+  {
+    "id": "aws-cp-02-007",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Inspector"
+      },
+      {
+        "label": "B",
+        "text": "Amazon GuardDuty"
+      },
+      {
+        "label": "C",
+        "text": "AWS Shield"
+      },
+      {
+        "label": "D",
+        "text": "AWS WAF"
+      }
+    ],
+    "correct": "C",
+    "explanation": "AWS Shield is a managed DDoS protection service. AWS Shield Standard is automatically enabled for all AWS customers at no additional cost and protects against common network and transport layer attacks. AWS Shield Advanced provides enhanced protection for more sophisticated attacks with 24/7 access to the AWS DDoS Response Team.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-03",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS service provides Distributed Denial of Service (DDoS) protection for AWS resources?",
+    "tags": [
+      "DDoS",
+      "AWS Shield",
+      "network security",
+      "protection"
+    ]
+  },
+  {
+    "id": "aws-cp-02-008",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS WAF"
+      },
+      {
+        "label": "B",
+        "text": "AWS CloudTrail"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Macie"
+      },
+      {
+        "label": "D",
+        "text": "AWS Shield"
+      }
+    ],
+    "correct": "A",
+    "explanation": "AWS WAF (Web Application Firewall) lets you create rules to filter web traffic based on conditions like IP addresses, HTTP headers, and request body content. It protects against common web exploits such as SQL injection and cross-site scripting (XSS) that could compromise application security or consume resources.",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-03",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS service protects web applications from common exploits such as SQL injection and cross-site scripting?",
+    "tags": [
+      "WAF",
+      "web application firewall",
+      "SQL injection",
+      "XSS"
+    ]
+  },
+  {
+    "id": "aws-cp-02-009",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config"
+      },
+      {
+        "label": "B",
+        "text": "Amazon CloudWatch"
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudTrail"
+      },
+      {
+        "label": "D",
+        "text": "Amazon GuardDuty"
+      }
+    ],
+    "correct": "C",
+    "explanation": "AWS CloudTrail records all API calls made within an AWS account, including who made the call, what service was called, when it was called, and from where. This provides a complete audit trail of account activity for security analysis, compliance auditing, and operational troubleshooting.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-03",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS service records API calls made in an AWS account, providing a history of actions for governance and auditing?",
+    "tags": [
+      "CloudTrail",
+      "API logging",
+      "audit trail",
+      "governance"
+    ]
+  },
+  {
+    "id": "aws-cp-02-010",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Inspector"
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "C",
+        "text": "AWS Config"
+      },
+      {
+        "label": "D",
+        "text": "AWS CloudTrail"
+      }
+    ],
+    "correct": "C",
+    "explanation": "AWS Config is a service that continuously records AWS resource configurations and evaluates them against rules you define. It can alert you when resources drift from their desired state, providing a detailed inventory and configuration history for compliance and security analysis.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-03",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS service continuously monitors AWS resource configurations and evaluates them against desired configuration rules?",
+    "tags": [
+      "AWS Config",
+      "configuration management",
+      "compliance",
+      "resource tracking"
+    ]
+  },
+  {
+    "id": "aws-cp-02-011",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon GuardDuty"
+      },
+      {
+        "label": "B",
+        "text": "AWS Security Hub"
+      },
+      {
+        "label": "C",
+        "text": "AWS Inspector"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Macie"
+      }
+    ],
+    "correct": "D",
+    "explanation": "Amazon Macie is a data security service that uses machine learning to automatically discover and classify sensitive data stored in Amazon S3. It can identify PII, financial data, credentials, and other sensitive content, then provide alerts and findings to help you understand your data security posture.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-security-compliance-03",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS service uses machine learning to automatically discover, classify, and protect sensitive data such as personally identifiable information (PII) in Amazon S3?",
+    "tags": [
+      "Macie",
+      "PII",
+      "data security",
+      "S3 protection"
+    ]
+  },
+  {
+    "id": "aws-cp-02-012",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Shield"
+      },
+      {
+        "label": "B",
+        "text": "AWS Config"
+      },
+      {
+        "label": "C",
+        "text": "Amazon GuardDuty"
+      },
+      {
+        "label": "D",
+        "text": "AWS WAF"
+      }
+    ],
+    "correct": "C",
+    "explanation": "Amazon GuardDuty is a threat detection service that continuously analyzes AWS CloudTrail event logs, VPC Flow Logs, and DNS logs using machine learning and threat intelligence feeds to identify suspicious activity such as unusual API calls, potentially unauthorized deployments, and communications with known malicious IP addresses.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-03",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS service continuously monitors an AWS account for malicious activity and unauthorized behavior using machine learning and threat intelligence?",
+    "tags": [
+      "GuardDuty",
+      "threat detection",
+      "machine learning",
+      "security monitoring"
+    ]
+  },
+  {
+    "id": "aws-cp-02-013",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Certificate Manager provisions and manages SSL/TLS certificates for use with AWS services but does not store or manage application encryption keys."
+      },
+      {
+        "label": "B",
+        "text": "AWS Secrets Manager securely stores, retrieves, and rotates secrets like passwords and API keys but is not designed for cryptographic key management."
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudHSM provides dedicated hardware security modules for customer-controlled key management but requires more operational management than KMS."
+      },
+      {
+        "label": "D",
+        "text": "AWS Key Management Service (KMS) is the primary managed service for creating, storing, and controlling cryptographic keys used to protect data across AWS."
+      }
+    ],
+    "correct": "D",
+    "explanation": "AWS Key Management Service (KMS) is a managed service that makes it easy to create and control the cryptographic keys used to encrypt your data. KMS keys can be used with most AWS services that support encryption, and all key usage is logged in AWS CloudTrail for auditing.",
+    "distractors": {
+      "A": "AWS Certificate Manager provisions and manages SSL/TLS certificates for use with AWS services but does not store or manage application encryption keys.",
+      "B": "AWS Secrets Manager securely stores, retrieves, and rotates secrets like passwords and API keys but is not designed for cryptographic key management.",
+      "C": "AWS CloudHSM provides dedicated hardware security modules for customer-controlled key management but requires more operational management than KMS."
+    },
+    "module_ref": "aws-cp-security-compliance-03",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS service is used to create and manage the encryption keys used to encrypt data in AWS services?",
+    "tags": [
+      "KMS",
+      "encryption keys",
+      "key management",
+      "data encryption"
+    ]
+  },
+  {
+    "id": "aws-cp-02-014",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Security Hub"
+      },
+      {
+        "label": "B",
+        "text": "AWS Config"
+      },
+      {
+        "label": "C",
+        "text": "AWS Inspector"
+      },
+      {
+        "label": "D",
+        "text": "Amazon GuardDuty"
+      }
+    ],
+    "correct": "C",
+    "explanation": "AWS Inspector is an automated vulnerability management service that continually scans EC2 instances and container images stored in Amazon ECR for software vulnerabilities and unintended network exposure. It provides a risk score and prioritized findings to help teams remediate the most critical vulnerabilities first.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-03",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS service provides automated security vulnerability assessments for Amazon EC2 instances and container images?",
+    "tags": [
+      "Inspector",
+      "vulnerability assessment",
+      "EC2 security",
+      "container scanning"
+    ]
+  },
+  {
+    "id": "aws-cp-02-015",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "B",
+        "text": "AWS Security Hub"
+      },
+      {
+        "label": "C",
+        "text": "AWS Config"
+      },
+      {
+        "label": "D",
+        "text": "AWS Artifact"
+      }
+    ],
+    "correct": "D",
+    "explanation": "AWS Artifact is a self-service portal that provides on-demand access to AWS compliance documentation including audit reports (SOC 1, SOC 2, SOC 3), certifications (ISO 27001, PCI DSS), and agreements. Customers use these documents to support their own compliance programs.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-security-compliance-04",
+    "active": true,
+    "type": "single",
+    "stem": "Where can AWS customers access compliance reports and certifications such as SOC 2, ISO 27001, and PCI DSS documentation?",
+    "tags": [
+      "AWS Artifact",
+      "compliance",
+      "SOC 2",
+      "certifications"
+    ]
+  },
+  {
+    "id": "aws-cp-02-016",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "IAM users can only access the console; IAM roles can only access the API"
+      },
+      {
+        "label": "B",
+        "text": "IAM users are for humans; IAM roles can only be used by AWS services"
+      },
+      {
+        "label": "C",
+        "text": "IAM roles have more permissions than IAM users by default"
+      },
+      {
+        "label": "D",
+        "text": "IAM users have permanent long-term credentials; IAM roles provide temporary credentials assumed by entities that need them"
+      }
+    ],
+    "correct": "D",
+    "explanation": "IAM users have permanent, long-term credentials (password and/or access keys). IAM roles provide temporary security credentials that are assumed by trusted entities \u2014 such as EC2 instances, Lambda functions, or users from another account \u2014 for a limited time. Roles are preferred for applications because they avoid storing long-term credentials.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-security-compliance-02",
+    "active": true,
+    "type": "single",
+    "stem": "What is the difference between an IAM user and an IAM role in AWS?",
+    "tags": [
+      "IAM users",
+      "IAM roles",
+      "credentials",
+      "temporary access"
+    ]
+  },
+  {
+    "id": "aws-cp-02-017",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Managing the physical hardware running the database"
+      },
+      {
+        "label": "B",
+        "text": "Managing database user accounts and access permissions within the database"
+      },
+      {
+        "label": "C",
+        "text": "Patching the underlying database engine software"
+      },
+      {
+        "label": "D",
+        "text": "Maintaining the network infrastructure connecting RDS to the internet"
+      }
+    ],
+    "correct": "B",
+    "explanation": "Amazon RDS is a managed service, so AWS handles OS and database engine patching, hardware maintenance, and network infrastructure. However, customers are responsible for what happens inside the database \u2014 managing database users, schemas, access permissions, and the data itself.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-01",
+    "active": true,
+    "type": "single",
+    "stem": "Under the AWS shared responsibility model, which of the following is the customer's responsibility when using Amazon RDS?",
+    "tags": [
+      "shared responsibility",
+      "RDS",
+      "managed service",
+      "database security"
+    ]
+  },
+  {
+    "id": "aws-cp-02-018",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "A compliance framework grouping resources by security classification"
+      },
+      {
+        "label": "B",
+        "text": "A virtual firewall that controls inbound and outbound traffic for EC2 instances"
+      },
+      {
+        "label": "C",
+        "text": "A group of IAM users with the same security permissions"
+      },
+      {
+        "label": "D",
+        "text": "A set of encryption keys applied to a group of resources"
+      }
+    ],
+    "correct": "B",
+    "explanation": "A security group acts as a virtual firewall for EC2 instances, controlling inbound and outbound traffic at the instance level. Security groups are stateful \u2014 if you allow inbound traffic on a port, the return traffic is automatically allowed. All rules are evaluated before deciding whether to allow traffic.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-05",
+    "active": true,
+    "type": "single",
+    "stem": "What is a security group in Amazon VPC?",
+    "tags": [
+      "security groups",
+      "VPC",
+      "firewall",
+      "network security"
+    ]
+  },
+  {
+    "id": "aws-cp-02-019",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Security Hub"
+      },
+      {
+        "label": "B",
+        "text": "AWS Config"
+      },
+      {
+        "label": "C",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "D",
+        "text": "Amazon GuardDuty"
+      }
+    ],
+    "correct": "A",
+    "explanation": "AWS Security Hub provides a comprehensive view of your security state in AWS by aggregating, organizing, and prioritizing security findings from multiple AWS services (GuardDuty, Inspector, Macie, Config) and third-party tools. It maps findings to compliance standards like CIS AWS Foundations and PCI DSS.",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-03",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS service provides a centralized view of security alerts and compliance status across multiple AWS accounts and services?",
+    "tags": [
+      "Security Hub",
+      "centralized security",
+      "findings aggregation",
+      "compliance dashboard"
+    ]
+  },
+  {
+    "id": "aws-cp-02-020",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Data is compressed to reduce storage costs"
+      },
+      {
+        "label": "B",
+        "text": "Data is automatically deleted after a period of inactivity"
+      },
+      {
+        "label": "C",
+        "text": "Data is encrypted when stored on disk or in a database, protecting"
+      },
+      {
+        "label": "D",
+        "text": "Data is encrypted only when it is being transferred between services"
+      }
+    ],
+    "correct": "C",
+    "explanation": "Encryption at rest means that data stored on physical media \u2014 disks, databases, backups \u2014 is encrypted so that it cannot be read without the appropriate decryption key. Even if physical storage media were stolen or improperly accessed, the data would be unreadable. AWS services like S3, EBS, RDS, and DynamoDB all support encryption at rest.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-05",
+    "active": true,
+    "type": "single",
+    "stem": "What does 'encryption at rest' mean in the context of AWS data security?",
+    "tags": [
+      "encryption at rest",
+      "data security",
+      "KMS",
+      "storage encryption"
+    ]
+  },
+  {
+    "id": "aws-cp-02-021",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Inspector"
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "C",
+        "text": "AWS Config"
+      },
+      {
+        "label": "D",
+        "text": "AWS Artifact"
+      }
+    ],
+    "correct": "D",
+    "explanation": "AWS Artifact provides on-demand access to AWS compliance documentation including PCI DSS reports, SOC reports, ISO certifications, and other compliance documents. Customers can download these reports directly from the AWS Management Console to support their own compliance assessments.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-security-compliance-04",
+    "active": true,
+    "type": "single",
+    "stem": "A company needs to verify that their AWS environment meets PCI DSS requirements. Which AWS service provides the official AWS compliance documentation they need?",
+    "tags": [
+      "AWS Artifact",
+      "PCI DSS",
+      "compliance documentation",
+      "audit reports"
+    ]
+  },
+  {
+    "id": "aws-cp-02-022",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config"
+      },
+      {
+        "label": "B",
+        "text": "Amazon GuardDuty"
+      },
+      {
+        "label": "C",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "D",
+        "text": "AWS Security Hub"
+      }
+    ],
+    "correct": "C",
+    "explanation": "AWS Trusted Advisor inspects your AWS environment and provides real-time recommendations across five categories: cost optimization, performance, security, fault tolerance, and service limits. Security checks include identifying open S3 buckets, unrestricted security group rules, IAM use, and MFA on the root account.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-03",
+    "active": true,
+    "type": "single",
+    "stem": "Which AWS service provides best practice recommendations specifically including security checks such as identifying S3 buckets with public access and IAM use?",
+    "tags": [
+      "Trusted Advisor",
+      "best practices",
+      "security recommendations",
+      "S3 public access"
+    ]
+  },
+  {
+    "id": "aws-cp-02-023",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Rotating encryption keys on a scheduled basis"
+      },
+      {
+        "label": "B",
+        "text": "Moving encrypted backups from one Region to another"
+      },
+      {
+        "label": "C",
+        "text": "Encrypting data before it is written to a disk"
+      },
+      {
+        "label": "D",
+        "text": "Protecting data from unauthorized access while it travels across a network"
+      }
+    ],
+    "correct": "D",
+    "explanation": "Encryption in transit protects data as it moves between systems over a network, typically using TLS (Transport Layer Security). This prevents interception or tampering with data while it travels between a user's browser and an application, between AWS services, or between on-premises systems and AWS.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-security-compliance-05",
+    "active": true,
+    "type": "single",
+    "stem": "What is 'encryption in transit' in the context of AWS?",
+    "tags": [
+      "encryption in transit",
+      "TLS",
+      "data security",
+      "network security"
+    ]
+  },
+  {
+    "id": "aws-cp-02-024",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "IAM policies automatically expire after 90 days for security purposes"
+      },
+      {
+        "label": "B",
+        "text": "IAM policies are JSON documents that define what actions are allowed or denied on which resources"
+      },
+      {
+        "label": "C",
+        "text": "IAM policies apply only to human users and cannot be attached to services or roles"
+      },
+      {
+        "label": "D",
+        "text": "IAM policies grant all permissions by default; you remove permissions you do not need"
+      }
+    ],
+    "correct": "B",
+    "explanation": "IAM policies are JSON documents that specify permissions \u2014 what actions (such as s3:GetObject or ec2:StartInstances) are allowed or denied, on which resources (specific ARNs or wildcards), and under what conditions. Policies are attached to users, groups, or roles to grant them the defined permissions.",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-02",
+    "active": true,
+    "type": "single",
+    "stem": "Which statement best describes how IAM policies work in AWS?",
+    "tags": [
+      "IAM policies",
+      "JSON",
+      "permissions",
+      "access control"
+    ]
+  },
+  {
+    "id": "aws-cp-02-025",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS KMS"
+      },
+      {
+        "label": "B",
+        "text": "AWS CloudTrail"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Inspector"
+      },
+      {
+        "label": "D",
+        "text": "Amazon GuardDuty"
+      },
+      {
+        "label": "E",
+        "text": "AWS WAF"
+      }
+    ],
+    "correct": [
+      "C",
+      "D"
+    ],
+    "explanation": "Amazon GuardDuty continuously monitors for malicious activity and unauthorized behavior across your AWS account using machine learning and threat intelligence. Amazon Inspector identifies software vulnerabilities and unintended network exposure in EC2 instances and containers. Both are AWS security services that detect threats and vulnerabilities.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "E": ""
+    },
+    "module_ref": "aws-cp-security-compliance-03",
+    "active": true,
+    "type": "multiple",
+    "stem": "Which TWO AWS services are used to detect security threats and identify software vulnerabilities in AWS resources in an AWS account? (Select TWO.)",
+    "tags": [
+      "GuardDuty",
+      "Inspector",
+      "threat detection",
+      "security services"
+    ]
+  },
+  {
+    "id": "aws-cp-02-026",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Physical security of data center facilities"
+      },
+      {
+        "label": "B",
+        "text": "Maintaining the global network backbone"
+      },
+      {
+        "label": "C",
+        "text": "Patching the underlying hypervisor"
+      },
+      {
+        "label": "D",
+        "text": "Managing IAM users and access permissions"
+      },
+      {
+        "label": "E",
+        "text": "Customer data and its encryption"
+      }
+    ],
+    "correct": [
+      "D",
+      "E"
+    ],
+    "explanation": "Under the shared responsibility model, customers are always responsible for their own data (including choosing whether and how to encrypt it) and for managing IAM users, roles, and policies that control access to their AWS resources. These are security controls within the cloud that AWS provides tools for but does not manage on the customer's behalf.",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "module_ref": "aws-cp-security-compliance-01",
+    "active": true,
+    "type": "multiple",
+    "stem": "Under the AWS shared responsibility model, which TWO of the following are always the customer's responsibility? (Select TWO.)",
+    "tags": [
+      "shared responsibility",
+      "customer responsibility",
+      "data security",
+      "IAM"
+    ]
+  },
+  {
+    "id": "aws-cp-02-027",
+    "domain": "Security and Compliance",
+    "difficulty": "below",
+    "test_number": 1,
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable MFA on the root user account"
+      },
+      {
+        "label": "B",
+        "text": "Use the root user account for all daily administrative tasks"
+      },
+      {
+        "label": "C",
+        "text": "Store access keys in application source code for easy access"
+      },
+      {
+        "label": "D",
+        "text": "Share access keys between multiple team members for convenience"
+      },
+      {
+        "label": "E",
+        "text": "Create individual IAM users with only the permissions they need"
+      }
+    ],
+    "correct": [
+      "A",
+      "E"
+    ],
+    "explanation": "Enabling MFA on the root user protects the most privileged account in AWS from unauthorized access. Creating individual IAM users with least-privilege permissions ensures accountability and minimizes the impact of any compromised credential. Both are foundational AWS security best practices.",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "module_ref": "aws-cp-security-compliance-02",
+    "active": true,
+    "type": "multiple",
+    "stem": "Which TWO of the following actions are AWS security best practices for protecting an AWS account? (Select TWO.)",
+    "tags": [
+      "security best practices",
+      "MFA",
+      "root user",
+      "IAM",
+      "access keys"
+    ]
+  }
+]

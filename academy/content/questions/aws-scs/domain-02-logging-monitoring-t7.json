@@ -1,0 +1,718 @@
+[
+  {
+    "id": "scs-d2-t7-001",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security architect is integrating AWS Security Lake with a third-party SIEM. The architect notes that Security Lake normalizes all log data to the Open Cybersecurity Schema Framework (OCSF). What does OCSF normalization specifically enable for the SIEM integration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "OCSF normalization deduplicates events across log sources so the SIEM never receives duplicate alerts from GuardDuty and CloudTrail for the same underlying activity."
+      },
+      {
+        "label": "B",
+        "text": "OCSF normalization compresses log data into a binary format that reduces S3 storage costs and speeds up SIEM ingestion over raw JSON logs."
+      },
+      {
+        "label": "C",
+        "text": "OCSF normalization encrypts log fields at the application layer before storage, ensuring the SIEM can only decrypt fields it is explicitly authorized to read."
+      },
+      {
+        "label": "D",
+        "text": "OCSF normalization converts all log sources into a consistent schema with standardized field names and event classes, allowing the SIEM to query and correlate data from multiple AWS sources without source-specific parsers."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "OCSF (Open Cybersecurity Schema Framework) is an open standard that provides a common schema and taxonomy for security events. Security Lake normalizes data from diverse AWS sources (CloudTrail, VPC Flow Logs, Route 53, Security Hub, WAF) into OCSF format. This enables SIEM tools that understand OCSF to query and correlate all source types using consistent field names \u2014 such as actor.user for the initiating identity and src_endpoint.ip for source IP \u2014 without requiring a custom parser for each data source. OCSF does not compress to binary, encrypt fields, or deduplicate events.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "security-lake",
+      "ocsf",
+      "siem"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-002",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security team wants to use CloudTrail Insights to detect unusual activity in their account. They configure both insight types. What is the key difference between ApiCallRateInsight and ApiErrorRateInsight?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ApiCallRateInsight covers only write API calls such as Create and Delete, while ApiErrorRateInsight covers only read API calls such as Describe and List that return access denied errors."
+      },
+      {
+        "label": "B",
+        "text": "ApiCallRateInsight detects anomalies in the volume of management API calls relative to the baseline call rate, while ApiErrorRateInsight detects anomalies in the rate of API error responses relative to the baseline error rate."
+      },
+      {
+        "label": "C",
+        "text": "ApiCallRateInsight fires immediately when any API call exceeds 100 per minute, while ApiErrorRateInsight uses a 24-hour rolling average to detect increases in error counts."
+      },
+      {
+        "label": "D",
+        "text": "ApiCallRateInsight fires when the total number of unique API callers exceeds the baseline, while ApiErrorRateInsight fires when the same caller makes errors across multiple services."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail Insights supports two insight types. ApiCallRateInsight analyzes the rate of write management API calls (create, modify, delete actions) and fires when the call rate deviates significantly from the established baseline \u2014 useful for detecting credential misuse that causes an unusual spike in API activity. ApiErrorRateInsight analyzes the rate of API error responses (such as AccessDenied, Throttling) and fires when the error rate deviates from the baseline \u2014 useful for detecting enumeration attempts or permission probing. Neither insight is limited to specific callers or a fixed 100-per-minute threshold; both use ML-based baselines.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "cloudtrail",
+      "insights",
+      "anomaly-detection"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-003",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security analyst is analyzing VPC Flow Logs for an EC2 instance behind a NAT gateway. They notice that some flow log records show a different destination IP than expected. Which VPC Flow Log fields allow the analyst to distinguish the original destination IP from the post-NAT translated IP address?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The pkt-srcaddr and pkt-dstaddr fields capture the original packet-level source and destination IPs, while srcaddr and dstaddr reflect the intermediate NAT gateway addresses for flows that traverse NAT."
+      },
+      {
+        "label": "B",
+        "text": "The srcaddr and dstaddr fields always show the original pre-NAT IP addresses; post-NAT addresses are only available in ALB access logs."
+      },
+      {
+        "label": "C",
+        "text": "The interface-id and subnet-id fields identify which NAT gateway processed the traffic, allowing the analyst to look up the NAT translation table separately."
+      },
+      {
+        "label": "D",
+        "text": "NAT translation is not visible in VPC Flow Logs at all; a separate AWS NAT translation log must be enabled in the VPC console to capture this information."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "VPC Flow Logs include the pkt-srcaddr and pkt-dstaddr fields (available in v3+ custom format) that capture the original packet-level IP addresses before NAT translation. The standard srcaddr and dstaddr fields reflect the addresses at the network interface level, which for flows through a NAT gateway will show the NAT gateway's private IP rather than the original instance IP or external destination. Using pkt-dstaddr alongside dstaddr allows analysts to see both the original destination and the translated address, enabling proper traffic path reconstruction without needing a separate log source.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "vpc-flow-logs",
+      "nat",
+      "network-traffic"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-004",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security engineer needs to create a CloudWatch Logs metric filter that counts failed AWS Management Console login attempts specifically by an IAM user named 'FinanceAdmin'. Which filter pattern syntax is correct?",
+    "options": [
+      {
+        "label": "A",
+        "text": "{ $.eventName = \"ConsoleLogin\" && $.responseElements.ConsoleLogin = \"Failure\" }"
+      },
+      {
+        "label": "B",
+        "text": "{ $.eventName = \"ConsoleLogin\" && $.responseElements.ConsoleLogin = \"Failure\" && $.userIdentity.userName = \"FinanceAdmin\" }"
+      },
+      {
+        "label": "C",
+        "text": "{ $.eventName = \"ConsoleLogin\" && $.errorMessage = \"Failed authentication\" && $.userIdentity.accountId = \"FinanceAdmin\" }"
+      },
+      {
+        "label": "D",
+        "text": "{ $.eventSource = \"signin.amazonaws.com\" && $.errorCode = \"AuthFailure\" && $.userIdentity.type = \"IAMUser\" }"
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The correct CloudWatch Logs metric filter pattern for CloudTrail events must check three conditions: the event name is ConsoleLogin, the responseElements.ConsoleLogin value is Failure (indicating a failed login), and the userIdentity.userName is FinanceAdmin (scoping to the specific IAM user). Option A is missing the user name filter and would count all failed console logins. Option C uses errorCode = AuthFailure, which is not the correct field for console login failures (the correct field is responseElements.ConsoleLogin = Failure). Option D uses the incorrect field userIdentity.accountId for the user name.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "cloudwatch",
+      "cloudtrail",
+      "metric-filter",
+      "console-login"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-005",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security team is evaluating whether to enable CloudTrail S3 data events for all objects in all S3 buckets or only for specific high-sensitivity prefixes. What is the primary cost and coverage trade-off between these two approaches?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Scoping to specific prefixes captures more detailed per-event metadata including object tags and version IDs, while enabling all-bucket data events logs only the object key and size without additional attributes."
+      },
+      {
+        "label": "B",
+        "text": "Enabling data events for all buckets captures every S3 API call but generates high log volume and per-event CloudTrail charges; scoping to specific prefixes cuts cost and noise but risks missing access to sensitive data stored outside those prefixes."
+      },
+      {
+        "label": "C",
+        "text": "CloudTrail S3 data events can only be scoped at the bucket level and not at the prefix level; prefix-level filtering must be performed after collection using Athena queries against the CloudTrail log files stored in S3."
+      },
+      {
+        "label": "D",
+        "text": "Enabling data events for all buckets is always free because CloudTrail management events are included in the free tier, and scoping to prefixes only reduces storage costs in the S3 delivery bucket."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail S3 data events are charged per 100,000 events recorded, and a busy S3 environment can generate billions of events per month, making all-bucket data event logging expensive. Scoping to specific bucket ARNs or prefixes containing sensitive data (PII, financial records, credentials) reduces both cost and the volume of noise in the logs, but risks missing data access events outside the defined scope. The right trade-off depends on the organization's risk tolerance and compliance requirements. Data events are not free \u2014 they are separate from management events. Both approaches log the same metadata per event. CloudTrail does support prefix-level filtering via advanced event selectors.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "cloudtrail",
+      "s3",
+      "data-events",
+      "cost"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-006",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security team needs to retain GuardDuty findings for 18 months to meet a compliance requirement. GuardDuty's native retention period is 90 days. How should they configure GuardDuty to export findings beyond this limit, and in what format are the exported findings stored?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable GuardDuty finding aggregation to AWS Security Hub, which extends the native retention to 18 months automatically with no additional configuration."
+      },
+      {
+        "label": "B",
+        "text": "Increase the GuardDuty finding retention period to 18 months in the GuardDuty settings console; GuardDuty natively supports custom retention periods up to 24 months."
+      },
+      {
+        "label": "C",
+        "text": "Configure GuardDuty to stream findings to an Amazon Kinesis Data Stream and then to S3 via Kinesis Data Firehose; findings are exported in Parquet format for cost-efficient long-term storage."
+      },
+      {
+        "label": "D",
+        "text": "Configure GuardDuty finding export to an S3 bucket; GuardDuty exports findings in JSONL (newline-delimited JSON) format and continues exporting updates for the life of the finding."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "GuardDuty supports native finding export to an S3 bucket. When export is configured, GuardDuty writes findings and their subsequent updates to S3 in JSONL (newline-delimited JSON) format. Once in S3, the findings can be retained as long as the S3 lifecycle policy allows \u2014 indefinitely if needed \u2014 satisfying long-term compliance retention requirements beyond the 90-day console limit. Security Hub does not automatically extend GuardDuty's native retention; it has its own 90-day limit. GuardDuty does not export to Kinesis natively or use Parquet format. The GuardDuty console does not offer a configurable retention period beyond 90 days.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "guardduty",
+      "s3",
+      "findings-export",
+      "retention"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-007",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "An AWS Config delivery channel is configured to deliver configuration snapshots and history files to an S3 bucket. If the target S3 bucket becomes unavailable due to a permissions error, what happens to the pending configuration deliveries?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config drops all pending configuration items that could not be delivered and resumes recording new changes going forward once the S3 bucket is available."
+      },
+      {
+        "label": "B",
+        "text": "AWS Config immediately disables itself and stops recording configuration changes until the S3 bucket is made available and Config is manually re-enabled."
+      },
+      {
+        "label": "C",
+        "text": "AWS Config automatically switches to an alternate delivery channel using Amazon SQS as a temporary buffer until the S3 bucket issue is resolved."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config retries the delivery at increasing intervals and queues configuration items internally; once the S3 bucket is available again, the backlogged deliveries are completed."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "When the AWS Config delivery channel S3 bucket is unavailable (due to a permissions error, bucket deletion, or bucket policy block), AWS Config continues recording configuration changes internally and retries delivery with exponential backoff. The configuration items are queued and delivered to S3 once access is restored. Config does not disable itself, does not switch to SQS automatically, and does not drop pending items. This behavior ensures no configuration history is lost during temporary S3 access disruptions, though prolonged unavailability will eventually require investigation of the delivery channel health via CloudWatch metrics.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "aws-config",
+      "delivery-channel",
+      "s3",
+      "resilience"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-008",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security engineer is configuring an AWS Security Lake subscriber. The subscriber needs to receive real-time notifications when new log data is available AND query historical log data on demand. Which subscriber access types should be configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure only S3 data access for the subscriber, which supports both real-time polling and on-demand historical query access through a single unified access pattern without additional configuration."
+      },
+      {
+        "label": "B",
+        "text": "Configure both notification access (SQS or EventBridge) and query access (Lake Formation permissions on the Security Lake bucket) \u2014 notification enables real-time event-driven ingestion while query access enables on-demand historical analysis via Athena."
+      },
+      {
+        "label": "C",
+        "text": "Configure notification access only and provision an SQS queue with a 14-day message retention window to buffer all historical log events so the subscriber can retrieve them on demand up to two weeks later."
+      },
+      {
+        "label": "D",
+        "text": "Configure query access only and rely on S3 event notifications placed directly on the Security Lake bucket rather than using the built-in subscriber notification mechanism for real-time alerts."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Security Lake supports two distinct subscriber access types that serve different purposes. Notification access configures an SQS queue or EventBridge event bus to alert the subscriber when new OCSF-formatted data is written to Security Lake, enabling real-time event-driven pipelines. Query access grants the subscriber Lake Formation permissions to query the Security Lake S3 bucket directly (typically via Amazon Athena), enabling on-demand historical analysis. To get both capabilities, both access types must be configured on the subscriber. S3 polling alone is not a native Security Lake subscriber pattern, and SQS retention windows cannot substitute for direct query access to historical data.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "security-lake",
+      "subscriber",
+      "sqs",
+      "lake-formation"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-009",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security team creates a CloudTrail multi-region trail. What does a multi-region trail capture that a single-region trail does NOT, and what does even a multi-region trail fail to capture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A multi-region trail captures global service events and regional events; it additionally captures VPC Flow Logs and DNS query logs, which single-region trails miss."
+      },
+      {
+        "label": "B",
+        "text": "A multi-region trail captures all regional API events across every AWS region; it does not capture events from AWS global services such as IAM, STS, and CloudFront, which require separate configuration."
+      },
+      {
+        "label": "C",
+        "text": "A multi-region trail captures all regional API events plus global service events (IAM, STS, CloudFront) by default; however, it does not capture S3 data events or Lambda invocation events unless data event logging is explicitly enabled."
+      },
+      {
+        "label": "D",
+        "text": "A multi-region trail captures API events in all regions except the AWS GovCloud regions; separate trails must be created in GovCloud for compliance requirements."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "A CloudTrail multi-region trail captures management API events in all AWS regions (commercial) and, by default, also includes global service events from IAM, STS, and CloudFront \u2014 which are logged to us-east-1 but included automatically when a multi-region trail has global service events enabled (the default). What a multi-region trail does NOT capture by default is S3 data events (GetObject, PutObject), Lambda invoke events, or DynamoDB data events \u2014 these are data events that must be explicitly enabled via advanced event selectors. VPC Flow Logs and DNS query logs are entirely separate services and are never captured by CloudTrail.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "cloudtrail",
+      "multi-region",
+      "global-services",
+      "data-events"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-010",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security engineer configures a CloudWatch anomaly detection band for a metric tracking failed API authentication attempts. What does the ML model train on and under what condition does an anomaly detection alarm fire?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The model trains on up to two weeks of historical metric data to learn seasonality and trends; the alarm fires when the current metric value falls outside the expected band defined by the model at the configured standard deviation width."
+      },
+      {
+        "label": "B",
+        "text": "The model trains on CloudTrail event history rather than CloudWatch metrics directly, and the alarm fires when the number of unique API callers exceeds the historical maximum."
+      },
+      {
+        "label": "C",
+        "text": "The model trains on real-time metric streams using a sliding 1-hour window, and the alarm fires immediately when any single data point deviates from the trailing average by more than 10 percent."
+      },
+      {
+        "label": "D",
+        "text": "The model trains on the last 24 hours of metric data only, and the alarm fires whenever the metric exceeds a static threshold defined during anomaly detector creation."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudWatch anomaly detection uses a machine learning model that trains on up to two weeks of historical metric data. The model learns the metric's expected patterns including time-of-day seasonality, day-of-week variations, and long-term trends. Once trained, the model produces an expected value band for each point in time. A CloudWatch alarm configured with an anomaly detection threshold fires when the actual metric value falls outside the upper or lower bound of the expected band at the configured standard deviation width (e.g., 2 standard deviations). The model does not use a 24-hour window or a static threshold, does not use a 1-hour sliding window, and does not train on CloudTrail data.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-monitoring",
+      "cloudwatch",
+      "anomaly-detection",
+      "ml"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-011",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security engineer is building an EventBridge rule to trigger on specific CloudTrail management events. The rule should match only when the IAM CreateUser API is called. Which EventBridge rule pattern fields are required to correctly identify this CloudTrail event?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use the source field set to 'aws.iam' and the detail-type field set to 'CreateUser' to match IAM user creation events in EventBridge."
+      },
+      {
+        "label": "B",
+        "text": "Use source set to 'aws.cloudtrail', detail-type set to 'AWS API Call via CloudTrail', and detail.eventName set to 'CreateUser' to match the specific CloudTrail management event."
+      },
+      {
+        "label": "C",
+        "text": "Use detail-type set to 'AWS API Call via CloudTrail' and detail.eventSource set to 'iam.amazonaws.com' without specifying detail.eventName, then filter by eventName inside the Lambda function."
+      },
+      {
+        "label": "D",
+        "text": "Use source set to 'aws.iam', detail.eventName set to 'CreateUser', and detail.eventSource set to 'iam.amazonaws.com' to precisely identify the API call."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "CloudTrail management events delivered to EventBridge use source 'aws.cloudtrail' and detail-type 'AWS API Call via CloudTrail'. Within the detail object, detail.eventName specifies the specific API action (such as CreateUser) and detail.eventSource can further scope to iam.amazonaws.com. The source field for CloudTrail events in EventBridge is always 'aws.cloudtrail', not 'aws.iam' \u2014 aws.iam is used for IAM service events (policy changes), not CloudTrail API-call events. Including detail.eventName in the EventBridge pattern (rather than filtering in Lambda) is more efficient and is the recommended approach.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-monitoring",
+      "eventbridge",
+      "cloudtrail",
+      "rule-pattern",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-012",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security analyst is investigating a suspected web application attack. They have both ALB access logs and AWS WAF logs enabled. What information does WAF logging provide that ALB access logs do NOT include?",
+    "options": [
+      {
+        "label": "A",
+        "text": "WAF logs include the client TLS certificate details and cipher suite negotiated during the HTTPS handshake, which ALB access logs omit entirely."
+      },
+      {
+        "label": "B",
+        "text": "WAF logs include the backend target response time and health check status, while ALB access logs only capture the client-facing request without backend metrics."
+      },
+      {
+        "label": "C",
+        "text": "WAF logs include the full HTTP request URI and query string, while ALB access logs truncate URIs longer than 128 characters for storage efficiency."
+      },
+      {
+        "label": "D",
+        "text": "WAF logs include the specific WAF rule or rule group that matched the request, the action taken (ALLOW, BLOCK, COUNT), and the matched data within the request \u2014 details not available in ALB access logs."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS WAF logs provide security-specific information that ALB access logs cannot: the identity of the WAF rule or managed rule group that matched (e.g., AWSManagedRulesCommonRuleSet/CrossSiteScripting_BODY), the action applied (ALLOW, BLOCK, or COUNT), and the matched portion of the request that triggered the rule (the terminating rule match details). This allows analysts to see exactly why a request was blocked and what pattern triggered the rule. ALB access logs capture request routing and performance data (target group, response codes, latency) but have no visibility into WAF rule evaluation logic. Both logs capture the full URI. WAF logs do not include backend health metrics or TLS certificate details.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "waf",
+      "alb",
+      "web-application-firewall",
+      "request-logging"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-013",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security team has enabled AWS Network Firewall with alert logging and is receiving Suricata rule match records in CloudWatch Logs. What specific information do Network Firewall alert logs provide for deep packet inspection findings that VPC Flow Logs cannot?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Network Firewall alert logs provide the IAM principal that initiated the network connection, linking network traffic to AWS API identity in a way VPC Flow Logs cannot."
+      },
+      {
+        "label": "B",
+        "text": "Network Firewall alert logs capture encrypted TLS payload content by performing SSL inspection before forwarding traffic, which VPC Flow Logs cannot see inside encrypted sessions."
+      },
+      {
+        "label": "C",
+        "text": "Network Firewall alert logs provide the exact source and destination IP addresses and ports, while VPC Flow Logs omit port numbers for UDP traffic."
+      },
+      {
+        "label": "D",
+        "text": "Network Firewall alert logs include the Suricata rule signature ID, the rule message, the matched protocol payload details, and the alert action \u2014 information derived from application-layer inspection that VPC Flow Logs cannot capture."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Network Firewall alert logs, powered by the Suricata IDS/IPS engine, include rule-level details from stateful deep packet inspection: the Suricata rule signature ID (sid), the human-readable rule message (msg), the protocol and application-layer data that matched (such as a malicious HTTP User-Agent or DNS query pattern), and the action taken. This application-layer context is unavailable in VPC Flow Logs, which only capture connection-level metadata (IP, port, protocol, packet/byte counts, accept/reject). VPC Flow Logs include UDP ports. Neither service links network traffic to IAM identity. Network Firewall does not perform SSL/TLS decryption of encrypted sessions by default.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "network-firewall",
+      "suricata",
+      "deep-packet-inspection",
+      "vpc-flow-logs"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-014",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "Amazon Macie is generating frequent sensitive data findings for an S3 bucket that stores anonymized data files whose naming convention matches Macie's built-in pattern for SSNs. The security team confirms these are false positives. What is the MOST operationally efficient way to suppress these specific false positives going forward?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Apply an S3 bucket tag indicating the data is anonymized, which Macie reads automatically to skip tagged buckets during sensitive data discovery scans."
+      },
+      {
+        "label": "B",
+        "text": "Adjust the Macie finding severity threshold to LOW so that false positive SSN pattern matches do not trigger alerts in the security team's ticketing system."
+      },
+      {
+        "label": "C",
+        "text": "Create a Macie allow list that matches the specific file names or content patterns of the anonymized data, causing Macie to exclude matches from future sensitive data findings for those patterns."
+      },
+      {
+        "label": "D",
+        "text": "Disable the Macie sensitive data discovery job entirely for the affected bucket and manually review the bucket's contents periodically for actual sensitive data."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Amazon Macie allow lists (formerly called suppression rules for findings) let you define specific text patterns or exact file names that Macie should treat as expected and non-sensitive. When Macie discovers text that matches an allow list entry during a scan, it excludes those occurrences from sensitive data findings. This is the correct targeted mechanism for suppressing false positives on known-safe patterns without disabling discovery entirely. Disabling the job creates blind spots for new real sensitive data. Severity thresholds do not suppress the finding; they only change how it appears. S3 bucket tags are not natively read by Macie to skip scans.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-monitoring",
+      "macie",
+      "allow-list",
+      "false-positive",
+      "s3"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-015",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A compliance team needs the management account in an AWS Organization to have full visibility into CloudTrail API activity across all member accounts. They create an organizational trail in the management account. What does an organizational trail enable that individually configured trails per account do not?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An organizational trail enables cross-account CloudWatch Logs streaming from all member accounts to the management account, which individual per-account trails cannot do without manual IAM configuration."
+      },
+      {
+        "label": "B",
+        "text": "An organizational trail aggregates CloudTrail logs and also automatically enables GuardDuty and Security Hub in all member accounts using the same delegated administrator configuration."
+      },
+      {
+        "label": "C",
+        "text": "An organizational trail enables real-time CloudTrail event streaming to Amazon Kinesis Data Streams in the management account for all member accounts simultaneously."
+      },
+      {
+        "label": "D",
+        "text": "An organizational trail automatically enables CloudTrail in new member accounts as they join the organization and delivers all member account events to a central S3 bucket \u2014 without requiring manual trail creation in each member account."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "An AWS Organizations CloudTrail organizational trail, created in the management account or a delegated administrator account, automatically applies to all existing member accounts and new accounts as they join the organization. It delivers events from all member accounts to a central S3 bucket in the management account \u2014 without requiring manual trail creation, configuration, or bucket policy management in each member account. This eliminates the operational overhead of maintaining individual trails and prevents member accounts from disabling their own trails. Organizational trails do not automatically configure CloudWatch Logs cross-account streaming, Kinesis streaming, GuardDuty, or Security Hub.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-logging",
+      "cloudtrail",
+      "organizations",
+      "organizational-trail",
+      "multi-account"
+    ]
+  },
+  {
+    "id": "scs-d2-t7-016",
+    "domain": 2,
+    "domain_name": "Security Logging and Monitoring",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security engineer is choosing between AWS Config Rule evaluation trigger types for a rule that detects whether EC2 security groups allow unrestricted SSH access. They need the fastest possible detection of drift after a security group change. Which trigger type should they use and why?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use a periodic trigger with a 1-hour evaluation frequency \u2014 periodic triggers evaluate all resources in scope every hour, providing predictable and consistent compliance checks."
+      },
+      {
+        "label": "B",
+        "text": "Use a periodic trigger with a 24-hour frequency \u2014 daily evaluation is sufficient because security group changes are infrequent and the cost of continuous evaluation is prohibitive."
+      },
+      {
+        "label": "C",
+        "text": "Use both trigger types simultaneously \u2014 the configuration change trigger detects drift in real time while the periodic trigger re-evaluates resources that Config may have missed during high-change periods."
+      },
+      {
+        "label": "D",
+        "text": "Use a configuration change trigger scoped to EC2 security group resources \u2014 Config evaluates the rule within minutes of detecting a security group configuration change, providing near-real-time drift detection."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "For detecting drift as quickly as possible, a configuration change trigger is the correct choice. AWS Config invokes the rule evaluation within minutes of detecting a change to the specified resource type (EC2 security groups in this case), delivering near-real-time compliance feedback whenever a security group rule is added, modified, or deleted. A periodic trigger (1-hour or 24-hour) only evaluates compliance on a schedule, creating a gap between when the misconfiguration occurs and when it is detected. While using both trigger types simultaneously is technically possible, the configuration change trigger alone provides the fastest drift detection for resource-specific compliance checks.",
+    "module_ref": "domain-02",
+    "tags": [
+      "aws-scs",
+      "domain-02",
+      "security-monitoring",
+      "aws-config",
+      "config-rules",
+      "drift-detection",
+      "security-groups"
+    ]
+  }
+]

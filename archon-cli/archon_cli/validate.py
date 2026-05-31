@@ -20,6 +20,7 @@ import re
 from dataclasses import dataclass, field
 from typing import Any
 
+from archon_cli.azure_tf_map import AZURE_TF_TYPE_MAP
 from archon_cli.compliance import get_standards_for_rule
 
 # ─── Type mapping (TF resource type → canvas type) ───────────────────────────
@@ -174,7 +175,80 @@ _TF_TYPE_MAP: dict[str, str] = {
     "aws_codecommit_repository":            "codecommit",
     "aws_cloudformation_stack":             "cloudformation",
     "aws_cloudformation_stack_set":         "cloudformation",
+    # GCP — Networking
+    "google_compute_network":               "gcp_vpc",
+    "google_compute_subnetwork":            "gcp_subnet",
+    "google_compute_firewall":              "gcp_firewall",
+    "google_compute_global_forwarding_rule":"gcp_lb",
+    "google_compute_forwarding_rule":       "gcp_lb",
+    "google_compute_backend_service":       "gcp_lb",
+    "google_compute_url_map":               "gcp_lb",
+    "google_compute_target_http_proxy":     "gcp_lb",
+    "google_compute_target_https_proxy":    "gcp_lb",
+    "google_compute_security_policy":       "gcp_armor",
+    "google_dns_managed_zone":              "gcp_dns",
+    "google_compute_router_nat":            "gcp_nat",
+    "google_compute_vpn_gateway":           "gcp_vpn",
+    "google_compute_ha_vpn_gateway":        "gcp_vpn",
+    "google_compute_interconnect_attachment":"gcp_interconnect",
+    "google_compute_global_address":        "gcp_lb",
+    "google_compute_network_endpoint_group":"gcp_network_endpoint_grp",
+    "google_compute_service_attachment":    "gcp_private_sc",
+    # GCP — Compute
+    "google_compute_instance":              "gcp_gce",
+    "google_compute_instance_group_manager":"gcp_mig",
+    "google_container_cluster":             "gcp_gke",
+    "google_container_node_pool":           "gcp_gke",
+    "google_cloud_run_v2_service":          "gcp_cloud_run",
+    "google_cloudfunctions2_function":      "gcp_cloud_functions",
+    "google_cloudfunctions_function":       "gcp_cloud_functions",
+    "google_app_engine_standard_app_version":"gcp_app_engine",
+    "google_cloud_batch_job":               "gcp_cloud_batch",
+    "google_composer_environment":          "gcp_cloud_composer",
+    # GCP — Storage
+    "google_storage_bucket":                "gcp_gcs",
+    "google_filestore_instance":            "gcp_filestore",
+    "google_compute_disk":                  "gcp_persistent_disk",
+    "google_backup_dr_backup_plan":         "gcp_backup",
+    # GCP — Database
+    "google_sql_database_instance":         "gcp_cloudsql",
+    "google_alloydb_cluster":               "gcp_alloydb",
+    "google_spanner_instance":              "gcp_spanner",
+    "google_firestore_database":            "gcp_firestore",
+    "google_bigtable_instance":             "gcp_bigtable",
+    "google_redis_instance":                "gcp_memorystore",
+    "google_datastore_index":               "gcp_datastore",
+    # GCP — Security
+    "google_project_iam_binding":           "gcp_iam",
+    "google_project_iam_member":            "gcp_iam",
+    "google_service_account":               "gcp_iam",
+    "google_secret_manager_secret":         "gcp_secret_manager",
+    "google_kms_key_ring":                  "gcp_kms",
+    "google_kms_crypto_key":                "gcp_kms",
+    "google_scc_source":                    "gcp_scc",
+    "google_certificate_manager_certificate":"gcp_certificate_manager",
+    # GCP — Integration
+    "google_pubsub_topic":                  "gcp_pubsub",
+    "google_dataflow_job":                  "gcp_dataflow",
+    "google_cloud_tasks_queue":             "gcp_tasks",
+    "google_cloud_scheduler_job":           "gcp_scheduler",
+    "google_workflows_workflow":            "gcp_workflows",
+    # GCP — Analytics
+    "google_bigquery_dataset":              "gcp_bigquery",
+    "google_dataproc_cluster":              "gcp_dataproc",
+    "google_looker_instance":               "gcp_looker",
+    # GCP — AI / ML
+    "google_vertex_ai_endpoint":            "gcp_vertex_ai",
+    "google_vertex_ai_dataset":             "gcp_vertex_ai",
+    # GCP — Monitoring / DevOps
+    "google_logging_project_sink":          "gcp_logging",
+    "google_monitoring_alert_policy":       "gcp_monitoring",
+    "google_cloudbuild_trigger":            "gcp_cloud_build",
+    "google_artifact_registry_repository":    "gcp_artifact_registry",
+    "google_sourcerepo_repository":         "gcp_source_repo",
 }
+
+_TF_TYPE_MAP.update(AZURE_TF_TYPE_MAP)
 
 # ─── Data model ──────────────────────────────────────────────────────────────
 
@@ -2710,6 +2784,79 @@ def _parse_ingress_rules(values: dict) -> list[SGRule]:
     return rules
 
 
+def _parse_azure_nsg_rules(values: dict) -> list[SGRule]:
+    """Parse inbound allow rules from azurerm_network_security_group planned_values."""
+    rules: list[SGRule] = []
+    for rule in values.get("security_rule") or []:
+        if not isinstance(rule, dict):
+            continue
+        if str(rule.get("direction", "Inbound")).lower() != "inbound":
+            continue
+        if str(rule.get("access", "Allow")).lower() != "allow":
+            continue
+        protocol = str(rule.get("protocol", "Tcp")).lower()
+        if protocol in ("*", "any"):
+            protocol = "-1"
+        port = _azure_nsg_port_from_rule(rule)
+        for prefix in (rule.get("source_address_prefixes") or []):
+            if prefix:
+                rules.append(SGRule(protocol=protocol, port=port, source=str(prefix)))
+        single = rule.get("source_address_prefix")
+        if single:
+            rules.append(SGRule(protocol=protocol, port=port, source=str(single)))
+    return rules
+
+
+def _azure_nsg_port_from_rule(rule: dict) -> str:
+    """Normalise Azure NSG port fields to SGRule.port format."""
+    if rule.get("destination_port_range") in (None, "*"):
+        ranges = rule.get("destination_port_ranges") or []
+        if not ranges:
+            return "-1"
+        if len(ranges) == 1:
+            return str(ranges[0])
+        return str(ranges[0])
+    return str(rule.get("destination_port_range"))
+
+
+def _parse_azure_nsg_rule_resource(values: dict) -> SGRule | None:
+    """Parse a standalone azurerm_network_security_rule resource."""
+    if str(values.get("direction", "Inbound")).lower() != "inbound":
+        return None
+    if str(values.get("access", "Allow")).lower() != "allow":
+        return None
+    protocol = str(values.get("protocol", "Tcp")).lower()
+    if protocol in ("*", "any"):
+        protocol = "-1"
+    port = _azure_nsg_port_from_rule(values)
+    source = values.get("source_address_prefix")
+    if source:
+        return SGRule(protocol=protocol, port=port, source=str(source))
+    prefixes = values.get("source_address_prefixes") or []
+    if prefixes:
+        return SGRule(protocol=protocol, port=port, source=str(prefixes[0]))
+    return None
+
+
+def _parse_gcp_firewall_rules(values: dict) -> list[SGRule]:
+    """Parse allow blocks from google_compute_firewall planned_values."""
+    rules: list[SGRule] = []
+    if values.get("deny"):
+        return rules
+    for allow in values.get("allow") or []:
+        if not isinstance(allow, dict):
+            continue
+        protocol = str(allow.get("protocol") or "tcp")
+        ports = allow.get("ports") or []
+        if not ports:
+            port = "-1"
+        else:
+            port = str(ports[0]) if len(ports) == 1 else str(ports[0])
+        for src in values.get("source_ranges") or ["0.0.0.0/0"]:
+            rules.append(SGRule(protocol=protocol, port=port, source=str(src)))
+    return rules
+
+
 def _parse_iam_policy_document(doc: str | dict | None) -> list[IAMStatement]:
     """Parse an IAM policy document (JSON string or dict) into IAMStatements."""
     if not doc:
@@ -2778,9 +2925,11 @@ def parse_plan_json(plan: dict) -> tuple[list[Node], list[Edge], list[SecurityGr
     nodes: list[Node] = []
     sgs: list[SecurityGroup] = []
     iam_roles: list[IAMRole] = []
+    deferred_nsg_rules: list[tuple[str, SGRule]] = []
 
     # address → node.id map for edge building
     addr_to_id: dict[str, str] = {}
+    nsg_addr_to_sg: dict[str, SecurityGroup] = {}
 
     for r in raw_resources:
         tf_type = r.get("type", "")
@@ -2790,7 +2939,12 @@ def parse_plan_json(plan: dict) -> tuple[list[Node], list[Edge], list[SecurityGr
 
         canvas_type = _TF_TYPE_MAP.get(tf_type, "generic_tf")
         node_id = address.replace(".", "_").replace("[", "_").replace("]", "_").replace('"', "")
-        label = f"{name} ({tf_type.replace('aws_', '')})"
+        short_tf = tf_type
+        for prefix in ("aws_", "azurerm_", "google_"):
+            if short_tf.startswith(prefix):
+                short_tf = short_tf[len(prefix):]
+                break
+        label = f"{name} ({short_tf})"
 
         # Infer SG IDs referenced by this resource
         sg_ids: list[str] = []
@@ -2815,6 +2969,33 @@ def parse_plan_json(plan: dict) -> tuple[list[Node], list[Edge], list[SecurityGr
             )
             sgs.append(sg)
 
+        if canvas_type == "gcp_firewall":
+            sg = SecurityGroup(
+                id=node_id,
+                name=values.get("name") or name,
+                inbound=_parse_gcp_firewall_rules(values),
+            )
+            sgs.append(sg)
+
+        if canvas_type == "azure_nsg" and tf_type == "azurerm_network_security_group":
+            sg = SecurityGroup(
+                id=node_id,
+                name=values.get("name") or name,
+                inbound=_parse_azure_nsg_rules(values),
+            )
+            sgs.append(sg)
+            nsg_addr_to_sg[address] = sg
+
+        if tf_type == "azurerm_network_security_rule":
+            parsed = _parse_azure_nsg_rule_resource(values)
+            if parsed:
+                nsg_ref = str(
+                    values.get("network_security_group_name")
+                    or values.get("network_security_group_id")
+                    or ""
+                )
+                deferred_nsg_rules.append((nsg_ref, parsed))
+
         # Build IAMRole objects
         if canvas_type == "iam_role":
             stmts: list[IAMStatement] = []
@@ -2823,6 +3004,33 @@ def parse_plan_json(plan: dict) -> tuple[list[Node], list[Edge], list[SecurityGr
                 if values.get(key):
                     stmts.extend(_parse_iam_policy_document(values[key]))
             iam_roles.append(IAMRole(id=node_id, name=values.get("name") or name, policies=stmts))
+
+        if canvas_type == "gcp_iam" and tf_type.startswith("google_project_iam"):
+            role_name = str(values.get("role") or "")
+            members = [str(m) for m in (values.get("members") or [])]
+            iam_roles.append(IAMRole(
+                id=node_id,
+                name=role_name or name,
+                policies=[IAMStatement(effect="Allow", actions=[role_name], resources=members or ["*"])],
+            ))
+
+        if tf_type == "azurerm_role_assignment":
+            role_name = str(
+                values.get("role_definition_name")
+                or values.get("role_definition_id")
+                or name
+            )
+            principal = str(values.get("principal_id") or "")
+            scope = str(values.get("scope") or "*")
+            iam_roles.append(IAMRole(
+                id=node_id,
+                name=role_name,
+                policies=[IAMStatement(
+                    effect="Allow",
+                    actions=[role_name],
+                    resources=[principal or scope],
+                )],
+            ))
 
         node = Node(
             id=node_id,
@@ -2835,6 +3043,24 @@ def parse_plan_json(plan: dict) -> tuple[list[Node], list[Edge], list[SecurityGr
         )
         nodes.append(node)
         addr_to_id[address] = node_id
+
+    for nsg_ref, rule in deferred_nsg_rules:
+        matched = False
+        for nsg_addr, sg in nsg_addr_to_sg.items():
+            if nsg_ref and (nsg_ref == nsg_addr or nsg_addr in nsg_ref):
+                sg.inbound.append(rule)
+                matched = True
+                break
+            if nsg_ref and sg.name and sg.name in nsg_ref:
+                sg.inbound.append(rule)
+                matched = True
+                break
+        if not matched and nsg_ref:
+            sgs.append(SecurityGroup(
+                id=f"nsg_rule_{len(sgs)}",
+                name=nsg_ref.rsplit(".", 1)[-1],
+                inbound=[rule],
+            ))
 
     # ── Build edges from configuration references ────────────────────────────
     edges: list[Edge] = []
@@ -3003,10 +3229,12 @@ def run_validation(
     findings.extend(_sg_findings(security_groups))
     findings.extend(_iam_findings(iam_roles))
     findings.extend(_compliance_findings(nodes, edges))
-    # Azure rules
-    findings.extend(_azure_config_findings(nodes))
-    findings.extend(_azure_topology_findings(nodes, edges))
-    findings.extend(_azure_nsg_findings(security_groups))
+    from archon_cli.azure_validate import run_azure_validation
+    from archon_cli.gcp_validate import run_gcp_validation
+    from archon_cli.onprem_validate import run_onprem_validation
+    findings.extend(run_azure_validation(nodes, edges, security_groups, iam_roles))
+    findings.extend(run_gcp_validation(nodes, edges, security_groups, iam_roles))
+    findings.extend(run_onprem_validation(nodes, edges, security_groups, iam_roles))
 
     # Attach compliance standards to each finding
     for f in findings:
@@ -3029,642 +3257,4 @@ def validate_plan_json(plan: dict) -> list[Finding]:
     return run_validation(nodes, edges, sgs, iam_roles)
 
 
-# ─── Azure config findings ─────────────────────────────────────────────────────
-
-def _azure_config_findings(nodes: list[Node]) -> list[Finding]:
-    findings: list[Finding] = []
-    for n in nodes:
-        t = n.type
-        cfg = n.config or {}
-
-        # VM: password auth enabled
-        if t == "azure_vm" and cfg.get("disable_password_authentication") is False:
-            findings.append(Finding(
-                id=f"azure_vm_password_auth::{n.id}",
-                rule_id="azure_vm_password_auth",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="Azure VM: password authentication enabled",
-                message=f"{n.label} allows password authentication. Use SSH keys only.",
-                fix="Set disable_password_authentication = true.",
-            ))
-
-        # VM: boot diagnostics not enabled
-        if t == "azure_vm" and not cfg.get("boot_diagnostics_enabled"):
-            findings.append(Finding(
-                id=f"azure_vm_no_boot_diagnostics::{n.id}",
-                rule_id="azure_vm_no_boot_diagnostics",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="info",
-                title="Azure VM: boot diagnostics not enabled",
-                message=f"{n.label} does not have boot diagnostics enabled.",
-                fix="Add boot_diagnostics block to the VM resource.",
-            ))
-
-        # AKS: RBAC disabled
-        if t == "azure_aks" and cfg.get("role_based_access_control_enabled") is False:
-            findings.append(Finding(
-                id=f"azure_aks_rbac_disabled::{n.id}",
-                rule_id="azure_aks_rbac_disabled",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="critical",
-                title="AKS: RBAC disabled",
-                message=f"{n.label} has RBAC disabled. All users have unrestricted cluster access.",
-                fix="Set role_based_access_control_enabled = true.",
-            ))
-
-        # AKS: no private cluster
-        if t == "azure_aks" and not cfg.get("private_cluster_enabled"):
-            findings.append(Finding(
-                id=f"azure_aks_no_private_cluster::{n.id}",
-                rule_id="azure_aks_no_private_cluster",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="AKS: API server not private",
-                message=f"{n.label} has a public-facing API server endpoint.",
-                fix="Set private_cluster_enabled = true.",
-            ))
-
-        # AKS: no authorized IP ranges
-        if (t == "azure_aks"
-                and not cfg.get("private_cluster_enabled")
-                and not cfg.get("api_server_authorized_ip_ranges")):
-            findings.append(Finding(
-                id=f"azure_aks_no_authorized_ips::{n.id}",
-                rule_id="azure_aks_no_authorized_ips",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="AKS: no authorized IP ranges on API server",
-                message=f"{n.label} API server is open to all IPs with no restriction.",
-                fix="Set api_server_authorized_ip_ranges or enable private cluster.",
-            ))
-
-        # AKS: no network policy
-        if t == "azure_aks" and not cfg.get("network_policy"):
-            findings.append(Finding(
-                id=f"azure_aks_no_network_policy::{n.id}",
-                rule_id="azure_aks_no_network_policy",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="AKS: no network policy configured",
-                message=f"{n.label} has no network policy. All pods can communicate freely.",
-                fix="Set network_policy = 'azure' or 'calico' in network_profile.",
-            ))
-
-        # Azure SQL: TDE disabled
-        if t == "azure_sql" and cfg.get("transparent_data_encryption_enabled") is False:
-            findings.append(Finding(
-                id=f"azure_sql_tde_disabled::{n.id}",
-                rule_id="azure_sql_tde_disabled",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="critical",
-                title="Azure SQL: Transparent Data Encryption disabled",
-                message=f"{n.label} has Transparent Data Encryption disabled.",
-                fix="Set transparent_data_encryption_enabled = true on the database.",
-            ))
-
-        # Azure SQL: min TLS old
-        if t == "azure_sql" and cfg.get("minimum_tls_version") not in (None, "1.2"):
-            findings.append(Finding(
-                id=f"azure_sql_min_tls_old::{n.id}",
-                rule_id="azure_sql_min_tls_old",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="Azure SQL: minimum TLS version below 1.2",
-                message=f"{n.label} accepts TLS versions older than 1.2.",
-                fix="Set minimum_tls_version = '1.2' on the SQL server.",
-            ))
-
-        # Azure SQL: auditing not enabled
-        if t == "azure_sql" and not cfg.get("auditing_enabled"):
-            findings.append(Finding(
-                id=f"azure_sql_no_auditing::{n.id}",
-                rule_id="azure_sql_no_auditing",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="Azure SQL: auditing not enabled",
-                message=f"{n.label} does not have auditing enabled.",
-                fix="Generate azurerm_mssql_server_extended_auditing_policy.",
-            ))
-
-        # Storage: public blob access
-        _STORAGE_TYPES = {"azure_blob", "azure_files", "azure_datalake", "azure_table", "azure_queue"}
-        if t in _STORAGE_TYPES and cfg.get("allow_nested_items_to_be_public") is True:
-            findings.append(Finding(
-                id=f"azure_storage_public_access::{n.id}",
-                rule_id="azure_storage_public_access",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="critical",
-                title="Azure Storage: public blob access allowed",
-                message=f"{n.label} allows public blob/container access.",
-                fix="Set allow_nested_items_to_be_public = false.",
-            ))
-
-        # Storage: HTTPS not enforced
-        if t in _STORAGE_TYPES and cfg.get("enable_https_traffic_only") is False:
-            findings.append(Finding(
-                id=f"azure_storage_https_only::{n.id}",
-                rule_id="azure_storage_https_only",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="Azure Storage: HTTPS not enforced",
-                message=f"{n.label} allows unencrypted HTTP traffic.",
-                fix="Set enable_https_traffic_only = true.",
-            ))
-
-        # Storage: min TLS old
-        if t in _STORAGE_TYPES and cfg.get("min_tls_version") not in (None, "TLS1_2"):
-            findings.append(Finding(
-                id=f"azure_storage_min_tls_old::{n.id}",
-                rule_id="azure_storage_min_tls_old",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="Azure Storage: minimum TLS below 1.2",
-                message=f"{n.label} accepts TLS versions older than 1.2.",
-                fix="Set min_tls_version = 'TLS1_2' on the storage account.",
-            ))
-
-        # Key Vault: soft delete disabled
-        if (t == "azure_keyvault"
-                and (cfg.get("soft_delete_retention_days") == 0
-                     or cfg.get("soft_delete_enabled") is False)):
-            findings.append(Finding(
-                id=f"azure_keyvault_soft_delete_disabled::{n.id}",
-                rule_id="azure_keyvault_soft_delete_disabled",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="critical",
-                title="Key Vault: soft delete not enabled",
-                message=f"{n.label} does not have soft delete enabled.",
-                fix="Set soft_delete_retention_days >= 7.",
-            ))
-
-        # Key Vault: purge protection disabled
-        if t == "azure_keyvault" and cfg.get("purge_protection_enabled") is False:
-            findings.append(Finding(
-                id=f"azure_keyvault_purge_protection_disabled::{n.id}",
-                rule_id="azure_keyvault_purge_protection_disabled",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="critical",
-                title="Key Vault: purge protection not enabled",
-                message=f"{n.label} does not have purge protection enabled.",
-                fix="Set purge_protection_enabled = true.",
-            ))
-
-        # Functions: HTTPS not enforced
-        if t == "azure_functions" and cfg.get("https_only") is False:
-            findings.append(Finding(
-                id=f"azure_functions_https_only::{n.id}",
-                rule_id="azure_functions_https_only",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="Azure Functions: HTTPS not enforced",
-                message=f"{n.label} allows unencrypted HTTP traffic.",
-                fix="Set https_only = true.",
-            ))
-
-        # App Service: HTTPS not enforced
-        if t == "azure_app_service" and cfg.get("https_only") is False:
-            findings.append(Finding(
-                id=f"azure_app_service_https_only::{n.id}",
-                rule_id="azure_app_service_https_only",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="App Service: HTTPS not enforced",
-                message=f"{n.label} allows unencrypted HTTP traffic.",
-                fix="Set https_only = true.",
-            ))
-
-        # App Service: min TLS old
-        if t == "azure_app_service" and cfg.get("minimum_tls_version") not in (None, "1.2"):
-            findings.append(Finding(
-                id=f"azure_app_service_min_tls_old::{n.id}",
-                rule_id="azure_app_service_min_tls_old",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="App Service: minimum TLS below 1.2",
-                message=f"{n.label} accepts TLS versions below 1.2.",
-                fix="Set minimum_tls_version = '1.2' in site_config.",
-            ))
-
-        # Redis: non-SSL port enabled
-        if t == "azure_redis" and cfg.get("enable_non_ssl_port") is True:
-            findings.append(Finding(
-                id=f"azure_redis_non_ssl_port::{n.id}",
-                rule_id="azure_redis_non_ssl_port",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="Azure Redis: non-SSL port enabled",
-                message=f"{n.label} has the unencrypted Redis port (6379) enabled.",
-                fix="Set enable_non_ssl_port = false.",
-            ))
-
-        # Redis: min TLS old
-        if t == "azure_redis" and cfg.get("minimum_tls_version") not in (None, "1.2"):
-            findings.append(Finding(
-                id=f"azure_redis_min_tls_old::{n.id}",
-                rule_id="azure_redis_min_tls_old",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="Azure Redis: minimum TLS below 1.2",
-                message=f"{n.label} accepts TLS versions below 1.2.",
-                fix="Set minimum_tls_version = '1.2'.",
-            ))
-
-        # PostgreSQL: SSL disabled
-        if t == "azure_postgres" and cfg.get("ssl_enforcement_enabled") is False:
-            findings.append(Finding(
-                id=f"azure_postgres_ssl_disabled::{n.id}",
-                rule_id="azure_postgres_ssl_disabled",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="critical",
-                title="Azure PostgreSQL: SSL not enforced",
-                message=f"{n.label} does not enforce SSL connections.",
-                fix="Set ssl_enforcement_enabled = true.",
-            ))
-
-        # MySQL: SSL disabled
-        if t == "azure_mysql" and cfg.get("ssl_enforcement_enabled") is False:
-            findings.append(Finding(
-                id=f"azure_mysql_ssl_disabled::{n.id}",
-                rule_id="azure_mysql_ssl_disabled",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="critical",
-                title="Azure MySQL: SSL not enforced",
-                message=f"{n.label} does not enforce SSL connections.",
-                fix="Set require_secure_transport = 'ON'.",
-            ))
-
-        # ACR: admin user enabled
-        if t == "azure_acr" and cfg.get("admin_enabled") is True:
-            findings.append(Finding(
-                id=f"azure_acr_admin_enabled::{n.id}",
-                rule_id="azure_acr_admin_enabled",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="Container Registry: admin user enabled",
-                message=f"{n.label} has the admin user enabled. Use managed identity instead.",
-                fix="Set admin_enabled = false and use role assignments.",
-            ))
-
-        # App Gateway: WAF not enabled
-        if (t == "azure_agw"
-                and cfg.get("sku_name")
-                and not str(cfg["sku_name"]).startswith("WAF")):
-            findings.append(Finding(
-                id=f"azure_agw_no_waf::{n.id}",
-                rule_id="azure_agw_no_waf",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="Application Gateway: WAF not enabled",
-                message=f"{n.label} is not using the WAF_v2 SKU.",
-                fix="Set sku_name = 'WAF_v2' and enable WAF configuration.",
-            ))
-
-        # CosmosDB: no IP restriction
-        if (t == "azure_cosmosdb"
-                and not cfg.get("ip_range_filter")
-                and not cfg.get("virtual_network_rule")):
-            findings.append(Finding(
-                id=f"azure_cosmosdb_public_access::{n.id}",
-                rule_id="azure_cosmosdb_public_access",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="CosmosDB: no network access restriction",
-                message=f"{n.label} is accessible from all networks.",
-                fix="Set ip_range_filter or virtual_network_rule.",
-            ))
-
-        # VPN Gateway: Basic SKU
-        if t == "azure_vpn_gateway" and cfg.get("sku") == "Basic":
-            findings.append(Finding(
-                id=f"azure_vpn_gateway_basic_sku::{n.id}",
-                rule_id="azure_vpn_gateway_basic_sku",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="info",
-                title="VPN Gateway: Basic SKU does not support SLAs",
-                message=f"{n.label} uses the Basic SKU which lacks SLA and zone-redundancy.",
-                fix="Upgrade to VpnGw1 or higher.",
-            ))
-
-    return findings
-
-
-# ─── Azure topology findings ───────────────────────────────────────────────────
-
-def _azure_topology_findings(nodes: list[Node], edges: list[Edge]) -> list[Finding]:
-    findings: list[Finding] = []
-    node_types = {n.type for n in nodes}
-
-    _DB_TYPES = {"azure_sql", "azure_cosmosdb", "azure_postgres", "azure_mysql",
-                 "azure_redis", "azure_servicebus", "azure_eventhub"}
-    _COMPUTE_TYPES = {"azure_aks", "azure_vm", "azure_app_service", "azure_functions"}
-
-    for n in nodes:
-        t = n.type
-
-        # No Key Vault for DB/messaging architectures
-        if t in _DB_TYPES and "azure_keyvault" not in node_types:
-            findings.append(Finding(
-                id=f"azure_no_keyvault::{n.id}",
-                rule_id="azure_no_keyvault",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="No Key Vault in architecture",
-                message="Architecture has databases/services but no Key Vault for secrets management.",
-                fix="Add azurerm_key_vault with purge_protection_enabled = true.",
-            ))
-
-        # No Log Analytics for compute types
-        if t in _COMPUTE_TYPES and "azure_log_analytics" not in node_types:
-            findings.append(Finding(
-                id=f"azure_no_log_analytics::{n.id}",
-                rule_id="azure_no_log_analytics",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="No Log Analytics workspace",
-                message=f"{n.label} has no Log Analytics workspace for centralized logging.",
-                fix="Add azurerm_log_analytics_workspace.",
-            ))
-
-        # No Monitor/App Insights
-        if t in _COMPUTE_TYPES and not node_types & {"azure_monitor", "azure_app_insights"}:
-            findings.append(Finding(
-                id=f"azure_no_monitor::{n.id}",
-                rule_id="azure_no_monitor",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="info",
-                title="No Azure Monitor or App Insights",
-                message=f"{n.label} has no observability infrastructure.",
-                fix="Add azurerm_application_insights or azurerm_monitor_metric_alert.",
-            ))
-
-        # No Backup vault
-        _STATEFUL_TYPES = {"azure_vm", "azure_sql", "azure_postgres", "azure_mysql"}
-        if t in _STATEFUL_TYPES and "azure_backup" not in node_types:
-            findings.append(Finding(
-                id=f"azure_no_backup::{n.id}",
-                rule_id="azure_no_backup",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="No backup vault for stateful resources",
-                message=f"{n.label} has no Azure Backup vault configured.",
-                fix="Add azurerm_recovery_services_vault.",
-            ))
-
-        # AKS without Container Registry
-        if t == "azure_aks" and "azure_acr" not in node_types:
-            findings.append(Finding(
-                id=f"azure_aks_no_acr::{n.id}",
-                rule_id="azure_aks_no_acr",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="info",
-                title="AKS without Container Registry",
-                message=f"{n.label} has no Container Registry for storing container images.",
-                fix="Add azurerm_container_registry linked to AKS.",
-            ))
-
-        # VMs without Bastion
-        if t == "azure_vm" and "azure_bastion" not in node_types:
-            findings.append(Finding(
-                id=f"azure_vm_no_bastion::{n.id}",
-                rule_id="azure_vm_no_bastion",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="VMs present without Azure Bastion",
-                message=f"{n.label} is accessible without a Bastion host.",
-                fix="Add azurerm_bastion_host in a dedicated AzureBastionSubnet.",
-            ))
-
-        # VNet without DDoS Protection
-        if t == "azure_vnet" and "azure_ddos" not in node_types:
-            findings.append(Finding(
-                id=f"azure_no_ddos_protection::{n.id}",
-                rule_id="azure_no_ddos_protection",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="info",
-                title="No DDoS Protection Plan",
-                message=f"{n.label} has no DDoS Protection Plan attached.",
-                fix="Add azurerm_network_ddos_protection_plan.",
-            ))
-
-        # VM directly internet-facing (has internet neighbor, no LB/AGW neighbor)
-        if t == "azure_vm":
-            neighbor_ids = _neighbor_ids(n.id, edges)
-            neighbor_map = {x.id: x for x in nodes}
-            has_lb_or_agw = any(
-                neighbor_map.get(nid, None) and
-                neighbor_map[nid].node_type in {"azure_agw", "azure_lb", "azure_frontdoor"}
-                for nid in neighbor_ids
-            )
-            has_internet = any(
-                "internet" in (neighbor_map.get(nid, None) and
-                               neighbor_map[nid].label or "").lower()
-                for nid in neighbor_ids
-            )
-            if has_internet and not has_lb_or_agw:
-                findings.append(Finding(
-                    id=f"azure_internet_facing_vm::{n.id}",
-                    rule_id="azure_internet_facing_vm",
-                    node_id=n.id, node_label=n.label, node_type=t,
-                    level="critical",
-                    title="VM directly internet-facing",
-                    message=f"{n.label} appears to be directly internet-facing without a load balancer.",
-                    fix="Place an Application Gateway or Load Balancer in front of the VM.",
-                ))
-
-        # SQL without Private Endpoint
-        if t == "azure_sql":
-            neighbor_ids = _neighbor_ids(n.id, edges)
-            neighbor_types = {nodes_map.type for nodes_map in nodes if nodes_map.id in neighbor_ids}
-            if "azure_private_endpoint" not in neighbor_types:
-                findings.append(Finding(
-                    id=f"azure_sql_no_private_endpoint::{n.id}",
-                    rule_id="azure_sql_no_private_endpoint",
-                    node_id=n.id, node_label=n.label, node_type=t,
-                    level="warning",
-                    title="Azure SQL: no Private Endpoint",
-                    message=f"{n.label} has no Private Endpoint. Database may be publicly accessible.",
-                    fix="Add azurerm_private_endpoint with subresource 'sqlServer'.",
-                ))
-
-        # Storage without Private Endpoint
-        if t in {"azure_blob", "azure_datalake"}:
-            neighbor_ids = _neighbor_ids(n.id, edges)
-            neighbor_types = {x.type for x in nodes if x.id in neighbor_ids}
-            if "azure_private_endpoint" not in neighbor_types:
-                findings.append(Finding(
-                    id=f"azure_storage_no_private_endpoint::{n.id}",
-                    rule_id="azure_storage_no_private_endpoint",
-                    node_id=n.id, node_label=n.label, node_type=t,
-                    level="info",
-                    title="Storage: no Private Endpoint",
-                    message=f"{n.label} has no Private Endpoint. Storage is accessible over the internet.",
-                    fix="Add azurerm_private_endpoint with subresource 'blob'.",
-                ))
-
-        # APIM without WAF
-        if t == "azure_apim":
-            neighbor_ids = _neighbor_ids(n.id, edges)
-            neighbor_types = {x.type for x in nodes if x.id in neighbor_ids}
-            if not neighbor_types & {"azure_agw", "azure_waf", "azure_frontdoor"}:
-                findings.append(Finding(
-                    id=f"azure_apim_no_waf::{n.id}",
-                    rule_id="azure_apim_no_waf",
-                    node_id=n.id, node_label=n.label, node_type=t,
-                    level="warning",
-                    title="APIM: no WAF or Application Gateway in front",
-                    message=f"{n.label} has no WAF protecting the API gateway.",
-                    fix="Place azurerm_application_gateway (WAF_v2) or Azure Front Door in front of APIM.",
-                ))
-
-        # AKS without Defender
-        if t == "azure_aks" and "azure_defender" not in node_types:
-            findings.append(Finding(
-                id=f"azure_aks_no_defender::{n.id}",
-                rule_id="azure_aks_no_defender",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="warning",
-                title="AKS: Microsoft Defender for Containers not enabled",
-                message=f"{n.label} has no Microsoft Defender for Containers.",
-                fix="Add azurerm_security_center_subscription_pricing for Containers.",
-            ))
-
-        # Log Analytics without Sentinel
-        if t == "azure_log_analytics" and "azure_sentinel" not in node_types:
-            findings.append(Finding(
-                id=f"azure_no_sentinel::{n.id}",
-                rule_id="azure_no_sentinel",
-                node_id=n.id, node_label=n.label, node_type=t,
-                level="info",
-                title="No Microsoft Sentinel (SIEM)",
-                message="Log Analytics workspace present but no Sentinel SIEM enabled.",
-                fix="Add azurerm_sentinel_log_analytics_workspace_onboarding.",
-            ))
-
-    return findings
-
-
-# ─── Azure NSG findings ────────────────────────────────────────────────────────
-
-def _azure_nsg_findings(security_groups: list) -> list[Finding]:
-    findings: list[Finding] = []
-    for sg in security_groups:
-        inbound = sg.inbound if hasattr(sg, "inbound") else []
-
-        def _port_open(port: int) -> bool:
-            return any(
-                _rule_matches_port(r, port) and _is_public_cidr(r.source)
-                for r in inbound
-            )
-
-        # SSH open
-        if _port_open(22):
-            findings.append(Finding(
-                id=f"azure_nsg_ssh_open::{sg.id}",
-                rule_id="azure_nsg_ssh_open",
-                node_id=sg.id, node_label=sg.name, node_type="nsg",
-                level="critical",
-                title="NSG: SSH (22) open to internet",
-                message=f'NSG "{sg.name}" allows SSH (port 22) from the internet.',
-                fix="Restrict SSH to known IP ranges or use Azure Bastion.",
-            ))
-
-        # RDP open
-        if _port_open(3389):
-            findings.append(Finding(
-                id=f"azure_nsg_rdp_open::{sg.id}",
-                rule_id="azure_nsg_rdp_open",
-                node_id=sg.id, node_label=sg.name, node_type="nsg",
-                level="critical",
-                title="NSG: RDP (3389) open to internet",
-                message=f'NSG "{sg.name}" allows RDP (port 3389) from the internet.',
-                fix="Restrict RDP to known IP ranges or use Azure Bastion.",
-            ))
-
-        # All traffic open
-        if _sg_allows_all_from_public(sg):
-            findings.append(Finding(
-                id=f"azure_nsg_all_traffic_open::{sg.id}",
-                rule_id="azure_nsg_all_traffic_open",
-                node_id=sg.id, node_label=sg.name, node_type="nsg",
-                level="critical",
-                title="NSG: all inbound traffic allowed from internet",
-                message=f'NSG "{sg.name}" allows all inbound traffic from the internet.',
-                fix="Remove the catch-all allow-all inbound rule.",
-            ))
-
-        # SQL Server open
-        if _port_open(1433):
-            findings.append(Finding(
-                id=f"azure_nsg_sql_server_open::{sg.id}",
-                rule_id="azure_nsg_sql_server_open",
-                node_id=sg.id, node_label=sg.name, node_type="nsg",
-                level="critical",
-                title="NSG: SQL Server (1433) open to internet",
-                message=f'NSG "{sg.name}" allows SQL Server (1433) from the internet.',
-                fix="Restrict SQL Server port to the application subnet CIDR only.",
-            ))
-
-        # PostgreSQL open
-        if _port_open(5432):
-            findings.append(Finding(
-                id=f"azure_nsg_postgres_open::{sg.id}",
-                rule_id="azure_nsg_postgres_open",
-                node_id=sg.id, node_label=sg.name, node_type="nsg",
-                level="critical",
-                title="NSG: PostgreSQL (5432) open to internet",
-                message=f'NSG "{sg.name}" allows PostgreSQL (5432) from the internet.',
-                fix="Restrict PostgreSQL to the app tier subnet only.",
-            ))
-
-        # MySQL open
-        if _port_open(3306):
-            findings.append(Finding(
-                id=f"azure_nsg_mysql_open::{sg.id}",
-                rule_id="azure_nsg_mysql_open",
-                node_id=sg.id, node_label=sg.name, node_type="nsg",
-                level="critical",
-                title="NSG: MySQL (3306) open to internet",
-                message=f'NSG "{sg.name}" allows MySQL (3306) from the internet.',
-                fix="Restrict MySQL to the app tier subnet only.",
-            ))
-
-        # Redis open
-        if _port_open(6380):
-            findings.append(Finding(
-                id=f"azure_nsg_redis_open::{sg.id}",
-                rule_id="azure_nsg_redis_open",
-                node_id=sg.id, node_label=sg.name, node_type="nsg",
-                level="critical",
-                title="NSG: Redis (6380) open to internet",
-                message=f'NSG "{sg.name}" allows Redis SSL port (6380) from the internet.',
-                fix="Restrict Redis to the app tier subnet only.",
-            ))
-
-        # MongoDB open
-        if _port_open(27017):
-            findings.append(Finding(
-                id=f"azure_nsg_mongodb_open::{sg.id}",
-                rule_id="azure_nsg_mongodb_open",
-                node_id=sg.id, node_label=sg.name, node_type="nsg",
-                level="critical",
-                title="NSG: MongoDB (27017) open to internet",
-                message=f'NSG "{sg.name}" allows MongoDB (27017) from the internet.',
-                fix="Restrict MongoDB port to the application subnet.",
-            ))
-
-        # Wide port range
-
-        # Wide port range
-        if any(_is_wide_range(r) for r in inbound):
-            findings.append(Finding(
-                id=f"azure_nsg_wide_range_open::{sg.id}",
-                rule_id="azure_nsg_wide_range_open",
-                node_id=sg.id, node_label=sg.name, node_type="nsg",
-                level="warning",
-                title="NSG: wide port range open to internet",
-                message=f'NSG "{sg.name}" allows a wide port range from the internet.',
-                fix="Narrow the port range to only required ports.",
-            ))
-
-    return findings
+# Azure validation lives in archon_cli.azure_validate (see run_azure_validation).

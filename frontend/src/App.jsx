@@ -14,6 +14,7 @@ import ImportPlanModal from "./components/ui/ImportPlanModal";
 import ImportTfModal from "./components/ui/ImportTfModal";
 import ImportCLIReportModal from "./components/ui/ImportCLIReportModal";
 import LandingPage from "./components/LandingPage";
+import LandingAccountBar from "./components/LandingAccountBar";
 import useGraphStore from "./store/graphStore";
 import useSecurityStore from "./store/securityStore";
 import useIAMStore from "./store/iamStore";
@@ -22,7 +23,16 @@ import useValidationStore from "./store/validationStore";
 import useProviderStore from "./store/providerStore";
 import useArchiveStore from "./store/archiveStore";
 import usePlanStore from "./store/planStore";
+import useAuthStore from "./store/authStore";
+import useAccessStore from "./store/accessStore";
+import CloudSavesModal from "./components/ui/CloudSavesModal";
+import CloudMigrationModal, {
+  hasLocalGraphToMigrate,
+  isCloudMigrationDone,
+} from "./components/ui/CloudMigrationModal";
 import { serializeGraph } from "./utils/serializer";
+import { graphJsonToCanvasState } from "./utils/graphLoader";
+import { UPGRADE_URL, featureLabel } from "./utils/tierGates";
 
 const PROVIDER_LABELS = {
   anthropic: "Anthropic",
@@ -34,19 +44,32 @@ const PROVIDER_LABELS = {
 
 const SIDEBAR_TABS = ["Component", "Security", "IAM", "Validate", "Discover"];
 
+// ── Assignment mode detection ─────────────────────────────────────────────────
+// Detected once at module parse time — the param never changes during a session.
+// This flag is the single gate for all academy-specific behaviour in this file.
+// Normal Pro users will never have this param, so every branch below is a no-op.
+const isAssignmentMode =
+  new URLSearchParams(window.location.search).get("assignment_mode") === "true";
+
 export default function App() {
-  const [showLanding, setShowLanding] = useState(true);
+  const [showLanding, setShowLanding] = useState(!isAssignmentMode);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState("llm");
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [importPlanOpen, setImportPlanOpen] = useState(false);
   const [importTfOpen, setImportTfOpen] = useState(false);
   const [importCLIOpen, setImportCLIOpen] = useState(false);
+  const [cloudSavesOpen, setCloudSavesOpen] = useState(false);
+  const [migrationOpen, setMigrationOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [estimateOpen, setEstimateOpen] = useState(false);
   const [generateOpen, setGenerateOpen] = useState(false);
   const [sidebarTab, setSidebarTab] = useState("Component");
   const [archNameEditing, setArchNameEditing] = useState(false);
   const archNameRef = useRef(null);
+
+  // Assignment mode state — only populated when isAssignmentMode is true
+  const [assignmentTitle, setAssignmentTitle] = useState(null);
 
   const nodes = useGraphStore((s) => s.nodes);
   const edges = useGraphStore((s) => s.edges);
@@ -69,14 +92,145 @@ export default function App() {
   const saveArchitecture = useArchiveStore((s) => s.saveArchitecture);
   const setPlanSummary = usePlanStore((s) => s.setPlanSummary);
   const clearPlan = usePlanStore((s) => s.clearPlan);
+  const authUser = useAuthStore((s) => s.user);
+  const refreshAccess = useAccessStore((s) => s.refresh);
+  const canUse = useAccessStore((s) => s.canUse);
+  const showRenewalWarning = useAccessStore((s) => s.showRenewalWarning);
+  const renewalMessage = useAccessStore((s) => s.renewalMessage);
+
+  useEffect(() => {
+    refreshAccess();
+  }, [authUser, refreshAccess]);
+
+  useEffect(() => {
+    if (!authUser || isCloudMigrationDone() || !hasLocalGraphToMigrate()) return;
+    setMigrationOpen(true);
+  }, [authUser]);
+
+  const applySerializedGraph = useCallback(
+    (data) => {
+      const restored = graphJsonToCanvasState(data);
+      loadState({
+        nodes: restored.nodes,
+        edges: restored.edges,
+        graphMeta: restored.graphMeta,
+      });
+      if (restored.securityGroups.length) setSecurityGroups(restored.securityGroups);
+      if (restored.iamRoles.length) setIAMRoles(restored.iamRoles);
+      if (restored.graphMeta.provider) setInfraProvider(restored.graphMeta.provider);
+      updateFindings(
+        restored.nodes,
+        restored.edges,
+        restored.securityGroups.length ? restored.securityGroups : securityGroups,
+        restored.iamRoles.length ? restored.iamRoles : iamRoles,
+      );
+      setShowLanding(false);
+    },
+    [loadState, setSecurityGroups, setIAMRoles, setInfraProvider, updateFindings, securityGroups, iamRoles],
+  );
+
+  const requirePaidFeature = useCallback(
+    (feature, action) => {
+      if (canUse(feature)) {
+        action();
+        return;
+      }
+      const upgrade = window.confirm(
+        `${featureLabel(feature)} requires a license. Open archonpro.net to upgrade?`,
+      );
+      if (upgrade) window.open(UPGRADE_URL, "_blank", "noopener,noreferrer");
+    },
+    [canUse],
+  );
+
+  const openAccountSettings = useCallback(() => {
+    setSettingsTab("account");
+    setSettingsOpen(true);
+  }, []);
 
   const criticalCount = findings.filter((f) => f.level === "critical").length;
   const warningCount = findings.filter((f) => f.level === "warning").length;
 
+  // ── Assignment mode postMessage bridge ──────────────────────────────────────
+  // Handles the Academy ↔ Pro protocol when embedded as an iframe.
+  // Uses getState() so the handler never goes stale between renders.
+  useEffect(() => {
+    if (!isAssignmentMode) return;
+
+    function handleMessage(e) {
+      const { type, assignment } = e.data ?? {};
+
+      // Academy sends this after the iframe fires its load event
+      if (type === "INIT_ASSIGNMENT") {
+        setAssignmentTitle(assignment?.title ?? null);
+        // Clear canvas so each assignment starts fresh
+        const { loadState: ls } = useGraphStore.getState();
+        const { setSecurityGroups: setSGs } = useSecurityStore.getState();
+        const { setIAMRoles: setRoles } = useIAMStore.getState();
+        ls({
+          nodes: [],
+          edges: [],
+          graphMeta: {
+            id: crypto.randomUUID(),
+            name: assignment?.title ?? "Assignment",
+            provider: "aws",
+            region: "us-east-1",
+          },
+        });
+        setSGs([]);
+        setRoles([]);
+      }
+
+      // Academy requests the current graph for submission
+      if (type === "GRAPH_REQUEST") {
+        const { nodes: n, edges: ed } = useGraphStore.getState();
+        const { securityGroups: sgs } = useSecurityStore.getState();
+        // Shape matches grader.py expectations: nodes[].data.awsType, edges[].source/target
+        const graph = {
+          nodes: n.map((node) => ({
+            id: node.id,
+            type: node.type,
+            position: node.position,
+            data: node.data,
+          })),
+          edges: ed.map((edge) => ({
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+          })),
+          securityGroups: sgs,
+        };
+        window.parent.postMessage({ type: "GRAPH_SUBMIT", graph }, "*");
+      }
+    }
+
+    window.addEventListener("message", handleMessage);
+    // Tell the Academy iframe wrapper that the canvas is ready to receive INIT_ASSIGNMENT
+    window.parent.postMessage({ type: "CANVAS_READY" }, "*");
+    return () => window.removeEventListener("message", handleMessage);
+  }, []); // intentionally empty — uses getState() to avoid stale closures
+
+  // ── Node selection ─────────────────────────────────────────────────────────
   const handleNodeSelect = useCallback(
     (nodeId) => {
       setSelectedNodeId(nodeId);
       if (nodeId) setSidebarTab("Component");
+
+      // In assignment mode, notify Academy so it can show learning mode info
+      if (isAssignmentMode && nodeId) {
+        const { nodes: n } = useGraphStore.getState();
+        const node = n.find((nd) => nd.id === nodeId);
+        if (node) {
+          window.parent.postMessage(
+            {
+              type: "NODE_SELECTED",
+              nodeType: node.data.awsType || node.data.type || node.type,
+              nodeData: node.data,
+            },
+            "*"
+          );
+        }
+      }
     },
     [setSelectedNodeId],
   );
@@ -166,7 +320,10 @@ export default function App() {
     input.click();
   }, [loadState, updateFindings, setInfraProvider, setSecurityGroups, setIAMRoles, securityGroups, iamRoles]);
 
-  const handleImportTF = useCallback(() => setImportTfOpen(true), []);
+  const handleImportTF = useCallback(
+    () => requirePaidFeature("terraform_import", () => setImportTfOpen(true)),
+    [requirePaidFeature],
+  );
 
   const handleImportTFApply = useCallback(
     ({ graph, warnings }) => {
@@ -365,18 +522,28 @@ export default function App() {
     iamRoles,
   );
 
-  if (showLanding) {
+  // Assignment mode never shows the landing page
+  if (showLanding && !isAssignmentMode) {
     return (
-      <LandingPage
-        onNewCanvas={handleNewCanvas}
-        onLoadArchive={handleLoadArchive}
-        onOpenTemplates={() => {
-          setShowLanding(false);
-          setTemplatesOpen(true);
-        }}
-        onImportTF={handleImportTF}
-        onLoadTemplate={handleLoadTemplate}
-      />
+      <>
+        <LandingPage
+          onNewCanvas={handleNewCanvas}
+          onLoadArchive={handleLoadArchive}
+          onOpenTemplates={() => {
+            setShowLanding(false);
+            setTemplatesOpen(true);
+          }}
+          onImportTF={handleImportTF}
+          onLoadTemplate={handleLoadTemplate}
+          onOpenAccount={openAccountSettings}
+        />
+        {settingsOpen && (
+          <SettingsModal
+            initialTab={settingsTab}
+            onClose={() => setSettingsOpen(false)}
+          />
+        )}
+      </>
     );
   }
 
@@ -384,143 +551,192 @@ export default function App() {
     <div
       className={`flex flex-col h-screen ${darkMode ? "bg-gray-950" : "bg-gray-100"}`}
     >
-      {/* Nav bar */}
-      <header className="flex items-center justify-between px-4 h-12 bg-gray-900 text-white flex-shrink-0 border-b border-gray-700">
-        <div className="flex items-center gap-3">
-          <span className="font-bold text-indigo-400 tracking-wide text-sm">
-            ARCHON
-          </span>
-          <span className="text-gray-600 text-xs">v0.1.0</span>
-          {archNameEditing ? (
-            <input
-              ref={archNameRef}
-              defaultValue={graphMeta.name ?? "Untitled Architecture"}
-              autoFocus
-              onBlur={handleArchNameCommit}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleArchNameCommit();
-                if (e.key === "Escape") setArchNameEditing(false);
-              }}
-              className="text-xs bg-gray-800 border border-indigo-400 rounded px-2 py-0.5 text-white focus:outline-none w-44"
-            />
-          ) : (
+      {/* ── Header — two variants ─────────────────────────────────────────────── */}
+      {isAssignmentMode ? (
+        /* Assignment mode: minimal banner, no Pro-specific actions */
+        <header className="flex items-center justify-between px-4 h-10 bg-gray-900 text-white flex-shrink-0 border-b border-indigo-900/60">
+          <div className="flex items-center gap-3">
+            <span className="font-bold text-indigo-400 tracking-wide text-xs">ARCHON</span>
+            <span className="text-gray-600 text-xs">|</span>
+            <span className="text-xs text-indigo-300 font-medium">Assignment Canvas</span>
+            {assignmentTitle && (
+              <>
+                <span className="text-gray-600 text-xs">—</span>
+                <span className="text-xs text-gray-300 truncate max-w-sm">{assignmentTitle}</span>
+              </>
+            )}
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-gray-500">
+              Build your architecture · Submit from the Academy panel
+            </span>
             <button
-              onClick={() => setArchNameEditing(true)}
-              className="text-xs text-gray-400 hover:text-gray-200 transition-colors truncate max-w-xs"
+              onClick={toggleDarkMode}
+              className="text-xs px-2 py-1 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-300"
+              title="Toggle dark mode"
             >
-              {graphMeta.name ?? "Untitled Architecture"}
+              {darkMode ? "Light" : "Dark"}
             </button>
-          )}
-        </div>
+          </div>
+        </header>
+      ) : (
+        /* Normal Pro header — completely unchanged */
+        <>
+        {showRenewalWarning && renewalMessage && (
+          <div className="px-4 py-2 bg-amber-900 text-amber-100 text-xs text-center border-b border-amber-800">
+            {renewalMessage}
+          </div>
+        )}
+        <header className="flex items-center justify-between px-4 h-12 bg-gray-900 text-white flex-shrink-0 border-b border-gray-700">
+          <div className="flex items-center gap-3">
+            <span className="font-bold text-indigo-400 tracking-wide text-sm">
+              ARCHON
+            </span>
+            <span className="text-gray-600 text-xs">v0.1.0</span>
+            {archNameEditing ? (
+              <input
+                ref={archNameRef}
+                defaultValue={graphMeta.name ?? "Untitled Architecture"}
+                autoFocus
+                onBlur={handleArchNameCommit}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleArchNameCommit();
+                  if (e.key === "Escape") setArchNameEditing(false);
+                }}
+                className="text-xs bg-gray-800 border border-indigo-400 rounded px-2 py-0.5 text-white focus:outline-none w-44"
+              />
+            ) : (
+              <button
+                onClick={() => setArchNameEditing(true)}
+                className="text-xs text-gray-400 hover:text-gray-200 transition-colors truncate max-w-xs"
+              >
+                {graphMeta.name ?? "Untitled Architecture"}
+              </button>
+            )}
+          </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowLanding(true)}
-            className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
-            title="Go to home"
-          >
-            Home
-          </button>
-          <button
-            onClick={handleSaveToLibrary}
-            className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
-            title="Save to library"
-          >
-            Save to Library
-          </button>
-          <button
-            onClick={() => setTemplatesOpen(true)}
-            className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
-          >
-            Templates
-          </button>
-          <button
-            onClick={handleImportTF}
-            className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
-            title="Import Terraform .tf files"
-          >
-            Import .tf
-          </button>
-          <button
-            onClick={() => setImportPlanOpen(true)}
-            className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
-            title="Visualize a Terraform plan (terraform show -json)"
-          >
-            Import Plan
-          </button>
-          <button
-            onClick={() => setImportCLIOpen(true)}
-            className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
-            title="Import a report from archon-cli (validate, cost, or discover)"
-          >
-            CLI Report
-          </button>
-          <button
-            onClick={handleLoadJSON}
-            className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
-          >
-            Load
-          </button>
-          <button
-            onClick={handleSaveJSON}
-            className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
-          >
-            Save
-          </button>
-          <div className="w-px h-4 bg-gray-600 mx-1" />
-          <button
-            onClick={() => {
-              setChatOpen((v) => !v);
-              if (estimateOpen) setEstimateOpen(false);
-            }}
-            className={[
-              "text-xs px-2.5 py-1.5 rounded transition-colors",
-              chatOpen
-                ? "bg-indigo-600 text-white"
-                : "bg-gray-700 hover:bg-gray-600 text-gray-200",
-            ].join(" ")}
-          >
-            AI Chat
-          </button>
-          <button
-            onClick={() => {
-              setEstimateOpen((v) => !v);
-              if (chatOpen) setChatOpen(false);
-            }}
-            className={[
-              "text-xs px-2.5 py-1.5 rounded transition-colors",
-              estimateOpen
-                ? "bg-amber-600 text-white"
-                : "bg-gray-700 hover:bg-gray-600 text-gray-200",
-            ].join(" ")}
-          >
-            Estimate
-          </button>
-          <button
-            onClick={() => setGenerateOpen(true)}
-            className="text-xs px-2.5 py-1.5 rounded bg-indigo-700 hover:bg-indigo-600 transition-colors text-white font-medium"
-          >
-            Generate
-          </button>
-          <div className="w-px h-4 bg-gray-600 mx-1" />
-          <button
-            onClick={toggleDarkMode}
-            className="text-xs px-2 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-300"
-            title="Toggle dark mode"
-          >
-            {darkMode ? "Light" : "Dark"}
-          </button>
-          <span className="text-xs text-gray-400">
-            {PROVIDER_LABELS[provider] ?? provider}
-          </span>
-          <button
-            onClick={() => setSettingsOpen(true)}
-            className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
-          >
-            Settings
-          </button>
-        </div>
-      </header>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowLanding(true)}
+              className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+              title="Go to home"
+            >
+              Home
+            </button>
+            <button
+              onClick={handleSaveToLibrary}
+              className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+              title="Save to library"
+            >
+              Save to Library
+            </button>
+            <button
+              onClick={() => setTemplatesOpen(true)}
+              className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+            >
+              Templates
+            </button>
+            <button
+              onClick={handleImportTF}
+              className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+              title="Import Terraform .tf files"
+            >
+              Import .tf
+            </button>
+            <button
+              onClick={() => requirePaidFeature("terraform_plan", () => setImportPlanOpen(true))}
+              className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+              title="Visualize a Terraform plan (terraform show -json)"
+            >
+              Import Plan
+            </button>
+            <button
+              onClick={() => setImportCLIOpen(true)}
+              className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+              title="Import a report from archon-cli (validate, cost, or discover)"
+            >
+              CLI Report
+            </button>
+            <button
+              onClick={handleLoadJSON}
+              className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+            >
+              Load
+            </button>
+            <button
+              onClick={handleSaveJSON}
+              className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+            >
+              Save
+            </button>
+            {authUser && canUse("cloud_save") && (
+              <button
+                onClick={() => setCloudSavesOpen(true)}
+                className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+                title="Save or load from your account"
+              >
+                Cloud Saves
+              </button>
+            )}
+            <div className="w-px h-4 bg-gray-600 mx-1" />
+            <button
+              onClick={() => {
+                setChatOpen((v) => !v);
+                if (estimateOpen) setEstimateOpen(false);
+              }}
+              className={[
+                "text-xs px-2.5 py-1.5 rounded transition-colors",
+                chatOpen
+                  ? "bg-indigo-600 text-white"
+                  : "bg-gray-700 hover:bg-gray-600 text-gray-200",
+              ].join(" ")}
+            >
+              AI Chat
+            </button>
+            <button
+              onClick={() => {
+                setEstimateOpen((v) => !v);
+                if (chatOpen) setChatOpen(false);
+              }}
+              className={[
+                "text-xs px-2.5 py-1.5 rounded transition-colors",
+                estimateOpen
+                  ? "bg-amber-600 text-white"
+                  : "bg-gray-700 hover:bg-gray-600 text-gray-200",
+              ].join(" ")}
+            >
+              Estimate
+            </button>
+            <button
+              onClick={() => setGenerateOpen(true)}
+              className="text-xs px-2.5 py-1.5 rounded bg-indigo-700 hover:bg-indigo-600 transition-colors text-white font-medium"
+            >
+              Generate
+            </button>
+            <div className="w-px h-4 bg-gray-600 mx-1" />
+            <button
+              onClick={toggleDarkMode}
+              className="text-xs px-2 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-300"
+              title="Toggle dark mode"
+            >
+              {darkMode ? "Light" : "Dark"}
+            </button>
+            <span className="text-xs text-gray-400">
+              {PROVIDER_LABELS[provider] ?? provider}
+            </span>
+            <button
+              onClick={() => {
+                setSettingsTab("llm");
+                setSettingsOpen(true);
+              }}
+              className="text-xs px-2.5 py-1.5 rounded bg-gray-700 hover:bg-gray-600 transition-colors text-gray-200"
+            >
+              Settings
+            </button>
+          </div>
+        </header>
+        </>
+      )}
 
       {/* Main layout */}
       <main className="flex flex-1 overflow-hidden">
@@ -610,7 +826,7 @@ export default function App() {
       )}
 
       {/* Settings modal */}
-      {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && <SettingsModal initialTab={settingsTab} onClose={() => setSettingsOpen(false)} />}
 
       {/* Templates modal */}
       {templatesOpen && (
@@ -646,6 +862,20 @@ export default function App() {
           onSwitchToValidate={() => setSidebarTab("Validate")}
           onSwitchToDiscover={() => setSidebarTab("Discover")}
         />
+      )}
+
+      {cloudSavesOpen && authUser && (
+        <CloudSavesModal
+          onClose={() => setCloudSavesOpen(false)}
+          onLoad={(row) => applySerializedGraph(row.graph_json)}
+          currentGraph={graph}
+          currentName={graphMeta.name}
+          currentProvider={infraProvider}
+        />
+      )}
+
+      {migrationOpen && authUser && (
+        <CloudMigrationModal onClose={() => setMigrationOpen(false)} />
       )}
     </div>
   );

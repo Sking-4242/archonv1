@@ -1,0 +1,614 @@
+[
+  {
+    "id": "scs-d4-t6-001",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An IAM user has an identity-based policy that allows s3:GetObject on a specific bucket. The S3 bucket policy contains an explicit Deny for that same user on s3:GetObject. The user attempts to download an object. What is the result?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The request fails because explicit Deny in any applicable policy always overrides any Allow, regardless of where the Allow is defined."
+      },
+      {
+        "label": "B",
+        "text": "The request succeeds because the S3 bucket policy is evaluated after the identity-based policy, and the final evaluated policy determines access."
+      },
+      {
+        "label": "C",
+        "text": "The request fails only if the bucket policy Deny is listed before the Allow in the policy document evaluation sequence."
+      },
+      {
+        "label": "D",
+        "text": "The request succeeds because the identity-based Allow takes precedence when both the resource policy and identity policy are evaluated together."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS policy evaluation logic applies an explicit Deny above all other policy types. An explicit Deny in a resource-based policy (such as an S3 bucket policy) overrides any Allow granted by an identity-based policy attached to the same principal. This is the foundation of IAM policy evaluation: implicit Deny is the default, but an explicit Deny can never be overridden by an Allow anywhere in the evaluation chain. Options A and C incorrectly suggest that policy evaluation order or source of the Allow can override an explicit Deny. Option D incorrectly implies document order within a policy document matters.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "policy-evaluation",
+      "explicit-deny"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-002",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company wants to implement ABAC so that IAM roles can only access DynamoDB tables tagged with the same cost-center value as the role's session tag. A developer calls sts:AssumeRole and needs the session tag to propagate to the policy condition. Which mechanism makes the session tag available for the aws:PrincipalTag condition key during API evaluation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable IAM tag policies in AWS Organizations; they propagate all account-level tags as session tags when any role in the account is assumed."
+      },
+      {
+        "label": "B",
+        "text": "Use the aws:RequestTag condition key in the resource policy; it reads tags from the API request and matches them against the DynamoDB table tags automatically."
+      },
+      {
+        "label": "C",
+        "text": "Pass the Tags parameter in the sts:AssumeRole API call; STS attaches them as session tags and they are accessible via aws:PrincipalTag during the session."
+      },
+      {
+        "label": "D",
+        "text": "Attach a tag directly to the IAM role resource in the console; AWS automatically injects role tags into the session context when the role is assumed."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Session tags are passed explicitly in the Tags parameter of sts:AssumeRole (or sts:AssumeRoleWithSAML / sts:AssumeRoleWithWebIdentity). Once set, they are accessible via aws:PrincipalTag/<key> in condition keys, enabling ABAC. Option A is partially true (role tags are inherited as principal tags) but does not cover runtime propagation via session tags, which is the mechanism needed for caller-controlled ABAC. Option C confuses aws:RequestTag, which checks tags applied to the resource being created or modified. Option D describes tag policies, which govern tagging compliance but do not inject session tags.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "abac",
+      "session-tags",
+      "aws:PrincipalTag"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-003",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An AWS Organization has a root SCP that allows only ec2:* and s3:*. A child OU SCP allows iam:ListRoles. An IAM user in an account under the child OU has an identity-based policy allowing iam:ListRoles. The user calls iam:ListRoles. What happens?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The call succeeds because the child OU SCP explicitly allows iam:ListRoles and child OU SCPs take precedence over parent OU SCPs for accounts in that OU."
+      },
+      {
+        "label": "B",
+        "text": "The call succeeds because SCPs are additive across the hierarchy, so child OU additions expand on what the parent OU allows."
+      },
+      {
+        "label": "C",
+        "text": "The call fails because IAM users in an Organizations account are always restricted to the root SCP alone; child OU SCPs only apply to roles."
+      },
+      {
+        "label": "D",
+        "text": "The call fails because the effective SCP permission is the intersection of all SCPs in the hierarchy, and the root SCP does not allow iam:ListRoles."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "SCPs are evaluated as an intersection across the entire path from root to the account. A principal's maximum permissions are limited to what is allowed at every level of the hierarchy simultaneously. Because the root SCP allows only ec2:* and s3:*, iam:ListRoles is not permitted at the root level, so it is blocked regardless of the child OU SCP. The child OU cannot grant permissions that the parent has not allowed. Options A and C incorrectly describe SCP inheritance as additive or precedence-based. Option D is incorrect; SCPs apply to all principals (users and roles) in an account equally.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "scp",
+      "organizations",
+      "inheritance"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-004",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security team wants to identify IAM roles that have not been used in 90 days within their AWS account. They enable IAM Access Analyzer. After configuration they notice no findings appear for the unused roles. What is the most likely reason?",
+    "options": [
+      {
+        "label": "A",
+        "text": "IAM Access Analyzer requires AWS Config to be enabled first; without Config recording, unused access data is not collected or surfaced as findings."
+      },
+      {
+        "label": "B",
+        "text": "IAM Access Analyzer only reports on cross-account and public resource exposure; unused access findings require a separate analyzer type configured explicitly."
+      },
+      {
+        "label": "C",
+        "text": "IAM Access Analyzer only analyzes roles created in the last 60 days; roles older than that require manual review through IAM credential report instead."
+      },
+      {
+        "label": "D",
+        "text": "Unused access findings are automatically suppressed after 30 days and must be re-enabled via the analyzer archive rules to display roles older than that threshold."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "IAM Access Analyzer supports two distinct analyzer types: external access analyzers (the default, which finds resources shared outside the account or organization) and unused access analyzers (which identify unused roles, users, passwords, and access keys). To get unused access findings, you must explicitly create an unused access analyzer, not just the default external access analyzer. Options B, C, and D describe behaviors that do not reflect how Access Analyzer actually works.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "access-analyzer",
+      "unused-access"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-005",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An application assumes Role A (max session duration 12 hours) and then from within that session assumes Role B (max session duration 4 hours) in a cross-account role chain. The developer sets --duration-seconds 14400 on the second AssumeRole call. What session duration does the Role B session actually receive?",
+    "options": [
+      {
+        "label": "A",
+        "text": "7200 seconds (2 hours) because role chaining averages the maximum session durations of both roles in the chain to determine the resulting token lifetime."
+      },
+      {
+        "label": "B",
+        "text": "43200 seconds (12 hours) because the session inherits the maximum from Role A, which has the longer configured session duration in the chain."
+      },
+      {
+        "label": "C",
+        "text": "3600 seconds (1 hour) because when a role is assumed using temporary credentials from a previous role assumption, the maximum is capped at 1 hour regardless of configured maximums."
+      },
+      {
+        "label": "D",
+        "text": "14400 seconds (4 hours) because the requested duration is within Role B's configured maximum session duration of 4 hours."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "When role chaining occurs \u2014 that is, when temporary security credentials from one assumed role are used to assume another role \u2014 AWS enforces a maximum session duration of 1 hour (3600 seconds) for the resulting session. This applies regardless of the max session duration configured on either role. The 1-hour cap prevents indefinite session extension through chaining. This is a well-known security boundary in AWS IAM. Options A, C, and D all propose durations exceeding the chaining cap.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "role-chaining",
+      "session-duration",
+      "sts"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-006",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company uses AWS IAM Identity Center with an external identity provider. They want to enforce ABAC so that users can only assume permission sets on accounts matching their department attribute from the IdP directory. Which configuration step enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure SAML attribute statements in the IdP to include department as an AWS role session name, then parse the session name in resource-based policies."
+      },
+      {
+        "label": "B",
+        "text": "Create an SCP in AWS Organizations that reads the IdP department attribute and restricts API calls to resources tagged with that department value."
+      },
+      {
+        "label": "C",
+        "text": "Enable AWS Directory Service synchronization so that IdP group memberships are converted to IAM groups, then attach group-specific permission sets per department."
+      },
+      {
+        "label": "D",
+        "text": "Map the IdP department attribute to a session tag in IAM Identity Center attribute mappings, then use aws:PrincipalTag in permission set policies to enforce access controls."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "IAM Identity Center supports attribute-based access control by mapping IdP attributes to session tags through the Attribute Mappings configuration. Once a directory attribute (such as department) is mapped to a session tag, the tag is passed as a PrincipalTag when the user federates. Permission set policies can then use the aws:PrincipalTag condition key to restrict access to resources tagged with matching values, achieving ABAC. Option A describes SCP behavior which does not directly read IdP attributes. Option C describes group-based access control, not attribute-based. Option D misuses the session name field, which is a string identifier, not a structured tag mechanism.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "identity-center",
+      "abac",
+      "session-tags"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-007",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An IAM role in Account A has an identity-based policy allowing s3:PutObject on a bucket in Account B. The S3 bucket policy in Account B contains an explicit Deny for the Account A role ARN on s3:PutObject. The role attempts to upload an object. What is the result?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The upload fails because the explicit Deny in the bucket policy overrides the Allow in the identity-based policy, and explicit Deny always wins in policy evaluation."
+      },
+      {
+        "label": "B",
+        "text": "The upload fails because cross-account S3 access always requires both policies to independently Allow the action, and the bucket policy lacks an explicit Allow."
+      },
+      {
+        "label": "C",
+        "text": "The upload succeeds because the identity-based policy in Account A is evaluated first and an Allow from the account owning the principal takes precedence over resource policies."
+      },
+      {
+        "label": "D",
+        "text": "The upload succeeds because cross-account access evaluation only considers whether the resource policy grants access; the identity-based policy is not re-evaluated."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "An explicit Deny in any policy overrides any Allow, including in cross-account scenarios. In cross-account S3 access, both the identity-based policy (in Account A) and the bucket policy (in Account B) must allow the action for access to succeed. However, an explicit Deny in the bucket policy immediately blocks the request regardless of what the identity-based policy allows. Option A incorrectly implies account ownership determines precedence. Option C is incorrect; both policies are evaluated. Option D is partially correct in that both must Allow, but the reason for denial here is the explicit Deny, not merely the absence of an Allow.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "resource-based-policy",
+      "explicit-deny",
+      "cross-account"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-008",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A third-party vendor's integration role trust policy requires the vendor to provide an ExternalId when assuming the role. A new engineer asks why the ExternalId alone does not fully prevent the confused deputy problem if the vendor's systems are compromised. What is the most accurate explanation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ExternalId is transmitted in plaintext over HTTPS so a network-level attacker can intercept it and replay it to assume the role from a different system."
+      },
+      {
+        "label": "B",
+        "text": "The ExternalId condition mitigates confused deputy attacks by ensuring only the intended vendor can assume the role; it does not protect against a compromised vendor environment itself."
+      },
+      {
+        "label": "C",
+        "text": "ExternalId only prevents confused deputy attacks from external parties; an internal threat actor with access to the vendor's code can retrieve and misuse the ExternalId value."
+      },
+      {
+        "label": "D",
+        "text": "ExternalId is shared across all customers of a vendor by default, making it ineffective unless each customer generates a unique value and rotates it regularly."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The sts:ExternalId condition key solves the confused deputy problem by ensuring a third-party service can only assume a role when it presents the correct ExternalId known to that specific customer. This prevents a malicious customer from tricking the vendor into assuming a different customer's role. However, if the vendor's own environment is compromised (credentials, code, or ExternalId storage), the protection is ineffective because the attacker can supply the correct ExternalId. The ExternalId guards against confused deputy, not against vendor compromise. Option A is incorrect; HTTPS encrypts transport. Option B partially overlaps but misdescribes the scope. Option D is incorrect; ExternalId is customer-specific by design.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "sts",
+      "external-id",
+      "confused-deputy"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-009",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security engineer wants to delegate AWS Security Hub administration to a member account in AWS Organizations without making it the management account. They attempt to register the member account as delegated administrator via the Organizations console but the option is not available for Security Hub. What is the most likely reason?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Security Hub does not support delegated administrators at all; centralized administration must be performed from the management account only."
+      },
+      {
+        "label": "B",
+        "text": "The member account must first be removed from its OU and placed directly under the root before it can be registered as a delegated administrator for any service."
+      },
+      {
+        "label": "C",
+        "text": "Delegated administrator designation for any AWS service must be performed from the service's own console or API, not from the AWS Organizations console directly."
+      },
+      {
+        "label": "D",
+        "text": "Delegated administrator registration requires enabling trusted access for Security Hub in Organizations first, and registration is done through the Security Hub console or API, not the Organizations console."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS Organizations supports delegated administrators for many services, but each service must have trusted access enabled in AWS Organizations before a delegated administrator can be registered. Additionally, the registration must be performed through the specific service's API or console (e.g., the Security Hub console or the securityhub:EnableOrganizationAdminAccount API), not from the AWS Organizations console. The Organizations console is used for enabling trusted access, not for registering delegated admins for individual services. Option A is partially correct but not fully descriptive. Option B is incorrect; Security Hub does support delegated admins. Option C describes an OU requirement that does not exist.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "organizations",
+      "delegated-administrator",
+      "security-hub"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-010",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A developer creates an IAM role with the default maximum session duration. They use the AWS Management Console to assume the role via the Switch Role function. After 12 hours they notice the console session is still active. Which statement best explains the session duration behavior?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The default maximum session duration for IAM roles is 12 hours; the console session is still active because it has not yet reached the 12-hour limit."
+      },
+      {
+        "label": "B",
+        "text": "Console sessions using Switch Role are limited to 12 hours regardless of the role's configured maximum session duration, while CLI sessions respect the configured maximum."
+      },
+      {
+        "label": "C",
+        "text": "The console session refreshes credentials automatically every hour using the role's trust policy, so the default 1-hour limit does not terminate the console session."
+      },
+      {
+        "label": "D",
+        "text": "Console federation sessions bypass maximum session duration limits entirely because the AWS console uses a separate credential issuance mechanism not subject to STS limits."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "The default maximum session duration for IAM roles is 1 hour (3600 seconds), configurable up to 12 hours. However, the AWS Management Console Switch Role feature issues sessions with a fixed maximum of 12 hours, independent of the role's configured maximum session duration. CLI and SDK AssumeRole calls respect the configured maximum (defaulting to 1 hour if not specified in the API call). So a role with a 1-hour default could still allow a 12-hour console session. Option A incorrectly describes automatic credential refresh. Option C incorrectly states the default maximum session duration is 12 hours (it is 1 hour). Option D incorrectly claims console sessions bypass all limits.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "session-duration",
+      "console",
+      "sts"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-011",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security engineer attempts to delete an IAM service-linked role for Amazon EC2 Auto Scaling. The deletion fails with an error stating the role cannot be deleted. What is the most likely reason?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Service-linked roles are owned by AWS and can only be deleted by opening a support ticket; IAM principals are not permitted to delete them directly."
+      },
+      {
+        "label": "B",
+        "text": "Service-linked roles require MFA authentication before deletion; the engineer must authenticate with an MFA device and re-run the delete command to proceed."
+      },
+      {
+        "label": "C",
+        "text": "The engineer lacks the iam:DeleteServiceLinkedRole permission and must be granted it explicitly since it is not included in standard administrator policies."
+      },
+      {
+        "label": "D",
+        "text": "The service-linked role cannot be deleted while resources that depend on it exist, such as active Auto Scaling groups that are currently using that role."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Service-linked roles are pre-configured IAM roles linked to specific AWS services. They cannot be deleted while the associated service resources that depend on them still exist. For EC2 Auto Scaling, any active Auto Scaling group using the service-linked role must be deleted or updated first before the role itself can be removed. AWS enforces this to prevent orphaned resources from losing required permissions. Option A is incorrect; MFA is not required for this operation. Option C is incorrect; users can delete service-linked roles via IAM when no dependencies exist. Option D may be a contributing factor in some cases but is not the most likely reason given the specific error about inability to delete.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "service-linked-roles",
+      "deletion"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-012",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "An IAM policy uses the condition \"StringLike\": {\"s3:prefix\": [\"home/${aws:username}/*\"]}. A developer suggests replacing StringLike with StringEquals. What behavioral difference results from this change?",
+    "options": [
+      {
+        "label": "A",
+        "text": "StringEquals does not support policy variables like ${aws:username}, so the condition would stop resolving dynamically and would match the literal string instead."
+      },
+      {
+        "label": "B",
+        "text": "StringEquals evaluates all values in the condition array using OR logic, while StringLike evaluates them using AND logic, changing how multiple prefixes are matched."
+      },
+      {
+        "label": "C",
+        "text": "StringEquals does not support wildcard characters such as * and ?, so the condition would only match the exact prefix string with no wildcard expansion."
+      },
+      {
+        "label": "D",
+        "text": "StringEquals performs case-insensitive comparison while StringLike is case-sensitive, so the change would cause the condition to match prefixes regardless of letter casing."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The key distinction between StringEquals and StringLike is wildcard support. StringLike supports the * (zero or more characters) and ? (single character) wildcards, while StringEquals performs exact string matching with no wildcard expansion. Replacing StringLike with StringEquals in a condition containing * would cause the condition to evaluate the asterisk as a literal character, not a wildcard, breaking the intended prefix matching. Option A is incorrect; both operators support IAM policy variables. Option C is incorrect; StringEqualsIgnoreCase is the case-insensitive variant, not StringEquals vs StringLike. Option D is incorrect; both operators use OR logic when evaluating multiple values in the array.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "condition-operators",
+      "StringLike",
+      "StringEquals"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-013",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A company restricts S3 bucket access to requests originating from their corporate IP range using an S3 bucket policy with the condition \"aws:SourceIp\". After deploying a VPC endpoint for S3, employees using the VPC endpoint report access denied errors even from the corporate network. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Requests through a VPC endpoint do not carry a public source IP, so aws:SourceIp does not match; the condition should be replaced with aws:VpcSourceIp for VPC endpoint traffic."
+      },
+      {
+        "label": "B",
+        "text": "VPC endpoints do not support bucket policies; access must be controlled through endpoint policies alone, making the aws:SourceIp condition ineffective for VPC traffic."
+      },
+      {
+        "label": "C",
+        "text": "The bucket policy aws:SourceIp condition is evaluated before the VPC endpoint policy, and since the endpoint policy is more permissive, it causes a conflict that results in denial."
+      },
+      {
+        "label": "D",
+        "text": "VPC endpoints use a different AWS Region routing path, and aws:SourceIp resolves to an AWS infrastructure IP that falls outside the specified corporate IP range in the condition."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "When traffic is routed through a VPC endpoint, requests do not carry a public IP address in the aws:SourceIp context. The aws:SourceIp condition key is not set (or does not resolve to the expected corporate IP) for VPC endpoint traffic, causing the condition to fail and resulting in access denied. The correct condition key for restricting access to traffic from a specific VPC or VPC endpoint is aws:VpcSourceIp, which evaluates the private source IP. Alternatively, aws:SourceVpc or aws:SourceVpce can be used to restrict by VPC or endpoint ID. Option A is incorrect; bucket policies work with VPC endpoints. Options C and D describe routing behaviors that do not reflect the actual cause.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "vpc-endpoint",
+      "aws:SourceIp",
+      "aws:VpcSourceIp"
+    ]
+  },
+  {
+    "id": "scs-d4-t6-014",
+    "domain": "domain-04",
+    "domain_name": "Identity and Access Management",
+    "type": "multiple-choice",
+    "difficulty": "above",
+    "test_number": 6,
+    "active": true,
+    "stem": "A security team wants to determine whether a specific IAM role can call sts:AssumeRole on another role in the same account. They use both the IAM policy simulator and IAM Access Analyzer. What distinct capability does each tool provide that the other does not?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The policy simulator tests whether current policies allow or deny specific actions for a principal, while Access Analyzer identifies external and unused access paths through policy analysis."
+      },
+      {
+        "label": "B",
+        "text": "The policy simulator evaluates all SCPs in the organization hierarchy, while Access Analyzer only analyzes identity-based policies attached directly to the principal."
+      },
+      {
+        "label": "C",
+        "text": "The policy simulator shows real-time API call logs for the role, while Access Analyzer performs static analysis of policy documents to identify allowed actions."
+      },
+      {
+        "label": "D",
+        "text": "The policy simulator identifies publicly accessible resources across the account, while Access Analyzer tests hypothetical policy changes before they are deployed to production."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The IAM policy simulator allows you to test whether a specific principal (user, role, or group) is allowed or denied a particular action given the current set of attached policies, including identity-based policies, resource-based policies, and SCPs. It is a simulation tool for evaluating policy logic. IAM Access Analyzer performs ongoing automated analysis to identify resources accessible from outside the account or organization (external access) and unused permissions (unused access analyzer). These are complementary but distinct capabilities. Option A incorrectly attributes real-time API logging to the simulator. Option B incorrectly claims the simulator evaluates SCPs while Access Analyzer does not (the simulator does include SCP evaluation). Option D reverses the tools' actual functions.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam",
+      "policy-simulator",
+      "access-analyzer"
+    ]
+  }
+]

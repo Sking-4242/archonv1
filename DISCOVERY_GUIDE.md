@@ -2,6 +2,8 @@
 
 The Discovery tool lets you scan your live AWS infrastructure and bring it directly into Archon Pro for documentation, validation, and Terraform generation. It works in two parts: the `archon-cli` command-line tool (which does the scanning) and the Discover tab inside Archon Pro (where you explore and use what was found).
 
+> **Access:** `archon-cli discover` always runs locally with your AWS credentials — no Archon account required. The **Discover tab** in the Professional UI requires you to **sign in** when `ARCHON_OPEN_ACCESS` is enabled (default). Self-hosted use without an account still supports the CLI workflow end-to-end.
+
 ---
 
 ## Prerequisites
@@ -77,7 +79,7 @@ archon-cli --version
 archon-cli discover --region us-east-1
 ```
 
-This scans 30 AWS service types in `us-east-1` and prints a summary table to the terminal. The scan typically takes 10–60 seconds depending on how many resources you have.
+This scans all 85 AWS canvas palette types in `us-east-1` and prints a summary table to the terminal. The scan typically takes 20–120 seconds depending on how many resources you have.
 
 ### Specify a region
 
@@ -151,19 +153,25 @@ archon-cli discover -r us-east-1 --format archon -o report.json
 
 ## What gets discovered
 
-The tool scans 30 AWS service types across 7 categories:
+The tool scans all 85 AWS canvas palette types across 10 categories:
 
 | Category | Services |
 |---|---|
-| **Compute** | EC2 instances, Lambda functions, ECS clusters, EKS clusters, Auto Scaling Groups |
-| **Network** | VPCs, Subnets, Internet Gateways, NAT Gateways, Security Groups, Route Tables, Elastic IPs, ALB/NLBs, CloudFront distributions |
-| **Storage** | S3 buckets, EBS volumes, EFS file systems |
-| **Database** | RDS instances, ElastiCache clusters, DynamoDB tables |
-| **Security** | KMS keys, Secrets Manager secrets, IAM roles |
-| **Integration** | SNS topics, SQS queues |
-| **Monitoring** | CloudWatch alarms |
+| **Compute** | EC2, Lambda, ECS, EKS, Auto Scaling, ECR, App Runner, Batch, Elastic Beanstalk, Lightsail |
+| **Network** | VPC, Subnet, IGW, NAT, Security Groups, Route Tables, EIPs, ALB/NLB, CloudFront, Route 53, Transit Gateway, VPN Gateway, Direct Connect, Global Accelerator, VPC Endpoints, WAF |
+| **Storage** | S3, EBS, EFS, FSx, S3 Glacier (vaults + lifecycle), AWS Backup, Storage Gateway |
+| **Database** | RDS, Aurora, ElastiCache, DynamoDB, Redshift, DocumentDB, Neptune, OpenSearch, Timestream |
+| **Security** | KMS, Secrets Manager, IAM Roles, ACM, Cognito, GuardDuty, Inspector, Security Hub, Shield, Macie, Config, CloudTrail |
+| **Integration** | SNS, SQS, EventBridge, Step Functions, Kinesis, Firehose, Amazon MQ, AppSync, API Gateway |
+| **Analytics** | Glue, Athena, EMR, QuickSight, Lake Formation, MSK |
+| **AI / ML** | SageMaker, Bedrock, Rekognition, Comprehend, Textract, Polly, Translate, Lex |
+| **Monitoring** | CloudWatch Alarms, X-Ray, Systems Manager |
+| **DevOps** | CodePipeline, CodeBuild, CodeDeploy, CodeCommit, CloudFormation |
+| **Global / hybrid** | Route 53 hosted zones, Global Accelerator (us-west-2 API), IAM roles (global), Shield Advanced (us-east-1 API) |
 
 Resources that require permissions you don't have will show in the **Errors** section of the output — this is normal and does not stop the scan.
+
+Imported reports include **inferred relationship edges** (subnet→VPC, EC2→subnet, EC2→security group, transit gateway→VPC, Lambda→VPC, EBS→EC2, etc.) that Archon Pro adds to the canvas when you place resources.
 
 ### Required IAM permissions
 
@@ -193,7 +201,77 @@ For a full scan, the IAM user or role running the tool needs read-only permissio
         "autoscaling:Describe*",
         "cloudfront:List*",
         "elasticloadbalancing:Describe*",
-        "efs:Describe*"
+        "efs:Describe*",
+        "wafv2:ListWebACLs",
+        "wafv2:GetWebACL",
+        "cloudtrail:DescribeTrails",
+        "cloudtrail:GetTrailStatus",
+        "apigateway:GET",
+        "apigatewayv2:GetApis",
+        "events:ListEventBuses",
+        "events:DescribeEventBus",
+        "route53:ListHostedZones",
+        "route53:GetHostedZone",
+        "ec2:DescribeVpcEndpoints",
+        "ec2:DescribeTransitGateways",
+        "ec2:DescribeVpnGateways",
+        "directconnect:DescribeConnections",
+        "globalaccelerator:ListAccelerators",
+        "ecr:DescribeRepositories",
+        "apprunner:ListServices",
+        "batch:DescribeJobQueues",
+        "elasticbeanstalk:DescribeEnvironments",
+        "lightsail:GetInstances",
+        "fsx:DescribeFileSystems",
+        "backup:ListBackupVaults",
+        "storagegateway:ListGateways",
+        "redshift:DescribeClusters",
+        "es:ListDomainNames",
+        "es:DescribeDomain",
+        "timestream:ListDatabases",
+        "acm:ListCertificates",
+        "cognito-idp:ListUserPools",
+        "guardduty:ListDetectors",
+        "guardduty:GetDetector",
+        "config:DescribeConfigRules",
+        "states:ListStateMachines",
+        "kinesis:ListStreams",
+        "firehose:ListDeliveryStreams",
+        "firehose:DescribeDeliveryStream",
+        "mq:ListBrokers",
+        "appsync:ListGraphqlApis",
+        "glue:GetJobs",
+        "glue:GetJob",
+        "athena:ListWorkGroups",
+        "elasticmapreduce:ListClusters",
+        "kafka:ListClustersV2",
+        "codepipeline:ListPipelines",
+        "codebuild:ListProjects",
+        "codedeploy:ListApplications",
+        "codecommit:ListRepositories",
+        "cloudformation:ListStacks",
+        "ssm:DescribeInstanceInformation",
+        "sagemaker:ListEndpoints",
+        "glacier:ListVaults",
+        "glacier:DescribeVault",
+        "s3:GetLifecycleConfiguration",
+        "inspector2:BatchGetAccountStatus",
+        "securityhub:DescribeHub",
+        "shield:DescribeSubscription",
+        "macie2:GetMacieSession",
+        "macie2:ListClassificationJobs",
+        "quicksight:ListDashboards",
+        "lakeformation:ListResources",
+        "bedrock:ListCustomModels",
+        "bedrock:ListProvisionedModelThroughputs",
+        "rekognition:ListCollections",
+        "comprehend:ListDocumentClassifiers",
+        "comprehend:ListEntityRecognizers",
+        "textract:ListAdapters",
+        "polly:ListLexicons",
+        "translate:ListTerminologies",
+        "lex:ListBots",
+        "xray:GetGroups"
       ],
       "Resource": "*"
     }
@@ -282,7 +360,7 @@ If any AWS services returned errors during the scan (usually due to permissions 
 
 Once resources are on the canvas, you can use all of Archon Pro's tools on them:
 
-- **Validate** — run the 49-rule validation engine. Findings are highlighted on the nodes.
+- **Validate** — run the 200-rule validation engine. Findings are highlighted on the nodes.
 - **Compliance** — filter findings by CIS, SOC 2, PCI DSS, HIPAA, or NIST CSF 2.0 standard.
 - **Estimate** — get monthly cost estimates for the discovered resources.
 - **Generate** — produce Terraform HCL from the discovered architecture.

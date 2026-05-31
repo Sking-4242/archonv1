@@ -1,0 +1,1176 @@
+[
+  {
+    "id": "aws-cp-t4-03-001",
+    "type": "single",
+    "stem": "A company's e-commerce application experiences a 10x traffic spike every Black Friday. EC2 instances are stateful \u2014 they store session data locally. Horizontal scaling fails because users get routed to instances that don't have their session. What architectural change resolves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use sticky sessions on the Elastic Load Balancer"
+      },
+      {
+        "label": "B",
+        "text": "Switch to larger EC2 instance types (vertical scaling) before Black Friday"
+      },
+      {
+        "label": "C",
+        "text": "Enable EC2 Auto Scaling with scheduled scaling policies"
+      },
+      {
+        "label": "D",
+        "text": "Externalize session state to Amazon ElastiCache or DynamoDB so any instance can serve any user"
+      }
+    ],
+    "answer": "B",
+    "explanation": "Storing sessions locally on EC2 makes the instances stateful and prevents effective horizontal scaling. Externalizing session state to ElastiCache (Redis/Memcached) or DynamoDB makes instances stateless \u2014 any instance can serve any request. Sticky sessions patch the symptom but prevent even load distribution and fail during scale-in events. Vertical scaling doesn't solve the session problem and has hard limits.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "elasticache",
+      "stateless",
+      "auto-scaling",
+      "session-management"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-002",
+    "type": "single",
+    "stem": "A company needs to run a containerized batch job that processes files from S3 each night. The job runs for 20 minutes and requires no persistent infrastructure. Which compute option minimizes cost and operational overhead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Fargate task triggered by EventBridge Scheduler"
+      },
+      {
+        "label": "B",
+        "text": "EC2 Reserved Instance running 24/7 with a cron job"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EKS cluster with a dedicated node group"
+      },
+      {
+        "label": "D",
+        "text": "EC2 Spot Instance launched manually before each run"
+      }
+    ],
+    "answer": "B",
+    "explanation": "Fargate is serverless container compute \u2014 no infrastructure to manage. Combined with EventBridge Scheduler, the task runs nightly, runs for 20 minutes, and then stops. You pay only for the 20 minutes of compute per day. A 24/7 Reserved Instance wastes 23h 40min daily. Manually launched Spot Instances require operational intervention. EKS with dedicated node groups requires cluster management and idle node costs.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "fargate",
+      "eventbridge",
+      "containers",
+      "serverless"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-003",
+    "type": "single",
+    "stem": "An application uses Amazon SQS to decouple a web frontend from a processing backend. The backend processes messages slowly during peak load, and messages are accumulating. The SQS queue has 50,000 messages. What is the most appropriate scaling response?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Increase the SQS message visibility timeout"
+      },
+      {
+        "label": "B",
+        "text": "Scale out the backend consumer EC2 instances based on the ApproximateNumberOfMessagesVisible metric"
+      },
+      {
+        "label": "C",
+        "text": "Enable SQS long polling to reduce empty receives"
+      },
+      {
+        "label": "D",
+        "text": "Switch from SQS Standard to SQS FIFO"
+      }
+    ],
+    "answer": "C",
+    "explanation": "The queue depth metric (ApproximateNumberOfMessagesVisible) is the correct signal for scaling the consumer fleet. Adding more consumers drains the queue faster. Increasing visibility timeout extends the time a message is hidden from other consumers but doesn't speed up processing. Long polling reduces wasted API calls but doesn't increase throughput. FIFO queues have lower throughput limits (3,000 msgs/sec with batching vs. unlimited for Standard) and would make the problem worse.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "sqs",
+      "auto-scaling",
+      "cloudwatch",
+      "queue-depth"
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-004",
+    "type": "single",
+    "stem": "A company runs a global SaaS application. Customers in Asia-Pacific report high latency when accessing the application hosted in us-east-1. The application is read-heavy, primarily serving static content. Which solution most directly reduces latency for APAC users?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Amazon Route 53 latency-based routing to a second EC2 instance in APAC"
+      },
+      {
+        "label": "B",
+        "text": "Use a larger EC2 instance type with enhanced networking"
+      },
+      {
+        "label": "C",
+        "text": "Enable Amazon CloudFront with origins in us-east-1 to serve cached content from edge locations near APAC users"
+      },
+      {
+        "label": "D",
+        "text": "Migrate the entire application to ap-southeast-1"
+      }
+    ],
+    "answer": "B",
+    "explanation": "CloudFront caches static content at edge locations globally, serving APAC users from nearby Points of Presence instead of from us-east-1. This dramatically reduces latency for read-heavy static content without migrating the application. Full migration is expensive and complex. Larger EC2 instances improve compute but not geographic latency. Route 53 latency routing requires a second deployment \u2014 CloudFront is simpler for static caching.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "cloudfront",
+      "latency",
+      "cdn",
+      "global-distribution"
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-005",
+    "type": "single",
+    "stem": "A company's RDS MySQL database is experiencing performance degradation due to a large number of read queries from reporting workloads. Writes are infrequent. What is the most targeted RDS feature to improve read performance without changing the primary instance size?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create one or more RDS Read Replicas and direct reporting queries to them"
+      },
+      {
+        "label": "B",
+        "text": "Enable RDS storage auto scaling"
+      },
+      {
+        "label": "C",
+        "text": "Enable RDS Multi-AZ"
+      },
+      {
+        "label": "D",
+        "text": "Enable automated backups with point-in-time recovery"
+      }
+    ],
+    "answer": "B",
+    "explanation": "RDS Read Replicas use asynchronous replication to maintain copies of the primary database. Read-heavy reporting workloads can be directed to replicas, offloading the primary. Multi-AZ is a failover solution \u2014 the standby does not serve reads. Automated backups provide recovery, not read scaling. Storage auto scaling handles disk space, not query throughput.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "rds",
+      "read-replicas",
+      "read-scaling",
+      "database"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-006",
+    "type": "single",
+    "stem": "A developer is building a serverless API. Requests come in bursts of up to 10,000 per second, each requiring 200ms of processing. The processing is stateless and event-driven. Which architecture is most appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EC2 Auto Scaling group behind an ALB with minimum 10 instances"
+      },
+      {
+        "label": "B",
+        "text": "Amazon EC2 Spot Instances managed by SQS"
+      },
+      {
+        "label": "C",
+        "text": "Amazon ECS cluster with Fargate tasks"
+      },
+      {
+        "label": "D",
+        "text": "Amazon API Gateway triggering AWS Lambda functions"
+      }
+    ],
+    "answer": "B",
+    "explanation": "API Gateway + Lambda is the canonical serverless API pattern. Lambda scales automatically to handle bursty traffic, each request runs in its own execution context, and you pay per invocation. No instances or clusters to manage. EC2 Auto Scaling can handle bursts but requires pre-warming and minimum capacity costs. ECS/Fargate is containerized and involves more management overhead than Lambda for this use case.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "api-gateway",
+      "lambda",
+      "serverless",
+      "event-driven"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-007",
+    "type": "single",
+    "stem": "A company needs to migrate 800 TB of on-premises data to Amazon S3. Their internet connection is 1 Gbps, shared with production traffic. How long would transferring this data over the internet take, and what is the better alternative?",
+    "options": [
+      {
+        "label": "A",
+        "text": "About 7 days; use S3 Transfer Acceleration instead"
+      },
+      {
+        "label": "B",
+        "text": "About 74 days; use AWS DataSync over Direct Connect instead"
+      },
+      {
+        "label": "C",
+        "text": "About 18 hours; use AWS Direct Connect instead"
+      },
+      {
+        "label": "D",
+        "text": "About 74 days at full bandwidth; use AWS Snowball Edge to ship data physically"
+      }
+    ],
+    "answer": "B",
+    "explanation": "800 TB at 1 Gbps = ~7,100 hours \u2248 74 days at theoretical max, but shared bandwidth makes it longer. AWS Snowball Edge devices can ship petabytes of data \u2014 you load data to the appliance, ship it to AWS, and AWS imports it into S3 in days, not months. S3 Transfer Acceleration optimizes internet routes but doesn't solve the bandwidth constraint. DataSync still uses the same bandwidth-limited connection.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "snowball",
+      "data-migration",
+      "s3",
+      "transfer"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-008",
+    "type": "single",
+    "stem": "An application requires a database that can handle millions of key-value lookups per second with single-digit millisecond latency at any scale. The data model is simple \u2014 no complex joins required. Which AWS database service is the best fit?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Redshift"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Aurora MySQL"
+      },
+      {
+        "label": "C",
+        "text": "Amazon RDS PostgreSQL with read replicas"
+      },
+      {
+        "label": "D",
+        "text": "Amazon DynamoDB"
+      }
+    ],
+    "answer": "C",
+    "explanation": "DynamoDB is a fully managed NoSQL key-value and document database designed for single-digit millisecond performance at any scale, capable of millions of requests per second. RDS and Aurora are relational databases optimized for SQL workloads with joins \u2014 they don't scale horizontally to millions of key-value ops/sec as easily. Redshift is an analytics data warehouse, not an OLTP key-value store.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "dynamodb",
+      "nosql",
+      "key-value",
+      "performance"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-009",
+    "type": "single",
+    "stem": "A company has an application where multiple microservices communicate synchronously via REST calls. When one downstream service is slow, the latency cascades upstream, causing timeouts across the system. What architectural pattern addresses this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use a larger EC2 instance for the slow service"
+      },
+      {
+        "label": "B",
+        "text": "Replace REST calls with gRPC for lower latency"
+      },
+      {
+        "label": "C",
+        "text": "Enable Elastic Load Balancing between all microservices"
+      },
+      {
+        "label": "D",
+        "text": "Introduce Amazon SQS between services to make communication asynchronous and decouple failure domains"
+      }
+    ],
+    "answer": "B",
+    "explanation": "Introducing an SQS queue between services breaks synchronous coupling. The upstream service puts a message on the queue and returns immediately. The downstream service processes at its own pace. A slow downstream service causes queue depth to grow but doesn't block upstream callers. This is the core loose-coupling and resilience benefit of asynchronous messaging. ELB distributes load but doesn't break synchronous coupling.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "sqs",
+      "microservices",
+      "loose-coupling",
+      "resilience"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-010",
+    "type": "single",
+    "stem": "A company wants to process streaming clickstream data from their website in real time \u2014 enriching and analyzing events as they arrive, with sub-second latency. Which AWS service is purpose-built for this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Kinesis Data Streams"
+      },
+      {
+        "label": "B",
+        "text": "Amazon SQS with Lambda consumers"
+      },
+      {
+        "label": "C",
+        "text": "Amazon S3 with daily batch processing via Amazon EMR"
+      },
+      {
+        "label": "D",
+        "text": "AWS Glue ETL jobs scheduled hourly"
+      }
+    ],
+    "answer": "B",
+    "explanation": "Kinesis Data Streams is designed for real-time data streaming at scale \u2014 data is available for processing within milliseconds of ingestion. Kinesis Data Analytics or Lambda can consume the stream for real-time enrichment. S3+EMR and Glue are batch-oriented. SQS+Lambda can process events but SQS is optimized for job queuing, not ordered real-time data stream processing with time windows.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "kinesis",
+      "streaming",
+      "real-time",
+      "data-processing"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-011",
+    "type": "single",
+    "stem": "A company uses AWS CloudFormation to deploy infrastructure. A CloudFormation stack update fails halfway through. What does CloudFormation do by default?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Leaves the stack in a partially updated state for manual remediation"
+      },
+      {
+        "label": "B",
+        "text": "Automatically rolls back the stack to the previous known-good state"
+      },
+      {
+        "label": "C",
+        "text": "Pauses the update and sends an SNS notification"
+      },
+      {
+        "label": "D",
+        "text": "Deletes the entire stack and requires redeployment from scratch"
+      }
+    ],
+    "answer": "B",
+    "explanation": "CloudFormation automatically rolls back to the previous state when a stack update fails, restoring all modified resources to their pre-update configuration. This is the default ROLLBACK_ON_FAILURE behavior. The stack remains in a ROLLBACK_COMPLETE or UPDATE_ROLLBACK_COMPLETE state. Partial updates and manual remediation are not the default. The stack is not deleted.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "cloudformation",
+      "rollback",
+      "iac",
+      "infrastructure"
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-012",
+    "type": "single",
+    "stem": "A company needs to provide secure, auditable shell access to private EC2 instances without opening port 22 or maintaining a bastion host. Which AWS service enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Site-to-Site VPN"
+      },
+      {
+        "label": "B",
+        "text": "AWS Direct Connect"
+      },
+      {
+        "label": "C",
+        "text": "Amazon VPC Peering"
+      },
+      {
+        "label": "D",
+        "text": "AWS Systems Manager Session Manager"
+      }
+    ],
+    "answer": "C",
+    "explanation": "Systems Manager Session Manager provides browser-based and CLI shell access to EC2 instances using the SSM Agent and IAM authorization \u2014 no inbound security group rules or bastion hosts required. All sessions are logged to CloudTrail and optionally to S3 or CloudWatch Logs. Direct Connect and VPN provide private network connectivity but don't eliminate the need for SSH/bastion. VPC Peering connects networks, not individual instance shells.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "session-manager",
+      "ssm",
+      "bastion",
+      "secure-access"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-013",
+    "type": "single",
+    "stem": "A Lambda function processes images uploaded to S3 and stores results in DynamoDB. Occasionally the Lambda invocation fails silently and items are never written to DynamoDB. What is the BEST mechanism to handle failed Lambda invocations asynchronously?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Lambda Provisioned Concurrency"
+      },
+      {
+        "label": "B",
+        "text": "Add a CloudWatch alarm on Lambda errors and notify the team via email"
+      },
+      {
+        "label": "C",
+        "text": "Increase the Lambda function timeout"
+      },
+      {
+        "label": "D",
+        "text": "Configure a Dead Letter Queue (DLQ) with SQS to capture failed invocations for retry or investigation"
+      }
+    ],
+    "answer": "B",
+    "explanation": "A Dead Letter Queue captures events from failed asynchronous Lambda invocations after all retries are exhausted. This ensures no event is silently lost \u2014 the failed event lands in SQS where it can be investigated and reprocessed. Increasing timeout helps if the failure is due to timeouts specifically. Provisioned Concurrency eliminates cold starts but doesn't handle logic failures. CloudWatch alarms alert humans but don't preserve the failed event payload.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "lambda",
+      "dlq",
+      "sqs",
+      "error-handling"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-014",
+    "type": "single",
+    "stem": "A company's monolithic application is being decomposed into microservices. Each service needs to call other services. The team wants to implement a fan-out pattern where a single event triggers multiple downstream services simultaneously. Which AWS service combination achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon SNS topic with multiple SQS queue subscriptions (SNS fan-out to SQS)"
+      },
+      {
+        "label": "B",
+        "text": "Amazon EventBridge with a single target rule"
+      },
+      {
+        "label": "C",
+        "text": "AWS Step Functions with a sequential state machine"
+      },
+      {
+        "label": "D",
+        "text": "Amazon SQS with a single consumer per queue"
+      }
+    ],
+    "answer": "B",
+    "explanation": "The SNS fan-out pattern publishes a single message to an SNS topic, which delivers it simultaneously to multiple SQS queues (one per subscribing service). Each service processes the event independently and asynchronously. A single SQS queue with one consumer doesn't fan out. EventBridge can fan out but the canonical pattern for guaranteed delivery to multiple queues is SNS\u2192SQS. Step Functions is for orchestration, not parallel fan-out messaging.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "sns",
+      "sqs",
+      "fan-out",
+      "microservices"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-015",
+    "type": "single",
+    "stem": "A startup stores all user files in a single Amazon S3 bucket in us-east-1. Their user base is now global and users in Europe and Australia complain about slow upload speeds. Which S3 feature accelerates uploads from distant locations using CloudFront's edge network?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Transfer Acceleration"
+      },
+      {
+        "label": "B",
+        "text": "S3 Multipart Upload"
+      },
+      {
+        "label": "C",
+        "text": "S3 Intelligent-Tiering"
+      },
+      {
+        "label": "D",
+        "text": "S3 Cross-Region Replication"
+      }
+    ],
+    "answer": "B",
+    "explanation": "S3 Transfer Acceleration uses CloudFront edge locations as entry points. A user in Australia uploads to the nearest edge location, which then forwards the data over AWS's optimized backbone network to the S3 bucket in us-east-1 \u2014 significantly faster than routing over the public internet the entire way. Cross-Region Replication copies existing objects to other regions but doesn't accelerate uploads. Intelligent-Tiering manages storage costs. Multipart Upload improves reliability for large files but not geographic latency.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "s3",
+      "transfer-acceleration",
+      "cloudfront",
+      "global-upload"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-016",
+    "type": "single",
+    "stem": "A company runs an Amazon Aurora MySQL cluster. During a primary instance failure, how does Aurora handle failover?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Aurora promotes an Aurora Replica to primary automatically, typically in under 30 seconds"
+      },
+      {
+        "label": "B",
+        "text": "Aurora creates a new primary instance from scratch in a different AZ"
+      },
+      {
+        "label": "C",
+        "text": "Aurora restores the database from the most recent automated backup"
+      },
+      {
+        "label": "D",
+        "text": "Aurora fails over only if Multi-AZ is explicitly enabled as a separate option"
+      }
+    ],
+    "answer": "A",
+    "explanation": "Aurora automatically promotes an existing Aurora Replica to become the new primary if the primary fails, typically within 30 seconds or less. The shared distributed storage layer means the replica already has access to all data \u2014 there's no replication lag to catch up on. Aurora's Multi-AZ architecture is built in, not a separate option like RDS Multi-AZ. It doesn't restore from backup (which would be slow).",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "aurora",
+      "failover",
+      "high-availability",
+      "rds"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-017",
+    "type": "single",
+    "stem": "A company wants to run a Kubernetes-based workload on AWS without managing the Kubernetes control plane or the underlying EC2 nodes. Which service combination achieves fully managed containers?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EC2 Auto Scaling with Docker installed"
+      },
+      {
+        "label": "B",
+        "text": "Amazon ECS with EC2 launch type"
+      },
+      {
+        "label": "C",
+        "text": "Amazon EKS with self-managed EC2 node groups"
+      },
+      {
+        "label": "D",
+        "text": "Amazon EKS with AWS Fargate profiles"
+      }
+    ],
+    "answer": "C",
+    "explanation": "EKS with Fargate profiles means AWS manages both the Kubernetes control plane and the underlying compute for pods. There are no EC2 nodes to patch, scale, or manage. EKS with self-managed EC2 nodes requires managing the nodes. ECS with EC2 launch type requires managing the cluster instances. Raw EC2 with Docker provides no Kubernetes or container orchestration management.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "eks",
+      "fargate",
+      "kubernetes",
+      "managed-containers"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-018",
+    "type": "single",
+    "stem": "A company uses DynamoDB for a gaming leaderboard that requires the lowest possible read latency \u2014 ideally microseconds. Which DynamoDB feature should they enable?",
+    "options": [
+      {
+        "label": "A",
+        "text": "DynamoDB Streams"
+      },
+      {
+        "label": "B",
+        "text": "DynamoDB Accelerator (DAX)"
+      },
+      {
+        "label": "C",
+        "text": "DynamoDB On-Demand capacity mode"
+      },
+      {
+        "label": "D",
+        "text": "DynamoDB Global Tables"
+      }
+    ],
+    "answer": "B",
+    "explanation": "DAX (DynamoDB Accelerator) is an in-memory cache for DynamoDB that reduces read latency from single-digit milliseconds to microseconds. It sits in front of DynamoDB and caches read responses. DynamoDB Streams capture change events. Global Tables replicate data across regions for low-latency global access but don't reduce latency to microseconds. On-Demand mode handles capacity planning, not read latency.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "dynamodb",
+      "dax",
+      "caching",
+      "latency"
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-019",
+    "type": "single",
+    "stem": "A company has terabytes of log data in S3 that they want to query using SQL without loading it into a database. They want to pay only for the data scanned per query. Which service fits this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Athena"
+      },
+      {
+        "label": "B",
+        "text": "Amazon RDS"
+      },
+      {
+        "label": "C",
+        "text": "AWS Glue"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Redshift Serverless"
+      }
+    ],
+    "answer": "B",
+    "explanation": "Athena is a serverless interactive query service that runs SQL queries directly against data in S3. You pay per TB of data scanned. No database to load, no infrastructure to manage. Redshift requires loading data and involves cluster costs. RDS requires database provisioning and data import. Glue is for ETL (data transformation), not ad-hoc SQL query.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "athena",
+      "s3",
+      "serverless",
+      "sql-query"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-020",
+    "type": "single",
+    "stem": "A company wants to implement a disaster recovery strategy for their application with an RTO of 4 hours and an RPO of 1 hour. Their budget is limited. Which DR strategy best meets these requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Backup and restore \u2014 snapshot data to S3 and restore from scratch in a new Region"
+      },
+      {
+        "label": "B",
+        "text": "Multi-site active/active \u2014 run full capacity in two Regions simultaneously"
+      },
+      {
+        "label": "C",
+        "text": "Pilot light \u2014 replicate only the core data to a second Region and start compute only when disaster strikes"
+      },
+      {
+        "label": "D",
+        "text": "Warm standby \u2014 run a scaled-down version of the environment in a second Region, with data replication"
+      }
+    ],
+    "answer": "C",
+    "explanation": "Pilot light keeps only critical data replicated to a second Region. When a disaster occurs, you start the compute resources (EC2, etc.) against the replicated data. With a 4-hour RTO budget, you have time to provision instances from pre-configured AMIs. This is more cost-effective than warm standby (which runs idle compute 24/7). Backup and restore has the highest RTO (hours to days). Multi-site active/active meets the RTO but at highest cost.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "disaster-recovery",
+      "pilot-light",
+      "rpo",
+      "rto"
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-021",
+    "type": "single",
+    "stem": "A company's web application serves both dynamic API responses (from EC2) and static assets (HTML, CSS, JS from S3). They want to serve everything from a single domain with HTTPS. Which service routes requests to the appropriate origin based on URL path?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Global Accelerator"
+      },
+      {
+        "label": "B",
+        "text": "Application Load Balancer with listener rules"
+      },
+      {
+        "label": "C",
+        "text": "Amazon CloudFront with multiple origins and cache behaviors"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Route 53 with latency-based routing"
+      }
+    ],
+    "answer": "B",
+    "explanation": "CloudFront supports multiple origins and cache behaviors \u2014 path patterns like /api/* can route to an EC2 ALB origin, while /* routes to S3. CloudFront terminates HTTPS at edge locations and handles certificate management via ACM. Route 53 latency routing selects between endpoints based on latency, not URL path. ALB path routing works for EC2 backends but doesn't natively integrate S3 static hosting. Global Accelerator improves routing to regional endpoints, not path-based origin selection.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "cloudfront",
+      "multiple-origins",
+      "cache-behaviors",
+      "cdn"
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-022",
+    "type": "single",
+    "stem": "A company needs to store medical imaging files (each 2-5 GB) in Amazon S3. Uploading these files reliably over unreliable network connections is important. Which S3 upload mechanism should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 PUT object API with a single request"
+      },
+      {
+        "label": "B",
+        "text": "S3 Transfer Acceleration"
+      },
+      {
+        "label": "C",
+        "text": "S3 Multipart Upload"
+      },
+      {
+        "label": "D",
+        "text": "S3 Cross-Region Replication"
+      }
+    ],
+    "answer": "B",
+    "explanation": "Multipart Upload breaks large objects into smaller parts (up to 10,000 parts) that upload in parallel and can be retried independently on failure. For 2-5 GB files over unreliable connections, this is far more reliable than a single-part PUT (which fails entirely if the connection drops). S3 recommends Multipart Upload for objects over 100 MB. Transfer Acceleration speeds up uploads but doesn't improve reliability. CRR replicates existing objects between regions.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "s3",
+      "multipart-upload",
+      "reliability",
+      "large-files"
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-023",
+    "type": "single",
+    "stem": "A company uses AWS CodePipeline for CI/CD. After a code push to CodeCommit, they want the pipeline to automatically build a Docker image with CodeBuild, push it to Amazon ECR, and deploy the new image to Amazon ECS. What kind of pipeline architecture does this represent?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An infrastructure as code pipeline using CloudFormation"
+      },
+      {
+        "label": "B",
+        "text": "Blue/green deployment with Route 53"
+      },
+      {
+        "label": "C",
+        "text": "A fully automated CI/CD pipeline integrating source, build, and deploy stages"
+      },
+      {
+        "label": "D",
+        "text": "A serverless deployment pipeline using Lambda"
+      }
+    ],
+    "answer": "B",
+    "explanation": "This describes a complete CI/CD pipeline: CodeCommit (source) \u2192 CodeBuild (build and push Docker image to ECR) \u2192 ECS deployment. CodePipeline orchestrates these stages automatically on each push. This is a standard containerized application CI/CD pattern on AWS. It doesn't involve Route 53, CloudFormation for IaC changes, or Lambda execution.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "codepipeline",
+      "codebuild",
+      "ecr",
+      "ecs",
+      "cicd"
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-024",
+    "type": "single",
+    "stem": "An organization's operations team wants a unified operational dashboard showing EC2 instance health, Lambda error rates, RDS CPU, and custom application metrics \u2014 all in one place, with the ability to set alarms on any metric. Which AWS service provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Detective"
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor"
+      },
+      {
+        "label": "C",
+        "text": "Amazon CloudWatch"
+      },
+      {
+        "label": "D",
+        "text": "AWS Health Dashboard"
+      }
+    ],
+    "answer": "B",
+    "explanation": "CloudWatch is the AWS monitoring and observability service. It collects metrics from virtually all AWS services, supports custom metrics, provides dashboards, and can trigger alarms based on metric thresholds. AWS Health Dashboard shows AWS-wide service disruptions. Trusted Advisor provides best-practice recommendations. Detective is for security investigation.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "cloudwatch",
+      "monitoring",
+      "metrics",
+      "dashboards"
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-025",
+    "type": "select-two",
+    "stem": "A company's application writes data to Amazon S3 frequently. Over time, the S3 bucket has accumulated data with varying access patterns \u2014 some objects accessed daily, some monthly, some not accessed in over a year. They want to automatically move objects to cheaper storage tiers as they age without managing it manually. Which S3 feature handles this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Event Notifications"
+      },
+      {
+        "label": "B",
+        "text": "S3 Intelligent-Tiering"
+      },
+      {
+        "label": "C",
+        "text": "S3 Lifecycle policies"
+      },
+      {
+        "label": "D",
+        "text": "S3 Replication rules"
+      }
+    ],
+    "answer": [
+      "B",
+      "C"
+    ],
+    "explanation": "S3 Lifecycle policies allow you to define rules that transition objects to cheaper storage classes (e.g., Standard \u2192 Standard-IA \u2192 Glacier) based on object age. S3 Intelligent-Tiering automatically moves objects between access tiers based on actual access patterns with no management required. Both answers are valid automated cost optimization approaches. Replication copies data across regions/accounts. Event Notifications trigger actions when objects are created or deleted.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "s3",
+      "lifecycle",
+      "intelligent-tiering",
+      "storage-classes"
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-026",
+    "type": "single",
+    "stem": "A company wants to build a machine learning model to detect fraudulent transactions. They have a team of data scientists but no ML infrastructure. Which AWS service allows them to build, train, and deploy ML models at scale without managing the underlying infrastructure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon EC2 GPU instances"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Rekognition"
+      },
+      {
+        "label": "C",
+        "text": "AWS Lambda with custom ML libraries"
+      },
+      {
+        "label": "D",
+        "text": "Amazon SageMaker"
+      }
+    ],
+    "answer": "C",
+    "explanation": "SageMaker is a fully managed ML platform that handles the full lifecycle: data preparation, training (with managed training jobs on GPU/CPU clusters), model evaluation, and deployment to managed endpoints. Data scientists write model code; SageMaker manages infrastructure. Lambda has memory/runtime limits unsuitable for training. EC2 GPU instances require full infrastructure management. Rekognition is a pre-built vision AI service, not a custom model training platform.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "sagemaker",
+      "machine-learning",
+      "training",
+      "deployment"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-027",
+    "type": "single",
+    "stem": "A company exposes a REST API using Amazon API Gateway backed by Lambda. Suddenly the API is receiving 50,000 requests per second from a single IP address, overwhelming the system. Which API Gateway feature limits this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "API Gateway usage plans with throttling limits"
+      },
+      {
+        "label": "B",
+        "text": "API Gateway caching"
+      },
+      {
+        "label": "C",
+        "text": "Lambda reserved concurrency"
+      },
+      {
+        "label": "D",
+        "text": "API Gateway binary media type support"
+      }
+    ],
+    "answer": "B",
+    "explanation": "API Gateway usage plans allow you to define throttling limits (requests per second and burst) per API key or per API stage. This controls the rate of requests before they reach Lambda. Lambda reserved concurrency limits concurrent executions but doesn't rate-limit at the API layer \u2014 it would just cause 429s without proper throttling. API caching reduces backend calls for cacheable responses but doesn't limit individual IP abuse. Binary media type support is for content handling, not throttling.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "api-gateway",
+      "throttling",
+      "usage-plans",
+      "rate-limiting"
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-028",
+    "type": "single",
+    "stem": "A company needs a fully managed graph database to store and query social network relationships (users, friendships, followers) with low-latency traversals. Which AWS service is designed for this use case?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Aurora with JSON columns"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Neptune"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Redshift"
+      },
+      {
+        "label": "D",
+        "text": "Amazon DynamoDB with adjacency list pattern"
+      }
+    ],
+    "answer": "B",
+    "explanation": "Amazon Neptune is a fully managed graph database service designed for highly connected data \u2014 social networks, knowledge graphs, fraud detection. It supports both Gremlin and SPARQL query languages for graph traversals. DynamoDB can model graphs with adjacency lists but is not purpose-built for graph queries. Aurora and Redshift are relational/analytics databases, not optimized for graph traversal patterns.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "neptune",
+      "graph-database",
+      "social-network",
+      "nosql"
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-029",
+    "type": "single",
+    "stem": "A company runs an on-premises Active Directory and wants employees to use their existing corporate credentials to access the AWS Management Console without creating separate IAM users. Which service enables federated identity for console access?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Directory Service Simple AD"
+      },
+      {
+        "label": "B",
+        "text": "Amazon WorkSpaces"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Cognito User Pools"
+      },
+      {
+        "label": "D",
+        "text": "AWS IAM Identity Center (formerly AWS SSO) with Active Directory as the identity source"
+      }
+    ],
+    "answer": "B",
+    "explanation": "IAM Identity Center integrates with on-premises Active Directory (via AWS Managed Microsoft AD or AD Connector) as the identity source, allowing users to log in with existing corporate credentials to access AWS accounts and applications through SSO. Cognito is for consumer-facing application authentication. Simple AD is a basic standalone directory, not a federation gateway for existing AD. WorkSpaces is a virtual desktop service.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "iam-identity-center",
+      "active-directory",
+      "federation",
+      "sso"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  },
+  {
+    "id": "aws-cp-t4-03-030",
+    "type": "single",
+    "stem": "A company wants to decommission their on-premises file server and replace it with a cloud-based shared file system that multiple Linux EC2 instances can mount simultaneously using NFS. Which AWS service provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon FSx for Windows File Server"
+      },
+      {
+        "label": "B",
+        "text": "Amazon EBS (gp3 volume)"
+      },
+      {
+        "label": "C",
+        "text": "Amazon S3"
+      },
+      {
+        "label": "D",
+        "text": "Amazon EFS (Elastic File System)"
+      }
+    ],
+    "answer": "C",
+    "explanation": "EFS provides a fully managed NFS file system that multiple EC2 instances can mount concurrently across multiple AZs. It scales automatically and supports POSIX permissions. EBS volumes can be attached to only one EC2 instance at a time (except Multi-Attach for specific use cases with io1/io2). S3 is object storage accessed via API, not as a mountable NFS file system. FSx for Windows File Server uses SMB protocol, not NFS, and is optimized for Windows.",
+    "difficulty": "above",
+    "test_number": 4,
+    "tags": [
+      "efs",
+      "nfs",
+      "shared-storage",
+      "linux"
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ]
+  }
+]

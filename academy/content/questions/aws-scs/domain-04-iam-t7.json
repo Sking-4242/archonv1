@@ -1,0 +1,576 @@
+[
+  {
+    "id": "scs-d4-t7-001",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security engineer reviews an IAM user's effective permissions and finds an identity-based policy with an explicit Allow for s3:DeleteObject and a separate SCP with an explicit Deny for s3:DeleteObject. What is the effective permission for this user?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The permissions cancel each other out and the action defaults to implicit deny, but AWS Support can override this through a ticket."
+      },
+      {
+        "label": "B",
+        "text": "The most recently applied policy takes precedence, so the result depends on which policy was attached last."
+      },
+      {
+        "label": "C",
+        "text": "The Allow in the identity-based policy takes precedence because it is attached directly to the IAM user rather than applied through an organizational policy."
+      },
+      {
+        "label": "D",
+        "text": "The explicit Deny in the SCP wins regardless of any Allow in other policies, so the action is denied."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS policy evaluation logic applies an explicit Deny at any policy layer as an absolute override. When an explicit Deny exists in an SCP, it blocks the action for all principals in the affected accounts regardless of any Allow in identity-based policies, resource-based policies, or permission boundaries. There is no precedence ordering based on policy attachment time or policy type that can override an explicit Deny.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-002",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A company wants to require that all s3:DeleteObject calls on a specific S3 bucket must be made using multi-factor authentication. Which S3 bucket policy condition key enforces this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "aws:PrincipalTag with a key of MFAEnabled restricts access based on whether the tag is attached to the requesting principal in IAM."
+      },
+      {
+        "label": "B",
+        "text": "aws:SecureTransport ensures that requests are made over HTTPS but does not verify whether MFA was used during the authentication process."
+      },
+      {
+        "label": "C",
+        "text": "aws:MultiFactorAuthPresent set to true in a Deny statement blocks delete requests from principals that did not authenticate with MFA."
+      },
+      {
+        "label": "D",
+        "text": "s3:MFADelete is a bucket versioning setting that enables MFA Delete but is configured on the bucket, not enforced through a bucket policy condition key."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "The aws:MultiFactorAuthPresent condition key evaluates to true when the request was made with temporary credentials that include an MFA token. To require MFA for s3:DeleteObject, add a Deny statement with Condition: {\"Bool\": {\"aws:MultiFactorAuthPresent\": \"false\"}}. This blocks any delete request where MFA was not used. The s3:MFADelete setting controls whether MFA Delete is enabled on versioned buckets, but the bucket policy condition is what actively enforces MFA at request time.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-003",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "An administrator configures IAM Identity Center and assigns a permission set to a group for access to multiple AWS accounts. How does IAM Identity Center provision access in the target accounts?",
+    "options": [
+      {
+        "label": "A",
+        "text": "IAM Identity Center creates permanent IAM users with long-term access keys in each target account and maps them to the group members."
+      },
+      {
+        "label": "B",
+        "text": "IAM Identity Center stores the permission set centrally and evaluates it at request time without provisioning any IAM objects in target accounts."
+      },
+      {
+        "label": "C",
+        "text": "IAM Identity Center federates directly to each target account using SAML assertions without creating any IAM resources in those accounts."
+      },
+      {
+        "label": "D",
+        "text": "IAM Identity Center creates IAM roles in each target account and grants group members temporary credentials to assume those roles during their session."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "When a permission set is assigned to a principal for an AWS account, IAM Identity Center automatically provisions a corresponding IAM role in that target account. The role's trust policy allows the Identity Center service to assume it. Users receive short-lived temporary credentials scoped to that role for the duration of their session. This means no long-term access keys are created, and access is controlled centrally through the permission set definition while the actual enforcement mechanism is a standard IAM role in each account.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-004",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "An AWS Organizations hierarchy has a root with an SCP allowing only EC2 and S3 actions. A child OU has an SCP allowing only RDS actions. An account in the child OU has an IAM policy allowing EC2, S3, and RDS actions. Which services can the IAM principal actually use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EC2, S3, and RDS are all allowed because the IAM policy grants all three and IAM policies take precedence over SCPs for principals within member accounts."
+      },
+      {
+        "label": "B",
+        "text": "No services are allowed because the effective SCP is the intersection of all SCPs in the path, and EC2/S3 are not in the child SCP while RDS is not in the root SCP."
+      },
+      {
+        "label": "C",
+        "text": "Only RDS is allowed because the child OU SCP overrides the parent SCP and the IAM policy, and child policies always take precedence over parent policies."
+      },
+      {
+        "label": "D",
+        "text": "EC2 and S3 are allowed because the root SCP takes precedence over the child OU SCP, and root-level policies always override lower-level organizational policies."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "SCP inheritance works by taking the intersection of all SCPs in the hierarchy path from root to the account. The root SCP allows EC2 and S3 but not RDS. The child OU SCP allows RDS but not EC2 or S3. The effective allowed set is the intersection of these two: no services overlap. Even though the IAM policy allows all three, SCPs act as guardrails that limit the maximum permissions available. A principal can only use a service if it is permitted by every SCP in the path AND by the IAM policy.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-005",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security team wants to deny all AWS API calls made from outside approved regions using an SCP. They notice that IAM API calls continue to work even when denied by the region condition. Why does this occur?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The aws:RequestedRegion condition key is not supported for IAM service API calls and must be replaced with aws:SourceIp to restrict IAM access."
+      },
+      {
+        "label": "B",
+        "text": "IAM calls bypass region conditions because they use the global AWS backbone rather than regional endpoints, making them immune to regional restrictions."
+      },
+      {
+        "label": "C",
+        "text": "IAM is a global service with a single endpoint in us-east-1, and aws:RequestedRegion evaluates to us-east-1 for IAM calls, so they must be explicitly excluded from the regional deny."
+      },
+      {
+        "label": "D",
+        "text": "SCPs cannot restrict IAM API calls under any circumstances because IAM permissions are evaluated before SCPs in the policy evaluation order."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "IAM, STS, S3 (global), and several other global services route through a single endpoint in us-east-1. When an SCP denies actions where aws:RequestedRegion is not in an approved list, calls to global services resolve to us-east-1 and will be denied if us-east-1 is not in the approved list. The standard fix is to add a NotAction list that excludes global services (iam:*, sts:*, s3:*) from the regional deny statement, or to include us-east-1 as an approved region.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-006",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "Account A wants to grant Account B access to an S3 bucket in Account A. The security engineer adds a bucket policy granting Account B s3:GetObject. A principal in Account B still cannot access the bucket. What is most likely missing?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Account A must enable cross-account access in the AWS Organizations console before bucket policies can grant access to principals in other accounts."
+      },
+      {
+        "label": "B",
+        "text": "Account A must also create a VPC endpoint policy to allow cross-account S3 access regardless of the bucket policy configuration."
+      },
+      {
+        "label": "C",
+        "text": "The S3 bucket's Block Public Access settings in Account A must be disabled before any cross-account bucket policy can take effect."
+      },
+      {
+        "label": "D",
+        "text": "The principal in Account B must also have an IAM policy in Account B that explicitly allows the s3:GetObject action on the Account A bucket."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "For cross-account S3 access, both sides must grant permission. The resource account (Account A) must have a bucket policy that allows the cross-account principal. The principal's account (Account B) must have an IAM identity policy that explicitly allows the same S3 action on the bucket ARN. If only the bucket policy grants access, AWS treats the request as cross-account and still requires the principal's own account to authorize the action through an IAM policy. This is different from same-account access where a bucket policy alone is sufficient.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-007",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "IAM Access Analyzer generates a finding for an S3 bucket. The finding shows an external principal from a different AWS account. What type of finding is this and what does it indicate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An unused access finding indicates the cross-account grant exists but has never been exercised and should be removed to follow least privilege."
+      },
+      {
+        "label": "B",
+        "text": "A cross-account access finding indicates a bucket policy or access control list grants access to a principal outside the analyzer's zone of trust, which warrants review."
+      },
+      {
+        "label": "C",
+        "text": "A policy validation finding indicates the bucket policy contains a syntax error that inadvertently grants access to external principals."
+      },
+      {
+        "label": "D",
+        "text": "A public access finding indicates the bucket is accessible to anyone on the internet and must be remediated by enabling S3 Block Public Access settings."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "IAM Access Analyzer uses automated reasoning to identify resources that are accessible from outside the zone of trust defined for the analyzer. For an organization-level analyzer, the zone of trust is the entire organization. For an account-level analyzer, it is the single account. When a bucket policy grants access to a principal in a different account (outside the zone of trust), Access Analyzer generates an external access finding categorized as cross-account. Public access findings are generated when the principal is a wildcard (*) or allows anonymous access, not when a specific external account is named.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-008",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A company implements ABAC to control access to DynamoDB tables based on environment. IAM roles are tagged with Environment: prod or Environment: dev. Which policy element enforces that a principal can only access DynamoDB tables tagged with the same environment value?",
+    "options": [
+      {
+        "label": "A",
+        "text": "A resource-based policy on each DynamoDB table that lists all IAM role ARNs for the corresponding environment explicitly in the Principal element."
+      },
+      {
+        "label": "B",
+        "text": "An SCP applied to the production OU that denies DynamoDB access to any role whose ARN does not contain the word prod as a substring."
+      },
+      {
+        "label": "C",
+        "text": "A permission boundary on each IAM role that limits access to DynamoDB tables whose names contain the matching environment string."
+      },
+      {
+        "label": "D",
+        "text": "An IAM policy using aws:PrincipalTag/Environment condition that matches the tag value on the principal to the aws:ResourceTag/Environment condition on the target resource."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Attribute-based access control in IAM uses condition keys to compare attributes of the requesting principal against attributes of the target resource. The aws:PrincipalTag/key condition key retrieves the value of a tag attached to the principal (user or role) making the request. The aws:ResourceTag/key condition key retrieves the value of a tag on the resource being accessed. A single policy statement with a Condition block requiring StringEquals between these two condition keys scales automatically as new roles and resources are added, without requiring policy updates for each new combination.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-009",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A mobile application needs to authenticate users with username and password and also allow those users to call AWS APIs to read from an S3 bucket. Which combination of Cognito services fulfills both requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Cognito User Pools authenticate users and issue JWT tokens, while Cognito Identity Pools exchange those tokens for temporary AWS credentials via STS."
+      },
+      {
+        "label": "B",
+        "text": "Cognito User Pools authenticate users and also directly issue IAM access keys that the mobile app uses to call S3 without needing Identity Pools."
+      },
+      {
+        "label": "C",
+        "text": "IAM Identity Center handles both user authentication and AWS credential issuance for mobile applications through the OIDC device authorization grant flow."
+      },
+      {
+        "label": "D",
+        "text": "Cognito Identity Pools alone handle both user authentication with username and password and the issuance of temporary AWS credentials for API access."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "Cognito User Pools is a fully managed identity directory that handles user registration, authentication, and token issuance. After successful authentication, the app receives a JWT (ID token or access token). Cognito Identity Pools is a credential broker that accepts tokens from trusted identity providers including Cognito User Pools and calls STS AssumeRoleWithWebIdentity to obtain temporary IAM credentials scoped to a configured IAM role. The two services address distinct concerns: User Pools for who the user is, and Identity Pools for what AWS resources the user can access.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-010",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security architect attaches an SCP to a management account OU that includes s3:CreateBucket in the Allow statement. An IAM user in a member account has no IAM policies. Can the IAM user create S3 buckets?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Yes, because SCPs attached to the management account OU automatically propagate Allow permissions to all principals in child accounts."
+      },
+      {
+        "label": "B",
+        "text": "Yes, because the SCP explicitly allows s3:CreateBucket, which grants the IAM user permission to create buckets regardless of their IAM policies."
+      },
+      {
+        "label": "C",
+        "text": "No, because S3 bucket creation requires both an SCP Allow and an Organizations-level service authorization that must be separately enabled."
+      },
+      {
+        "label": "D",
+        "text": "No, because SCPs only restrict permissions and cannot grant permissions; the IAM user still requires an IAM policy that explicitly allows s3:CreateBucket."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "SCPs define the maximum permissions boundary for accounts in an OU but do not grant permissions by themselves. An Allow in an SCP means that the listed actions are not blocked at the organizational level, but every principal still requires an explicit Allow in an identity-based policy, resource-based policy, or other IAM mechanism. An IAM user with no attached policies has no permissions regardless of what the SCP allows. SCPs are guardrails that restrict, not a source of granted permissions.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-011",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A developer creates an IAM role that an EC2 instance will use to call DynamoDB. The role's trust policy must allow EC2 to assume the role. Which Principal value is correct for the trust policy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "\"Principal\": {\"Service\": \"ec2.amazonaws.com\"} specifies the EC2 service principal, allowing EC2 instances with this role attached to obtain credentials via the metadata service."
+      },
+      {
+        "label": "B",
+        "text": "\"Principal\": {\"AWS\": \"arn:aws:iam::123456789012:root\"} allows the entire account to assume the role but does not restrict assumption to EC2 instances specifically."
+      },
+      {
+        "label": "C",
+        "text": "\"Principal\": {\"AWS\": \"ec2.amazonaws.com\"} combines the AWS principal type with the service DNS name to grant EC2 instance profile access."
+      },
+      {
+        "label": "D",
+        "text": "\"Principal\": {\"Federated\": \"ec2.amazonaws.com\"} is used when a federated identity provider like EC2 needs to assume the role through a web identity assertion."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "IAM role trust policies use the Principal element to specify who can assume the role. For AWS services that need to assume roles (EC2, Lambda, ECS, etc.), the correct principal type is Service with the service's DNS endpoint as the value. For EC2, this is ec2.amazonaws.com. The Federated principal type is used for SAML or OIDC identity providers. The AWS principal type is used for IAM users, roles, or account roots. Using the wrong principal type will cause AssumeRole calls to fail with an access denied error.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-012",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A security engineer calls AssumeRole with a DurationSeconds value of 50000 seconds (approximately 13.9 hours). What will happen?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The call fails with a validation error because AssumeRole has a maximum DurationSeconds of 43200 seconds (12 hours) and the requested value exceeds that limit."
+      },
+      {
+        "label": "B",
+        "text": "The call succeeds with credentials valid for 43200 seconds because AWS automatically caps the duration at the maximum without returning an error."
+      },
+      {
+        "label": "C",
+        "text": "The call succeeds and credentials valid for 50000 seconds are issued because the maximum session duration is configurable up to 24 hours on any role."
+      },
+      {
+        "label": "D",
+        "text": "The call succeeds but credentials are silently capped at 3600 seconds (1 hour) because AWS ignores duration values that exceed the default and applies the minimum instead."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "The STS AssumeRole API has an absolute maximum DurationSeconds of 43200 seconds (12 hours). This ceiling applies even if the IAM role's maximum session duration is set to a higher value. If you pass a value greater than 43200, STS returns a ValidationError. The role's MaxSessionDuration setting only controls the upper bound for sessions up to 12 hours; it does not allow you to exceed the API-level maximum. AssumeRoleWithWebIdentity and AssumeRoleWithSAML share the same 12-hour maximum.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-013",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "An IAM policy contains the following statement: Effect: Allow, NotAction: [iam:*, organizations:*], Resource: *. What does this policy allow?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The policy denies all IAM and Organizations actions and has no effect on any other services because NotAction with Allow only creates implicit denies."
+      },
+      {
+        "label": "B",
+        "text": "The policy explicitly denies iam:* and organizations:* actions while allowing everything else, equivalent to using a Deny Effect with Action on those services."
+      },
+      {
+        "label": "C",
+        "text": "The policy has no effect because NotAction cannot be combined with Resource: * and requires specific resource ARNs to be valid."
+      },
+      {
+        "label": "D",
+        "text": "The policy allows all AWS actions on all resources except iam:* and organizations:*, which are neither explicitly allowed nor explicitly denied by this statement."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The NotAction element with an Allow Effect creates a policy that allows all actions except those listed. In this case, every AWS API action is allowed on every resource except iam:* and organizations:* actions. The excepted actions are simply not covered by this statement; they are neither allowed nor denied by it. A separate Deny statement or absence of any Allow would be needed to block them. This pattern is commonly used to grant broad access while preventing sensitive administrative actions from being performed, though it should be used carefully as it can inadvertently allow many services.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  },
+  {
+    "id": "scs-d4-t7-014",
+    "domain": 4,
+    "domain_name": "Identity and Access Management",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 7,
+    "active": true,
+    "stem": "A company uses Okta as their external identity provider and wants users and groups to be automatically provisioned in IAM Identity Center without manual account creation. Which feature enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The IAM Identity Center built-in directory import wizard connects to Okta's API nightly and reconciles user accounts based on email address matching."
+      },
+      {
+        "label": "B",
+        "text": "SCIM provisioning allows Okta to push user and group lifecycle events to IAM Identity Center in real time, keeping the directory synchronized automatically."
+      },
+      {
+        "label": "C",
+        "text": "AWS Directory Service AD Connector proxies authentication requests to Okta and mirrors all Active Directory objects into Identity Center on a scheduled basis."
+      },
+      {
+        "label": "D",
+        "text": "SAML 2.0 federation synchronizes user attributes during login events, automatically creating Identity Center accounts the first time each user authenticates."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "System for Cross-domain Identity Management (SCIM) is an open standard protocol for automating the exchange of user identity information between identity providers and service providers. IAM Identity Center supports SCIM 2.0, allowing identity providers like Okta, Azure AD, and OneLogin to push create, update, and delete operations for users and groups in real time. This ensures that when an employee is onboarded or offboarded in the IdP, their access in Identity Center is provisioned or deprovisioned automatically without manual intervention. SAML federation alone only passes assertions at login time and does not handle pre-provisioning or deprovisioning.",
+    "module_ref": "domain-04",
+    "tags": [
+      "aws-scs",
+      "domain-04",
+      "iam"
+    ]
+  }
+]

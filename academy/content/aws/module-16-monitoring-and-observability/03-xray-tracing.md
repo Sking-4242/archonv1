@@ -31,6 +31,48 @@ X-Ray integrates natively with Lambda (traces function invocations with one chec
 
 X-Ray provides end-to-end distributed tracing for microservices. Traces map request flow; segments and subsegments break down timing. The service map visualizes the dependency graph with performance data. Use sampling rules to balance trace coverage with cost. For new services, use AWS Distro for OpenTelemetry — it's compatible with X-Ray and portable to other backends.
 
+## Examples
+
+A B2C retail company migrated a monolith to five microservices: an API gateway, product catalog, inventory, pricing, and cart service. After go-live, checkout latency spiked intermittently but no single service's CPU looked unusual. By enabling X-Ray across all five services (one checkbox in Lambda, daemon sidecar in ECS), their service map immediately revealed that 90% of the latency budget was being consumed by the pricing service making a synchronous call to an external tax API. Without the trace visualization, correlating that cause across five services' logs would have taken hours. This is X-Ray's core value proposition: turning a "something is slow" signal into a pinpointed bottleneck.
+
+A gaming company running a high-traffic leaderboard API wanted to trace errors without drowning in trace data during peak usage (millions of requests per minute). They configured a custom X-Ray sampling rule: 100% sampling for any request resulting in a 5xx error, and 0.5% sampling for successful requests. During a production incident, every failed request was captured in full detail while background noise from healthy traffic remained minimal. This demonstrates how custom sampling rules let teams maximize debugging signal while controlling cost and data volume.
+
+A platform engineering team building a new data pipeline used AWS Distro for OpenTelemetry (ADOT) instead of the native X-Ray SDK. By instrumenting with OpenTelemetry, they could send traces to X-Ray for AWS-native viewing AND simultaneously export the same traces to their existing Grafana Tempo instance on-premises — without changing application code. This illustrates the strategic value of ADOT: vendor-portable instrumentation that avoids lock-in while still leveraging AWS-native services.
+
+## Think About It
+
+1. Why is a visual service map more useful than reading raw logs from each service individually when diagnosing latency in a chain of five microservices?
+2. What trade-offs do you accept when you set sampling to 100% for all requests? Think about cost, storage, performance overhead, and data completeness.
+3. How would you decide whether to use subsegments versus annotations in X-Ray when you want to add context to a trace — and what is the functional difference between the two?
+4. If X-Ray shows that 80% of your request latency is spent in a downstream DynamoDB call, but DynamoDB's own CloudWatch metrics look healthy, what might explain the discrepancy and how would you investigate further?
+5. What would happen to your tracing continuity if one service in a five-service chain is NOT instrumented with X-Ray — how does that affect the trace and the service map?
+
+## Quick Check
+
+**Q1.** In X-Ray terminology, what does a "segment" represent?
+- A) The full end-to-end path of a request through all services
+- B) A specific operation within a service, such as a database query
+- C) The work performed by a single service while handling a request, including timing and status
+- D) A sampling rule that determines which requests are traced
+
+**Answer: C** — A segment is created by each service in the call chain and captures that service's contribution to handling the request, including start/end time, HTTP status, and any errors.
+
+**Q2.** What is the default X-Ray sampling behavior?
+- A) 100% of all requests are traced
+- B) No requests are traced unless a custom rule is defined
+- C) The first request each second plus 5% of subsequent requests are traced
+- D) Requests are traced only when they result in an error
+
+**Answer: C** — X-Ray's default reservoir-based sampling traces the first request per second and 5% of additional requests, balancing observability coverage with backend cost.
+
+**Q3.** Which component is responsible for batching and forwarding trace data from an ECS task to the X-Ray service?
+- A) The X-Ray SDK embedded in the application code
+- B) The X-Ray daemon running as a sidecar container
+- C) The CloudWatch Agent installed on the container host
+- D) An EventBridge rule that triggers on trace events
+
+**Answer: B** — The X-Ray daemon (or ADOT collector) runs alongside the application as a sidecar, receives UDP trace segments from the SDK, batches them, and forwards them to the X-Ray API — reducing the number of HTTPS calls the application itself must make.
+
 ## What's Next
 
 Next up: CloudWatch Synthetics and RUM — proactive monitoring before users notice problems.

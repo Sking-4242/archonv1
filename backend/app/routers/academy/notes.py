@@ -23,7 +23,7 @@ class NoteIn(BaseModel):
 
 class NoteOut(BaseModel):
     id: int
-    user_id: int
+    user_id: str
     lesson_id: Optional[int]
     library_lesson_id: Optional[int]
     content: str
@@ -71,7 +71,7 @@ def list_notes(
     visible = []
     for note in notes:
         is_mine = note.user_id == current_user.id
-        is_visible_instructor = note.author.role == "instructor" and note.is_visible
+        is_visible_instructor = note.author.academy_role == "instructor" and note.is_visible
         if is_mine or is_visible_instructor:
             visible.append(_to_out(note))
 
@@ -139,13 +139,13 @@ def delete_note(
 def _to_out(note: LessonNote) -> NoteOut:
     return NoteOut(
         id=note.id,
-        user_id=note.user_id,
+        user_id=str(note.user_id),
         lesson_id=note.lesson_id,
         library_lesson_id=note.library_lesson_id,
         content=note.content,
         is_visible=note.is_visible,
-        author_name=note.author.name,
-        author_role=note.author.role,
+        author_name=note.author.display_name or note.author.email,
+        author_role=note.author.academy_role,
         created_at=note.created_at,
         updated_at=note.updated_at,
     )

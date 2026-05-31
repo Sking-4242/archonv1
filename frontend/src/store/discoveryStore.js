@@ -21,6 +21,12 @@
  *     }
  *   }>,
  *   summary: Record<string, number>,  // canvas_type -> count
+ *   edges: Array<{
+ *     id: string,
+ *     source: string,
+ *     target: string,
+ *     type: string,
+ *   }>,
  *   errors: Array<{ service: string, error: string }>,
  * }
  */

@@ -10,6 +10,7 @@ const STUDENT_TABS = [
   { label: "Course Library", path: "/course-library" },
   { label: "Sandbox", path: "/sandbox" },
   { label: "Grades", path: "/grades" },
+  { label: "Practice Tests", path: "/practice-tests" },
   { label: "Tools", path: "/tools" },
   { label: "Teams", path: "/teams" },
   { label: "Announcements", path: "/announcements" },
@@ -17,15 +18,13 @@ const STUDENT_TABS = [
 
 const INSTRUCTOR_TABS = [
   { label: "Dashboard", path: "/instructor" },
+  { label: "Classes", path: "/instructor/classes" },
   { label: "Assignments", path: "/instructor/assignments" },
   { label: "Modules", path: "/instructor/modules" },
-  { label: "Lesson Plans", path: "/instructor/lesson-plans" },
   { label: "Gradebook", path: "/instructor/gradebook" },
+  { label: "Assistant", path: "/instructor/assistant" },
   { label: "Analytics", path: "/instructor/analytics" },
-  { label: "Rubric Bank", path: "/instructor/rubric-bank" },
-  { label: "Announcements", path: "/instructor/announcements" },
-  { label: "Teams", path: "/instructor/teams" },
-  { label: "Course Settings", path: "/instructor/settings" },
+  { label: "Settings", path: "/instructor/settings" },
 ];
 
 export default function AppShell({ children }) {

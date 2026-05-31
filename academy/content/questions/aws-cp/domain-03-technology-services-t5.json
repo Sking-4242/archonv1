@@ -1,0 +1,1264 @@
+[
+  {
+    "id": "aws-cp-t5-03-001",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company runs a web application behind an ALB with an Auto Scaling group. During a traffic spike, new EC2 instances are launched but users still experience errors for 2 minutes until the new instances are fully initialized. What Auto Scaling feature eliminates these errors during scale-out?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ALB connection draining \u2014 delays instance removal during scale-in to allow in-flight requests to complete before deregistering the target."
+      },
+      {
+        "label": "B",
+        "text": "EC2 instance tenancy \u2014 Dedicated Hosts launch faster"
+      },
+      {
+        "label": "C",
+        "text": "Warm pools \u2014 pre-initialized EC2 instances that are ready"
+      },
+      {
+        "label": "D",
+        "text": "Scheduled scaling policy"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "ALB connection draining \u2014 delays instance removal during scale-in to allow in-flight requests to complete before deregistering the target.",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Warm pools allow you to keep pre-initialized EC2 instances in a stopped or running state. When a scale-out event occurs, instances from the warm pool enter the ASG immediately without bootstrapping delay, eliminating the 2-minute initialization window. Scheduled scaling predicts demand but doesn't pre-initialize. Dedicated Hosts don't affect boot time. Connection draining is for scale-in, not scale-out.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "auto-scaling",
+      "warm-pools",
+      "ec2",
+      "latency"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-002",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company runs a global multi-player gaming application. Players in South America, Europe, and Asia-Pacific all need to connect to the same game server in us-east-1 with minimal latency and consistent network performance. Which service routes player connections over AWS's global backbone rather than the public internet?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Global Accelerator"
+      },
+      {
+        "label": "B",
+        "text": "VPC Peering"
+      },
+      {
+        "label": "C",
+        "text": "Amazon CloudFront"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Route 53 with latency routing"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Global Accelerator routes traffic through AWS edge locations to AWS's private global network backbone, avoiding the unpredictable public internet. This provides consistent, low-latency networking for applications with a single endpoint in us-east-1. CloudFront is for caching static content. Route 53 latency routing resolves to the nearest endpoint but traffic still travels over the public internet. VPC Peering connects VPCs, not end users globally.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "global-accelerator",
+      "network-performance",
+      "latency",
+      "gaming"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-003",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A startup's application writes 10,000 records per second to DynamoDB. After 6 months, the DynamoDB table has grown to 50 TB and query performance has degraded for accessing data older than 90 days. What DynamoDB feature should they use to automatically move old items out of the table?",
+    "options": [
+      {
+        "label": "A",
+        "text": "DynamoDB Streams with a Lambda function to delete old items"
+      },
+      {
+        "label": "B",
+        "text": "DynamoDB On-Demand capacity mode to handle the larger table size"
+      },
+      {
+        "label": "C",
+        "text": "DynamoDB Global Tables to distribute data across regions"
+      },
+      {
+        "label": "D",
+        "text": "DynamoDB Time to Live (TTL) to automatically delete items after a defined expiry timestamp"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "DynamoDB TTL allows you to define an attribute on each item containing an expiry timestamp. DynamoDB automatically deletes expired items in the background without consuming write capacity units. This is the correct tool for data lifecycle management in DynamoDB \u2014 cleaning up old data reduces table size and can improve query performance on active data. Streams+Lambda could work but TTL is built-in and simpler. Global Tables adds regions, not lifecycle management.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "dynamodb",
+      "ttl",
+      "data-lifecycle",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-004",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses Amazon RDS PostgreSQL. They need to scale write capacity beyond what a single instance can handle. Which approach supports write scaling in RDS?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Migrate to Amazon Aurora, which uses a distributed storage layer and can support Aurora Serverless"
+      },
+      {
+        "label": "B",
+        "text": "Increase the RDS instance size (vertical scaling) \u2014 this is the only option for RDS write scaling"
+      },
+      {
+        "label": "C",
+        "text": "Enable RDS Multi-AZ \u2014 the standby handles write scaling"
+      },
+      {
+        "label": "D",
+        "text": "Enable RDS Read Replicas and direct writes to them"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "RDS PostgreSQL has limited write scaling options \u2014 Read Replicas handle reads only. True write scaling for relational databases typically requires migrating to Aurora (which has higher write throughput) or application-level sharding. Aurora Serverless v2 can auto-scale capacity. Multi-AZ standby is for failover, not scaling \u2014 it doesn't serve writes. Vertical scaling (larger instance) helps but has hard limits.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "rds",
+      "aurora",
+      "write-scaling",
+      "database"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-005",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company wants to run a data processing pipeline where Step 1 must complete before Step 2 starts, Step 2 can run two tasks in parallel, and Step 3 only runs if Step 2 tasks both succeed. Which AWS service orchestrates this workflow?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Step Functions state machine with sequential and parallel states"
+      },
+      {
+        "label": "B",
+        "text": "Amazon EventBridge with multiple rules routes events to different targets but lacks native sequential state management and conditional branching for workflows."
+      },
+      {
+        "label": "C",
+        "text": "Amazon SQS with multiple queues decouples components but does not orchestrate multi-step workflows with conditional logic, retries, and parallel execution."
+      },
+      {
+        "label": "D",
+        "text": "AWS Lambda with recursive calls can chain functions but creates tight coupling, no visual workflow tracking, and makes error handling and timeouts difficult."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Amazon EventBridge with multiple rules routes events to different targets but lacks native sequential state management and conditional branching for workflows.",
+      "C": "Amazon SQS with multiple queues decouples components but does not orchestrate multi-step workflows with conditional logic, retries, and parallel execution.",
+      "D": "AWS Lambda with recursive calls can chain functions but creates tight coupling, no visual workflow tracking, and makes error handling and timeouts difficult."
+    },
+    "explanation": "Step Functions state machines natively support sequential states, parallel branches, error handling, and conditional branching. The workflow described (sequential \u2192 parallel \u2192 conditional) is exactly what Step Functions is built for. SQS is for message queuing, not workflow orchestration with conditional logic. EventBridge is for event routing, not stateful workflow management. Recursive Lambda calls are error-prone and lack native parallelism control.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "step-functions",
+      "workflow",
+      "orchestration",
+      "parallel"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-006",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A media company stores video files in S3. They want to automatically transcode uploaded videos into multiple resolutions (1080p, 720p, 480p) whenever a new file is uploaded. Which event-driven architecture achieves this with minimal management?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SQS queue that stores upload notifications for batch processing nightly"
+      },
+      {
+        "label": "B",
+        "text": "CloudWatch Events scheduled rule that runs every hour"
+      },
+      {
+        "label": "C",
+        "text": "S3 Event Notification triggering an SNS topic that fans out to Lambda"
+      },
+      {
+        "label": "D",
+        "text": "EC2 instance that polls S3 every 5 minutes for new files"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "S3 Event Notifications fire immediately on object creation. Routing to SNS enables fan-out to multiple Lambda functions simultaneously \u2014 one per resolution. Lambda scales automatically per invocation. This is fully event-driven with no polling and no persistent compute. EC2 polling introduces latency and requires idle compute. CloudWatch scheduled rules are time-based, not event-based. SQS batch processing is not real-time.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "s3-events",
+      "sns",
+      "lambda",
+      "fan-out"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-007",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company wants to migrate their on-premises Oracle database to AWS while minimizing downtime. The database must remain available during migration. Which AWS service supports continuous data replication during migration with minimal application downtime?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Snowball Edge is a physical data transfer device designed for offline bulk migrations of terabytes to petabytes, not for continuous live database replication."
+      },
+      {
+        "label": "B",
+        "text": "AWS Database Migration Service (DMS) with ongoing replication"
+      },
+      {
+        "label": "C",
+        "text": "AWS DataSync transfers data between on-premises storage and AWS storage services like S3 or EFS but does not support continuous database replication."
+      },
+      {
+        "label": "D",
+        "text": "Amazon S3 Transfer Acceleration speeds up file uploads to S3 using CloudFront edge locations but is not applicable to database replication scenarios."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "AWS Snowball Edge is a physical data transfer device designed for offline bulk migrations of terabytes to petabytes, not for continuous live database replication.",
+      "C": "AWS DataSync transfers data between on-premises storage and AWS storage services like S3 or EFS but does not support continuous database replication.",
+      "D": "Amazon S3 Transfer Acceleration speeds up file uploads to S3 using CloudFront edge locations but is not applicable to database replication scenarios."
+    },
+    "explanation": "AWS DMS supports both one-time full-load migrations and ongoing replication (change data capture). With DMS, you start a full load from the source Oracle DB to the target (RDS, Aurora, etc.), then switch to ongoing CDC replication to keep the target synchronized. During cutover, only a brief downtime (seconds to minutes) is needed. Snowball is for bulk offline data transfer. DataSync moves files, not relational database data with CDC. S3 Transfer Acceleration is for S3 uploads.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "dms",
+      "database-migration",
+      "oracle",
+      "cdc"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-008",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses Amazon ElastiCache for Redis as a cache in front of RDS. The cache hit ratio is 95%, dramatically reducing RDS load. If the ElastiCache cluster fails, the application connects directly to RDS. What does this pattern demonstrate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Read-through caching \u2014 the cache always fetches from RDS on misses"
+      },
+      {
+        "label": "B",
+        "text": "Cache-aside pattern with graceful degradation \u2014 application handles cache miss by falling back to the database"
+      },
+      {
+        "label": "C",
+        "text": "Single point of failure \u2014 the cache creates a bottleneck and the architecture should use Multi-AZ ElastiCache replication to eliminate this dependency."
+      },
+      {
+        "label": "D",
+        "text": "Write-through caching \u2014 all writes go to the cache first"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "Single point of failure \u2014 the cache creates a bottleneck and the architecture should use Multi-AZ ElastiCache replication to eliminate this dependency.",
+      "D": ""
+    },
+    "explanation": "The cache-aside (lazy loading) pattern means the application checks the cache first. On a miss (or cache failure), it queries the database directly. This provides graceful degradation \u2014 a cache failure degrades performance but doesn't cause an outage. The RDS fallback means the cache is a performance optimization, not a hard dependency. Write-through and read-through are different caching patterns.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "elasticache",
+      "cache-aside",
+      "graceful-degradation",
+      "rds"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-009",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A retail company uses an Aurora database. Their Black Friday traffic increases write load by 5x. They notice Aurora's write performance doesn't scale as quickly as their read capacity (which uses Aurora Replicas). Why is this, and what is the architectural solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Aurora Multi-AZ which distributes writes across zones"
+      },
+      {
+        "label": "B",
+        "text": "Enable Aurora Global Database which distributes writes across regions"
+      },
+      {
+        "label": "C",
+        "text": "Increase the number of Aurora Replicas to handle both read and write traffic"
+      },
+      {
+        "label": "D",
+        "text": "Aurora replicas share storage with the primary, so reads scale easily."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Aurora's architecture uses a shared distributed storage layer \u2014 read replicas can serve reads from this shared storage without replicating data. However, all writes go to the single primary writer instance. You can scale reads by adding up to 15 replicas, but write scaling requires a larger primary instance (vertical) or application-level sharding. Aurora Multi-AZ is failover, not write scaling. Global Database has a single writer region.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "aurora",
+      "write-scaling",
+      "read-replicas",
+      "database-architecture"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-010",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses AWS CloudFormation to manage infrastructure. They want to ensure that the production CloudFormation stack cannot be deleted accidentally. Which CloudFormation feature prevents accidental deletion?",
+    "options": [
+      {
+        "label": "A",
+        "text": "DeletionPolicy: Retain on all resources"
+      },
+      {
+        "label": "B",
+        "text": "Termination Protection on the stack"
+      },
+      {
+        "label": "C",
+        "text": "Stack Policies that deny delete actions"
+      },
+      {
+        "label": "D",
+        "text": "IAM permissions that restrict cloudformation:DeleteStack"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudFormation stack Termination Protection, when enabled, prevents the stack from being deleted through the console or CLI until protection is explicitly disabled. It's a simple, direct answer to the question. DeletionPolicy: Retain keeps the underlying resources after stack deletion but doesn't prevent the deletion action. Stack Policies protect resources from unintended updates during stack updates but don't prevent stack deletion. IAM restrictions could work but Termination Protection is the CloudFormation-native feature.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudformation",
+      "termination-protection",
+      "iac",
+      "accidental-deletion"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-011",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company is designing a serverless API that will have highly variable traffic: near-zero most of the time, with sudden bursts to 5,000 requests per second. They are concerned about Lambda cold starts impacting user experience during bursts. What feature addresses this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Lambda Reserved Concurrency to limit maximum execution count"
+      },
+      {
+        "label": "B",
+        "text": "Increasing Lambda memory allocation reduces cold start time"
+      },
+      {
+        "label": "C",
+        "text": "Lambda Provisioned Concurrency \u2014 pre-initializes execution environments to eliminate cold"
+      },
+      {
+        "label": "D",
+        "text": "Lambda Layers for dependency optimization"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Lambda Provisioned Concurrency pre-initializes a specified number of execution environments, keeping them warm and ready to respond instantly with no initialization latency. This eliminates cold starts for the configured concurrency level. Reserved Concurrency limits (not pre-warms) concurrency. Lambda Layers reduce deployment package size. Increasing memory does slightly speed up initialization but is not a reliable cold start solution.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "lambda",
+      "provisioned-concurrency",
+      "cold-start",
+      "serverless"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-012",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company deploys microservices on Amazon ECS. They need a way for services to discover each other's endpoints dynamically as instances scale and change IP. Which AWS service provides service discovery for ECS?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Route 53 public hosted zone handles DNS resolution for publicly accessible endpoints but does not provide service discovery within private VPC namespaces."
+      },
+      {
+        "label": "B",
+        "text": "AWS Direct Connect provides private network connectivity from on-premises to AWS but is not a service discovery mechanism for ECS or microservice environments."
+      },
+      {
+        "label": "C",
+        "text": "VPC Peering enables network-level connectivity between VPCs but does not provide the DNS-based service discovery layer needed for dynamic ECS service registration."
+      },
+      {
+        "label": "D",
+        "text": "AWS Cloud Map \u2014 service discovery for AWS resources including ECS."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Amazon Route 53 public hosted zone handles DNS resolution for publicly accessible endpoints but does not provide service discovery within private VPC namespaces.",
+      "B": "AWS Direct Connect provides private network connectivity from on-premises to AWS but is not a service discovery mechanism for ECS or microservice environments.",
+      "C": "VPC Peering enables network-level connectivity between VPCs but does not provide the DNS-based service discovery layer needed for dynamic ECS service registration."
+    },
+    "explanation": "AWS Cloud Map provides service discovery for cloud resources. ECS integrates with Cloud Map to register service instances as they start and deregister when they stop. Services can discover each other via DNS or API calls. Route 53 public hosted zones are for internet-facing DNS. Direct Connect and VPC Peering are network connectivity solutions, not service discovery mechanisms.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloud-map",
+      "service-discovery",
+      "ecs",
+      "microservices"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-013",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An e-commerce company's order processing involves: placing an order, reserving inventory, charging a credit card, and sending a confirmation email. They want to orchestrate this as a reliable workflow with automatic retries on transient failures. Which architecture is most appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use SNS to chain the steps via topic notifications"
+      },
+      {
+        "label": "B",
+        "text": "Use a single Lambda function that performs all steps sequentially"
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Step Functions to orchestrate Lambda functions for each step."
+      },
+      {
+        "label": "D",
+        "text": "Chain Lambda functions synchronously via function calls"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Step Functions provides built-in retry logic, error handling, and state tracking for each step in a workflow. If the 'charge credit card' Lambda fails transiently, Step Functions retries automatically. Each step's state is persisted. A single monolithic Lambda loses state on timeout. Chained synchronous Lambda calls can hit timeout limits and have no built-in retry coordination. SNS fan-out doesn't provide sequential orchestration with error handling.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "step-functions",
+      "orchestration",
+      "lambda",
+      "error-handling"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-014",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company needs to run a containerized workload that requires access to a GPU for machine learning inference. Which Amazon ECS launch type supports GPU-enabled EC2 instances?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Lightsail containers \u2014 provide GPU access"
+      },
+      {
+        "label": "B",
+        "text": "EC2 launch type with GPU-optimized instance types (e.g., p3, g4dn)"
+      },
+      {
+        "label": "C",
+        "text": "AWS Fargate \u2014 supports GPU containers automatically"
+      },
+      {
+        "label": "D",
+        "text": "AWS Lambda \u2014 supports GPU acceleration for ML workloads"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "ECS with the EC2 launch type allows you to use GPU-optimized instance types (p3, g4dn, etc.) in your cluster. Containers can request GPU resources and ECS schedules them on GPU instances. Fargate does not support GPU instances. Lambda does not support GPU access. Lightsail containers don't provide GPU capability.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "ecs",
+      "gpu",
+      "ec2",
+      "machine-learning"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-015",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's application runs in a VPC and needs to access Amazon S3 without traffic leaving the AWS network or going over the public internet. They also want to avoid NAT Gateway charges for S3 traffic. Which feature achieves both goals?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 Transfer Acceleration"
+      },
+      {
+        "label": "B",
+        "text": "VPC Gateway Endpoint for S3"
+      },
+      {
+        "label": "C",
+        "text": "VPC Peering connection to S3"
+      },
+      {
+        "label": "D",
+        "text": "AWS Direct Connect to S3"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "A VPC Gateway Endpoint for S3 routes traffic from the VPC to S3 directly through the AWS network without using a NAT Gateway, internet gateway, or leaving AWS's backbone. Gateway Endpoints are free (no per-hour or per-GB charges). NAT Gateway charges are eliminated. Traffic never traverses the public internet. VPC Peering is for VPC-to-VPC connectivity. Direct Connect is for on-premises to AWS. Transfer Acceleration uses CloudFront edge nodes.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "vpc-endpoint",
+      "s3",
+      "nat-gateway",
+      "cost-optimization"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-016",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company builds a real-time fraud detection system. Each financial transaction must be evaluated in under 50ms. The system must run 24/7 with automatic scaling based on transaction volume. What architecture best meets these requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Batch process transactions overnight using Amazon EMR"
+      },
+      {
+        "label": "B",
+        "text": "SQS FIFO queue with an EC2 Auto Scaling group consuming messages"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Redshift for real-time SQL-based fraud analysis"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Kinesis Data Streams ingesting transactions, with Lambda consumers running the fraud."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Kinesis Data Streams with Lambda provides real-time event processing with sub-50ms latency at scale. Kinesis scales by adding shards, and Lambda scales automatically with the stream. Batch processing (EMR) doesn't provide real-time evaluation. SQS FIFO + EC2 can work but SQS has higher latency guarantees and EC2 Auto Scaling lag. Redshift is a data warehouse optimized for complex analytical queries, not low-latency transaction processing.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "kinesis",
+      "lambda",
+      "real-time",
+      "fraud-detection"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-017",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses Amazon EFS to share data between multiple EC2 instances running a content management system. As the workload grows, they notice EFS latency increasing. Which EFS performance mode should they evaluate to optimize for high throughput at the cost of slightly higher latency on metadata operations?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Bursting Throughput mode starts with a baseline tied to file system size and bursts higher, which is optimized for spiky workloads, not sustained high parallelism."
+      },
+      {
+        "label": "B",
+        "text": "Provisioned Throughput mode sets a fixed throughput level independent of file system size, suitable for predictable high-throughput but not maximum parallel I/O."
+      },
+      {
+        "label": "C",
+        "text": "General Purpose performance mode is optimized for latency-sensitive workloads with lower per-operation overhead, making it the right choice for most use cases."
+      },
+      {
+        "label": "D",
+        "text": "Max I/O performance mode \u2014 scales to higher throughput"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Bursting Throughput mode starts with a baseline tied to file system size and bursts higher, which is optimized for spiky workloads, not sustained high parallelism.",
+      "B": "Provisioned Throughput mode sets a fixed throughput level independent of file system size, suitable for predictable high-throughput but not maximum parallel I/O.",
+      "C": "General Purpose performance mode is optimized for latency-sensitive workloads with lower per-operation overhead, making it the right choice for most use cases."
+    },
+    "explanation": "EFS Max I/O mode supports higher throughput and operations per second for highly parallelized workloads accessing EFS from many instances. It trades slightly higher latencies on file metadata operations for greater aggregate throughput. General Purpose is better for latency-sensitive apps with a smaller scale. Bursting and Provisioned are throughput modes (different dimension from performance modes).",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "efs",
+      "performance-mode",
+      "max-io",
+      "throughput"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-018",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company wants to use Amazon Rekognition to automatically tag products in images uploaded to their e-commerce platform. The images are stored in S3. What is the correct invocation pattern?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Glue to batch-process images through Rekognition on a schedule"
+      },
+      {
+        "label": "B",
+        "text": "Install Rekognition software on EC2 instances to process images locally"
+      },
+      {
+        "label": "C",
+        "text": "Configure S3 to automatically send images to Rekognition via S3 Inventory"
+      },
+      {
+        "label": "D",
+        "text": "Call the Rekognition API from a Lambda function triggered by S3 object creation events,"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Rekognition is a fully managed API service. The standard pattern is: S3 Event Notification (on PutObject) \u2192 Lambda \u2192 Rekognition API call with the S3 object reference. Rekognition reads directly from S3 and returns labels/tags. Lambda handles the orchestration. Rekognition has no client-side software to install. Glue is for ETL, not ML inference. S3 Inventory doesn't trigger ML processing.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "rekognition",
+      "lambda",
+      "s3",
+      "computer-vision"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-019",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company is deploying a three-tier architecture: web tier (public), application tier (private), database tier (private). The application tier needs outbound internet access to call a third-party API, but should not be directly reachable from the internet. What provides outbound-only internet connectivity for private subnets?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Elastic IP address on the application server"
+      },
+      {
+        "label": "B",
+        "text": "Internet Gateway attached to the private subnet"
+      },
+      {
+        "label": "C",
+        "text": "NAT Gateway in a public subnet with a route from the."
+      },
+      {
+        "label": "D",
+        "text": "VPC Peering to a VPC with internet access"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "A NAT Gateway in a public subnet allows instances in private subnets to initiate outbound connections to the internet (through the NAT) while preventing inbound connections from the internet. The private subnet's route table points to the NAT Gateway for 0.0.0.0/0 traffic. An Internet Gateway on a private subnet would expose instances publicly. VPC Peering connects VPCs. Elastic IP makes the instance publicly reachable.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "nat-gateway",
+      "private-subnet",
+      "vpc",
+      "three-tier"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-020",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's DBA notices that a Lambda function is opening a new RDS connection on every invocation, causing the database to run out of connections during high load (thousands of concurrent Lambdas). What is the recommended solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Reduce Lambda concurrency to limit the number of simultaneous connections"
+      },
+      {
+        "label": "B",
+        "text": "Use Amazon RDS Proxy \u2014 it pools and multiplexes database connections."
+      },
+      {
+        "label": "C",
+        "text": "Switch from RDS to DynamoDB to avoid connection limits"
+      },
+      {
+        "label": "D",
+        "text": "Increase the RDS instance size to support more connections"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "RDS Proxy sits between Lambda and RDS, maintaining a connection pool. Thousands of Lambda invocations share a much smaller pool of actual database connections. This solves the Lambda-RDS connection exhaustion problem without limiting concurrency or changing database engines. Increasing instance size helps marginally but doesn't solve the fundamental connection management problem. Reducing concurrency degrades performance.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "rds-proxy",
+      "lambda",
+      "connection-pooling",
+      "rds"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-021",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company runs microservices on Amazon EKS. They want to manage secrets (API keys, database passwords) securely for their Kubernetes pods without storing secrets in environment variables or container images. Which AWS service integrates with EKS for this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager Parameter Store or Secrets Manager via the AWS Secrets and Config Provider"
+      },
+      {
+        "label": "B",
+        "text": "AWS KMS \u2014 encrypt secrets in etcd"
+      },
+      {
+        "label": "C",
+        "text": "Amazon S3 \u2014 store secrets in an encrypted S3 bucket and mount in pods"
+      },
+      {
+        "label": "D",
+        "text": "AWS IAM \u2014 embed secrets in IAM policies attached to the pod's service account"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The AWS Secrets and Config Provider (ASCP) with the Secrets Store CSI Driver allows Kubernetes pods to mount secrets from AWS Secrets Manager or Parameter Store as volumes or environment variables \u2014 secrets never touch the container image or Kubernetes secrets (etcd). KMS can encrypt etcd but doesn't inject secrets into pods. S3 file mounting is not native Kubernetes secret management. IAM policies cannot store application secrets.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "eks",
+      "secrets-manager",
+      "parameter-store",
+      "kubernetes"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-022",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses Amazon CloudWatch to monitor their application. They want to automatically recover an EC2 instance if it fails an EC2 system status check (underlying hardware issue). What CloudWatch feature enables automated recovery?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudWatch Logs captures log data for review after an event but cannot automatically trigger EC2 instance recovery the way an EC2 recovery alarm action can."
+      },
+      {
+        "label": "B",
+        "text": "CloudWatch Alarm with an EC2 recovery action \u2014 automatically recovers the instance to the same host or a new host with the same instance ID and metadata."
+      },
+      {
+        "label": "C",
+        "text": "CloudWatch Contributor Insights analyzes log patterns to identify top contributors to issues but does not trigger any automated remediation or recovery action."
+      },
+      {
+        "label": "D",
+        "text": "A CloudWatch Events scheduled rule can restart instances on a schedule but cannot detect and respond to individual instance status check failures in real time."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "CloudWatch Logs captures log data for review after an event but cannot automatically trigger EC2 instance recovery the way an EC2 recovery alarm action can.",
+      "C": "CloudWatch Contributor Insights analyzes log patterns to identify top contributors to issues but does not trigger any automated remediation or recovery action.",
+      "D": "A CloudWatch Events scheduled rule can restart instances on a schedule but cannot detect and respond to individual instance status check failures in real time."
+    },
+    "explanation": "CloudWatch supports EC2 recovery actions on alarms that monitor StatusCheckFailed_System. When triggered, EC2 performs an instance recovery \u2014 migrating the instance to healthy hardware while preserving the instance ID, private IP, Elastic IP, and EBS volumes. This is different from termination and relaunch (which loses the instance ID and private IP). Scheduled restarts are not event-driven. Contributor Insights and Logs are analytical tools.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "cloudwatch",
+      "ec2-recovery",
+      "system-status-check",
+      "automated-remediation"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-023",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company stores 100 TB of rarely accessed data in Amazon S3 Standard. A cost review reveals they are paying full S3 Standard prices for data accessed less than once per year. Which S3 storage class change would most reduce cost for this specific access pattern?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 One Zone-IA stores data in a single Availability Zone at lower cost than Standard-IA, but does not provide the low retrieval cost of Glacier for archives."
+      },
+      {
+        "label": "B",
+        "text": "S3 Standard-IA is designed for infrequent but rapidly accessible data and has higher storage and retrieval costs than Glacier for long-term archival."
+      },
+      {
+        "label": "C",
+        "text": "S3 Intelligent-Tiering automatically moves objects between access tiers based on usage patterns but carries a monitoring fee and is not optimized for pure archival."
+      },
+      {
+        "label": "D",
+        "text": "S3 Glacier Flexible Retrieval (formerly S3 Glacier)"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "S3 One Zone-IA stores data in a single Availability Zone at lower cost than Standard-IA, but does not provide the low retrieval cost of Glacier for archives.",
+      "B": "S3 Standard-IA is designed for infrequent but rapidly accessible data and has higher storage and retrieval costs than Glacier for long-term archival.",
+      "C": "S3 Intelligent-Tiering automatically moves objects between access tiers based on usage patterns but carries a monitoring fee and is not optimized for pure archival."
+    },
+    "explanation": "For data accessed less than once per year, S3 Glacier Flexible Retrieval provides the lowest storage cost \u2014 approximately 1/10th of S3 Standard pricing. Retrieval times are minutes to hours. Standard-IA and One Zone-IA are designed for monthly access patterns and have per-retrieval fees that become expensive for very infrequent access. Intelligent-Tiering is optimal for data with unknown or changing patterns \u2014 for truly archival data (< yearly access), Glacier is cheaper.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "s3",
+      "glacier",
+      "storage-classes",
+      "archival"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-024",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company runs an online ticketing system where two users try to purchase the last available ticket simultaneously. Without proper handling, both could succeed, resulting in overselling. What DynamoDB feature prevents this race condition?",
+    "options": [
+      {
+        "label": "A",
+        "text": "DynamoDB DAX caching"
+      },
+      {
+        "label": "B",
+        "text": "DynamoDB Streams to process purchases sequentially"
+      },
+      {
+        "label": "C",
+        "text": "DynamoDB conditional writes \u2014 update the item only"
+      },
+      {
+        "label": "D",
+        "text": "DynamoDB Global Tables for consistent writes across regions"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "DynamoDB conditional writes allow you to specify a condition that must be true for the write to succeed. For the last ticket, a condition like `available_tickets > 0` ensures the decrement only succeeds if tickets remain. The first writer succeeds; the second writer's condition fails with ConditionalCheckFailedException. This is atomic without needing distributed locks. DAX is a read cache. Streams are for event processing. Global Tables replicate data.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "dynamodb",
+      "conditional-writes",
+      "atomic-operations",
+      "race-condition"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-025",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses AWS Elastic Beanstalk to deploy their application. They want to deploy a new version to 25% of instances first, monitor for errors, then gradually roll out to the rest \u2014 and be able to quickly revert if issues arise. Which Elastic Beanstalk deployment policy supports this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Rolling \u2014 deploys in batches across all instances"
+      },
+      {
+        "label": "B",
+        "text": "All at once \u2014 deploys to all instances simultaneously"
+      },
+      {
+        "label": "C",
+        "text": "Immutable or Traffic-splitting \u2014 deploys new version to a separate fleet and"
+      },
+      {
+        "label": "D",
+        "text": "Rolling with additional batch \u2014 adds new instances during deployment"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Traffic-splitting deployment (also called canary deployment in Beanstalk) sends a percentage of traffic to a new version while keeping the old version running. Immutable deployments launch a completely new set of instances. Both support quick rollback. All-at-once has no rollback without redeployment. Rolling updates the same instances in batches (slower rollback). Traffic-splitting most directly matches the 'deploy to 25% first, then gradually roll out' requirement.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "elastic-beanstalk",
+      "canary-deployment",
+      "traffic-splitting",
+      "rollback"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-026",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company wants to host a static website with global delivery, HTTPS support, and no server management. All content is HTML/CSS/JS stored in S3. Which architecture achieves this with minimal cost and no server management?",
+    "options": [
+      {
+        "label": "A",
+        "text": "S3 static website hosting with CloudFront distribution and ACM certificate"
+      },
+      {
+        "label": "B",
+        "text": "EC2 instances in multiple Regions with Route 53 geolocation routing"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Lightsail with a static site template"
+      },
+      {
+        "label": "D",
+        "text": "Elastic Beanstalk Node.js application serving static files"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "S3 static website hosting + CloudFront + ACM is the canonical serverless static site pattern: no servers, global CDN delivery, free ACM certificate, HTTPS termination at CloudFront edge, and costs only for storage and CDN data transfer. EC2 multi-region has high overhead and cost. Elastic Beanstalk runs application servers unnecessarily. Lightsail involves VMs.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "s3",
+      "cloudfront",
+      "acm",
+      "static-website"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-027",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company analyzes user behavior data stored in S3. Currently they use Amazon EMR with Spark for batch analytics jobs that run for 4 hours daily. The cluster is idle 20 hours per day. What architecture reduces cost while maintaining the analytical capability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Switch to Amazon Redshift and load data from S3"
+      },
+      {
+        "label": "B",
+        "text": "Enable EMR auto-scaling to scale down to 0 nodes during idle periods"
+      },
+      {
+        "label": "C",
+        "text": "Use Amazon Athena for ad-hoc queries and run EMR clusters only when needed,"
+      },
+      {
+        "label": "D",
+        "text": "Use Reserved EMR instances to reduce the idle cost"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "Terminating the EMR cluster after each job (using transient clusters) eliminates the 20 hours of idle cost. For ad-hoc analysis, Athena queries S3 directly with no cluster management and charges per TB scanned. EMR transient clusters can be launched on-demand for intensive Spark jobs. Reserved instances and auto-scaling both have minimum costs even when idle. Redshift requires loading data and continuous cluster costs.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "emr",
+      "athena",
+      "cost-optimization",
+      "transient-cluster"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-028",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's analytics team needs to join data from S3, DynamoDB, and an RDS database in a single SQL query without moving the data. Which AWS service enables this federated query capability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Redshift Spectrum \u2014 queries only S3 data from Redshift"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Athena Federated Query \u2014 can query data across multiple sources including S3,"
+      },
+      {
+        "label": "C",
+        "text": "AWS Data Pipeline \u2014 moves data between sources for unified querying"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Glue \u2014 creates a unified data catalog"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Athena Federated Query uses data source connectors to query data in S3, DynamoDB, RDS, and other sources simultaneously in a single SQL query without ETL or data movement. Results are joined at query time. Glue provides the catalog (schema definitions) but doesn't run federated queries itself. Redshift Spectrum queries S3 from Redshift but doesn't span DynamoDB and RDS natively. Data Pipeline moves data, requiring extract-load cycles.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "athena",
+      "federated-query",
+      "s3",
+      "dynamodb"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-029",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "select-two",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "Which TWO statements correctly describe differences between Amazon SQS Standard and SQS FIFO queues?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SQS FIFO supports higher throughput than Standard (up to 30,000 messages/second with high throughput mode vs. SQS Standard's 3,000/second)"
+      },
+      {
+        "label": "B",
+        "text": "SQS FIFO queues are better suited for workloads where message ordering and deduplication are critical, such as financial transactions"
+      },
+      {
+        "label": "C",
+        "text": "SQS Standard provides at-least-once delivery and best-effort ordering; FIFO provides exactly-once processing and strict message ordering"
+      },
+      {
+        "label": "D",
+        "text": "SQS Standard guarantees messages are delivered in the order they were sent"
+      }
+    ],
+    "correct": [
+      "B",
+      "C"
+    ],
+    "distractors": {
+      "A": "",
+      "D": ""
+    },
+    "explanation": "SQS Standard: nearly unlimited throughput, at-least-once delivery (rare duplicates possible), best-effort ordering. SQS FIFO: exactly-once processing, strict FIFO ordering per message group, but lower throughput (3,000/sec standard, 30,000/sec in high throughput mode). FIFO is ideal for order-sensitive workloads like financial transactions. Standard has much higher throughput than FIFO, not the reverse. Standard does NOT guarantee ordering.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "sqs",
+      "fifo",
+      "standard-queue",
+      "message-ordering"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-03-030",
+    "domain": 3,
+    "domain_name": "Technology and Services",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses AWS Direct Connect for a dedicated 1 Gbps connection between their data center and AWS. They also have a Site-to-Site VPN as backup. During a Direct Connect circuit failure, traffic should automatically fail over to VPN. What AWS service provides this redundancy and automatic failover?",
+    "options": [
+      {
+        "label": "A",
+        "text": "VPC Peering requires individual peering connections between each pair of VPCs and does not support routing between on-premises networks and multiple VPCs."
+      },
+      {
+        "label": "B",
+        "text": "AWS Transit Gateway with both Direct Connect and VPN attachments"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Route 53 with health checks provides DNS failover and traffic routing but does not aggregate and route network connectivity from multiple hybrid connections."
+      },
+      {
+        "label": "D",
+        "text": "AWS CloudFront serves as a content delivery network for HTTP/HTTPS traffic and is not applicable to hybrid network routing or Direct Connect failover."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "VPC Peering requires individual peering connections between each pair of VPCs and does not support routing between on-premises networks and multiple VPCs.",
+      "C": "Amazon Route 53 with health checks provides DNS failover and traffic routing but does not aggregate and route network connectivity from multiple hybrid connections.",
+      "D": "AWS CloudFront serves as a content delivery network for HTTP/HTTPS traffic and is not applicable to hybrid network routing or Direct Connect failover."
+    },
+    "explanation": "AWS Transit Gateway can attach both Direct Connect (via Direct Connect Gateway) and Site-to-Site VPN connections. BGP routing priorities can be set so Direct Connect is preferred, with VPN as automatic failover. When Direct Connect fails, BGP routes traffic through the VPN attachment automatically. Route 53 health checks work for DNS failover, not network-layer failover. VPC Peering doesn't apply to on-premises connectivity. CloudFront is a CDN, not a network failover mechanism.",
+    "module_ref": "aws-cp/technology-services",
+    "tags": [
+      "direct-connect",
+      "vpn",
+      "transit-gateway",
+      "failover"
+    ]
+  }
+]

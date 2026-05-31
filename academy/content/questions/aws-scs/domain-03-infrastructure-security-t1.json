@@ -1,0 +1,762 @@
+[
+  {
+    "id": "aws-scs-t1-03-001",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to allow EC2 instances in a private subnet to access S3 without traffic traversing the public internet. Which solution achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an S3 Gateway VPC Endpoint in the VPC \u2014 instances can then access S3 via private AWS network paths without requiring a NAT Gateway or internet gateway."
+      },
+      {
+        "label": "B",
+        "text": "Assign Elastic IP addresses to the private instances, which allows them to establish direct connections to S3 without routing through a NAT Gateway."
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 Transfer Acceleration on the bucket \u2014 this routes all traffic through CloudFront edge locations instead of the public internet."
+      },
+      {
+        "label": "D",
+        "text": "Create a VPN connection between the VPC and the S3 service endpoint \u2014 this encrypts traffic and keeps it off the public internet for all S3 operations."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Assign Elastic IP addresses to the private instances, which allows them to establish direct connections to S3 without routing through a NAT Gateway.",
+      "C": "Enable S3 Transfer Acceleration on the bucket \u2014 this routes all traffic through CloudFront edge locations instead of the public internet.",
+      "D": "Create a VPN connection between the VPC and the S3 service endpoint \u2014 this encrypts traffic and keeps it off the public internet for all S3 operations."
+    },
+    "explanation": "An S3 Gateway VPC Endpoint creates a private connection between your VPC and S3 using the AWS internal network. You add a route to your route table pointing to the endpoint, and instances in private subnets access S3 without a NAT Gateway or internet gateway. There is no additional charge for the gateway endpoint. Interface VPC Endpoints (PrivateLink) are the other type and support more services but have hourly and data-processing charges.",
+    "module_ref": "scs/infrastructure/vpc-endpoints",
+    "tags": [
+      "vpc-endpoints",
+      "s3",
+      "private-connectivity",
+      "network-security"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-002",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "What is the key difference between a Security Group and a Network ACL (NACL) in a VPC?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Security groups are stateful (return traffic is automatically allowed) and operate at the instance level, while NACLs are stateless and operate at the subnet level requiring explicit inbound and outbound rules."
+      },
+      {
+        "label": "B",
+        "text": "Security groups can deny specific IP addresses while NACLs can only allow traffic, making security groups more powerful for blocking known-bad sources."
+      },
+      {
+        "label": "C",
+        "text": "NACLs are applied per instance and evaluate rules in order of priority, while security groups apply to all instances in a subnet and use allow-all by default."
+      },
+      {
+        "label": "D",
+        "text": "Security groups support IPv6 while NACLs only support IPv4, requiring dual-stack deployments to use security groups for all internet-facing resources."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Security groups can deny specific IP addresses while NACLs can only allow traffic, making security groups more powerful for blocking known-bad sources.",
+      "C": "NACLs are applied per instance and evaluate rules in order of priority, while security groups apply to all instances in a subnet and use allow-all by default.",
+      "D": "Security groups support IPv6 while NACLs only support IPv4, requiring dual-stack deployments to use security groups for all internet-facing resources."
+    },
+    "explanation": "Security groups are stateful: when you allow inbound traffic, return traffic is automatically permitted without explicit outbound rules. They operate at the instance (ENI) level and support allow rules only (deny by default). NACLs are stateless: you must explicitly allow both inbound and outbound traffic, including ephemeral ports for return traffic. NACLs operate at the subnet level and process rules in numbered order (lowest first), supporting both allow and deny rules. NACLs are useful for blocking specific IPs.",
+    "module_ref": "scs/infrastructure/security-groups-nacls",
+    "tags": [
+      "security-groups",
+      "nacl",
+      "stateful",
+      "stateless",
+      "vpc"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-003",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to enable encrypted, audited shell access to EC2 instances without opening SSH (port 22) inbound in security groups and without managing SSH keys. Which service provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager Session Manager provides browser-based and CLI shell access to EC2 instances over SSM, with full audit logging to CloudTrail and S3, requiring no inbound ports or SSH keys."
+      },
+      {
+        "label": "B",
+        "text": "Amazon EC2 Instance Connect provides temporary SSH keys for browser-based connections but still requires port 22 open inbound in the instance's security group."
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudShell provides a browser-based terminal for running AWS CLI commands but connects to AWS services only, not directly to individual EC2 instance shells."
+      },
+      {
+        "label": "D",
+        "text": "EC2 Serial Console provides out-of-band access to EC2 instances via the instance's serial port for troubleshooting, but sessions are not encrypted or audited."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Amazon EC2 Instance Connect provides temporary SSH keys for browser-based connections but still requires port 22 open inbound in the instance's security group.",
+      "C": "AWS CloudShell provides a browser-based terminal for running AWS CLI commands but connects to AWS services only, not directly to individual EC2 instance shells.",
+      "D": "EC2 Serial Console provides out-of-band access to EC2 instances via the instance's serial port for troubleshooting, but sessions are not encrypted or audited."
+    },
+    "explanation": "AWS Systems Manager Session Manager is the recommended bastion-free, key-free remote access solution. It uses the SSM Agent on the EC2 instance and communicates over HTTPS to the SSM service endpoint \u2014 no inbound security group rules are required. All session activity is logged to CloudTrail (start/end) and session content can be streamed to S3 or CloudWatch Logs. Access is controlled by IAM policies rather than SSH keys. EC2 Instance Connect still requires port 22 open.",
+    "module_ref": "scs/infrastructure/ssm-session-manager",
+    "tags": [
+      "ssm",
+      "session-manager",
+      "bastion-free",
+      "ssh-replacement"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-004",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A web application is experiencing Layer 7 HTTP flood attacks. Which AWS service can mitigate these attacks by applying rate-based rules and managed rule groups that block common web exploits?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS WAF (Web Application Firewall) operates at Layer 7 and can apply rate-based rules to limit requests per IP and managed rule groups to block SQL injection, XSS, and other OWASP Top 10 attacks."
+      },
+      {
+        "label": "B",
+        "text": "AWS Shield Standard automatically mitigates Layer 7 HTTP flood attacks without any additional configuration, providing this protection to all CloudFront distributions by default."
+      },
+      {
+        "label": "C",
+        "text": "Amazon CloudFront geographic restriction blocks requests from specific countries, which can reduce HTTP flood attack volume when attackers are concentrated in specific regions."
+      },
+      {
+        "label": "D",
+        "text": "Elastic Load Balancing connection draining throttles the rate of new connections during high-traffic events, providing built-in Layer 7 flood protection for web applications."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS Shield Standard automatically mitigates Layer 7 HTTP flood attacks without any additional configuration, providing this protection to all CloudFront distributions by default.",
+      "C": "Amazon CloudFront geographic restriction blocks requests from specific countries, which can reduce HTTP flood attack volume when attackers are concentrated in specific regions.",
+      "D": "Elastic Load Balancing connection draining throttles the rate of new connections during high-traffic events, providing built-in Layer 7 flood protection for web applications."
+    },
+    "explanation": "AWS WAF is the correct Layer 7 security tool. It integrates with CloudFront, ALB, API Gateway, and AppSync. Rate-based rules count requests from a single IP over a 5-minute window and block when the threshold is exceeded. AWS Managed Rule Groups (from AWS and third parties) block OWASP Top 10, known bad inputs, and other attacks. AWS Shield Standard protects against Layer 3/4 volumetric DDoS attacks but does not perform Layer 7 content inspection.",
+    "module_ref": "scs/infrastructure/waf",
+    "tags": [
+      "waf",
+      "layer-7",
+      "ddos",
+      "rate-based-rules",
+      "managed-rules"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-005",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants protection against large-scale DDoS attacks targeting their internet-facing infrastructure, including access to a DDoS Response Team (DRT) and financial protection against scaling costs during an attack. Which service provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Shield Advanced provides enhanced DDoS protection, 24/7 access to the AWS DDoS Response Team, and cost protection for scaling charges incurred during attacks."
+      },
+      {
+        "label": "B",
+        "text": "AWS Shield Standard provides all the same protections as Shield Advanced but is included free with all AWS services, making the Advanced tier unnecessary for most workloads."
+      },
+      {
+        "label": "C",
+        "text": "Amazon CloudFront's built-in DDoS mitigation includes access to AWS network engineers and financial protection for any traffic charges resulting from large DDoS attacks."
+      },
+      {
+        "label": "D",
+        "text": "AWS WAF with rate-based rules and managed rule groups provides both DDoS mitigation and financial protection against attack-induced scaling charges at no additional cost."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS Shield Standard provides all the same protections as Shield Advanced but is included free with all AWS services, making the Advanced tier unnecessary for most workloads.",
+      "C": "Amazon CloudFront's built-in DDoS mitigation includes access to AWS network engineers and financial protection for any traffic charges resulting from large DDoS attacks.",
+      "D": "AWS WAF with rate-based rules and managed rule groups provides both DDoS mitigation and financial protection against attack-induced scaling charges at no additional cost."
+    },
+    "explanation": "AWS Shield Advanced is the premium DDoS protection tier ($3,000/month per organization). It provides: enhanced detection and mitigation for sophisticated Layer 3/4/7 attacks, 24/7 access to the AWS DDoS Response Team (DRT) for assistance during attacks, cost protection credits for EC2/ELB/CloudFront/Route 53 scaling charges caused by DDoS traffic, and AWS WAF included at no additional charge. Shield Standard (free) provides automatic protection against common Layer 3/4 attacks but none of the advanced features.",
+    "module_ref": "scs/infrastructure/shield-advanced",
+    "tags": [
+      "shield-advanced",
+      "ddos-protection",
+      "drt",
+      "cost-protection"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-006",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security engineer wants to enforce that all EC2 instances in a VPC can only communicate with specific AWS services and not with any internet addresses. Which approach provides the most restrictive network isolation while still allowing AWS service access?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Remove the internet gateway from the VPC, place all instances in private subnets with no NAT Gateway, and create Interface VPC Endpoints for each required AWS service."
+      },
+      {
+        "label": "B",
+        "text": "Use NACLs to block all outbound traffic to 0.0.0.0/0 while allowing outbound traffic to the AWS service IP ranges published in the AWS IP ranges JSON file."
+      },
+      {
+        "label": "C",
+        "text": "Configure security groups to restrict outbound access to HTTPS only on port 443, which limits communication to web-based services and blocks all non-HTTPS traffic."
+      },
+      {
+        "label": "D",
+        "text": "Deploy AWS Network Firewall with a stateful rule group that blocks all internet traffic while allowing traffic to the specific IP addresses of required AWS services."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Use NACLs to block all outbound traffic to 0.0.0.0/0 while allowing outbound traffic to the AWS service IP ranges published in the AWS IP ranges JSON file.",
+      "C": "Configure security groups to restrict outbound access to HTTPS only on port 443, which limits communication to web-based services and blocks all non-HTTPS traffic.",
+      "D": "Deploy AWS Network Firewall with a stateful rule group that blocks all internet traffic while allowing traffic to the specific IP addresses of required AWS services."
+    },
+    "explanation": "The cleanest approach is removing internet access entirely (no IGW, no NAT) and creating Interface VPC Endpoints (powered by PrivateLink) for each required AWS service. Traffic to those services travels over the AWS private network, never the internet. AWS IP ranges change frequently, making NACL rules against those ranges fragile and unmaintainable. Security groups on port 443 only reduce the attack surface but still allow traffic to any HTTPS endpoint on the internet if an IGW/NAT exists.",
+    "module_ref": "scs/infrastructure/private-vpc-endpoints",
+    "tags": [
+      "vpc-endpoints",
+      "privatelink",
+      "network-isolation",
+      "private-subnets"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-007",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs containerized workloads on Amazon ECS. A security review recommends ensuring containers cannot access the EC2 instance metadata service (IMDS) to prevent privilege escalation via the task execution role. How is this enforced?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Block access to 169.254.169.254 in the container's task definition using a network bridge configuration that prevents containers from reaching the IMDS endpoint."
+      },
+      {
+        "label": "B",
+        "text": "Use awsvpc network mode for ECS tasks, which gives each task its own ENI and network namespace, isolating containers from the host's IMDS and other tasks' metadata."
+      },
+      {
+        "label": "C",
+        "text": "Enable EC2 IMDSv2 (session-oriented) on the host instances \u2014 the PUT request required by IMDSv2 has a hop limit of 1, preventing containers from reaching the host IMDS."
+      },
+      {
+        "label": "D",
+        "text": "Assign separate IAM roles to each ECS container definition \u2014 this prevents containers from accessing the instance role metadata since they each have a unique credential source."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Block access to 169.254.169.254 in the container's task definition using a network bridge configuration that prevents containers from reaching the IMDS endpoint.",
+      "B": "Use awsvpc network mode for ECS tasks, which gives each task its own ENI and network namespace, isolating containers from the host's IMDS and other tasks' metadata.",
+      "D": "Assign separate IAM roles to each ECS container definition \u2014 this prevents containers from accessing the instance role metadata since they each have a unique credential source."
+    },
+    "explanation": "IMDSv2 uses a session-oriented PUT request to obtain a token before any GET requests to the metadata service. Crucially, the PUT request has a default TTL (hop limit) of 1. For containers running in default bridge networking on EC2, reaching the host's IMDS requires an extra network hop, and the TTL of 1 is decremented to 0 before the packet arrives \u2014 blocking access. Setting `HttpPutResponseHopLimit=1` (default for IMDSv2) on the EC2 instance prevents containers from obtaining EC2 metadata credentials, while the host OS can still access IMDS.",
+    "module_ref": "scs/infrastructure/imds-v2",
+    "tags": [
+      "imds",
+      "imdsv2",
+      "containers",
+      "ecs",
+      "privilege-escalation"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-008",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company needs to ensure that all new EC2 instances have a specific set of approved AMIs and are patched within 30 days of release. Which AWS service can enforce and automate this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager Patch Manager can define patch baselines, schedule maintenance windows, and automatically patch EC2 instances, with AWS Config enforcing AMI compliance."
+      },
+      {
+        "label": "B",
+        "text": "Amazon Inspector automatically patches EC2 instances when vulnerabilities are detected and enforces the use of approved AMIs through a built-in policy engine."
+      },
+      {
+        "label": "C",
+        "text": "AWS Config alone can both detect non-compliant instances and automatically apply patches to EC2 instances that are running unapproved or unpatched AMIs."
+      },
+      {
+        "label": "D",
+        "text": "Amazon EC2 Image Builder automatically replaces running instances with freshly built AMIs on a schedule, ensuring all instances always run the latest patched version."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Amazon Inspector automatically patches EC2 instances when vulnerabilities are detected and enforces the use of approved AMIs through a built-in policy engine.",
+      "C": "AWS Config alone can both detect non-compliant instances and automatically apply patches to EC2 instances that are running unapproved or unpatched AMIs.",
+      "D": "Amazon EC2 Image Builder automatically replaces running instances with freshly built AMIs on a schedule, ensuring all instances always run the latest patched version."
+    },
+    "explanation": "AWS Systems Manager Patch Manager is the AWS service for patch compliance. You define patch baselines (which patches are approved/rejected), assign instances using tags, configure maintenance windows for scheduled patching, and run patch operations via Run Command. AWS Config managed rules (like `approved-amis-by-id`) can detect instances using non-approved AMIs and trigger remediation. Amazon Inspector scans for vulnerabilities and reports them but does not apply patches. EC2 Image Builder creates AMIs but does not replace running instances.",
+    "module_ref": "scs/infrastructure/patch-management",
+    "tags": [
+      "patch-manager",
+      "ssm",
+      "compliance",
+      "patching"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-009",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to share a privately hosted service (running behind a Network Load Balancer) with multiple consumer VPCs and external AWS customers without VPC peering or exposing the service to the internet. Which AWS feature enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS PrivateLink (VPC endpoint services) allows the service provider to expose the service through an endpoint backed by a Network Load Balancer that consumers connect to via Interface VPC Endpoints."
+      },
+      {
+        "label": "B",
+        "text": "VPC peering connects consumer VPCs to the provider VPC over the AWS private network, allowing all instances in peered VPCs to access the service directly."
+      },
+      {
+        "label": "C",
+        "text": "Transit Gateway connects multiple VPCs in a hub-and-spoke topology, enabling consumers in any attached VPC to reach the hosted service through the central routing hub."
+      },
+      {
+        "label": "D",
+        "text": "AWS Direct Connect with a hosted virtual interface connects external consumers over a dedicated private connection to access services hosted in the provider VPC."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "VPC peering connects consumer VPCs to the provider VPC over the AWS private network, allowing all instances in peered VPCs to access the service directly.",
+      "C": "Transit Gateway connects multiple VPCs in a hub-and-spoke topology, enabling consumers in any attached VPC to reach the hosted service through the central routing hub.",
+      "D": "AWS Direct Connect with a hosted virtual interface connects external consumers over a dedicated private connection to access services hosted in the provider VPC."
+    },
+    "explanation": "AWS PrivateLink is the purpose-built service for this use case. The service provider creates a VPC Endpoint Service backed by a Network Load Balancer. Consumers create Interface VPC Endpoints in their VPCs that create ENIs in their subnets, providing private IP-based access to the service. The consumer's traffic never traverses the internet. Importantly, PrivateLink does not require VPC CIDR overlap to be resolved (unlike peering), and consumers can even be in different AWS accounts. This is how AWS exposes its own services (S3, DynamoDB, etc.) as Interface Endpoints.",
+    "module_ref": "scs/infrastructure/privatelink",
+    "tags": [
+      "privatelink",
+      "vpc-endpoint-service",
+      "private-connectivity"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-010",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security engineer is reviewing an EC2 instance and finds it is using IMDSv1. Why is IMDSv1 considered a security risk and what should the engineer do?",
+    "options": [
+      {
+        "label": "A",
+        "text": "IMDSv1 allows any request to retrieve instance metadata including IAM credentials without authentication \u2014 a Server-Side Request Forgery vulnerability in the application can expose these credentials. Enforce IMDSv2 by setting HttpTokens to required."
+      },
+      {
+        "label": "B",
+        "text": "IMDSv1 uses an outdated SSL/TLS version that is susceptible to man-in-the-middle attacks on the instance network \u2014 enabling IMDSv2 upgrades the encryption and secures the metadata channel."
+      },
+      {
+        "label": "C",
+        "text": "IMDSv1 does not support IPv6 addresses, which means instances in dual-stack VPCs cannot retrieve metadata correctly and should be migrated to IMDSv2 for IPv6 compatibility."
+      },
+      {
+        "label": "D",
+        "text": "IMDSv1 exposes instance metadata over an unencrypted HTTP connection on port 80, allowing any user on the same network segment to capture and replay the metadata requests."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "IMDSv1 uses an outdated SSL/TLS version that is susceptible to man-in-the-middle attacks on the instance network \u2014 enabling IMDSv2 upgrades the encryption and secures the metadata channel.",
+      "C": "IMDSv1 does not support IPv6 addresses, which means instances in dual-stack VPCs cannot retrieve metadata correctly and should be migrated to IMDSv2 for IPv6 compatibility.",
+      "D": "IMDSv1 exposes instance metadata over an unencrypted HTTP connection on port 80, allowing any user on the same network segment to capture and replay the metadata requests."
+    },
+    "explanation": "IMDSv1 uses simple GET requests to 169.254.169.254 with no authentication. If a web application running on the instance has a Server-Side Request Forgery (SSRF) vulnerability, an attacker can exploit it to make the application request `http://169.254.169.254/latest/meta-data/iam/security-credentials/` and retrieve the instance's IAM role credentials. IMDSv2 requires a preliminary PUT request to obtain a session token (with a TTL), which SSRF attacks using GET-based proxies cannot perform. You enforce IMDSv2 by setting `HttpTokens=required` in the instance metadata options.",
+    "module_ref": "scs/infrastructure/imds-security",
+    "tags": [
+      "imds",
+      "imdsv2",
+      "ssrf",
+      "credential-exposure"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-011",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs workloads in a VPC and wants to inspect all traffic between subnets for threats and policy violations before allowing it to reach its destination. Which service provides centralized traffic inspection for VPC-to-VPC and east-west traffic?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Network Firewall is a managed service that can be deployed in a VPC to perform stateful deep-packet inspection, intrusion detection, and domain-based filtering on east-west and north-south traffic."
+      },
+      {
+        "label": "B",
+        "text": "VPC Security Groups can be configured with stateful inspection rules to inspect traffic between subnets and block connections that match threat signatures or policy violations."
+      },
+      {
+        "label": "C",
+        "text": "AWS WAF applies Layer 7 inspection rules to all VPC-internal traffic, blocking HTTP-based threats between subnets without requiring dedicated network inspection infrastructure."
+      },
+      {
+        "label": "D",
+        "text": "Amazon GuardDuty analyzes VPC Flow Logs and blocks suspicious east-west traffic by automatically modifying security group rules when threats are detected between subnets."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "VPC Security Groups can be configured with stateful inspection rules to inspect traffic between subnets and block connections that match threat signatures or policy violations.",
+      "C": "AWS WAF applies Layer 7 inspection rules to all VPC-internal traffic, blocking HTTP-based threats between subnets without requiring dedicated network inspection infrastructure.",
+      "D": "Amazon GuardDuty analyzes VPC Flow Logs and blocks suspicious east-west traffic by automatically modifying security group rules when threats are detected between subnets."
+    },
+    "explanation": "AWS Network Firewall is a managed stateful and stateless network firewall deployed in dedicated firewall subnets within a VPC. It supports Suricata-compatible IDS/IPS rules, domain name filtering (allow/block specific FQDNs), and deep-packet inspection. To route traffic through it, you configure route tables in a firewall subnet architecture (hub-and-spoke with Transit Gateway or distributed inline). Security groups are stateful L4 allow lists only \u2014 they cannot perform deep-packet inspection or match threat signatures.",
+    "module_ref": "scs/infrastructure/network-firewall",
+    "tags": [
+      "network-firewall",
+      "east-west",
+      "deep-packet-inspection",
+      "ids-ips"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-012",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A security engineer wants to run automated vulnerability assessments on EC2 instances and container images in ECR to identify software vulnerabilities and network exposure. Which service provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Inspector automatically scans EC2 instances and ECR container images for software vulnerabilities (CVEs) and unintended network exposure, integrating with Security Hub for finding management."
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor performs security checks on EC2 instances including port scanning for open ports and vulnerability scanning for common CVEs in installed software."
+      },
+      {
+        "label": "C",
+        "text": "Amazon GuardDuty scans EC2 instance configurations and container images for known CVEs and reports them as findings along with threat detection results."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config with custom rules performs software vulnerability scanning on EC2 instances by running OS-level checks and comparing installed packages against CVE databases."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS Trusted Advisor performs security checks on EC2 instances including port scanning for open ports and vulnerability scanning for common CVEs in installed software.",
+      "C": "Amazon GuardDuty scans EC2 instance configurations and container images for known CVEs and reports them as findings along with threat detection results.",
+      "D": "AWS Config with custom rules performs software vulnerability scanning on EC2 instances by running OS-level checks and comparing installed packages against CVE databases."
+    },
+    "explanation": "Amazon Inspector v2 continuously scans EC2 instances using the SSM Agent for installed package vulnerabilities (CVEs), EC2 instances for network reachability issues, and ECR container images for vulnerabilities both on push and continuously. Findings are scored using CVSS and enriched with exploitability data from EPSS and CISA KEV. All findings are automatically sent to AWS Security Hub. Inspector does not require deploying agents beyond the standard SSM Agent for EC2 scanning.",
+    "module_ref": "scs/infrastructure/inspector",
+    "tags": [
+      "inspector",
+      "vulnerability-assessment",
+      "cve",
+      "ecr"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-013",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's application stores secrets like database passwords and API keys in environment variables on EC2 instances. A security engineer wants to eliminate this practice. What is the recommended AWS approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Store secrets in AWS Secrets Manager, grant the EC2 instance role permission to retrieve the secret, and have the application call the Secrets Manager API at runtime instead of using environment variables."
+      },
+      {
+        "label": "B",
+        "text": "Encrypt the environment variables using AWS KMS before setting them on the instances, which prevents unauthorized users from reading the secrets in plaintext from the instance configuration."
+      },
+      {
+        "label": "C",
+        "text": "Move the secrets to an S3 bucket with server-side encryption and a restrictive bucket policy, having the application download the secrets file on startup using the instance IAM role."
+      },
+      {
+        "label": "D",
+        "text": "Use Parameter Store string parameters to store secrets and pass them to EC2 instances at launch time via user data scripts, ensuring secrets are never hardcoded in AMIs."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Encrypt the environment variables using AWS KMS before setting them on the instances, which prevents unauthorized users from reading the secrets in plaintext from the instance configuration.",
+      "C": "Move the secrets to an S3 bucket with server-side encryption and a restrictive bucket policy, having the application download the secrets file on startup using the instance IAM role.",
+      "D": "Use Parameter Store string parameters to store secrets and pass them to EC2 instances at launch time via user data scripts, ensuring secrets are never hardcoded in AMIs."
+    },
+    "explanation": "AWS Secrets Manager is the recommended service for storing application secrets. It provides automatic secret rotation, tight IAM-based access control, audit logging via CloudTrail, and a simple API for runtime retrieval. The application retrieves the secret value by calling `GetSecretValue` at runtime, meaning the plaintext secret is never stored in environment variables, user data, or AMI configs. Systems Manager Parameter Store SecureString is also acceptable for non-rotating secrets but Secrets Manager is preferred for database credentials due to built-in rotation support.",
+    "module_ref": "scs/infrastructure/secrets-management",
+    "tags": [
+      "secrets-manager",
+      "secrets",
+      "environment-variables",
+      "best-practices"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-014",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A Kubernetes workload on Amazon EKS needs access to an S3 bucket. The team wants to avoid storing AWS credentials inside pods. What is the recommended approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use IAM Roles for Service Accounts (IRSA) \u2014 create a Kubernetes service account annotated with an IAM role ARN, and EKS injects temporary credentials into pods using that service account."
+      },
+      {
+        "label": "B",
+        "text": "Assign an IAM role to the EC2 node group and grant S3 permissions to that role \u2014 all pods on the node group inherit the node's IAM permissions without additional configuration."
+      },
+      {
+        "label": "C",
+        "text": "Create an IAM user with S3 permissions and store the access key as a Kubernetes secret, then mount the secret as an environment variable in the pod definition."
+      },
+      {
+        "label": "D",
+        "text": "Use Amazon EKS Pod Identity with a hard-coded access key stored in the EKS cluster's configmap, providing all pods in the namespace with shared S3 access credentials."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Assign an IAM role to the EC2 node group and grant S3 permissions to that role \u2014 all pods on the node group inherit the node's IAM permissions without additional configuration.",
+      "C": "Create an IAM user with S3 permissions and store the access key as a Kubernetes secret, then mount the secret as an environment variable in the pod definition.",
+      "D": "Use Amazon EKS Pod Identity with a hard-coded access key stored in the EKS cluster's configmap, providing all pods in the namespace with shared S3 access credentials."
+    },
+    "explanation": "IAM Roles for Service Accounts (IRSA) is the recommended approach for granting pods least-privilege AWS permissions. EKS uses OIDC federation to allow Kubernetes service accounts to assume IAM roles. Each pod can have a separate service account mapped to a specific IAM role, providing granular per-workload permissions. Node-level IAM roles grant permissions to all pods on the node, violating least privilege. Long-term IAM access keys should never be stored in Kubernetes secrets for production workloads. EKS Pod Identity is a newer alternative that provides similar capabilities.",
+    "module_ref": "scs/infrastructure/eks-irsa",
+    "tags": [
+      "eks",
+      "irsa",
+      "kubernetes",
+      "iam-roles",
+      "least-privilege"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-015",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company is using AWS Direct Connect for a dedicated connection from their on-premises network to AWS. A security engineer notes that Direct Connect traffic is not encrypted by default. How can they add encryption to Direct Connect traffic?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a Site-to-Site VPN connection over the Direct Connect connection using a private virtual interface \u2014 this provides IPsec encryption over the private dedicated circuit."
+      },
+      {
+        "label": "B",
+        "text": "Enable Direct Connect encryption in the AWS console \u2014 AWS supports a built-in encryption toggle for dedicated connections that encrypts all traffic on the physical circuit."
+      },
+      {
+        "label": "C",
+        "text": "Use a private virtual interface with HTTPS endpoints \u2014 since all AWS service APIs use TLS, all data transferred over Direct Connect is inherently encrypted at the application layer."
+      },
+      {
+        "label": "D",
+        "text": "Request AWS to provision a MACsec-capable connection and enable MACsec encryption at the Direct Connect level \u2014 this encrypts all traffic between the router and AWS infrastructure."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Configure a Site-to-Site VPN connection over the Direct Connect connection using a Transit Virtual Interface \u2014 this provides IPsec encryption over the private dedicated circuit.",
+      "B": "Enable Direct Connect encryption in the AWS console \u2014 AWS supports a built-in encryption toggle for dedicated connections that encrypts all traffic on the physical circuit.",
+      "C": "Use a private virtual interface with HTTPS endpoints \u2014 since all AWS service APIs use TLS, all data transferred over Direct Connect is inherently encrypted at the application layer."
+    },
+    "explanation": "Direct Connect does not encrypt traffic by default, and there is no simple encryption toggle. There are two approaches: (1) MACsec \u2014 a Layer 2 encryption standard supported on 10Gbps and 100Gbps dedicated connections, encrypting all frames at the link layer between the customer router and the AWS Direct Connect device; or (2) IPsec VPN over Direct Connect \u2014 running a Site-to-Site VPN tunnel over the Direct Connect circuit to add Layer 3/4 encryption. MACsec is the most comprehensive as it encrypts all traffic at Layer 2, while VPN over Direct Connect provides Layer 3 encryption but may have bandwidth limitations.",
+    "module_ref": "scs/infrastructure/direct-connect-encryption",
+    "tags": [
+      "direct-connect",
+      "macsec",
+      "vpn",
+      "encryption-in-transit"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-016",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to apply consistent WAF rules and security group configurations across multiple AWS accounts and Regions from a single central location. Which service enables centralized management of these security policies?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Firewall Manager centrally creates and enforces WAF rules, security groups, Network Firewall policies, and Shield Advanced protections across all accounts in an AWS Organization."
+      },
+      {
+        "label": "B",
+        "text": "AWS Security Hub with custom actions can push WAF and security group configurations to member accounts, providing centralized policy enforcement across the organization."
+      },
+      {
+        "label": "C",
+        "text": "AWS Config aggregator detects non-compliant security group and WAF configurations and automatically deploys corrective configurations to all non-compliant accounts."
+      },
+      {
+        "label": "D",
+        "text": "AWS Organizations Service Control Policies can enforce specific WAF rule configurations and security group settings, preventing accounts from creating non-compliant resources."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS Security Hub with custom actions can push WAF and security group configurations to member accounts, providing centralized policy enforcement across the organization.",
+      "C": "AWS Config aggregator detects non-compliant security group and WAF configurations and automatically deploys corrective configurations to all non-compliant accounts..",
+      "D": "AWS Organizations Service Control Policies can enforce specific WAF rule configurations and security group settings, preventing accounts from creating non-compliant resources."
+    },
+    "explanation": "AWS Firewall Manager is the central security policy management service for AWS Organizations. It supports WAF, Shield Advanced, VPC security groups, Network Firewall, and Route 53 Resolver DNS Firewall policies. Policies are created in the Firewall Manager administrator account and automatically applied to all member accounts within scope. New accounts joining the organization automatically have policies applied. This is the purpose-built solution for centralized network security policy management across multi-account environments.",
+    "module_ref": "scs/infrastructure/firewall-manager",
+    "tags": [
+      "firewall-manager",
+      "waf",
+      "security-groups",
+      "centralized-policy",
+      "organizations"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-017",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A developer's EC2 instance needs to access AWS services but the instance is in a private subnet with no internet access. The company does not want to use a NAT Gateway due to cost. What is the recommended approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create Interface VPC Endpoints (PrivateLink) for each required AWS service, allowing private subnet instances to reach those services over the AWS backbone without a NAT Gateway."
+      },
+      {
+        "label": "B",
+        "text": "Assign an Elastic IP to the instance and update the route table \u2014 Elastic IPs enable direct internet connectivity without a NAT Gateway for private subnet resources."
+      },
+      {
+        "label": "C",
+        "text": "Enable VPC peering between the private VPC and a public VPC that has a NAT Gateway, routing all outbound traffic through the peered VPC's NAT Gateway."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS PrivateLink with a public virtual interface for each service \u2014 this creates a direct connection from the private subnet to AWS service endpoints through the public internet."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Assign an Elastic IP to the instance and update the route table \u2014 Elastic IPs enable direct internet connectivity without a NAT Gateway for private subnet resources.",
+      "C": "Enable VPC peering between the private VPC and a public VPC that has a NAT Gateway, routing all outbound traffic through the peered VPC's NAT Gateway.",
+      "D": "Use AWS PrivateLink with a public virtual interface for each service \u2014 this creates a direct connection from the private subnet to AWS service endpoints through the public internet."
+    },
+    "explanation": "Interface VPC Endpoints (powered by PrivateLink) create ENIs in your private subnet with private IP addresses for specific AWS services. The instance communicates with services like S3, DynamoDB, STS, and EC2 API over the AWS private backbone without any internet connectivity. S3 and DynamoDB also support Gateway Endpoints which are free. Interface Endpoints have hourly charges but are significantly cheaper than NAT Gateway for high volumes. Elastic IPs on private subnet instances do not provide internet connectivity \u2014 they require an internet gateway route.",
+    "module_ref": "scs/infrastructure/vpc-endpoints-cost",
+    "tags": [
+      "vpc-endpoints",
+      "nat-gateway",
+      "cost",
+      "private-connectivity"
+    ]
+  },
+  {
+    "id": "aws-scs-t1-03-018",
+    "domain": 3,
+    "domain_name": "Infrastructure Security",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A container image scanning report shows that a base image used in production has multiple critical CVEs. The team needs a systematic way to ensure approved, up-to-date base images are used for all future builds. What is the recommended approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Amazon ECR with enhanced scanning enabled and configure ECR lifecycle policies to block deployment of images with critical severity findings above a defined threshold."
+      },
+      {
+        "label": "B",
+        "text": "Use EC2 Image Builder to create hardened container base images on a schedule, push them to ECR, and use ECR image scanning with CI/CD pipeline gates that fail on critical findings."
+      },
+      {
+        "label": "C",
+        "text": "Subscribe to AWS SNS security advisories for base image vulnerabilities and manually update base images whenever critical CVEs are published for the images in use."
+      },
+      {
+        "label": "D",
+        "text": "Enable GuardDuty container protection to automatically replace containers running vulnerable images with patched versions pulled from the official Docker Hub repository."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Use Amazon ECR with enhanced scanning enabled and configure ECR lifecycle policies to block deployment of images with critical severity findings above a defined threshold.",
+      "C": "Subscribe to AWS SNS security advisories for base image vulnerabilities and manually update base images whenever critical CVEs are published for the images in use.",
+      "D": "Enable GuardDuty container protection to automatically replace containers running vulnerable images with patched versions pulled from the official Docker Hub repository."
+    },
+    "explanation": "The recommended approach is a pipeline-driven golden image strategy: (1) EC2 Image Builder can build container images on a schedule using hardened base images, automatically applying patches, and pushing them to ECR; (2) ECR enhanced scanning continuously monitors images for new CVEs even after push; (3) CI/CD pipeline gates use Inspector or ECR scan results to fail builds that introduce critical vulnerabilities. ECR lifecycle policies manage image retention (tagging/expiry) but cannot block container deployment based on vulnerability findings \u2014 that gate must be in the CI/CD pipeline.",
+    "module_ref": "scs/infrastructure/container-image-security",
+    "tags": [
+      "ecr",
+      "container-security",
+      "image-scanning",
+      "image-builder"
+    ]
+  }
+]

@@ -78,7 +78,7 @@ jobs:
         id: validate
         run: |
           set +e
-          archon-cli validate plan.json --format github > validate-report.md
+          archon-cli validate plan.json --format github -o validate-report.md
           echo "exit_code=$?" >> "$GITHUB_OUTPUT"
           cat validate-report.md
 
@@ -97,7 +97,7 @@ jobs:
 
       # ── Cost ─────────────────────────────────────────────────────────────────
       - name: Run archon-cli cost
-        run: archon-cli cost plan.json --format github > cost-report.md
+        run: archon-cli cost plan.json --format github -o cost-report.md
 
       - name: Post cost delta as PR comment
         uses: actions/github-script@v7

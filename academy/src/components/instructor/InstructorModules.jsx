@@ -418,11 +418,22 @@ function ModuleEditor({ module, allAssignments, onSaved, onClose }) {
         <h2 className="text-base font-semibold text-gray-900">
           {isNew ? "New Module" : "Edit Module"}
         </h2>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2">
+          {!isNew && (
+            <button
+              type="button"
+              onClick={() => navigate(`/instructor/assistant?module=${module.id}&task=lesson`)}
+              className="text-xs text-blue-600 hover:text-blue-700 font-medium px-2 py-1 rounded border border-blue-200 hover:bg-blue-50"
+            >
+              Write lesson with AI
+            </button>
+          )}
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600 p-1 rounded">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M18 6L6 18M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Scrollable body */}
@@ -833,8 +844,12 @@ export default function InstructorModules() {
   async function openModule(module) {
     try {
       const { getModule } = await import("../../api/modules");
-      const detail = await getModule(module.id);
-      setActiveModule(detail);
+      const { getModuleLibraryLinks } = await import("../../api/library");
+      const [detail, libraryLinks] = await Promise.all([
+        getModule(module.id),
+        getModuleLibraryLinks(module.id),
+      ]);
+      setActiveModule({ ...detail, library_links: libraryLinks });
     } catch {
       setActiveModule(module);
     }

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore";
+import useAuthStore from "../../store/authStore";
 import { getSubmission, gradeSubmission } from "../../api/submissions";
 import SubmissionFeedback from "../student/SubmissionFeedback";
+import TeachingAssistantPanel from "./TeachingAssistantPanel";
 
 export default function SubmissionReview() {
   const { id } = useParams();
@@ -21,6 +22,8 @@ export default function SubmissionReview() {
         setSubmission(s);
         if (s.instructor_score !== null && s.instructor_score !== undefined) {
           setScore(String(s.instructor_score));
+        } else if (s.automated_score !== null && s.automated_score !== undefined) {
+          setScore(String(s.automated_score));
         }
         if (s.instructor_feedback) setFeedback(s.instructor_feedback);
       })
@@ -42,6 +45,13 @@ export default function SubmissionReview() {
     }
   }
 
+  function handleApplyFeedback(text, suggestedScore) {
+    setFeedback(text);
+    if (suggestedScore != null && suggestedScore !== "") {
+      setScore(String(suggestedScore));
+    }
+  }
+
   if (!submission) {
     return (
       <div className="min-h-screen bg-gray-950 flex items-center justify-center">
@@ -54,23 +64,25 @@ export default function SubmissionReview() {
     <div className="min-h-screen bg-gray-950 text-white">
       <header className="border-b border-gray-800 px-6 py-4 flex items-center gap-4">
         <button
-          onClick={() => navigate("/instructor")}
+          onClick={() => navigate(`/instructor/gradebook?assignment=${submission.assignment_id}`)}
           className="text-gray-500 hover:text-gray-300 text-sm transition-colors"
         >
-          ← Back
+          ← Back to gradebook
         </button>
         <h1 className="text-sm font-semibold text-white">
           Review: {submission.student_name} — {submission.assignment_title}
         </h1>
       </header>
 
-      <main className="max-w-4xl mx-auto px-6 py-8 grid grid-cols-[1fr_320px] gap-8">
-        {/* Canvas placeholder — read-only student diagram */}
-        <div className="bg-gray-900 border border-gray-800 rounded-lg flex items-center justify-center h-96">
-          <p className="text-gray-600 text-sm">Student canvas will render here (read-only)</p>
+      <main className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 xl:grid-cols-[1fr_380px] gap-8">
+        <div className="bg-gray-900 border border-gray-800 rounded-lg flex items-center justify-center min-h-[24rem]">
+          <p className="text-gray-600 text-sm text-center px-6">
+            Student canvas will render here (read-only).
+            <br />
+            The grading assistant analyzes rubric results and architecture from the submission data.
+          </p>
         </div>
 
-        {/* Grading panel */}
         <aside className="space-y-5">
           <SubmissionFeedback submission={submission} />
 
@@ -103,9 +115,7 @@ export default function SubmissionReview() {
               />
             </div>
 
-            {error && (
-              <p className="text-red-400 text-xs">{error}</p>
-            )}
+            {error && <p className="text-red-400 text-xs">{error}</p>}
 
             <button
               onClick={handleSave}
@@ -114,6 +124,18 @@ export default function SubmissionReview() {
             >
               {saving ? "Saving..." : saved ? "Saved!" : "Save Grade"}
             </button>
+          </div>
+
+          <div className="border-t border-gray-800 pt-5">
+            <TeachingAssistantPanel
+              embedded
+              variant="dark"
+              hideSidebar
+              submissionId={Number(id)}
+              assignmentId={submission.assignment_id}
+              initialTask="feedback"
+              onApplyFeedback={handleApplyFeedback}
+            />
           </div>
         </aside>
       </main>

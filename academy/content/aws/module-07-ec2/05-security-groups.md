@@ -33,6 +33,48 @@ This pattern scales elegantly. You don't need to maintain lists of IP addresses 
 
 Security Groups are stateful Allow-only firewalls attached to EC2 instances. Rules specify protocol, port, and source/destination (IP or Security Group ID). Key Pairs enable SSH/RDP access — consider replacing with Systems Manager Session Manager for better security and auditability. Security Group chaining references other SG IDs for dynamic, IP-agnostic access control.
 
+## Examples
+
+A developer building a personal project opens port 22 (SSH) on their EC2 instance to `0.0.0.0/0` — the entire internet. Within hours, automated bots find the port and begin brute-forcing the default `ec2-user` account. Because the developer had disabled password auth and used a key pair, no breach occurs — but the CloudWatch logs show thousands of failed attempts per minute. Restricting the SSH rule to their home IP (`203.0.113.42/32`) eliminates the noise entirely. This is the most common beginner security mistake EC2 offers.
+
+A three-tier web application uses Security Group chaining to express its access policy. The load balancer security group allows port 443 from `0.0.0.0/0`. The app-tier security group allows port 8080 only from the load balancer's security group ID. The database security group allows port 5432 only from the app-tier security group ID. When an Auto Scaling event launches a new app instance and assigns it the app-tier security group, it immediately gains database access — with no IP address configuration required. When a compromised instance is terminated, its SG membership disappears and so does its database access.
+
+A platform team at a mid-size company eliminates bastion hosts entirely by migrating SSH access to AWS Systems Manager Session Manager. They remove all inbound port 22 rules from every security group. Engineers open terminal sessions through the AWS Console or CLI — each session is authenticated via IAM, encrypted in transit, and logged to CloudTrail and CloudWatch Logs. Auditors gain a full record of every command run on every instance. The security group change — removing a single rule — was the operational trigger, but Session Manager is the architectural shift.
+
+## Think About It
+
+1. Security Groups are stateful, meaning return traffic is automatically allowed. Why does this simplify rule management compared to a stateless firewall — and when might stateless (NACL) rules be preferable?
+2. If Security Groups only support Allow rules (no explicit Deny), how would you block a specific IP address that is abusing your API while continuing to serve all other users?
+3. A security group rule references another security group ID as its source instead of a CIDR block. What happens to that rule's effective coverage when a new instance joins the referenced security group? What about when an instance leaves?
+4. Why is AWS Systems Manager Session Manager considered more secure than traditional SSH with key pairs, even when the key pair is managed carefully?
+5. You have a multi-account AWS organization. Your application in Account A needs to accept traffic from EC2 instances in Account B. Security Group chaining doesn't cross accounts. How would you architect this?
+
+## Quick Check
+
+**Q1.** A security group rule for an EC2 instance allows inbound TCP port 443 from `0.0.0.0/0`. What does this mean?
+- A) The instance can make outbound HTTPS calls to any IP
+- B) Any IP on the internet can initiate an HTTPS connection to this instance
+- C) Only AWS services can reach this instance on port 443
+- D) The instance will accept HTTPS traffic only from within the VPC
+
+**Answer: B** — The CIDR `0.0.0.0/0` means all IPv4 addresses, so any host on the internet can initiate a connection to this instance on TCP port 443.
+
+**Q2.** What is the default outbound rule behavior for a newly created security group?
+- A) All outbound traffic is denied
+- B) Only outbound port 80 and 443 are allowed
+- C) All outbound traffic is allowed
+- D) Outbound traffic mirrors the inbound rules
+
+**Answer: C** — By default, new security groups allow all outbound traffic. Inbound traffic is denied by default and must be explicitly permitted with Allow rules.
+
+**Q3.** Which of the following is the main benefit of referencing a Security Group ID (rather than a CIDR) as a source in a security group rule?
+- A) It encrypts traffic between the two groups
+- B) It allows the rule to work across AWS Regions
+- C) Access is automatically granted or revoked as instances join or leave the referenced group, without needing to track IP addresses
+- D) It reduces the cost of data transfer between instances
+
+**Answer: C** — Referencing a Security Group ID means the rule dynamically applies to any instance that holds that group membership, making it ideal for Auto Scaling and dynamic IP environments.
+
 ## What's Next
 
 Next: EBS volumes and snapshots — the persistent block storage attached to EC2 instances.

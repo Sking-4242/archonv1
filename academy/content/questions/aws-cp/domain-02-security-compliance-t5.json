@@ -1,0 +1,1140 @@
+[
+  {
+    "id": "aws-cp-t5-02-001",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An IAM policy contains the following: Effect: Deny, Action: ec2:TerminateInstances, Condition: StringNotEquals aws:RequestedRegion: us-east-1. What does this policy do?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Denies EC2 termination only in us-east-1"
+      },
+      {
+        "label": "B",
+        "text": "Allows EC2 termination everywhere except us-east-1"
+      },
+      {
+        "label": "C",
+        "text": "Denies EC2 termination in all regions EXCEPT us-east-1"
+      },
+      {
+        "label": "D",
+        "text": "Has no effect because Deny with a Condition is invalid"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "StringNotEquals aws:RequestedRegion: us-east-1 evaluates to true when the region is NOT us-east-1. Combined with Deny on ec2:TerminateInstances, this denies termination in every region other than us-east-1. Termination in us-east-1 is allowed (the condition is false there, so the Deny doesn't apply). This is a region-lock pattern.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "iam",
+      "policy-conditions",
+      "deny",
+      "region-restriction"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-002",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A Lambda function processing financial transactions needs to write to DynamoDB and publish to SNS. The function currently has AmazonDynamoDBFullAccess and AmazonSNSFullAccess. A security review flags this as excessive. What is the MINIMUM correct permission set?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Keep AmazonDynamoDBFullAccess but replace SNSFullAccess with sns:Publish on the specific topic ARN"
+      },
+      {
+        "label": "B",
+        "text": "Create a custom policy granting dynamodb:PutItem and dynamodb:UpdateItem on the specific table ARN, and"
+      },
+      {
+        "label": "C",
+        "text": "Attach both FullAccess policies to a role and add a Deny for unused actions"
+      },
+      {
+        "label": "D",
+        "text": "Use the AWS managed ReadOnlyAccess policy"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Least privilege requires the exact actions needed on the exact resources. The function only writes (PutItem, UpdateItem) to one table and publishes to one topic. Custom policies scoped to specific ARNs achieve true least privilege. Option A still keeps DynamoDB FullAccess. Option C is read-only which doesn't allow writes. Adding Denies on top of FullAccess is error-prone and backwards from the recommended approach.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "iam",
+      "least-privilege",
+      "lambda",
+      "custom-policy"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-003",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An AWS account has 50 IAM users. The security team wants to enforce a password policy requiring minimum 12 characters, numbers, symbols, and 90-day expiry for all users. Where is this configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure the IAM account password policy in the AWS account settings"
+      },
+      {
+        "label": "B",
+        "text": "Attach an IAM policy to each user enforcing the password constraints"
+      },
+      {
+        "label": "C",
+        "text": "Use SCPs in AWS Organizations to enforce password policy"
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Config to enforce password rules on each user"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "IAM account password policy is a single account-level setting that applies to all IAM users in the account simultaneously. You configure it once under IAM \u2192 Account settings. It cannot be done per-user via IAM policies. Config can detect compliance but not directly enforce the policy. SCPs control AWS service actions, not IAM user password parameters.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "iam",
+      "password-policy",
+      "account-settings",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-004",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company discovered that an employee copied sensitive customer data from RDS to an S3 bucket and then downloaded it. CloudTrail logs confirm the activity. Which AWS service could have PROACTIVELY detected the S3 bucket now contains sensitive PII?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon Macie"
+      },
+      {
+        "label": "B",
+        "text": "AWS Config"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Inspector"
+      },
+      {
+        "label": "D",
+        "text": "Amazon GuardDuty"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Macie automatically scans S3 buckets for sensitive data (PII, financial data, credentials) using ML. It would have detected the PII in the S3 bucket and alerted the security team. GuardDuty detects anomalous access patterns and threats but doesn't classify S3 object content. Config checks resource configurations. Inspector scans for software vulnerabilities.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "macie",
+      "pii",
+      "s3",
+      "data-classification"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-005",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses AWS Config to monitor whether S3 buckets are publicly accessible. They find a bucket that was made public 3 days ago. What can they use to understand what happened and who made the change?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS CloudTrail \u2014 it logs the API call (PutBucketAcl or PutBucketPolicy)"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Macie \u2014 it audits S3 changes"
+      },
+      {
+        "label": "C",
+        "text": "AWS Trusted Advisor \u2014 it logs S3 policy changes"
+      },
+      {
+        "label": "D",
+        "text": "Amazon GuardDuty \u2014 it tracks configuration changes"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "CloudTrail logs all AWS API calls including S3 configuration changes. The API call that made the bucket public (PutBucketAcl or PutBucketPolicy) would be recorded with the caller's IAM identity, source IP, user agent, and timestamp. Config detected the non-compliant state; CloudTrail provides the forensic audit trail of who made the change. Macie, GuardDuty, and Trusted Advisor don't provide API call audit logs.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "cloudtrail",
+      "forensics",
+      "s3",
+      "audit"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-006",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "Under the shared responsibility model, which security task is ALWAYS AWS's responsibility regardless of which AWS service a customer uses?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Encrypting customer data at rest"
+      },
+      {
+        "label": "B",
+        "text": "Configuring security groups and network ACLs"
+      },
+      {
+        "label": "C",
+        "text": "Patching the guest operating system on EC2"
+      },
+      {
+        "label": "D",
+        "text": "Physical security of data centers, including access controls,"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Physical data center security is always AWS's responsibility across all service types and models. This includes physical access controls, environmental protection, hardware disposal, and hardware maintenance. Guest OS patching is customer responsibility for IaaS (EC2). Security group configuration is always customer responsibility. Data encryption at rest is customer responsibility (though AWS provides the tools).",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "shared-responsibility",
+      "physical-security",
+      "aws-responsibility",
+      "data-center"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-007",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company wants to implement network-level protection for a VPC. They want stateless packet filtering at the subnet boundary AND stateful connection tracking at the instance level. Which combination of AWS features provides both?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Network ACLs (stateless, subnet level) AND Security Groups (stateful, instance level)"
+      },
+      {
+        "label": "B",
+        "text": "AWS WAF for stateless filtering and Security Groups for stateful"
+      },
+      {
+        "label": "C",
+        "text": "VPC Flow Logs for stateless analysis and NACLs for stateful filtering"
+      },
+      {
+        "label": "D",
+        "text": "Two layers of Security Groups \u2014 one per subnet, one per instance"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "Network ACLs operate at the subnet boundary, are stateless (return traffic must be explicitly allowed), and process rules in order. Security Groups operate at the instance/ENI level and are stateful (return traffic is automatically allowed). Using both provides defense in depth. WAF operates at Layer 7 (HTTP), not network packet level. VPC Flow Logs capture traffic metadata but don't filter packets.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "nacl",
+      "security-groups",
+      "vpc",
+      "network-security"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-008",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company uses AWS KMS to encrypt S3 objects with customer managed keys (CMK). They want to ensure that even if an attacker gains the S3 object URL, they cannot read the data. What condition must be true for decryption to succeed?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The attacker just needs the S3 object URL \u2014 encryption doesn't prevent access if you have the URL"
+      },
+      {
+        "label": "B",
+        "text": "The attacker needs only kms:Decrypt \u2014 S3 bucket policies are irrelevant with CMK"
+      },
+      {
+        "label": "C",
+        "text": "The requester must have both s3:GetObject permission AND kms:Decrypt permission on the CMK \u2014 without both, the object cannot be decrypted"
+      },
+      {
+        "label": "D",
+        "text": "KMS encryption only protects against AWS employees accessing data, not IAM-authenticated attackers"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "KMS encryption with CMK creates a two-key requirement: the requester must have S3 GetObject permission AND KMS Decrypt permission on the specific CMK. Even with the S3 URL, if the IAM principal lacks KMS decrypt access, AWS will not decrypt the object. This is the principle of envelope encryption \u2014 separate keys for separate control planes. An S3 URL alone does not grant access to encrypted content.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "kms",
+      "cmk",
+      "envelope-encryption",
+      "s3"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-009",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An application is deployed across 3 AWS accounts using Organizations. Each account has its own VPC. The security team wants GuardDuty to centrally aggregate findings from all accounts into one Security account. What is this pattern called and which service enables it?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Security Hub aggregation with GuardDuty as a member"
+      },
+      {
+        "label": "B",
+        "text": "CloudTrail organization trail with GuardDuty"
+      },
+      {
+        "label": "C",
+        "text": "GuardDuty multi-account mode using a designated GuardDuty Administrator account"
+      },
+      {
+        "label": "D",
+        "text": "AWS Config Aggregator with GuardDuty integration"
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "D": ""
+    },
+    "explanation": "GuardDuty supports multi-account management through a designated GuardDuty Administrator account. Member accounts' findings are aggregated into the administrator account. This is often combined with Security Hub for cross-service aggregation, but GuardDuty itself has this native capability. Config Aggregator aggregates Config data. CloudTrail org trails aggregate API logs.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "guardduty",
+      "multi-account",
+      "organizations",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-010",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's security policy requires that no IAM role can be assumed by principals from outside the company's AWS organization. How can this be enforced at the role level?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add an explicit Deny in the role's permissions policy for all external principals"
+      },
+      {
+        "label": "B",
+        "text": "Use the aws:PrincipalOrgID condition in the role's trust policy to restrict role"
+      },
+      {
+        "label": "C",
+        "text": "Use IAM permission boundaries on all roles"
+      },
+      {
+        "label": "D",
+        "text": "Enable Organizations SCP to prevent cross-account role assumption"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The aws:PrincipalOrgID condition key in the role's trust policy restricts who can assume the role to principals within the specified AWS Organization ID. This is the correct, scalable approach. Modifying the permissions policy doesn't restrict who can assume the role (trust policy controls this). SCPs control actions within member accounts, not cross-organization role assumption. Permission boundaries limit what a role can do, not who can assume it.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "iam",
+      "trust-policy",
+      "organizations",
+      "cross-account"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-011",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's CISO requires that all encryption keys used for sensitive data be rotated annually. For a customer managed KMS key (CMK), what happens to data encrypted with the old key material when automatic rotation is enabled?",
+    "options": [
+      {
+        "label": "A",
+        "text": "KMS retains all previous key material versions; data encrypted with old material can still be decrypted transparently,"
+      },
+      {
+        "label": "B",
+        "text": "Existing encrypted data becomes inaccessible and must be re-encrypted before rotation"
+      },
+      {
+        "label": "C",
+        "text": "All existing encrypted data must be manually re-encrypted with the new key material"
+      },
+      {
+        "label": "D",
+        "text": "KMS deletes old key material after rotation, so data must be re-encrypted before enabling rotation"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "When automatic rotation is enabled for a CMK, KMS generates new key material annually but retains all previous versions. KMS automatically uses the correct version to decrypt data encrypted with any previous rotation, transparently. New data is encrypted with the latest key material. This means no application changes or re-encryption are required \u2014 it's all handled by KMS.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "kms",
+      "key-rotation",
+      "cmk",
+      "encryption"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-012",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company wants to prevent any EC2 instance in their VPC from communicating with known malicious IP addresses. They want automatic blocking without manual rule updates. Which solution best achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Amazon GuardDuty, which integrates threat intelligence and can trigger automated remediation via EventBridge"
+      },
+      {
+        "label": "B",
+        "text": "Manually update security group rules daily based on threat intelligence feeds"
+      },
+      {
+        "label": "C",
+        "text": "Enable VPC Flow Logs and manually review daily"
+      },
+      {
+        "label": "D",
+        "text": "Use AWS WAF with IP reputation lists on the ALB"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "GuardDuty uses AWS and third-party threat intelligence to identify connections to/from known malicious IPs and can trigger EventBridge rules for automated remediation (e.g., Lambda function that blocks the IP in a NACL). WAF with IP reputation lists works at Layer 7 for web traffic but doesn't cover all EC2 network traffic. Manual review provides no automation. The combination of GuardDuty + EventBridge + Lambda enables automated network threat response.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "guardduty",
+      "threat-intelligence",
+      "automated-remediation",
+      "eventbridge"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-013",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An auditor asks how a company can prove that their S3 bucket encryption configuration has remained in compliance over the past 6 months without interruption. Which service provides this continuous compliance history?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config \u2014 maintains a timeline of resource configuration history."
+      },
+      {
+        "label": "B",
+        "text": "Amazon Macie \u2014 shows encryption status of S3 objects"
+      },
+      {
+        "label": "C",
+        "text": "CloudTrail \u2014 provides a history of all API calls"
+      },
+      {
+        "label": "D",
+        "text": "S3 Access Logs \u2014 shows access patterns"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "AWS Config maintains a resource configuration timeline, recording every configuration change with timestamps. For an S3 bucket, Config shows the encryption setting at every point in history. Combined with Config rules, it can show compliance/non-compliance state over time \u2014 exactly what the auditor needs. CloudTrail shows what API calls were made. Macie classifies data content. S3 Access Logs record HTTP requests.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "config",
+      "compliance-history",
+      "s3",
+      "audit"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-014",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's security team wants to receive alerts whenever any IAM policy is modified across 20 member accounts in their AWS Organization. What is the most scalable solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Config rules in each account to detect IAM changes"
+      },
+      {
+        "label": "B",
+        "text": "Set up CloudWatch alarms in each of the 20 accounts separately"
+      },
+      {
+        "label": "C",
+        "text": "Enable GuardDuty in all accounts and filter for IAM findings"
+      },
+      {
+        "label": "D",
+        "text": "Create an organization CloudTrail trail that logs to a central S3 bucket."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "An organization CloudTrail trail automatically captures events from all member accounts into a central S3 bucket. EventBridge in the management account can then filter for IAM policy change events (e.g., CreatePolicy, AttachRolePolicy) across all accounts and route to SNS for notification. This requires setting up once, not once per account. Per-account CloudWatch/Config setup doesn't scale.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "cloudtrail",
+      "organizations",
+      "eventbridge",
+      "iam-monitoring"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-015",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A developer stores AWS credentials in a GitHub repository's CI/CD environment variables. AWS detects the exposed credentials via automated scanning. What mechanism does AWS use to detect credentials in public code repositories?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS has a partnership with GitHub that includes automated secret scanning; when a commit exposes an AWS key, GitHub notifies AWS to automatically deactivate it."
+      },
+      {
+        "label": "B",
+        "text": "AWS Secrets Manager stores and rotates secrets within AWS but does not have the capability to scan external GitHub repositories for exposed credentials."
+      },
+      {
+        "label": "C",
+        "text": "IAM Access Analyzer monitors resource policies and cross-account access but does not scan external source code repositories for exposed IAM credentials."
+      },
+      {
+        "label": "D",
+        "text": "Amazon GuardDuty detects threats within AWS accounts using VPC flow logs and CloudTrail events but cannot monitor external GitHub repositories."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS Secrets Manager stores and rotates secrets within AWS but does not have the capability to scan external GitHub repositories for exposed credentials.",
+      "C": "IAM Access Analyzer monitors resource policies and cross-account access but does not scan external source code repositories for exposed IAM credentials.",
+      "D": "Amazon GuardDuty detects threats within AWS accounts using VPC flow logs and CloudTrail events but cannot monitor external GitHub repositories."
+    },
+    "explanation": "AWS partners with GitHub (and other platforms) through their secret scanning programs. When AWS access keys are detected in public GitHub repositories, GitHub notifies AWS, which can automatically invalidate the exposed credentials. This is a proactive security measure. GuardDuty monitors AWS API activity, not GitHub. Secrets Manager manages credentials within AWS. IAM Access Analyzer evaluates resource policies for external access.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "credential-exposure",
+      "github",
+      "secret-scanning",
+      "access-keys"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-016",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company is deploying a three-tier web application. The database tier should only receive traffic from the application tier. No traffic from the internet should reach the database. Which two controls enforce this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Place the database in a private subnet with no route to the internet gateway, AND restrict the security group inbound to only the application tier's security group."
+      },
+      {
+        "label": "B",
+        "text": "Placing the database in a public subnet with encrypted connections only protects data in transit but leaves the database endpoint directly exposed to the internet."
+      },
+      {
+        "label": "C",
+        "text": "Enabling RDS encryption and Multi-AZ protects data at rest and provides failover, but neither prevents unauthorized network access to the database endpoint."
+      },
+      {
+        "label": "D",
+        "text": "AWS WAF protects web application endpoints at Layer 7 but is not applicable to RDS database connections, which operate at the TCP/port level."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Placing the database in a public subnet with encrypted connections only protects data in transit but leaves the database endpoint directly exposed to the internet.",
+      "C": "Enabling RDS encryption and Multi-AZ protects data at rest and provides failover, but neither prevents unauthorized network access to the database endpoint.",
+      "D": "AWS WAF protects web application endpoints at Layer 7 but is not applicable to RDS database connections, which operate at the TCP/port level."
+    },
+    "explanation": "Defense in depth for the database tier requires two controls: (1) Private subnet with no internet route \u2014 network-level isolation, and (2) Security group rule allowing inbound on the DB port only from the app tier's security group ID \u2014 instance-level isolation. Using security group references (not CIDR blocks) is more precise and dynamic. WAF is for HTTP/HTTPS applications. Encryption and Multi-AZ address data protection and availability, not access control.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "vpc",
+      "private-subnet",
+      "security-groups",
+      "defense-in-depth"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-017",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company is migrating to AWS and the CISO asks: 'How do we know AWS is compliant with SOC 2, ISO 27001, and PCI DSS?' Where can the company obtain AWS's compliance documentation and third-party audit reports?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Artifact provides on-demand access to AWS compliance reports, certifications, and agreements needed by auditors to verify regulatory compliance."
+      },
+      {
+        "label": "B",
+        "text": "AWS Config compliance dashboard shows configuration compliance for AWS resources against rules you define, but does not provide external audit reports or certifications."
+      },
+      {
+        "label": "C",
+        "text": "AWS Security Hub aggregates security findings across services but does not provide the downloadable compliance reports and attestations needed for external auditors."
+      },
+      {
+        "label": "D",
+        "text": "AWS Trusted Advisor security dashboard identifies security best practice gaps in your account but does not supply formal compliance reports or third-party certifications."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "AWS Config compliance dashboard shows configuration compliance for AWS resources against rules you define, but does not provide external audit reports or certifications.",
+      "C": "AWS Security Hub aggregates security findings across services but does not provide the downloadable compliance reports and attestations needed for external auditors.",
+      "D": "AWS Trusted Advisor security dashboard identifies security best practice gaps in your account but does not supply formal compliance reports or third-party certifications."
+    },
+    "explanation": "AWS Artifact is the self-service portal for AWS compliance documentation. It provides SOC 1/2/3 reports, ISO certifications, PCI DSS AOC, HIPAA eligibility documentation, and hundreds of other compliance reports that customers can download and provide to their own auditors. Security Hub is for monitoring your own AWS environment. Config is for resource compliance. Trusted Advisor checks your configurations.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "artifact",
+      "compliance",
+      "soc2",
+      "iso27001"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-018",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company enables IAM Access Analyzer for their AWS account. Access Analyzer identifies an S3 bucket policy that grants read access to a specific external AWS account. Is this a finding that should be investigated?",
+    "options": [
+      {
+        "label": "A",
+        "text": "No \u2014 cross-account access is normal and expected in AWS"
+      },
+      {
+        "label": "B",
+        "text": "Yes \u2014 IAM Access Analyzer flags any resource policy that grants access to external principals (outside"
+      },
+      {
+        "label": "C",
+        "text": "Yes \u2014 IAM Access Analyzer only flags public access, not cross-account access"
+      },
+      {
+        "label": "D",
+        "text": "No \u2014 S3 bucket policies are outside IAM Access Analyzer's scope"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "IAM Access Analyzer identifies resource policies (S3, KMS, SQS, IAM roles, etc.) that grant access to principals outside the account or organization. This includes cross-account access to specific external accounts. While cross-account access can be intentional, each finding should be reviewed to confirm it was explicitly intended \u2014 it helps identify accidentally over-permissive policies.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "iam-access-analyzer",
+      "cross-account",
+      "s3",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-019",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company wants to require that all newly created S3 buckets in their organization must have server-side encryption enabled. They want a preventive control. Which approach achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config rule to detect and alert on unencrypted buckets"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Macie to scan for unencrypted objects"
+      },
+      {
+        "label": "C",
+        "text": "IAM policy in each account denying bucket creation without encryption"
+      },
+      {
+        "label": "D",
+        "text": "SCP at the organization level denying s3:CreateBucket unless the request includes"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "An SCP with a Deny on s3:CreateBucket unless the encryption headers are present is a preventive control that applies to all member accounts simultaneously and cannot be overridden by account admins. Config is detective (flags after the fact). Macie identifies unencrypted object content. Per-account IAM policies can be removed by account admins and require management in each account.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "scp",
+      "s3",
+      "encryption",
+      "preventive-control"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-020",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A new security engineer asks why the root account should not be used for day-to-day AWS operations. What is the primary risk?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The root account has unrestricted access to all AWS services."
+      },
+      {
+        "label": "B",
+        "text": "Root account does not support MFA"
+      },
+      {
+        "label": "C",
+        "text": "Root account access is billed at a higher rate"
+      },
+      {
+        "label": "D",
+        "text": "Root account usage is not logged in CloudTrail"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "The root account has complete, unrestricted access to all AWS resources and services. Unlike IAM users/roles, root account permissions cannot be restricted by IAM policies, SCPs, or permission boundaries. A compromised root account could delete all resources, disable CloudTrail, remove all IAM users, and take other catastrophic actions. Root does support MFA (and should have it enabled). Root activity IS logged in CloudTrail.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "root-account",
+      "security",
+      "iam",
+      "best-practices"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-021",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "select-two",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company's CloudTrail logs show that API calls are being made from IP addresses in a country the company has no operations in. Which two services can help detect and respond to this threat?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon GuardDuty \u2014 detects unusual API activity patterns including geographic anomalies"
+      },
+      {
+        "label": "B",
+        "text": "AWS Config \u2014 tracks configuration changes from unusual locations"
+      },
+      {
+        "label": "C",
+        "text": "Amazon Detective \u2014 provides deep investigation and visualization of the suspicious activity scope and timeline"
+      },
+      {
+        "label": "D",
+        "text": "Amazon Macie \u2014 classifies data accessed from unusual locations"
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "distractors": {
+      "B": "",
+      "D": ""
+    },
+    "explanation": "GuardDuty detects threats and anomalies in CloudTrail data including API calls from unusual geolocations (it integrates threat intelligence and behavioral baselines). Amazon Detective enables deep forensic investigation of GuardDuty findings, visualizing the affected resources, timeline, and scope of the suspicious activity. Config tracks resource configurations. Macie focuses on S3 data classification.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "guardduty",
+      "detective",
+      "threat-detection",
+      "investigation"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-022",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An organization's security team wants to implement a 'zero standing privileges' model \u2014 no user should have permanent AWS access. All access should be temporary and just-in-time. Which AWS service is most aligned with this model?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS IAM Identity Center with session-based temporary credential vending, integrated"
+      },
+      {
+        "label": "B",
+        "text": "AWS Cognito for workforce identity"
+      },
+      {
+        "label": "C",
+        "text": "Create IAM users with strong passwords and MFA"
+      },
+      {
+        "label": "D",
+        "text": "IAM roles with long-duration session tokens (12 hours)"
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "IAM Identity Center provides temporary, session-based credentials that expire automatically. Integration with an IdP enables just-in-time access through approval workflows. Users have no standing IAM user or access key \u2014 they authenticate, receive temporary credentials, use them, and the session expires. IAM users with passwords are the opposite of zero standing privileges. Long-duration role sessions still have standing access during the session. Cognito is for consumer-facing applications, not enterprise workforce.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "iam-identity-center",
+      "zero-standing-privileges",
+      "temporary-credentials",
+      "jit-access"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-023",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A security architect is designing a multi-layer security strategy. They want to ensure that even if an IAM policy is misconfigured and grants too much access, there is a second layer of control at the account level. What provides this second layer for an AWS Organizations setup?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudTrail logging of all API calls for post-hoc review"
+      },
+      {
+        "label": "B",
+        "text": "IAM permission boundaries on all roles"
+      },
+      {
+        "label": "C",
+        "text": "AWS Config rules that detect overly permissive IAM policies"
+      },
+      {
+        "label": "D",
+        "text": "Service Control Policies (SCPs) at the OU or account level that"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "SCPs define the maximum permission ceiling for an account. Even if an IAM policy grants ec2:* or AdministratorAccess, an SCP can restrict which specific services and actions are actually permitted. This is defense in depth at the account level. Permission boundaries provide similar defense at the individual principal level. Config detects but doesn't prevent. CloudTrail logs after the fact.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "scp",
+      "defense-in-depth",
+      "organizations",
+      "permission-boundary"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-024",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company wants to audit whether all IAM users in their account have MFA enabled, identify which EC2 instances have public IPs that shouldn't, and flag S3 buckets with overly permissive ACLs \u2014 all in one place. Which service provides these checks?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon GuardDuty"
+      },
+      {
+        "label": "B",
+        "text": "Amazon Inspector"
+      },
+      {
+        "label": "C",
+        "text": "AWS Security Hub"
+      },
+      {
+        "label": "D",
+        "text": "AWS Trusted Advisor"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "Trusted Advisor provides best-practice checks across Security, Cost Optimization, Performance, Fault Tolerance, and Service Limits. Security checks include: IAM users with MFA disabled, S3 bucket permissions, EC2 instances with unrestricted access, exposed access keys, and more. Inspector scans for software vulnerabilities. GuardDuty detects threats. Security Hub aggregates findings but doesn't independently run these configuration checks.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "trusted-advisor",
+      "security-checks",
+      "mfa",
+      "best-practices"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-025",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "A company encrypts all their EBS volumes using KMS. A new security requirement states the company must be able to immediately revoke all access to a specific volume's data in the event of a breach, without deleting the volume. What mechanism enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Delete the EBS snapshot of the volume"
+      },
+      {
+        "label": "B",
+        "text": "Terminate the EC2 instance the volume is attached to"
+      },
+      {
+        "label": "C",
+        "text": "Remove the IAM policy allowing EBS access from all users"
+      },
+      {
+        "label": "D",
+        "text": "Disable or schedule deletion of the KMS CMK used to encrypt the volume"
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "",
+      "B": "",
+      "C": ""
+    },
+    "explanation": "KMS CMK keys can be disabled (immediate effect) or scheduled for deletion. When the CMK is disabled, all operations using that key fail \u2014 the encrypted volume data becomes inaccessible immediately, even to those with IAM permissions for EBS. This is the 'key revocation' capability of envelope encryption. Deleting snapshots removes backup copies but not the live volume data. Terminating the instance doesn't revoke access to the data.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "kms",
+      "ebs",
+      "key-revocation",
+      "encryption"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-026",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "An engineer uses the AWS CLI with an IAM user's access key. They run: aws s3 ls s3://sensitive-bucket and get 'Access Denied.' The IAM user's policy explicitly allows s3:ListBucket. Why might access still be denied?",
+    "options": [
+      {
+        "label": "A",
+        "text": "IAM user policies cannot grant S3 access \u2014 only IAM roles can"
+      },
+      {
+        "label": "B",
+        "text": "The S3 bucket's resource-based policy (bucket policy) may explicitly deny this user."
+      },
+      {
+        "label": "C",
+        "text": "The CLI does not support S3 access \u2014 use the console instead"
+      },
+      {
+        "label": "D",
+        "text": "S3 access always requires MFA even with valid access keys"
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "",
+      "C": "",
+      "D": ""
+    },
+    "explanation": "S3 access evaluation checks both identity-based policies (IAM) AND resource-based policies (bucket policy). Even with an IAM allow, access can be denied if: (1) the bucket policy has an explicit Deny for the user, (2) the bucket policy doesn't include an Allow and the bucket is in another account (cross-account requires both sides to allow), or (3) S3 Block Public Access overrides. IAM allows and bucket policy must both permit for cross-account; for same account, IAM allow alone may suffice unless there's an explicit Deny.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "s3",
+      "bucket-policy",
+      "iam",
+      "access-evaluation"
+    ]
+  },
+  {
+    "id": "aws-cp-t5-02-027",
+    "domain": 2,
+    "domain_name": "Security and Compliance",
+    "type": "select-two",
+    "difficulty": "above",
+    "test_number": 5,
+    "active": true,
+    "stem": "Which TWO statements correctly describe AWS Certificate Manager (ACM)?",
+    "options": [
+      {
+        "label": "A",
+        "text": "ACM public certificates are free of charge"
+      },
+      {
+        "label": "B",
+        "text": "ACM certificates can be exported and installed on non-AWS servers"
+      },
+      {
+        "label": "C",
+        "text": "ACM can provision and automatically renew SSL/TLS certificates for use with AWS"
+      },
+      {
+        "label": "D",
+        "text": "ACM requires annual manual renewal for all certificates"
+      }
+    ],
+    "correct": [
+      "A",
+      "C"
+    ],
+    "distractors": {
+      "B": "",
+      "D": ""
+    },
+    "explanation": "ACM provisions and automatically renews TLS certificates for integrated AWS services (ALB, CloudFront, API Gateway, etc.) at no charge for public certificates. ACM-issued public certificates cannot be exported (private key is never accessible) \u2014 they can only be used with supported AWS services. ACM handles renewal automatically before expiry.",
+    "module_ref": "aws-cp/security-compliance",
+    "tags": [
+      "acm",
+      "tls",
+      "certificates",
+      "free"
+    ]
+  }
+]

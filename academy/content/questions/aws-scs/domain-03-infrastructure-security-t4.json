@@ -1,0 +1,740 @@
+[
+  {
+    "id": "scs-d3-t4-001",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security team detects a credential stuffing attack against a login endpoint. Thousands of distinct IP addresses are each making a low volume of requests. The team wants to use AWS WAF rate-based rules to throttle these requests. Which aggregation key provides the most effective mitigation for this attack pattern?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Aggregate by URI path combined with query string to target the specific login endpoint rather than relying on IP-based signals."
+      },
+      {
+        "label": "B",
+        "text": "Aggregate by IP address, setting a threshold of 100 requests per 5-minute window per source IP to block individual attackers."
+      },
+      {
+        "label": "C",
+        "text": "Aggregate by forwarded IP using the X-Forwarded-For header to account for requests arriving through shared NAT gateways or proxies."
+      },
+      {
+        "label": "D",
+        "text": "Aggregate by HTTP header value such as the Authorization header to rate-limit based on the credential being tested rather than the source IP."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Credential stuffing attacks distribute requests across many IPs to evade per-IP rate limits. Aggregating by a header value such as a username field or Authorization token allows WAF to detect that the same credential is being attempted repeatedly regardless of the originating IP. IP-based aggregation (A) is ineffective when attackers rotate source IPs. X-Forwarded-For (C) still relies on IP identity. URI path aggregation (D) does not distinguish individual credentials being tested.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-002",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A network engineer needs to permanently block traffic from a known malicious IP range (203.0.113.0/24) at the subnet boundary, ensuring the block applies to all EC2 instances in that subnet without modifying individual instance configurations. Which AWS control is the most appropriate choice?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a VPC route table entry for 203.0.113.0/24 pointing to a blackhole target to drop packets before they reach subnet resources."
+      },
+      {
+        "label": "B",
+        "text": "Apply an inbound Security Group deny rule referencing the 203.0.113.0/24 CIDR on every EC2 instance security group within the subnet."
+      },
+      {
+        "label": "C",
+        "text": "Add an inbound DENY rule for 203.0.113.0/24 to the Network ACL associated with the target subnet, using a rule number lower than the ALLOW rules."
+      },
+      {
+        "label": "D",
+        "text": "Create an AWS WAF IP set containing 203.0.113.0/24 and associate a web ACL with the ALB or CloudFront distribution serving the subnet."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Network ACLs are stateless subnet-level firewalls that support explicit DENY rules. Adding a DENY rule with a lower rule number than existing ALLOW rules ensures the malicious CIDR is blocked for all resources in that subnet without touching instance-level configuration. Security Groups (A) do not support explicit DENY rules and must be modified per instance. WAF (C) only protects HTTP/S application layer traffic. VPC route tables (D) do not have a native blackhole target for arbitrary CIDRs originating from outside the VPC.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-003",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security team wants to prevent EC2 instances in a VPC from resolving known malware command-and-control domain names. They need a managed, scalable solution that does not require deploying proxy servers. Which AWS service and feature should they configure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Modify the DHCP options set for the VPC to point instances to a custom DNS server that filters malicious domain queries using a deny list."
+      },
+      {
+        "label": "B",
+        "text": "Configure Route 53 Resolver DNS Firewall with a managed domain list or custom rule group to block or override resolution of malicious domains."
+      },
+      {
+        "label": "C",
+        "text": "Enable Amazon GuardDuty DNS logs so that GuardDuty can detect and automatically block resolution of malicious domains at the resolver level."
+      },
+      {
+        "label": "D",
+        "text": "Deploy an AWS Network Firewall with a stateful Suricata rule that matches DNS query packets containing the blocked domain names."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "Route 53 Resolver DNS Firewall integrates directly with the VPC resolver (169.254.169.253) and allows you to create rule groups with domain lists including AWS-managed threat intelligence lists to block or override DNS resolution of malicious domains. Network Firewall (A) can inspect DNS but requires deploying and routing traffic through firewall endpoints. GuardDuty (B) detects threats but does not block DNS resolution. Custom DHCP DNS (D) requires managing and operating a separate resolver infrastructure.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-004",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company uses AWS Shield Advanced to protect its internet-facing applications. During a large-scale DDoS event, the security team wants AWS to proactively reach out and assist with mitigation before the team submits a support case. What Shield Advanced capability provides this behavior?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Firewall Manager integration, which automatically shares Shield Advanced protections across all accounts in the AWS Organization."
+      },
+      {
+        "label": "B",
+        "text": "Cost protection, which provides SLA credits for scaling costs incurred during verified DDoS events on protected resources."
+      },
+      {
+        "label": "C",
+        "text": "Proactive engagement, which allows the Shield Response Team to contact the defined emergency contacts when attack thresholds are breached."
+      },
+      {
+        "label": "D",
+        "text": "Automatic application layer DDoS mitigation, which deploys WAF rules automatically to block attack traffic without requiring human intervention."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "Shield Advanced Proactive Engagement enables the AWS Shield Response Team (SRT) to proactively contact emergency contacts registered in the account when the application's Route 53 health checks degrade during a detected attack, without waiting for the customer to open a case. Automatic application-layer mitigation (A) is a separate feature that deploys WAF rules but is not the same as proactive engagement. Firewall Manager (C) handles policy distribution. Cost protection (D) is a billing benefit, not an operational engagement SLA.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-005",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A cloud architect wants to verify that a specific EC2 instance in a private subnet cannot reach an RDS database in a different subnet due to Security Group rules, without generating live traffic. Which AWS tool should they use?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use VPC Flow Logs to capture all traffic between the two subnets and analyze the logs to confirm no sessions exist between the instance and the database."
+      },
+      {
+        "label": "B",
+        "text": "Run a VPC Reachability Analyzer path analysis between the EC2 instance and the RDS endpoint to identify any blocking components in the network path."
+      },
+      {
+        "label": "C",
+        "text": "Execute an AWS Config rule evaluation on the Security Group resources to check whether any inbound rules permit the instance IP address."
+      },
+      {
+        "label": "D",
+        "text": "Deploy a VPC Traffic Mirroring session to copy packets from the EC2 instance ENI and confirm no RDS-bound traffic is observed in the mirror target."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "VPC Reachability Analyzer performs static network path analysis without sending actual traffic. It models the complete path between a source and destination including Security Groups, NACLs, route tables, and gateway configurations, and reports whether the path is reachable or identifies which component is blocking it. Flow Logs (A) require actual traffic to exist. Config rules (C) check individual resource configurations but cannot model end-to-end reachability. Traffic Mirroring (D) requires live traffic and adds operational overhead.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-006",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security architect wants to restrict access to an S3 bucket so that only requests originating from a specific VPC endpoint are permitted, using an S3 bucket policy with the aws:SourceVpce condition key. Which type of S3 VPC endpoint supports this condition key?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Both gateway and interface endpoints support aws:SourceVpce, but gateway endpoints require an additional aws:SourceVpc condition to function correctly."
+      },
+      {
+        "label": "B",
+        "text": "S3 interface endpoint via AWS PrivateLink, which assigns a private IP in the VPC and supports bucket policies using the aws:SourceVpce condition."
+      },
+      {
+        "label": "C",
+        "text": "Neither endpoint type supports aws:SourceVpce natively; you must use aws:SourceIp with the endpoint private IP range instead."
+      },
+      {
+        "label": "D",
+        "text": "S3 gateway endpoint, which is added to the VPC route table and supports bucket policies using the aws:SourceVpce condition key."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The aws:SourceVpce condition key is supported by S3 gateway endpoints. When traffic flows through a gateway endpoint, AWS includes the VPC endpoint ID in the request context, allowing bucket policies to restrict access to that specific endpoint. Interface endpoints use PrivateLink and private IPs; while aws:SourceVpc or aws:SourceVpce may be used with interface endpoints for some services, S3 gateway endpoints are the native and well-documented mechanism for this pattern. Option C mischaracterizes the requirements, and option D is incorrect.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-007",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A compliance team requires that all Windows EC2 instances be patched to meet CIS Benchmark standards on a monthly schedule. Which AWS Systems Manager Patch Manager configuration best satisfies this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a custom patch baseline specifying CIS-required patches, then schedule a maintenance window to run AWS-RunPatchBaseline against all Windows instances."
+      },
+      {
+        "label": "B",
+        "text": "Deploy Amazon Inspector v2 on all instances and use Inspector patch recommendations to manually apply missing patches through the EC2 management console."
+      },
+      {
+        "label": "C",
+        "text": "Enable AWS Config to evaluate the patch compliance rule and configure a remediation action to trigger SSM Run Command when instances are non-compliant."
+      },
+      {
+        "label": "D",
+        "text": "Use the AWS-managed default patch baseline for Windows and schedule monthly patching via a maintenance window targeting all Windows instances in the account."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "CIS Benchmark compliance requires controlling exactly which patches are applied. A custom patch baseline lets you define approval rules and explicit patch inclusions and exclusions aligned to the CIS standard, then automate delivery through a Patch Manager maintenance window using AWS-RunPatchBaseline. The default Windows baseline (C) applies all Microsoft-recommended updates but is not tailored to CIS requirements. Config remediation (B) is reactive rather than proactively scheduled. Inspector (D) provides vulnerability findings but does not orchestrate patch installation.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-008",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security team notices unusual database login activity on an Amazon RDS MySQL instance, including logins from unexpected user accounts at unusual hours. Which GuardDuty feature is specifically designed to detect these anomalies without requiring any agent installation on the database host?",
+    "options": [
+      {
+        "label": "A",
+        "text": "GuardDuty S3 Protection, which analyzes CloudTrail S3 data events to identify unusual access patterns including cross-account database export operations."
+      },
+      {
+        "label": "B",
+        "text": "GuardDuty EKS Runtime Monitoring, which instruments the database container when RDS is deployed within an EKS cluster to detect login anomalies."
+      },
+      {
+        "label": "C",
+        "text": "GuardDuty RDS Protection, which analyzes RDS login activity using database authentication logs to detect anomalous login behavior on Aurora and RDS instances."
+      },
+      {
+        "label": "D",
+        "text": "GuardDuty Malware Protection, which scans EBS volumes attached to the database instance to detect credential-harvesting malware causing the unusual logins."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "GuardDuty RDS Protection is a dedicated feature that ingests and analyzes RDS and Aurora database login activity to create behavioral baselines and detect anomalies such as logins from unusual users, unexpected IP addresses, or abnormal access times. It requires no agent and works by analyzing authentication event logs at the service level. S3 Protection (A), EKS Runtime Monitoring (B), and Malware Protection (D) address different threat vectors and are not designed for database login anomaly detection.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-009",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A DevSecOps team wants to automatically scan Lambda function code for security vulnerabilities and software composition analysis findings as part of the CI/CD process, using a managed AWS service that does not require modifying the Lambda deployment workflow. Which service provides this capability?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config with the lambda-function-public-access-prohibited rule, which evaluates Lambda functions and also performs code-level vulnerability analysis."
+      },
+      {
+        "label": "B",
+        "text": "AWS Security Hub, which aggregates findings from multiple sources and can run Lambda-specific checks through its built-in automated security checks feature."
+      },
+      {
+        "label": "C",
+        "text": "AWS CodeGuru Security, which performs static analysis on source code committed to CodeCommit and can flag vulnerabilities before Lambda functions are deployed."
+      },
+      {
+        "label": "D",
+        "text": "Amazon Inspector v2, which automatically scans Lambda function code packages for vulnerabilities and package dependency findings when Lambda scanning is enabled."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "Amazon Inspector v2 includes Lambda function scanning, which automatically analyzes deployed Lambda function packages for software vulnerabilities (CVEs) and code dependencies without requiring pipeline modifications. When Lambda scanning is enabled, Inspector continuously monitors function code as it is updated. CodeGuru Security (A) analyzes source code but requires integration with source repositories. Security Hub (C) aggregates findings but does not scan Lambda code itself. The Config rule (D) checks access policies, not code-level vulnerabilities.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-010",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security team needs to create and maintain hardened AMIs that serve as golden images for all EC2 instances in the organization. The images must be rebuilt automatically when new OS patches are released. Which AWS service is purpose-built for this pipeline?",
+    "options": [
+      {
+        "label": "A",
+        "text": "EC2 Image Builder, which provides a managed pipeline to build, test, and distribute AMIs on a schedule or when component updates are available."
+      },
+      {
+        "label": "B",
+        "text": "AWS CodePipeline with a CodeBuild stage that runs Packer scripts to build, harden, and publish a new AMI when triggered by patch release events."
+      },
+      {
+        "label": "C",
+        "text": "AWS Backup with AMI copy plans that create point-in-time snapshots of a reference instance after each patching maintenance window completes."
+      },
+      {
+        "label": "D",
+        "text": "AWS Systems Manager Automation with the AWS-CreateImage document triggered by an EventBridge rule when AWS publishes new patch baselines."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "EC2 Image Builder is the purpose-built AWS service for creating, maintaining, and distributing hardened AMI golden images. It provides a pipeline with build, validate, test, and distribute phases, supports CIS and STIG hardening components, and can be triggered on a schedule or when upstream base images are updated. CodePipeline with Packer (A) works but requires significant custom tooling. SSM Automation (C) can create images but lacks full pipeline lifecycle management. AWS Backup (D) creates recovery snapshots, not hardened golden images.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-011",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer is troubleshooting why TCP responses from an EC2 web server are being blocked by the subnet Network ACL. The inbound rule allows TCP 443 from 0.0.0.0/0 and all traffic appears to arrive correctly. What is the most likely cause of the return traffic being dropped?",
+    "options": [
+      {
+        "label": "A",
+        "text": "NACLs evaluate rules in descending order from the highest rule number, so a lower-number DENY rule is being overridden by the higher-number ALLOW rule."
+      },
+      {
+        "label": "B",
+        "text": "NACLs are stateless, so return traffic on ephemeral ports (1024-65535) requires a separate outbound ALLOW rule to permit TCP responses back to clients."
+      },
+      {
+        "label": "C",
+        "text": "The Security Group associated with the instance is blocking outbound traffic because the default egress rule was removed or modified by an administrator."
+      },
+      {
+        "label": "D",
+        "text": "The NACL is stateful and tracks connections, so a separate explicit rule is required only when the NACL is configured in strict bidirectional mode."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "NACLs are stateless, meaning they evaluate inbound and outbound traffic independently. An inbound ALLOW on port 443 permits the initial client request, but the server TCP response uses an ephemeral source port in the range 1024-65535. Without an explicit outbound ALLOW rule covering that port range, the NACL drops the response packets. Security Groups (C) are stateful and track connections, so a separate outbound rule is not needed there. NACLs evaluate rules in ascending order with the lowest rule number first, so option D describes the evaluation order incorrectly.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-012",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company exposes an internal service through AWS PrivateLink as a service provider. They want to ensure that only specific AWS accounts from trusted partners can create endpoint connections to their service. How should the service provider configure this access control?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use an SCP in the provider AWS Organization to deny PrivateLink endpoint creation from accounts outside the trusted partner list."
+      },
+      {
+        "label": "B",
+        "text": "Enable VPC endpoint policies on the provider NLB to specify which consumer account IDs are permitted to connect through the PrivateLink endpoint service."
+      },
+      {
+        "label": "C",
+        "text": "Restrict access by placing the NLB in a private subnet and configuring Security Group rules to allow inbound traffic only from partner IP ranges."
+      },
+      {
+        "label": "D",
+        "text": "Configure the VPC endpoint service allowed principals list with the ARNs of trusted partner accounts or IAM roles to control who can create connections."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS PrivateLink endpoint services have an allowed principals configuration on the service provider side. The provider adds account ARNs such as arn:aws:iam::ACCOUNT-ID:root or specific IAM role ARNs to the allowed principals list. Only consumers whose accounts or roles are listed can create interface endpoint connections to the service, enforcing the trust model at the PrivateLink service level. Endpoint policies (A) are applied on the consumer side. SCPs (C) control what the provider's own accounts can do, not consumer access. Security Groups and IP ranges (D) do not control PrivateLink endpoint creation.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-013",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A developer wants to attach an AWS WAF web ACL to an Amazon CloudFront distribution to inspect and filter HTTP requests globally at the edge. In which AWS Region must the WAF web ACL be created for CloudFront association?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The web ACL must be created in eu-west-1, which serves as the secondary global control plane Region for all CloudFront WAF policy management."
+      },
+      {
+        "label": "B",
+        "text": "The web ACL must be created in the same Region as the CloudFront origin, such as the Region where the ALB or S3 bucket origin is deployed."
+      },
+      {
+        "label": "C",
+        "text": "The web ACL can be created in any Region because CloudFront automatically discovers and applies WAF rules from all Regions to its edge locations globally."
+      },
+      {
+        "label": "D",
+        "text": "The web ACL must be created in us-east-1 (N. Virginia) because CloudFront is a global service that uses the us-east-1 endpoint for WAF integration."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "AWS WAF web ACLs intended for CloudFront distributions must be created in the us-east-1 (US East N. Virginia) Region. This is a hard requirement because CloudFront's control plane operates globally from us-east-1 and only retrieves WAF configurations from that Region. WAF web ACLs in other Regions can be associated only with regional resources such as ALBs, API Gateways, and AppSync in the same Region. There is no multi-region discovery (A), no origin-Region requirement (B), and eu-west-1 (D) has no special CloudFront control plane role.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-014",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A financial services company needs to perform cryptographic operations such as key generation and signing on highly sensitive data in an isolated compute environment where even AWS operators cannot access the code or data in memory. Which EC2 feature meets this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Nitro Enclaves, which create isolated CPU and memory-separated compute environments within an EC2 instance with no persistent storage or external network access."
+      },
+      {
+        "label": "B",
+        "text": "AWS CloudHSM, which provides dedicated hardware security modules inside the customer VPC for cryptographic operations with no AWS access to key material."
+      },
+      {
+        "label": "C",
+        "text": "EC2 Instance Connect Endpoint, which ensures all administrative access to the instance is logged and no direct SSH keys are stored on the instance itself."
+      },
+      {
+        "label": "D",
+        "text": "EC2 Dedicated Hosts, which allocate a physical server exclusively to one customer, preventing other customers workloads from sharing the underlying hardware."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "AWS Nitro Enclaves provide strongly isolated virtual machines carved from an EC2 instance CPU and memory. They have no persistent storage, no interactive access, and no external network connectivity, only a local vsock channel to the parent instance. This isolation ensures that even the instance owner and AWS operators cannot inspect enclave memory, making them ideal for processing sensitive cryptographic material. Dedicated Hosts (A) provide hardware isolation between tenants but not operator-proof workload isolation. CloudHSM (B) protects key material but is a separate managed HSM service. Instance Connect Endpoint (D) is an access control mechanism, not an isolated compute environment.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-015",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security operations team wants to automatically detect Security Groups that are no longer associated with any Elastic Network Interface in the account. Which AWS Config managed rule identifies these orphaned Security Groups?",
+    "options": [
+      {
+        "label": "A",
+        "text": "vpc-sg-open-only-to-authorized-ports, which checks whether Security Groups allow inbound traffic only on authorized ports defined in the rule parameters."
+      },
+      {
+        "label": "B",
+        "text": "ec2-instance-no-public-ip, which checks for EC2 instances without public IPs and also detects Security Groups that have no active EC2 instance associations."
+      },
+      {
+        "label": "C",
+        "text": "restricted-ssh, which evaluates whether Security Groups allow unrestricted SSH access from the internet and also reports unattached Security Groups as a side check."
+      },
+      {
+        "label": "D",
+        "text": "ec2-security-group-attached-to-eni, which flags Security Groups that are not associated with any ENI and are therefore orphaned or unused network resources."
+      }
+    ],
+    "correct": "D",
+    "distractors": [
+      "A",
+      "B",
+      "C"
+    ],
+    "explanation": "The AWS Config managed rule ec2-security-group-attached-to-eni checks whether Security Groups are attached to at least one Elastic Network Interface. Security Groups not associated with any ENI are flagged as non-compliant, allowing teams to identify and remove orphaned Security Groups that may represent unnecessary attack surface or configuration drift. The other rules (A, C, D) focus on inbound rule content or instance network settings, not on whether the Security Group is actively in use.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-016",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company has AWS Direct Connect connectivity to AWS and needs to access Amazon S3 from on-premises without traffic traversing the public internet. Which Direct Connect virtual interface type enables private routing to S3 public service endpoints over the dedicated link?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Private Virtual Interface (Private VIF), which routes traffic to resources inside a VPC and can be paired with a gateway VPC endpoint for S3 access."
+      },
+      {
+        "label": "B",
+        "text": "Public Virtual Interface (Public VIF), which provides connectivity to all AWS public service IP ranges including S3 over the Direct Connect dedicated link."
+      },
+      {
+        "label": "C",
+        "text": "Transit Virtual Interface (Transit VIF), which connects to a Transit Gateway and routes traffic to S3 endpoints through peered VPCs in the connected network."
+      },
+      {
+        "label": "D",
+        "text": "Hosted Virtual Interface (Hosted VIF), which is provisioned by a Direct Connect partner and automatically advertises routes to AWS public services like S3."
+      }
+    ],
+    "correct": "B",
+    "distractors": [
+      "A",
+      "C",
+      "D"
+    ],
+    "explanation": "A Public Virtual Interface (Public VIF) on Direct Connect allows on-premises networks to reach all AWS public service IP address ranges including S3 over the dedicated Direct Connect connection rather than the internet. Traffic uses AWS private backbone from the Direct Connect location to the S3 endpoint. A Private VIF (A) reaches resources within a VPC and requires a VPC endpoint for S3 access but only works for VPC-based traffic. Transit VIF (C) connects to Transit Gateway for VPC-to-VPC routing. A Hosted VIF (D) is a provisioning model, not a distinct interface type with automatic public service routing.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-017",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A security engineer is writing stateful rules for AWS Network Firewall to detect and alert on HTTP requests containing a specific malicious User-Agent string. Which rule format does the Network Firewall stateful engine use for this type of deep packet inspection?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS WAF rule JSON syntax adapted for Network Firewall stateful groups, enabling byte-match conditions on HTTP headers and URI components for deep inspection."
+      },
+      {
+        "label": "B",
+        "text": "Network Firewall domain list rules, which allow specifying domain names and HTTP host headers to block or allow specific web traffic patterns at the application layer."
+      },
+      {
+        "label": "C",
+        "text": "Suricata-compatible IDS/IPS rules using keywords like http.user_agent to match specific HTTP header fields in stateful Network Firewall rule groups."
+      },
+      {
+        "label": "D",
+        "text": "AWS-managed threat intelligence rules expressed in YAML format, which are uploaded to a Network Firewall rule group and evaluated by the stateful inspection engine."
+      }
+    ],
+    "correct": "C",
+    "distractors": [
+      "A",
+      "B",
+      "D"
+    ],
+    "explanation": "AWS Network Firewall stateful inspection engine uses Suricata-compatible rule syntax. Engineers write rules using Suricata keywords such as http.user_agent, http.uri, content, and pcre to match application-layer content like HTTP headers. For example: alert http any any -> any any (msg:\"Malicious UA\"; http.user_agent; content:\"MaliciousBot\"; sid:1;). Domain list rules (C) support simple allow and deny by domain name but not granular HTTP header matching. There is no YAML or WAF JSON format for Network Firewall stateful rules.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  },
+  {
+    "id": "scs-d3-t4-018",
+    "domain": "domain-03",
+    "domain_name": "Infrastructure Security",
+    "type": "multiple-choice",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A company runs a multi-tenant SaaS application behind an Application Load Balancer. They want to apply different WAF rule sets to traffic destined for /api/* paths versus /admin/* paths. How should they implement this architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a single WAF web ACL with rule groups that use scope-down statements matching specific URI path prefixes, then associate the web ACL with the ALB."
+      },
+      {
+        "label": "B",
+        "text": "Create two separate WAF web ACLs and associate both with the same ALB, using web ACL priority settings to apply path-specific rules in the correct sequence."
+      },
+      {
+        "label": "C",
+        "text": "Deploy two ALB listeners on different ports, associate a separate WAF web ACL with each listener, and route API and admin traffic to the appropriate listener port."
+      },
+      {
+        "label": "D",
+        "text": "Use ALB listener rules with path-based conditions to forward traffic to separate target groups, and associate individual WAF web ACLs with each target group directly."
+      }
+    ],
+    "correct": "A",
+    "distractors": [
+      "B",
+      "C",
+      "D"
+    ],
+    "explanation": "A single WAF web ACL supports multiple rule groups, and each rule or rule group can include a scope-down statement, which is an additional match condition that restricts when the rule fires. By setting scope-down statements to match URI path prefixes such as /api/* or /admin/*, different rule sets apply to different path-based traffic segments within one web ACL associated with the ALB. An ALB can only be associated with one WAF web ACL, making option A invalid. Splitting by port (C) adds unnecessary infrastructure complexity. WAF web ACLs associate with ALBs or listeners, not with individual target groups, making option D unsupported.",
+    "module_ref": "domain-03",
+    "tags": [
+      "aws-scs",
+      "domain-03",
+      "infrastructure-security"
+    ]
+  }
+]

@@ -102,7 +102,7 @@ def get_submission(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Submission not found")
 
     # Students can only view their own submissions
-    if current_user.role == "student" and sub.student_id != current_user.id:
+    if current_user.academy_role == "student" and sub.student_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your submission")
 
     return _serialize(sub, db)
@@ -142,7 +142,7 @@ def _serialize(sub: Submission, db: Session) -> dict:
         "assignment_id": sub.assignment_id,
         "assignment_title": assignment.title if assignment else "",
         "student_id": sub.student_id,
-        "student_name": student.name if student else "",
+        "student_name": (student.display_name or student.email) if student else "",
         "automated_score": sub.automated_score,
         "total_points": sub.total_points,
         "criteria_results": sub.criteria_results or [],
