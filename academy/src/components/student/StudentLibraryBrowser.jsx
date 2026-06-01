@@ -1,6 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import LessonContent from "../lesson/LessonContent";
 import {
   listLibrary,
   getLibraryLesson,
@@ -13,15 +12,6 @@ import {
 } from "../../api/library";
 
 const CANVAS_URL = import.meta.env.VITE_CANVAS_URL ?? "http://localhost:3000";
-
-const PROSE_CLASSES =
-  "prose prose-sm max-w-none " +
-  "prose-headings:font-semibold prose-headings:text-gray-900 " +
-  "prose-p:text-gray-700 prose-p:leading-relaxed " +
-  "prose-a:text-blue-600 prose-li:text-gray-700 " +
-  "prose-code:bg-gray-100 prose-code:rounded prose-code:px-1 prose-code:py-0.5 " +
-  "prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-lg prose-pre:p-4 " +
-  "prose-blockquote:border-l-blue-400 prose-blockquote:text-gray-600";
 
 const DIFFICULTY_COLORS = {
   beginner:     "bg-green-100 text-green-700",
@@ -266,9 +256,10 @@ function LibraryLessonReader({ lesson: summary, onComplete, onClose, currentUser
         {lesson.lesson_type === "canvas" ? (
           <div className="flex flex-col gap-6">
             {lesson.content && (
-              <div className={PROSE_CLASSES}>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{lesson.content}</ReactMarkdown>
-              </div>
+              <LessonContent
+                content={lesson.content}
+                storageKey={`library-${lesson.id}`}
+              />
             )}
             <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-6 flex flex-col items-center gap-4 text-center">
               <div className="w-14 h-14 bg-indigo-100 rounded-xl flex items-center justify-center text-3xl">🖼</div>
@@ -295,9 +286,10 @@ function LibraryLessonReader({ lesson: summary, onComplete, onClose, currentUser
             </div>
           </div>
         ) : (
-          <div className={PROSE_CLASSES}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{lesson.content}</ReactMarkdown>
-          </div>
+          <LessonContent
+            content={lesson.content}
+            storageKey={`library-${lesson.id}`}
+          />
         )}
 
         <NotesPanel libraryLessonId={lesson.id} currentUserRole={currentUserRole} />

@@ -1,0 +1,419 @@
+[
+  {
+    "id": "aws-soa-t3-04-001",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An S3 bucket has a public bucket policy granting s3:GetObject to '*'. The administrator wants to block public access immediately without modifying the bucket policy. What is fastest?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable default encryption; encrypted buckets deny public access since anonymous users cannot provide the KMS key."
+      },
+      {
+        "label": "B",
+        "text": "Remove the bucket from its access point; the original public policy no longer applies to objects via access points."
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 Block Public Access at the bucket level with BlockPublicPolicy; this overrides the existing public policy without modifying it."
+      },
+      {
+        "label": "D",
+        "text": "Update the bucket CORS configuration to deny external origins; blocks public HTTP access without changing the policy."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "D": "CORS controls cross-origin browser requests; it does not block direct public access.",
+      "A": "Default encryption applies to storage; it does not restrict access or prevent public reads.",
+      "B": "Access points are an additional access layer; the bucket policy still applies to direct bucket access."
+    },
+    "explanation": "S3 Block Public Access BlockPublicPolicy setting overrides any existing bucket policy that grants public (anonymous) access, making it ineffective immediately without requiring a policy change.",
+    "module_ref": "soa/security/s3-block-public-access-bucket",
+    "tags": [
+      "s3",
+      "block-public-access",
+      "immediate-remediation"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-04-002",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "How are AWS service API calls enforced to use encryption in transit?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure AWS WAF on all service endpoints with a rule blocking non-HTTPS traffic."
+      },
+      {
+        "label": "B",
+        "text": "All AWS service API endpoints use HTTPS by default; AWS does not provide unencrypted HTTP API endpoints for its services."
+      },
+      {
+        "label": "C",
+        "text": "Add aws:SecureTransport=true as a condition to all IAM policies; this enforces HTTPS for all API calls using those policies."
+      },
+      {
+        "label": "D",
+        "text": "Enable VPC Interface Endpoints for all services; traffic through endpoints is encrypted at the VPC layer."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "C": "aws:SecureTransport is used in S3 bucket policies to deny HTTP; most AWS service APIs exclusively use HTTPS without this condition being needed.",
+      "D": "Interface Endpoints use PrivateLink for private connectivity; HTTPS is already the required protocol regardless.",
+      "A": "WAF applies to load balancers, API Gateway, and CloudFront; it does not apply to AWS service API backend endpoints."
+    },
+    "explanation": "AWS service APIs exclusively use HTTPS (TLS 1.2+). There are no HTTP equivalents. The aws:SecureTransport condition is specifically useful for S3 bucket policies since S3 buckets technically accept HTTP requests that can be explicitly blocked.",
+    "module_ref": "soa/security/aws-api-https",
+    "tags": [
+      "https",
+      "encryption-in-transit",
+      "tls"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-04-003",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "IAM users have passwords not changed in over 90 days. What is the most efficient way to enforce rotation going forward?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure Amazon Cognito as the identity provider; Cognito has built-in password rotation that handles IAM users automatically."
+      },
+      {
+        "label": "B",
+        "text": "Use SCPs to deny console login for users with passwords older than 90 days."
+      },
+      {
+        "label": "C",
+        "text": "Set MaxPasswordAge to 90 in the IAM account password policy; IAM enforces expiry for all users and requires password change on next login."
+      },
+      {
+        "label": "D",
+        "text": "Create an AWS Config rule that evaluates password age and triggers Lambda to reset expired passwords."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "D": "Config + Lambda is more complex and disruptive than the built-in IAM password policy.",
+      "B": "SCPs cannot inspect credential age or enforce conditional access based on password attributes.",
+      "A": "Cognito manages application user pools, not IAM users."
+    },
+    "explanation": "The IAM account password policy's MaxPasswordAge setting enforces password expiration for all IAM users in the account. Users are required to change their password on the next login after it expires.",
+    "module_ref": "soa/security/iam-password-policy",
+    "tags": [
+      "iam",
+      "password-policy",
+      "rotation",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-04-004",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company needs to grant a third-party vendor S3 bucket access without IAM users or long-term credentials. What is recommended?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an IAM role with S3 permissions and a trust policy allowing the vendor's AWS account to assume it; the vendor uses sts:AssumeRole for temporary credentials."
+      },
+      {
+        "label": "B",
+        "text": "Generate a pre-signed S3 URL with 1-year expiration and share it with the vendor."
+      },
+      {
+        "label": "C",
+        "text": "Create an IAM user for the vendor, generate access keys, and share them via encrypted email with IP restriction."
+      },
+      {
+        "label": "D",
+        "text": "Make the bucket public with object-level ACLs and IP-based bucket policy restricting to the vendor's IPs."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "C": "Long-term access keys for third parties are a security anti-pattern; temporary STS credentials are preferred.",
+      "B": "Pre-signed URLs expire and only cover specific objects; not suitable for ongoing bucket access.",
+      "D": "Public buckets expose data to the internet; cross-account IAM roles are more secure."
+    },
+    "explanation": "Cross-account role assumption with STS provides temporary, automatically rotating credentials. The trust policy specifies the vendor's account ID (and optionally an external ID). All access is auditable in CloudTrail under the assumed session name.",
+    "module_ref": "soa/security/cross-account-role",
+    "tags": [
+      "iam",
+      "cross-account",
+      "sts",
+      "third-party"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-04-005",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "Which AWS service identifies EC2 instances with critical CVEs in installed software packages?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager Patch Manager scans instances against patch baselines and reports missing security patches corresponding to CVEs."
+      },
+      {
+        "label": "B",
+        "text": "Amazon GuardDuty analyzes network traffic to detect whether CVE exploits are being attempted."
+      },
+      {
+        "label": "C",
+        "text": "AWS Security Hub aggregates Inspector findings and can be configured to run CVE scans through its findings framework."
+      },
+      {
+        "label": "D",
+        "text": "Amazon Inspector continuously scans EC2 instances for CVEs in installed packages, providing severity-rated findings with remediation guidance."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "Security Hub aggregates findings; it does not perform CVE scanning itself.",
+      "B": "GuardDuty detects active threats; it does not do static vulnerability assessments of installed packages.",
+      "A": "Patch Manager identifies missing OS patches; Inspector provides CVE-focused assessments with severity scores."
+    },
+    "explanation": "Amazon Inspector automatically scans EC2 instances against the CVE/NVD database. It provides findings per CVE with severity scores and affected/fixed package versions. Inspector is agentless for EC2 when SSM Agent is installed.",
+    "module_ref": "soa/security/inspector",
+    "tags": [
+      "inspector",
+      "vulnerability",
+      "cve",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-04-006",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "All EBS volumes must be encrypted. New instances comply but existing unencrypted volumes remain. What is the most efficient at-scale remediation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable EBS encryption by default for new volumes; automate the snapshot-copy-swap process for existing volumes using SSM Automation."
+      },
+      {
+        "label": "B",
+        "text": "The ec2-ebs-encryption-by-default Config rule automatically encrypts all unencrypted volumes when deployed."
+      },
+      {
+        "label": "C",
+        "text": "Terminate all non-compliant instances and relaunch from encrypted AMIs."
+      },
+      {
+        "label": "D",
+        "text": "Enable Amazon Macie on EC2 to scan and encrypt unencrypted volumes based on data classification."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "The Config rule checks whether the account-level encryption default is enabled; it does not encrypt existing volumes.",
+      "C": "Terminating instances is disruptive; snapshot-based encryption is less disruptive.",
+      "D": "Macie is for S3 data classification; it does not handle EBS volumes."
+    },
+    "explanation": "Enabling account-level EBS encryption by default handles new volumes. For existing volumes, the only way to encrypt is: snapshot \u2192 copy with encryption \u2192 create encrypted volume \u2192 stop instance \u2192 swap volumes. This can be automated at scale with SSM Automation targeting tagged non-compliant instances.",
+    "module_ref": "soa/security/ebs-encryption-remediation",
+    "tags": [
+      "ebs",
+      "encryption",
+      "remediation",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-04-007",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "Which service provides the broadest cross-service detection when any resource is made publicly accessible?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Config restricted-common-ports rule detects security groups with unrestricted inbound access on common ports."
+      },
+      {
+        "label": "B",
+        "text": "GuardDuty detects when EC2 instances establish public connections indicating public exposure."
+      },
+      {
+        "label": "C",
+        "text": "Security Hub aggregates findings from Inspector, GuardDuty, and Config to alert when any resource becomes public."
+      },
+      {
+        "label": "D",
+        "text": "IAM Access Analyzer continuously monitors resource-based policies for S3, IAM roles, KMS keys, Lambda, SQS, SNS, and Secrets Manager, generating findings when public or cross-account access is detected."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "B": "GuardDuty detects threats from network behavior; it does not comprehensively detect resource policy-based public access configuration.",
+      "A": "The Config rule covers SG misconfigurations for EC2; it does not cover S3, KMS keys, Lambda, or other resource types.",
+      "C": "Security Hub aggregates findings; Access Analyzer is the primary detection source for public access configuration."
+    },
+    "explanation": "IAM Access Analyzer uses formal automated reasoning to identify resource policies granting access to principals outside the account's zone of trust. It covers S3, IAM roles, KMS keys, Lambda functions/layers, SQS queues, Secrets Manager secrets, and SNS topics \u2014 providing the broadest cross-service public access detection.",
+    "module_ref": "soa/security/access-analyzer-public",
+    "tags": [
+      "iam-access-analyzer",
+      "public-access",
+      "detective-control"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-04-008",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "Developers can deploy application code but must not modify IAM policies or CloudTrail. What is the most scalable enforcement mechanism?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create SCPs denying iam:Put*, iam:Delete*, iam:Create*, cloudtrail:StopLogging, and cloudtrail:DeleteTrail for developer roles across all organization accounts."
+      },
+      {
+        "label": "B",
+        "text": "Configure Config rules to detect and auto-remediate any IAM or CloudTrail changes made by developers."
+      },
+      {
+        "label": "C",
+        "text": "Use IAM groups: Operators with full IAM/CloudTrail access, Developers with only deployment permissions."
+      },
+      {
+        "label": "D",
+        "text": "Apply IAM permission boundaries to all developer roles excluding IAM and CloudTrail modification actions."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "D": "Permission boundaries must be applied per role; as new roles are created they need to be updated individually. SCPs apply at the OU level automatically.",
+      "C": "IAM groups work within a single account but don't scale across multiple accounts in an organization.",
+      "B": "Config remediation is detective (after-the-fact); SCPs are preventive and block the action before it occurs."
+    },
+    "explanation": "SCPs applied to developer OUs deny IAM and CloudTrail modification actions for all principals in those accounts, regardless of individual IAM policies. This provides organization-wide, consistent enforcement without per-role management.",
+    "module_ref": "soa/security/scp-separation-of-duties",
+    "tags": [
+      "scp",
+      "organizations",
+      "separation-of-duties",
+      "iam"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-04-009",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An IAM role used by an EC2 instance was used to exfiltrate S3 data from an unknown IP. CloudTrail shows GetObject calls from that IP using the role credentials. How were credentials likely obtained?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The IAM role had an access key generated; it was leaked in a public code repository."
+      },
+      {
+        "label": "B",
+        "text": "The trust policy allowed sts:AssumeRole from '*'; any AWS user could assume the role and obtain credentials."
+      },
+      {
+        "label": "C",
+        "text": "SSH port 22 was open; the attacker brute-forced access and ran AWS CLI commands using the instance profile."
+      },
+      {
+        "label": "D",
+        "text": "IMDSv1 was enabled on the instance; an SSRF vulnerability allowed the attacker to fetch role credentials from 169.254.169.254 without authentication."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "B": "IAM trust policies do not support '*' as a principal for open cross-account assumption.",
+      "A": "IAM roles do not have long-term access keys; only IAM users do.",
+      "C": "SSH brute force leaves OS audit trails; IMDSv1 SSRF is a more common path for credential theft from web applications."
+    },
+    "explanation": "IMDSv1 does not require authentication for metadata requests. An SSRF vulnerability tricks the web application into fetching http://169.254.169.254/latest/meta-data/iam/security-credentials/, returning temporary role credentials. IMDSv2 requires a PUT-based session token that cannot be obtained in an SSRF context.",
+    "module_ref": "soa/security/ssrf-imdsv1",
+    "tags": [
+      "imdsv1",
+      "ssrf",
+      "credential-theft",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-04-010",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A SysOps administrator needs CloudTrail to capture S3 object-level events (GetObject, PutObject, DeleteObject) for one specific bucket only. How is this configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "In the CloudTrail data events configuration, add an S3 data event with a resource ARN filter for the specific bucket ARN; only events for that bucket are logged."
+      },
+      {
+        "label": "B",
+        "text": "Create a dedicated CloudTrail trail for the bucket; trails must enable data events for all buckets, so a dedicated trail limits the scope by account."
+      },
+      {
+        "label": "C",
+        "text": "Configure a CloudWatch Logs metric filter on the CloudTrail log group to include only entries matching the specific bucket ARN."
+      },
+      {
+        "label": "D",
+        "text": "Enable S3 server access logging on the bucket; it captures the same events as CloudTrail data events."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "CloudTrail supports per-bucket resource ARN filtering; a dedicated trail is not required.",
+      "D": "S3 server access logs capture access patterns but not with the same detail as CloudTrail (no caller identity, request parameters, etc.).",
+      "C": "Post-capture filtering does not reduce data event costs; the events are still captured and stored."
+    },
+    "explanation": "CloudTrail S3 data events can be scoped to specific bucket ARNs using resource ARN filtering. Specifying arn:aws:s3:::my-bucket/ captures GetObject, PutObject, and DeleteObject only for that bucket, avoiding the high cost and volume of enabling S3 data events for all buckets.",
+    "module_ref": "soa/security/cloudtrail-data-events-filter",
+    "tags": [
+      "cloudtrail",
+      "data-events",
+      "s3",
+      "resource-filter"
+    ]
+  }
+]

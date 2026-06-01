@@ -1,15 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { listAssignments } from "../../api/assignments";
+import { listAssignments, listLibraryAssignments } from "../../api/assignments";
 import { listModules } from "../../api/modules";
+import { fetchPracticeTestCatalog } from "../../api/practiceTests";
 import {
   assignModuleToClass,
+  assignPracticeTestToClass,
   assignToClass,
   bulkEnrollStudents,
   enrollStudent,
   getClass,
   getClassAssignments,
   getClassModules,
+  getClassPracticeTests,
   getClassProgress,
   getClassRoster,
   getClassStudent,
@@ -17,6 +20,7 @@ import {
   removeStudent,
   unassignFromClass,
   unassignModuleFromClass,
+  unassignPracticeTestFromClass,
 } from "../../api/classes";
 
 const TABS = [
@@ -56,6 +60,8 @@ export default function InstructorClassDetail() {
   const [progress, setProgress] = useState(null);
   const [classAssignments, setClassAssignments] = useState([]);
   const [classModules, setClassModules] = useState([]);
+  const [classPracticeTests, setClassPracticeTests] = useState([]);
+  const [practiceCatalog, setPracticeCatalog] = useState([]);
   const [allAssignments, setAllAssignments] = useState([]);
   const [allModules, setAllModules] = useState([]);
   const [selectedStudentId, setSelectedStudentId] = useState(null);
@@ -69,24 +75,29 @@ export default function InstructorClassDetail() {
   const [moduleId, setModuleId] = useState("");
   const [assignDue, setAssignDue] = useState("");
   const [moduleDue, setModuleDue] = useState("");
+  const [practiceCert, setPracticeCert] = useState("aws-cp");
+  const [practiceTestNumber, setPracticeTestNumber] = useState("");
+  const [practiceDue, setPracticeDue] = useState("");
   const [saving, setSaving] = useState(false);
 
   const refresh = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const [classData, rosterData, progressData, ca, cm] = await Promise.all([
+      const [classData, rosterData, progressData, ca, cm, cpt] = await Promise.all([
         getClass(id),
         getClassRoster(id),
         getClassProgress(id),
         getClassAssignments(id),
         getClassModules(id),
+        getClassPracticeTests(id),
       ]);
       setCls(classData);
       setRoster(rosterData);
       setProgress(progressData);
       setClassAssignments(ca);
       setClassModules(cm);
+      setClassPracticeTests(cpt);
     } catch (e) {
       setError(e.message ?? "Failed to load class");
     } finally {
@@ -100,10 +111,16 @@ export default function InstructorClassDetail() {
 
   useEffect(() => {
     if (tab === "content") {
-      Promise.all([listAssignments(), listModules()])
-        .then(([a, m]) => {
-          setAllAssignments(a);
+      Promise.all([listAssignments(), listLibraryAssignments(), listModules(), fetchPracticeTestCatalog()])
+        .then(([mine, lib, m, catalog]) => {
+          const merged = [...lib];
+          const seen = new Set(lib.map((a) => a.id));
+          for (const a of mine) {
+            if (!seen.has(a.id)) merged.push(a);
+          }
+          setAllAssignments(merged);
           setAllModules(m);
+          setPracticeCatalog(catalog?.certs ?? []);
         })
         .catch(() => {});
     }
@@ -189,6 +206,28 @@ export default function InstructorClassDetail() {
     }
   }
 
+  async function handleAssignPracticeTest(e) {
+    e.preventDefault();
+    if (!practiceTestNumber) return;
+    setSaving(true);
+    try {
+      await assignPracticeTestToClass(id, {
+        cert: practiceCert,
+        testNumber: Number(practiceTestNumber),
+        dueDate: practiceDue ? `${practiceDue}T23:59:59Z` : null,
+      });
+      setPracticeTestNumber("");
+      setPracticeDue("");
+      const cpt = await getClassPracticeTests(id);
+      setClassPracticeTests(cpt);
+      await refresh();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
   if (loading && !cls) {
     return <div className="text-sm text-gray-400 p-8">Loading class…</div>;
   }
@@ -206,6 +245,11 @@ export default function InstructorClassDetail() {
 
   const linkedAssignmentIds = new Set(classAssignments.map((a) => a.assignment_id));
   const linkedModuleIds = new Set(classModules.map((m) => m.module_id));
+  const linkedPracticeKeys = new Set(
+    classPracticeTests.map((t) => `${t.cert}:${t.test_number}`)
+  );
+  const selectedCertCatalog = practiceCatalog.find((c) => c.cert === practiceCert);
+  const availablePracticeTests = selectedCertCatalog?.available_tests ?? [];
 
   return (
     <div className="space-y-6">
@@ -355,7 +399,7 @@ export default function InstructorClassDetail() {
       )}
 
       {tab === "content" && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <section className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
             <h3 className="text-sm font-semibold text-gray-800">Assigned modules</h3>
             {classModules.length === 0 ? (
@@ -451,6 +495,75 @@ export default function InstructorClassDetail() {
               />
               <button type="submit" className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg">
                 Assign lab
+              </button>
+            </form>
+          </section>
+
+          <section className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+            <h3 className="text-sm font-semibold text-gray-800">Assigned practice tests</h3>
+            {classPracticeTests.length === 0 ? (
+              <p className="text-sm text-gray-400">No practice tests assigned yet.</p>
+            ) : (
+              <ul className="space-y-2">
+                {classPracticeTests.map((t) => (
+                  <li key={t.link_id} className="flex items-center justify-between text-sm">
+                    <div>
+                      <div>
+                        {t.cert} — Test {t.test_number}
+                      </div>
+                      {t.due_date && (
+                        <div className="text-xs text-gray-400">
+                          Due {new Date(t.due_date).toLocaleDateString()}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => unassignPracticeTestFromClass(id, t.link_id).then(refresh)}
+                      className="text-xs text-red-500 hover:text-red-700"
+                    >
+                      Remove
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <form onSubmit={handleAssignPracticeTest} className="pt-2 border-t border-gray-100 space-y-2">
+              <select
+                value={practiceCert}
+                onChange={(e) => {
+                  setPracticeCert(e.target.value);
+                  setPracticeTestNumber("");
+                }}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+              >
+                {practiceCatalog.map((c) => (
+                  <option key={c.cert} value={c.cert}>
+                    {c.title ?? c.cert}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={practiceTestNumber}
+                onChange={(e) => setPracticeTestNumber(e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+              >
+                <option value="">Select test…</option>
+                {availablePracticeTests
+                  .filter((t) => !linkedPracticeKeys.has(`${practiceCert}:${t.test_number}`))
+                  .map((t) => (
+                    <option key={t.test_number} value={t.test_number}>
+                      Test {t.test_number} ({t.difficulty}, {t.question_count} Q)
+                    </option>
+                  ))}
+              </select>
+              <input
+                type="date"
+                value={practiceDue}
+                onChange={(e) => setPracticeDue(e.target.value)}
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm"
+              />
+              <button type="submit" className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg">
+                Assign practice test
               </button>
             </form>
           </section>

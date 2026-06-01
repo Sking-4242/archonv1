@@ -59,6 +59,11 @@ def submit(
     if assignment is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assignment not found")
 
+    from app.services.academy.assignment_access import student_can_access
+
+    if not student_can_access(db, assignment, current_user.id):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Assignment not available")
+
     earned, total, results = grade(body.graph, assignment.rubric or [])
 
     submission = Submission(

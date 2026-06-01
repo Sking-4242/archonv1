@@ -1,0 +1,420 @@
+[
+  {
+    "id": "aws-soa-t3-02-001",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants to ensure that an RDS database can survive both an Availability Zone failure AND a database engine failure simultaneously. Which configuration provides the highest resilience?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Aurora Serverless v2 automatically handles simultaneous AZ and engine failures through its distributed storage layer without any configuration."
+      },
+      {
+        "label": "B",
+        "text": "RDS Multi-AZ DB Cluster deploys one primary and two readable standbys across three AZs, surviving the loss of any single AZ while maintaining quorum for writes."
+      },
+      {
+        "label": "C",
+        "text": "RDS Read Replicas in two AZs provide redundancy; promoting a replica takes under 5 minutes for failover."
+      },
+      {
+        "label": "D",
+        "text": "Standard RDS Multi-AZ with one standby survives both simultaneous failures because the standby is in a different AZ and runs independently."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "D": "Standard Multi-AZ has one standby; if both the primary AZ fails and the standby has an engine failure, there is no additional replica. Multi-AZ DB Cluster with two standbys is more resilient.",
+      "C": "Read Replicas use asynchronous replication; they require manual promotion and may have replication lag.",
+      "A": "Aurora Serverless v2 is a capacity mode, not a high-availability configuration; Aurora Multi-AZ with read replicas provides the distributed storage resilience."
+    },
+    "explanation": "RDS Multi-AZ DB Cluster (available for MySQL and PostgreSQL) deploys one primary and two readable standbys across three separate AZs using semi-synchronous replication. Quorum writes require acknowledgment from at least two nodes. This tolerates simultaneous loss of one AZ and an engine failure on a second node while maintaining availability.",
+    "module_ref": "soa/reliability/rds-multi-az-cluster",
+    "tags": [
+      "rds",
+      "multi-az",
+      "cluster",
+      "resilience"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-02-002",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An Auto Scaling group is configured with scale-in protection on all instances. A SysOps administrator notices instances are never terminated during scale-in events. What is the issue and resolution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The Auto Scaling termination policy is set to OldestInstance, which prevents idle instances from being terminated since idle instances are also typically the oldest."
+      },
+      {
+        "label": "B",
+        "text": "The scale-in cooldown period is too long; Auto Scaling waits for the cooldown to expire before evaluating whether to terminate instances."
+      },
+      {
+        "label": "C",
+        "text": "The minimum capacity equals the desired capacity; scale-in events cannot reduce capacity below the minimum, so no terminations occur."
+      },
+      {
+        "label": "D",
+        "text": "Scale-in protection is enabled on individual instances; protected instances are never terminated by Auto Scaling. Use a lifecycle hook or process to remove protection when instances are idle."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "OldestInstance termination policy selects which instance to terminate; it does not prevent termination.",
+      "B": "Scale-in cooldown affects frequency of scale-in events but not whether currently targeted instances are terminated.",
+      "C": "If minimum equals desired, scale-in would not trigger at all; the question describes scale-in events occurring but instances not being terminated."
+    },
+    "explanation": "Instance scale-in protection marks specific instances as protected from termination. If applied to all instances, Auto Scaling identifies them for termination but cannot proceed. This is useful for instances running critical batch jobs, but should include a mechanism to remove protection when the job completes.",
+    "module_ref": "soa/reliability/asg-scale-in-protection",
+    "tags": [
+      "auto-scaling",
+      "scale-in-protection",
+      "termination"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-02-003",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company stores 500 TB in S3 and needs a 24-hour RTO for regional DR. CloudFormation templates are in S3. What is the minimum additional configuration needed for full DR readiness?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable S3 Transfer Acceleration to move data to a secondary region faster than 24 hours when a DR event is declared."
+      },
+      {
+        "label": "B",
+        "text": "Configure AWS Backup to take daily S3 snapshots and copy them to a secondary region; restore from the most recent backup within 24 hours."
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 Cross-Region Replication on both the data bucket and template bucket to a secondary region; in a DR event, deploy from replicated templates with data already in place."
+      },
+      {
+        "label": "D",
+        "text": "No additional configuration is needed; S3 Standard stores data across multiple AWS regions automatically for regional resilience."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "D": "S3 Standard stores data across multiple AZs within a single region, not multiple regions; regional failure makes the data unavailable.",
+      "B": "AWS Backup for S3 is valid but adds latency vs. continuous replication that CRR provides.",
+      "A": "Transfer Acceleration speeds client-to-S3 uploads; it does not replicate data to another region."
+    },
+    "explanation": "S3 CRR continuously replicates objects to a destination region. With both the data bucket and template bucket replicated, the DR environment can be restored using the secondary region's templates and data without waiting for data transfer during a DR event.",
+    "module_ref": "soa/reliability/s3-crr-dr",
+    "tags": [
+      "s3",
+      "crr",
+      "disaster-recovery",
+      "rto"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-02-004",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An application uses DynamoDB and must remain available during a regional outage with no data loss. Which feature meets this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable DynamoDB PITR in the primary region; restore the table to the secondary region in the RTO window during a regional outage."
+      },
+      {
+        "label": "B",
+        "text": "Use DynamoDB Streams and Lambda to replicate changes to a table in a secondary region with under 1-second lag."
+      },
+      {
+        "label": "C",
+        "text": "DynamoDB Global Tables provides multi-region, multi-active replication; the application writes to any region and data replicates globally with sub-second latency and automatic failover."
+      },
+      {
+        "label": "D",
+        "text": "Configure AWS Backup to copy daily DynamoDB snapshots to a secondary region and restore within 24 hours."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "PITR restoration creates a new table in the same region; restoring to a different region requires extra steps and incurs data loss for uncommitted transactions.",
+      "D": "Daily snapshots mean up to 24 hours of data loss, violating the no-data-loss requirement.",
+      "B": "DynamoDB Streams + Lambda is custom replication; Global Tables is the managed, purpose-built zero-data-loss solution."
+    },
+    "explanation": "DynamoDB Global Tables uses multi-active replication across specified regions with sub-second RPO. If one region becomes unavailable, the application routes reads and writes to another region with no data loss for already-replicated transactions.",
+    "module_ref": "soa/reliability/dynamodb-global-tables",
+    "tags": [
+      "dynamodb",
+      "global-tables",
+      "multi-region",
+      "rpo"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-02-005",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A SysOps administrator needs to test RDS Multi-AZ failover to measure actual failover time. How is a manual failover initiated?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use the RDS console or CLI to Reboot with Failover; this forces an immediate failover from primary to standby and measures the DNS update time."
+      },
+      {
+        "label": "B",
+        "text": "Stop the primary RDS instance using the console; stopping triggers automatic failover to the standby."
+      },
+      {
+        "label": "C",
+        "text": "Terminate the underlying EC2 instance hosting the RDS database from the EC2 console to test actual hardware failure."
+      },
+      {
+        "label": "D",
+        "text": "Delete the primary RDS instance; RDS automatically promotes the standby and creates a replacement."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Stopping an RDS instance does not trigger Multi-AZ failover; it simply stops the instance.",
+      "D": "Deleting the primary is destructive and irreversible in the immediate sense; Reboot with Failover is the safe testing method.",
+      "C": "RDS instances run on AWS-managed infrastructure; there are no accessible underlying EC2 instances."
+    },
+    "explanation": "RDS supports Reboot with Failover (reboot-db-instance --force-failover) as a controlled way to trigger Multi-AZ failover for testing. The DNS CNAME updates to point to the standby, and measuring DNS propagation time gives the practical RTO.",
+    "module_ref": "soa/reliability/rds-failover-testing",
+    "tags": [
+      "rds",
+      "multi-az",
+      "failover",
+      "testing"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-02-006",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A web application behind an ALB experiences complete outages when bad code is deployed. A SysOps administrator needs a strategy that rolls back in under 5 minutes if health checks fail. Which strategy meets this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CodeDeploy canary (10% for 5 minutes); if health checks fail during canary, CodeDeploy rolls back before remaining 90% is shifted."
+      },
+      {
+        "label": "B",
+        "text": "CodeDeploy blue/green with automatic rollback triggered by an ALB health check alarm; rollback shifts all traffic back to the blue environment within seconds."
+      },
+      {
+        "label": "C",
+        "text": "Elastic Beanstalk Immutable deployment; failing new instances are terminated and the original fleet continues serving."
+      },
+      {
+        "label": "D",
+        "text": "CodeDeploy in-place rolling OneAtATime; if a health check fails, CodeDeploy stops and reverts the most recently deployed instance."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "D": "Rolling in-place reverts the last updated instance; already-updated instances in the rolling window remain on the new version.",
+      "C": "Elastic Beanstalk Immutable is valid but rollback time depends on fleet size.",
+      "A": "Canary means 10% of users experience the bad code; blue/green with immediate rollback has zero-user impact after the shift back."
+    },
+    "explanation": "Blue/green preserves the original (blue) environment. With CodeDeploy alarm-based automatic rollback, traffic returns to the blue environment in seconds when the health alarm fires, within the 5-minute window regardless of application size.",
+    "module_ref": "soa/reliability/codedeploy-blue-green-rollback",
+    "tags": [
+      "codedeploy",
+      "blue-green",
+      "rollback",
+      "alb"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-02-007",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company requires that backups cannot be deleted for 7 years, even by administrators. Which AWS Backup feature provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Backup Vault Lock in Governance mode with 7-year retention; Governance mode prevents most users but can be overridden by authorized administrators."
+      },
+      {
+        "label": "B",
+        "text": "IAM policies denying backup:DeleteRecoveryPoint for all users; combined with SCPs this prevents all deletion for 7 years."
+      },
+      {
+        "label": "C",
+        "text": "Backup Vault Lock in Compliance mode with a 7-year retention period; even the AWS account root user cannot delete recovery points or change vault settings before the lock expires."
+      },
+      {
+        "label": "D",
+        "text": "A lifecycle rule transitioning backups to cold storage; cold storage objects cannot be deleted until the minimum duration elapses."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "B": "IAM policies can be modified by privileged users and are not immutable.",
+      "A": "Governance mode is overridable by users with bypass permissions; Compliance mode is strictly immutable.",
+      "D": "Cold storage lifecycle manages storage class transitions; it does not prevent deletion of recovery points."
+    },
+    "explanation": "AWS Backup Vault Lock in Compliance mode enforces a WORM policy. Once set, the minimum/maximum retention periods are locked, recovery points cannot be deleted, and the settings cannot be changed by anyone including the root user.",
+    "module_ref": "soa/reliability/backup-vault-lock",
+    "tags": [
+      "aws-backup",
+      "vault-lock",
+      "compliance",
+      "worm"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-02-008",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "After a maintenance window where Auto Scaling processes were suspended, the group fails to scale back to desired capacity with no errors. What is the likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Stopped instances are in terminated state; Auto Scaling cannot relaunch terminated instances."
+      },
+      {
+        "label": "B",
+        "text": "EC2 service limits are preventing new launches in the region."
+      },
+      {
+        "label": "C",
+        "text": "The Launch process was suspended and not resumed; Auto Scaling cannot launch new instances until the Launch process is re-enabled."
+      },
+      {
+        "label": "D",
+        "text": "The launch template AMI was deregistered during maintenance."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Manually stopped instances are in 'stopped' state and Auto Scaling can replace them; they are not terminated.",
+      "B": "EC2 limit failures appear as errors in the Activity History; the question states no errors.",
+      "D": "A deregistered AMI generates launch errors in Activity History."
+    },
+    "explanation": "Suspending the Launch process prevents Auto Scaling from launching new instances. No error is logged for a suspended process; the group simply does not act. Resuming the Launch process restores normal scaling behavior.",
+    "module_ref": "soa/reliability/asg-suspended-processes",
+    "tags": [
+      "auto-scaling",
+      "suspended-processes",
+      "maintenance"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-02-009",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A SysOps administrator wants to safely validate that an Auto Scaling group replaces a failed instance automatically. What is the recommended approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Stop one instance; Auto Scaling replaces stopped instances if ELB health check type is configured."
+      },
+      {
+        "label": "B",
+        "text": "Manually terminate one instance from the EC2 console and monitor the Auto Scaling Activity log to confirm replacement."
+      },
+      {
+        "label": "C",
+        "text": "Set desired capacity to 0 then restore it; this tests instance relaunch from zero."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Fault Injection Service (FIS) to create a controlled experiment terminating one instance in the group, with stop conditions to halt if application health degrades."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "B": "Manual termination is valid but lacks the controlled blast radius and automatic stop conditions that FIS provides.",
+      "C": "Setting desired to 0 causes complete fleet termination and service outage.",
+      "A": "Stopped instances may not trigger replacement depending on health check type configuration."
+    },
+    "explanation": "FIS provides controlled, safe chaos engineering experiments with configurable stop conditions. It produces detailed results and auto-halts on pre-defined safety thresholds, making it the safest approach for validating Auto Scaling resilience.",
+    "module_ref": "soa/reliability/fis-asg-testing",
+    "tags": [
+      "fis",
+      "auto-scaling",
+      "chaos-engineering",
+      "resilience"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-02-010",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company hosts an application with RPO of 4 hours and RTO of 2 hours using EC2, RDS, and S3. Which DR approach is most appropriate?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Pilot Light: replicate RDS continuously to us-west-2, store AMIs and CloudFormation templates in us-west-2, and pre-configure minimal infrastructure that can scale up in under 2 hours."
+      },
+      {
+        "label": "B",
+        "text": "Active-Active Multi-Site: full production capacity in both regions for near-zero RTO and RPO."
+      },
+      {
+        "label": "C",
+        "text": "Backup and Restore: hourly RDS snapshots to us-west-2, AMIs copied cross-region; deploy from scratch in under 2 hours."
+      },
+      {
+        "label": "D",
+        "text": "Warm Standby: reduced-capacity replica running in us-west-2 with live RDS read replica and scaled-down EC2 fleet."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "C": "Backup and Restore with hourly snapshots satisfies 4h RPO but full infrastructure provisioning from scratch may exceed 2h RTO for complex environments.",
+      "D": "Warm Standby easily meets both requirements but runs more infrastructure 24/7, making it more expensive than Pilot Light for loose requirements.",
+      "B": "Active-Active is over-engineered for 4h/2h requirements and significantly more expensive."
+    },
+    "explanation": "Pilot Light satisfies 4h RPO via continuous database replication. The minimal pre-configured DR environment (AMIs, templates, lightweight infrastructure) can be scaled up within 2 hours for the RTO. It is less expensive than Warm Standby since no EC2 fleet runs continuously in the DR region.",
+    "module_ref": "soa/reliability/pilot-light-dr",
+    "tags": [
+      "disaster-recovery",
+      "pilot-light",
+      "rto",
+      "rpo"
+    ]
+  }
+]

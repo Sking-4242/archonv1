@@ -35,6 +35,13 @@ CERT_CATALOG: dict[str, dict[str, Any]] = {
         "tests": 7,
         "pass_threshold_pct": 75,
     },
+    "aws-soa": {
+        "title": "AWS Certified SysOps Administrator – Associate",
+        "short_title": "SysOps Administrator",
+        "provider": "aws",
+        "tests": 3,
+        "pass_threshold_pct": 72,
+    },
 }
 
 MINUTES_PER_QUESTION = {
@@ -54,6 +61,14 @@ TEST_DIFFICULTY = {
 }
 
 DOMAIN_INDEX_BY_NAME: dict[str, dict[str, int]] = {
+    "aws-soa": {
+        "Monitoring, Logging, and Remediation": 1,
+        "Reliability and Business Continuity": 2,
+        "Deployment, Provisioning, and Automation": 3,
+        "Security and Compliance": 4,
+        "Networking and Content Delivery": 5,
+        "Cost and Performance Optimization": 6,
+    },
     "aws-cp": {
         "Cloud Concepts": 1,
         "Security and Compliance": 2,
@@ -78,6 +93,14 @@ DOMAIN_INDEX_BY_NAME: dict[str, dict[str, int]] = {
 }
 
 DOMAIN_NAMES_BY_INDEX: dict[str, dict[int, str]] = {
+    "aws-soa": {
+        1: "Monitoring, Logging, and Remediation",
+        2: "Reliability and Business Continuity",
+        3: "Deployment, Provisioning, and Automation",
+        4: "Security and Compliance",
+        5: "Networking and Content Delivery",
+        6: "Cost and Performance Optimization",
+    },
     "aws-cp": {
         1: "Cloud Concepts",
         2: "Security and Compliance",

@@ -9,6 +9,10 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.dependencies.academy_auth import require_any_role, require_instructor
 from app.models.academy import Assignment, Submission, User
+from app.services.academy.assignment_access import (
+    student_assigned_assignment_ids,
+    student_can_access,
+)
 
 router = APIRouter(prefix="/academy/assignments", tags=["academy-assignments"])
 
@@ -36,6 +40,7 @@ class AssignmentOut(BaseModel):
     due_date: datetime | None
     rubric: list[dict]
     created_by: uuid.UUID
+    is_library: bool = False
     submission_count: int = 0
     pending_review_count: int = 0
 
@@ -49,6 +54,8 @@ class StudentAssignmentOut(BaseModel):
     brief: str
     due_date: datetime | None
     rubric: list[dict]
+    is_library: bool = False
+    source: str = "library"
     status: str = "not_started"
     score: int | None = None
     total_points: int | None = None
@@ -72,15 +79,74 @@ def _build_assignment_out(db: Session, assignment: Assignment) -> AssignmentOut:
     return out
 
 
+def _student_assigned_assignment_ids(db: Session, student_id: uuid.UUID) -> set[int]:
+    return student_assigned_assignment_ids(db, student_id)
+
+
+def _student_can_access(db: Session, assignment: Assignment, student_id: uuid.UUID) -> bool:
+    return student_can_access(db, assignment, student_id)
+
+
+def _serialize_student_assignment(
+    db: Session,
+    assignment: Assignment,
+    student_id: uuid.UUID,
+    *,
+    source: str = "library",
+) -> StudentAssignmentOut:
+    submission = (
+        db.query(Submission)
+        .filter(Submission.assignment_id == assignment.id, Submission.student_id == student_id)
+        .order_by(Submission.submitted_at.desc())
+        .first()
+    )
+    total_points = sum(int(c.get("points", 0)) for c in (assignment.rubric or []))
+    if submission is None:
+        s_status = "not_started"
+        score = None
+    elif submission.instructor_score is not None:
+        s_status = "graded"
+        score = submission.instructor_score
+    else:
+        s_status = "submitted"
+        score = submission.automated_score
+
+    return StudentAssignmentOut(
+        id=assignment.id,
+        title=assignment.title,
+        brief=assignment.brief,
+        due_date=assignment.due_date,
+        rubric=assignment.rubric or [],
+        is_library=assignment.is_library,
+        source=source,
+        status=s_status,
+        score=score,
+        total_points=total_points,
+    )
+
+
 # ── Routes ────────────────────────────────────────────────────────────────────
+
+@router.get("/library", response_model=list[AssignmentOut])
+def list_library_assignments(
+    current_user: User = Depends(require_any_role),
+    db: Session = Depends(get_db),
+):
+    """Platform lab catalog — available to all students and instructors."""
+    assignments = (
+        db.query(Assignment)
+        .filter(Assignment.is_library.is_(True))
+        .order_by(Assignment.id.asc())
+        .all()
+    )
+    return [_build_assignment_out(db, a) for a in assignments]
+
 
 @router.get("")
 def list_assignments(
     current_user: User = Depends(require_any_role),
     db: Session = Depends(get_db),
 ):
-    assignments = db.query(Assignment).all()
-
     if current_user.academy_role == "instructor":
         assignments = (
             db.query(Assignment)
@@ -90,36 +156,47 @@ def list_assignments(
         )
         return [_build_assignment_out(db, a) for a in assignments]
 
-    # Student view — include their submission status
-    result = []
-    for a in assignments:
-        submission = (
-            db.query(Submission)
-            .filter(Submission.assignment_id == a.id, Submission.student_id == current_user.id)
-            .order_by(Submission.submitted_at.desc())
-            .first()
+    library = (
+        db.query(Assignment)
+        .filter(Assignment.is_library.is_(True))
+        .order_by(Assignment.id.asc())
+        .all()
+    )
+    assigned_ids = _student_assigned_assignment_ids(db, current_user.id)
+    custom = []
+    if assigned_ids:
+        custom = (
+            db.query(Assignment)
+            .filter(
+                Assignment.id.in_(assigned_ids),
+                Assignment.is_library.is_(False),
+            )
+            .order_by(Assignment.id.asc())
+            .all()
         )
-        total_points = sum(int(c.get("points", 0)) for c in (a.rubric or []))
-        if submission is None:
-            s_status = "not_started"
-            score = None
-        elif submission.instructor_score is not None:
-            s_status = "graded"
-            score = submission.instructor_score
-        else:
-            s_status = "submitted"
-            score = submission.automated_score
 
-        result.append(StudentAssignmentOut(
-            id=a.id,
-            title=a.title,
-            brief=a.brief,
-            due_date=a.due_date,
-            rubric=a.rubric or [],
-            status=s_status,
-            score=score,
-            total_points=total_points,
-        ))
+    result: list[StudentAssignmentOut] = []
+    seen: set[int] = set()
+    for assignment in library:
+        if assignment.id in seen:
+            continue
+        seen.add(assignment.id)
+        result.append(
+            _serialize_student_assignment(
+                db, assignment, current_user.id, source="library"
+            )
+        )
+
+    for assignment in custom:
+        if assignment.id in seen:
+            continue
+        seen.add(assignment.id)
+        result.append(
+            _serialize_student_assignment(
+                db, assignment, current_user.id, source="class"
+            )
+        )
+
     return result
 
 
@@ -132,36 +209,20 @@ def get_assignment(
     a = db.get(Assignment, assignment_id)
     if a is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assignment not found")
-    total_points = sum(int(c.get("points", 0)) for c in (a.rubric or []))
 
     if current_user.academy_role == "instructor":
-        if a.created_by != current_user.id:
+        if a.created_by != current_user.id and not a.is_library:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your assignment")
         return _build_assignment_out(db, a)
 
-    submission = (
-        db.query(Submission)
-        .filter(Submission.assignment_id == a.id, Submission.student_id == current_user.id)
-        .order_by(Submission.submitted_at.desc())
-        .first()
-    )
-    if submission is None:
-        s_status, score = "not_started", None
-    elif submission.instructor_score is not None:
-        s_status, score = "graded", submission.instructor_score
-    else:
-        s_status, score = "submitted", submission.automated_score
+    if not _student_can_access(db, a, current_user.id):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Assignment not available")
 
-    return StudentAssignmentOut(
-        id=a.id,
-        title=a.title,
-        brief=a.brief,
-        due_date=a.due_date,
-        rubric=a.rubric or [],
-        status=s_status,
-        score=score,
-        total_points=total_points,
-    )
+    assigned_ids = _student_assigned_assignment_ids(db, current_user.id)
+    source = "library" if a.is_library else "class"
+    if a.is_library and a.id in assigned_ids:
+        source = "library"
+    return _serialize_student_assignment(db, a, current_user.id, source=source)
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=AssignmentOut)
@@ -176,6 +237,7 @@ def create_assignment(
         due_date=body.due_date,
         created_by=current_user.id,
         rubric=[c.model_dump() for c in body.rubric],
+        is_library=False,
     )
     db.add(a)
     db.commit()
@@ -195,6 +257,11 @@ def update_assignment(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assignment not found")
     if a.created_by != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your assignment")
+    if a.is_library:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Library assignments cannot be edited",
+        )
     a.title = body.title
     a.brief = body.brief
     a.due_date = body.due_date
@@ -215,5 +282,10 @@ def delete_assignment(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assignment not found")
     if a.created_by != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not your assignment")
+    if a.is_library:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Library assignments cannot be deleted",
+        )
     db.delete(a)
     db.commit()

@@ -89,3 +89,23 @@ export async function joinClass(classCode) {
 export async function myEnrolledClasses() {
   return api.get("/academy/classes/my/enrolled");
 }
+
+export async function myAssignedContent() {
+  return api.get("/academy/classes/my/content");
+}
+
+export async function getClassPracticeTests(classId) {
+  return api.get(`/academy/classes/${classId}/practice-tests`);
+}
+
+export async function assignPracticeTestToClass(classId, { cert, testNumber, dueDate = null }) {
+  return api.post(`/academy/classes/${classId}/practice-tests`, {
+    cert,
+    test_number: testNumber,
+    due_date: dueDate,
+  });
+}
+
+export async function unassignPracticeTestFromClass(classId, linkId) {
+  return api.delete(`/academy/classes/${classId}/practice-tests/${linkId}`);
+}

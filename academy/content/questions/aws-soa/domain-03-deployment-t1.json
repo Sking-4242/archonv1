@@ -1,0 +1,507 @@
+[
+  {
+    "id": "aws-soa-t1-03-001",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator needs to deploy the same infrastructure stack (VPC, subnets, EC2 instances) to multiple AWS regions. What is the most efficient approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Log in to each region's console individually and manually create the resources following a runbook to ensure consistency."
+      },
+      {
+        "label": "B",
+        "text": "Author a CloudFormation template that defines all resources, then use CloudFormation StackSets to deploy the stack to multiple regions from a single operation."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS CodePipeline with a deployment stage targeting multiple regions, running CloudFormation change sets in each region sequentially."
+      },
+      {
+        "label": "D",
+        "text": "Create an AMI in the source region, copy it to all target regions, and then manually launch EC2 instances from the AMI in each region."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Manual console deployments are error-prone, inconsistent, and do not scale to multiple regions without significant effort.",
+      "C": "CodePipeline with multi-region CloudFormation deployments is valid for CI/CD pipelines, but CloudFormation StackSets is the purpose-built, simpler solution for deploying the same stack to many regions.",
+      "D": "Copying an AMI only handles the EC2 layer; it does not provision VPCs, subnets, security groups, or any other infrastructure resources."
+    },
+    "explanation": "AWS CloudFormation StackSets extend CloudFormation to deploy the same template across multiple AWS accounts and regions in a single operation. You define the template once, then specify target regions and accounts. StackSets manage the deployment, update, and deletion lifecycle across all targets consistently.",
+    "module_ref": "soa/deployment/cloudformation-stacksets",
+    "tags": [
+      "cloudformation",
+      "stacksets",
+      "multi-region",
+      "infrastructure-as-code"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-03-002",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A CloudFormation stack update fails partway through, leaving some resources in an updated state and others unchanged. What does CloudFormation do by default?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudFormation deletes the entire stack and all associated resources to prevent the account from running in a partially configured state."
+      },
+      {
+        "label": "B",
+        "text": "CloudFormation leaves the stack in its partially updated state and requires the administrator to manually fix the issue and re-run the update."
+      },
+      {
+        "label": "C",
+        "text": "CloudFormation marks the stack as UPDATE_FAILED and sends an SNS notification but does not roll back any changes automatically."
+      },
+      {
+        "label": "D",
+        "text": "CloudFormation automatically rolls back the stack to its last stable state, reverting any changes made during the failed update."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "B": "CloudFormation does not leave stacks in partial states by default; automatic rollback on failure is the default behavior unless explicitly disabled.",
+      "A": "CloudFormation does not delete the entire stack on failure; it rolls back to the previous stable state, preserving existing resources.",
+      "C": "CloudFormation does enter an UPDATE_ROLLBACK_FAILED state only if the rollback itself fails, not as the standard behavior for a failed update."
+    },
+    "explanation": "By default, CloudFormation enables rollback on failure. When a stack update fails, CloudFormation reverses all changes made during the update, restoring the stack to its last known stable state. The stack ends up in UPDATE_ROLLBACK_COMPLETE status. Administrators can disable this behavior with the --disable-rollback flag, but it is not the default.",
+    "module_ref": "soa/deployment/cloudformation-rollback",
+    "tags": [
+      "cloudformation",
+      "rollback",
+      "stack-update",
+      "failure-handling"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-03-003",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator needs to run a shell command on 200 EC2 instances simultaneously without opening SSH connections to each one. Which Systems Manager feature handles this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager Session Manager opens an interactive terminal session on each instance sequentially, allowing commands to be run one instance at a time."
+      },
+      {
+        "label": "B",
+        "text": "AWS Systems Manager State Manager continuously enforces a desired state configuration but does not support on-demand command execution across a fleet."
+      },
+      {
+        "label": "C",
+        "text": "AWS Systems Manager Run Command executes commands on multiple managed instances simultaneously using SSM Agent, without requiring SSH or RDP access."
+      },
+      {
+        "label": "D",
+        "text": "AWS Systems Manager Patch Manager applies OS patches to multiple instances simultaneously but cannot execute arbitrary shell commands."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Session Manager provides interactive shell access to individual instances; it is not designed for fleet-wide simultaneous command execution.",
+      "D": "Patch Manager automates OS patching specifically; it does not execute arbitrary shell commands.",
+      "B": "State Manager enforces configuration drift correction on a schedule; it is not the right tool for on-demand, immediate command execution across a fleet."
+    },
+    "explanation": "AWS Systems Manager Run Command targets a set of managed instances using instance IDs, tags, or resource groups, and executes the specified SSM document (such as AWS-RunShellScript) on all targets simultaneously. It does not require open inbound ports, SSH keys, or bastion hosts. Results from each instance are displayed in the console or stored in S3.",
+    "module_ref": "soa/deployment/ssm-run-command",
+    "tags": [
+      "ssm",
+      "run-command",
+      "fleet-management",
+      "agentless-ssh"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-03-004",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An application team wants to deploy a new version of their application to EC2 instances with zero downtime, replacing instances one at a time. Which AWS CodeDeploy deployment configuration supports this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use a CodeDeploy in-place deployment with the AllAtOnce configuration, which updates all instances simultaneously and requires a maintenance window to avoid downtime."
+      },
+      {
+        "label": "B",
+        "text": "Use a CodeDeploy blue/green deployment with the CodeDeployDefault.LambdaLinear10PercentEvery1Minute configuration to gradually shift traffic to the new version."
+      },
+      {
+        "label": "C",
+        "text": "Use a CodeDeploy in-place deployment with the OneAtATime deployment configuration, which replaces the application on one instance at a time while keeping others serving traffic."
+      },
+      {
+        "label": "D",
+        "text": "Use a CodeDeploy blue/green deployment with the AllAtOnce configuration, which launches an entirely new set of instances and cuts over all traffic simultaneously."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "D": "Blue/green AllAtOnce launches replacement instances and shifts 100% of traffic at cutover, which is not the same as rolling one instance at a time.",
+      "A": "AllAtOnce updates every instance simultaneously, causing downtime if all instances are being updated at the same time.",
+      "B": "CodeDeployDefault.LambdaLinear10PercentEvery1Minute is a traffic-shifting configuration designed for Lambda, not EC2 in-place deployments."
+    },
+    "explanation": "CodeDeploy in-place deployments with the OneAtATime configuration stop the application on one instance, deploy the new version, restart it, and verify it is healthy before moving to the next instance. This approach keeps all other instances serving traffic throughout the deployment, achieving zero downtime for the fleet.",
+    "module_ref": "soa/deployment/codedeploy-in-place",
+    "tags": [
+      "codedeploy",
+      "in-place",
+      "oneatatime",
+      "zero-downtime"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-03-005",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator wants to store database credentials securely and have them automatically rotated every 30 days without modifying the application code. Which AWS service provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Key Management Service stores database credentials encrypted with a CMK and provides an API for applications to retrieve and rotate credentials."
+      },
+      {
+        "label": "B",
+        "text": "AWS Secrets Manager stores secrets such as database credentials and supports automatic rotation using a built-in Lambda rotation function on a configurable schedule."
+      },
+      {
+        "label": "C",
+        "text": "Amazon RDS automatically rotates database master user passwords every 30 days when the 'auto rotation' option is enabled in the RDS configuration panel."
+      },
+      {
+        "label": "D",
+        "text": "AWS Systems Manager Parameter Store SecureString parameters store encrypted credentials and can trigger a Lambda function on a schedule to update them."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "D": "Parameter Store SecureString can store encrypted credentials, but automatic rotation is not a built-in feature; it requires a manually configured EventBridge rule and Lambda function.",
+      "A": "KMS manages encryption keys, not application secrets like database credentials; it does not provide secret storage or automatic rotation.",
+      "C": "RDS does not have a native 'auto rotation' feature independent of Secrets Manager; password rotation is accomplished through Secrets Manager's RDS rotation integration."
+    },
+    "explanation": "AWS Secrets Manager is purpose-built for managing secrets including database credentials, API keys, and OAuth tokens. It integrates with RDS, Redshift, and DocumentDB to perform automatic password rotation using a managed Lambda function. The rotation happens transparently, and applications retrieve the current secret value by calling the Secrets Manager API at runtime.",
+    "module_ref": "soa/deployment/secrets-manager",
+    "tags": [
+      "secrets-manager",
+      "rotation",
+      "database-credentials",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-03-006",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator needs to apply the latest security patches to all EC2 instances in a maintenance window every Sunday at 2 AM. Which Systems Manager feature automates this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Schedule an AWS CodeBuild project to run every Sunday at 2 AM that builds a new AMI with the latest patches and terminates existing instances."
+      },
+      {
+        "label": "B",
+        "text": "Configure a Systems Manager Patch Manager patch baseline and a Maintenance Window that runs the AWS-RunPatchBaseline document on all target instances at the scheduled time."
+      },
+      {
+        "label": "C",
+        "text": "Create an EventBridge rule with a cron expression for Sunday 2 AM that triggers a Lambda function to SSH into each instance and run yum update."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Config to evaluate whether instances are patched and automatically apply missing patches when a non-compliant instance is detected."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "C": "SSH-based Lambda patching is fragile, requires key management, and is significantly more complex than the native SSM Patch Manager solution.",
+      "D": "AWS Config evaluates compliance and can trigger remediation, but it is not the purpose-built patching automation tool; SSM Patch Manager is.",
+      "A": "Building new AMIs and terminating instances is a valid immutable infrastructure pattern but is far heavier than in-place patching for routine security updates."
+    },
+    "explanation": "AWS Systems Manager Patch Manager defines a patch baseline (which patches are approved and which are blocked) and integrates with Maintenance Windows to schedule patch operations. The AWS-RunPatchBaseline document scans and applies approved patches. Maintenance Windows define the schedule, duration, and target instances, providing a fully managed, agentless patching solution.",
+    "module_ref": "soa/deployment/ssm-patch-manager",
+    "tags": [
+      "ssm",
+      "patch-manager",
+      "maintenance-window",
+      "patching"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-03-007",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A developer needs to provide different configuration values (database endpoints, feature flags) to applications running in development, staging, and production environments. Which Systems Manager feature is best suited for this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Amazon S3 stores configuration files in separate buckets per environment; applications read their configuration file from the appropriate bucket at startup."
+      },
+      {
+        "label": "B",
+        "text": "AWS AppConfig is a standalone configuration service that stores and validates configuration data, making it the only correct option for dynamic application configuration."
+      },
+      {
+        "label": "C",
+        "text": "AWS CloudFormation Mappings define environment-specific values in the template and pass them as outputs to applications during stack deployment."
+      },
+      {
+        "label": "D",
+        "text": "AWS Systems Manager Parameter Store organizes parameters in a hierarchical namespace (e.g., /app/prod/db-endpoint) and allows applications to retrieve environment-specific values at runtime."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "CloudFormation Mappings are static values embedded in templates; they are used during stack provisioning, not for runtime configuration retrieval by applications.",
+      "A": "S3 can store configuration files, but Parameter Store provides a purpose-built API with encryption, versioning, access control, and hierarchical naming that S3 buckets lack natively.",
+      "B": "AWS AppConfig is also a valid configuration management service, but Parameter Store is the standard SSM solution for storing and retrieving application configuration parameters."
+    },
+    "explanation": "AWS Systems Manager Parameter Store provides a hierarchical key-value store for configuration data and secrets. Using a naming convention like /myapp/dev/db-host, /myapp/prod/db-host, applications can retrieve the correct parameter for their environment at runtime using the SSM SDK. SecureString parameters are encrypted with KMS for sensitive values.",
+    "module_ref": "soa/deployment/ssm-parameter-store",
+    "tags": [
+      "ssm",
+      "parameter-store",
+      "configuration-management",
+      "multi-environment"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-03-008",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator wants to create a golden AMI \u2014 a pre-configured, patched, and hardened image \u2014 that is used as the base for all new EC2 instance launches. Which service automates the AMI build pipeline?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager Automation with the AWS-CreateImage document creates an AMI from a running EC2 instance, capturing the current state as a golden image."
+      },
+      {
+        "label": "B",
+        "text": "AWS CloudFormation creates EC2 instances with the desired configuration and exports the resulting AMI ID as a stack output for other teams to consume."
+      },
+      {
+        "label": "C",
+        "text": "AWS CodeBuild runs a build project that launches an EC2 instance, installs software, and then calls the CreateImage API to produce a golden AMI."
+      },
+      {
+        "label": "D",
+        "text": "EC2 Image Builder provides a managed pipeline that installs software, applies patches, runs hardening scripts, and validates the result before creating a final AMI."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "SSM Automation can create an AMI from a running instance, but it does not provide the multi-step build pipeline, testing, and distribution features that Image Builder offers.",
+      "C": "Using CodeBuild to orchestrate AMI creation is a custom pipeline that requires maintaining build scripts; Image Builder is the managed service purpose-built for this workflow.",
+      "B": "CloudFormation provisions infrastructure but does not build and capture AMIs; it consumes existing AMI IDs rather than creating them."
+    },
+    "explanation": "EC2 Image Builder automates the creation, maintenance, and distribution of custom AMIs. You define a pipeline with a base image, component scripts (install, patch, harden), a test phase, and a distribution configuration that copies the AMI to target regions. Image Builder runs the pipeline on a schedule or on demand and produces a validated, versioned golden AMI.",
+    "module_ref": "soa/deployment/ec2-image-builder",
+    "tags": [
+      "ec2-image-builder",
+      "ami",
+      "golden-image",
+      "pipeline"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-03-009",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator needs to connect to an EC2 instance in a private subnet that has no public IP address or bastion host, without opening any inbound ports. Which service enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Direct Connect provides a private network connection from the on-premises data center to the private subnet, enabling SSH access to instances."
+      },
+      {
+        "label": "B",
+        "text": "Amazon EC2 Instance Connect sends a temporary SSH public key to the instance's metadata, enabling a one-time SSH session over the public internet."
+      },
+      {
+        "label": "C",
+        "text": "AWS VPN creates an encrypted tunnel from the administrator's workstation to the VPC, enabling direct SSH to private instances through the tunnel."
+      },
+      {
+        "label": "D",
+        "text": "AWS Systems Manager Session Manager provides an interactive shell or CLI session to EC2 instances via the SSM Agent without requiring inbound ports, public IPs, or bastion hosts."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Direct Connect requires dedicated physical connections and is not an on-demand administrative access solution; it also requires SSH ports to be open.",
+      "B": "EC2 Instance Connect requires the instance to have a public IP address or to be accessed from within the VPC; it also uses port 22 (SSH).",
+      "C": "VPN requires setting up VPN client software and a VPN gateway, and still requires open SSH ports; Session Manager requires none of these."
+    },
+    "explanation": "AWS Systems Manager Session Manager uses the SSM Agent installed on the instance to establish an outbound connection to the SSM service over HTTPS (port 443). Administrators connect through the AWS console or CLI without needing inbound security group rules, public IPs, or SSH keys. All session activity is logged to CloudWatch Logs or S3 for audit purposes.",
+    "module_ref": "soa/deployment/ssm-session-manager",
+    "tags": [
+      "ssm",
+      "session-manager",
+      "private-subnet",
+      "no-ssh",
+      "access"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-03-010",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator needs to preview which resources will be created, modified, or deleted before applying a CloudFormation stack update. Which feature provides this preview?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a CloudFormation change set, which shows a detailed list of proposed changes to resources, properties, and replacement status before the update is executed."
+      },
+      {
+        "label": "B",
+        "text": "Enable CloudFormation drift detection on the stack, which compares the current resource state to the template and previews any changes needed to resync."
+      },
+      {
+        "label": "C",
+        "text": "Run the CloudFormation validate-template API call, which reports any resources that will be modified or replaced as part of the pending template update."
+      },
+      {
+        "label": "D",
+        "text": "Use the CloudFormation console's 'Preview in designer' button to visualize resource changes in the diagram view before executing the update."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "C": "validate-template checks the template syntax and resource types for validity; it does not compare the template against a deployed stack or predict resource changes.",
+      "B": "Drift detection compares the actual deployed resource configuration against the template to find unauthorized out-of-band changes; it is not a preview of an upcoming update.",
+      "D": "The CloudFormation Designer visualizes template resource relationships; it does not show the delta between the current deployed state and a proposed update."
+    },
+    "explanation": "A CloudFormation change set is a preview mechanism. You submit the updated template, and CloudFormation computes the difference between the current stack and the proposed change, listing each resource that will be Added, Modified, or Removed, along with whether the change requires replacement. You then choose to execute or discard the change set.",
+    "module_ref": "soa/deployment/cloudformation-change-sets",
+    "tags": [
+      "cloudformation",
+      "change-set",
+      "preview",
+      "stack-update"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-03-011",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator discovers that a resource in a CloudFormation stack was modified directly in the console, causing its configuration to differ from the template. What is this condition called and how is it detected?",
+    "options": [
+      {
+        "label": "A",
+        "text": "This is called a configuration violation. AWS Config detects and reports the mismatch between the CloudFormation template and the deployed resource."
+      },
+      {
+        "label": "B",
+        "text": "This is called stack drift. Drift detection compares each resource's actual configuration against the expected configuration in the CloudFormation template and reports any differences."
+      },
+      {
+        "label": "C",
+        "text": "This is called template divergence. A CloudFormation change set is used to compare the current resource state against the original template and identify differences."
+      },
+      {
+        "label": "D",
+        "text": "This is called a stack mismatch. CloudFormation continuously monitors resource configuration and automatically rolls back unauthorized changes to match the template."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "D": "CloudFormation does not continuously monitor resources or automatically roll back out-of-band changes; drift detection must be initiated manually or on a schedule.",
+      "A": "AWS Config can detect configuration changes, but the CloudFormation-specific term and tool for out-of-band modifications is drift detection.",
+      "C": "Template divergence is not an AWS term; change sets are for previewing updates, not detecting out-of-band manual changes."
+    },
+    "explanation": "CloudFormation drift detection identifies resources whose actual configuration differs from the expected configuration in the stack template. You initiate drift detection on a stack or individual resource, and CloudFormation checks each supported resource type. The result lists resources as IN_SYNC or DRIFTED, showing which properties differ and what the expected vs. actual values are.",
+    "module_ref": "soa/deployment/cloudformation-drift",
+    "tags": [
+      "cloudformation",
+      "drift-detection",
+      "configuration-drift",
+      "compliance"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-03-012",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An Elastic Beanstalk environment is running a web application. The operations team wants to deploy a new application version with zero downtime using a rolling strategy. Which deployment policy achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use the 'Immutable' deployment policy, which launches a new set of instances with the updated version and terminates old instances after traffic is shifted."
+      },
+      {
+        "label": "B",
+        "text": "Use the 'Rolling' deployment policy, which updates instances in batches; the rest of the fleet continues serving traffic while each batch is updated."
+      },
+      {
+        "label": "C",
+        "text": "Use the 'Blue/Green' deployment policy, which creates a new Elastic Beanstalk environment with the new version and requires a DNS cutover to complete the swap."
+      },
+      {
+        "label": "D",
+        "text": "Use the 'All at once' deployment policy, which deploys to all instances simultaneously and results in a brief outage during the update."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "D": "All at once deploys to all instances simultaneously, causing downtime during the update; it is the fastest but least available policy.",
+      "A": "Immutable deployments are zero-downtime but launch entirely new instances rather than updating existing ones in batches; they are more expensive but provide easier rollback.",
+      "C": "Blue/Green (URL swap) requires creating a separate environment and performing a CNAME swap; it is a valid zero-downtime approach but is not a deployment policy within a single environment."
+    },
+    "explanation": "Elastic Beanstalk's Rolling deployment policy splits the fleet into batches and deploys the new version to one batch at a time. While a batch is being updated, the remaining instances continue serving traffic. Once the batch is healthy, the next batch begins. The application experiences reduced capacity during the rolling update but never goes fully offline.",
+    "module_ref": "soa/deployment/elastic-beanstalk-rolling",
+    "tags": [
+      "elastic-beanstalk",
+      "rolling-deployment",
+      "zero-downtime",
+      "deployment-policy"
+    ]
+  }
+]

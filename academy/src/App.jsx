@@ -20,6 +20,7 @@ import StudentTools from "./components/student/StudentTools";
 import StudentTeams from "./components/student/StudentTeams";
 import StudentAnnouncements from "./components/student/StudentAnnouncements";
 import StudentPracticeTests from "./components/practice/StudentPracticeTests";
+import StudentClasses from "./components/student/StudentClasses";
 import PracticeTestRunner from "./components/practice/PracticeTestRunner";
 
 // Instructor pages
@@ -116,6 +117,7 @@ export default function App() {
 
         {/* Student routes */}
         <Route path="/dashboard"      element={<StudentShell><StudentHome /></StudentShell>} />
+        <Route path="/classes"        element={<StudentShell><StudentClasses /></StudentShell>} />
         <Route path="/assignments"    element={<StudentShell><StudentAssignments /></StudentShell>} />
         <Route path="/modules"        element={<StudentShell><StudentModules /></StudentShell>} />
         <Route path="/modules/:moduleId" element={<StudentShell><StudentModuleDetail /></StudentShell>} />

@@ -43,8 +43,29 @@ def _node_type(node: dict) -> str:
     return (data.get("awsType") or data.get("type") or node.get("type", "")).lower()
 
 
+def _nodes_of_type(graph: dict, component_type: str) -> list[dict]:
+    target = component_type.lower()
+    return [n for n in graph.get("nodes", []) if _node_type(n) == target]
+
+
 def _security_groups(graph: dict) -> list[dict]:
-    return graph.get("securityGroups", [])
+    return graph.get("securityGroups") or graph.get("security_groups") or []
+
+
+def _iam_roles(graph: dict) -> list[dict]:
+    return graph.get("iamRoles") or graph.get("iam_roles") or []
+
+
+def _node_config(node: dict) -> dict:
+    return node.get("data", {}).get("config") or {}
+
+
+def _config_matches(value: Any, expected: Any) -> bool:
+    if expected is True:
+        return bool(value) and value not in (False, "false", "none", "None", 0)
+    if expected is False:
+        return value in (False, "false", None, "", 0)
+    return value == expected
 
 
 # ── Criterion evaluators ──────────────────────────────────────────────────────
@@ -142,6 +163,116 @@ def _min_node_count(graph: dict, params: dict) -> tuple[bool, str]:
     )
 
 
+def _min_security_groups(graph: dict, params: dict) -> tuple[bool, str]:
+    required = int(params.get("count", 1))
+    actual = len(_security_groups(graph))
+    if actual >= required:
+        return True, f"Defined {actual} security group(s) (required {required})."
+    return False, (
+        f"Only {actual} security group(s) defined — open the Security tab and "
+        f"create at least {required}."
+    )
+
+
+def _min_iam_roles(graph: dict, params: dict) -> tuple[bool, str]:
+    required = int(params.get("count", 1))
+    actual = len(_iam_roles(graph))
+    if actual >= required:
+        return True, f"Defined {actual} IAM role(s) (required {required})."
+    return False, (
+        f"Only {actual} IAM role(s) defined — open the IAM tab and "
+        f"create at least {required}."
+    )
+
+
+def _nodes_have_security_groups(graph: dict, params: dict) -> tuple[bool, str]:
+    component_types = [t.lower() for t in params.get("component_types", ["ec2", "rds", "lambda"])]
+    nodes = [n for n in graph.get("nodes", []) if _node_type(n) in component_types]
+    if not nodes:
+        readable = ", ".join(t.upper() for t in component_types)
+        return False, f"No matching compute/data components found ({readable})."
+
+    missing = []
+    for node in nodes:
+        sg_ids = node.get("data", {}).get("security_group_ids") or []
+        if not sg_ids:
+            label = node.get("data", {}).get("label") or _node_type(node).upper()
+            missing.append(label)
+
+    if missing:
+        return False, (
+            f"Assign security groups to: {', '.join(missing)}. "
+            "Use the Component or Security tab."
+        )
+    return True, "All required components have security groups assigned."
+
+
+def _nodes_have_iam_roles(graph: dict, params: dict) -> tuple[bool, str]:
+    component_types = [
+        t.lower()
+        for t in params.get("component_types", ["lambda", "ec2", "ecs / fargate"])
+    ]
+    nodes = [n for n in graph.get("nodes", []) if _node_type(n) in component_types]
+    if not nodes:
+        readable = ", ".join(t.upper() for t in component_types)
+        return False, f"No matching compute components found ({readable})."
+
+    missing = []
+    for node in nodes:
+        role_id = node.get("data", {}).get("iam_role_id")
+        if not role_id:
+            label = node.get("data", {}).get("label") or _node_type(node).upper()
+            missing.append(label)
+
+    if missing:
+        return False, (
+            f"Attach IAM roles to: {', '.join(missing)}. "
+            "Create roles in the IAM tab and assign them in the Component panel."
+        )
+    return True, "All required compute components have IAM roles attached."
+
+
+def _component_config(graph: dict, params: dict) -> tuple[bool, str]:
+    target = params.get("component_type", "").lower()
+    config_key = params.get("config_key", "")
+    expected = params.get("expected")
+    forbidden_values = params.get("forbidden_values", [])
+    require_all = bool(params.get("require_all", True))
+
+    nodes = _nodes_of_type(graph, target)
+    if not nodes:
+        return False, f"No {target.upper()} found to check configuration."
+
+    failures = []
+    passes = 0
+    for node in nodes:
+        value = _node_config(node).get(config_key)
+        label = node.get("data", {}).get("label") or target.upper()
+
+        if forbidden_values and value in forbidden_values:
+            failures.append(f"{label}: {config_key} must not be {value!r}")
+            continue
+
+        if expected is not None:
+            if _config_matches(value, expected):
+                passes += 1
+            else:
+                failures.append(f"{label}: {config_key} not set correctly")
+        elif value:
+            passes += 1
+        else:
+            failures.append(f"{label}: {config_key} is not enabled")
+
+    if require_all:
+        if failures:
+            return False, failures[0]
+        return True, f"{target.upper()} {config_key} configured correctly."
+
+    if passes > 0:
+        return True, f"At least one {target.upper()} has {config_key} configured."
+    return False, failures[0] if failures else f"Enable {config_key} on {target.upper()}."
+
+
 # ── Dispatch table ────────────────────────────────────────────────────────────
 
 _EVALUATORS = {
@@ -152,6 +283,11 @@ _EVALUATORS = {
     "security_port_restricted": _security_port_restricted,
     "any_of": _any_of,
     "min_node_count": _min_node_count,
+    "min_security_groups": _min_security_groups,
+    "min_iam_roles": _min_iam_roles,
+    "nodes_have_security_groups": _nodes_have_security_groups,
+    "nodes_have_iam_roles": _nodes_have_iam_roles,
+    "component_config": _component_config,
 }
 
 

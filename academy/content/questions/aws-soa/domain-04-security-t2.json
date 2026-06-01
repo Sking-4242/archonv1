@@ -1,0 +1,429 @@
+[
+  {
+    "id": "aws-soa-t2-04-001",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator receives a GuardDuty finding: UnauthorizedAccess:IAMUser/ConsoleLoginSuccess.B indicating a root account login from an unusual IP. What are the immediate recommended response steps?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Immediately terminate all running EC2 instances to prevent lateral movement, change all IAM user passwords, and contact AWS Support to lock the account."
+      },
+      {
+        "label": "B",
+        "text": "Dismiss the finding as a false positive since root logins occasionally occur for maintenance; enable GuardDuty suppression rules for this finding type to reduce noise."
+      },
+      {
+        "label": "C",
+        "text": "Investigate the root account login via CloudTrail to determine what actions were taken; if unauthorized, rotate the root account password, delete active sessions, revoke active access keys, and enable MFA if not already enabled."
+      },
+      {
+        "label": "D",
+        "text": "Create an SCP that denies all root account logins going forward, then restore access using federated identity through IAM Identity Center."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Terminating all EC2 instances causes significant disruption and data loss; a targeted investigation and credential rotation is the appropriate first response.",
+      "B": "Unauthorized root logins should never be dismissed without investigation; suppression rules should only be applied after the finding type is confirmed as benign and repeatable.",
+      "D": "SCPs cannot prevent root account access; root account privileges exist outside the scope of SCPs. Denying root login via SCP is not effective."
+    },
+    "explanation": "For a potential unauthorized root account compromise, the immediate steps are: (1) investigate CloudTrail to identify what actions were performed; (2) if unauthorized, invalidate active sessions by changing the root password; (3) delete any root access keys (there should be none); (4) enable MFA on root if not done; (5) review and revoke any permissions granted during the suspicious session.",
+    "module_ref": "soa/security/guardduty-incident-response",
+    "tags": [
+      "guardduty",
+      "incident-response",
+      "root-account",
+      "iam",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-04-002",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company needs to meet PCI DSS compliance and wants AWS to provide evidence that its underlying infrastructure meets the relevant controls. How does AWS provide this assurance?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Security Hub with the PCI DSS standard enabled automatically remediates all PCI DSS violations in the customer's account, bringing the environment into compliance."
+      },
+      {
+        "label": "B",
+        "text": "AWS provides compliance reports and third-party audit attestations (such as PCI DSS Attestation of Compliance) through AWS Artifact, which customers can download and share with auditors."
+      },
+      {
+        "label": "C",
+        "text": "AWS automatically configures customer workloads to be PCI DSS compliant when the customer enables the AWS Compliance Center feature in the AWS Management Console."
+      },
+      {
+        "label": "D",
+        "text": "AWS issues a joint PCI DSS compliance certificate that covers both AWS infrastructure and the customer's applications, eliminating the need for a customer-side assessment."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "C": "There is no AWS Compliance Center feature that automatically configures customer workloads for compliance; customers are responsible for their side of the shared responsibility model.",
+      "D": "PCI DSS compliance certificates are not joint; AWS is responsible for the infrastructure layer and provides its own Attestation of Compliance (AOC), while customers are responsible for their application and data layer.",
+      "A": "Security Hub with the PCI DSS standard evaluates customer-side configurations against PCI requirements and generates findings; it does not automatically remediate all violations."
+    },
+    "explanation": "AWS Artifact is a self-service portal for accessing AWS compliance documentation including third-party audit reports, certifications, and agreements. For PCI DSS, AWS provides its Attestation of Compliance (AOC) and Responsibility Summary document, which customers can provide to their Qualified Security Assessors (QSAs) to demonstrate that the AWS infrastructure layer meets the relevant PCI DSS requirements.",
+    "module_ref": "soa/security/aws-artifact-compliance",
+    "tags": [
+      "aws-artifact",
+      "pci-dss",
+      "compliance",
+      "shared-responsibility"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-04-003",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to ensure that all data transferred between EC2 instances and an RDS database within a VPC is encrypted in transit. Which configuration enforces this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable VPC Flow Logs encryption so that all traffic metadata is encrypted; this also encrypts the actual data flowing between EC2 and RDS instances."
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS Macie on the VPC to detect and encrypt any unencrypted data transfers between EC2 and RDS automatically."
+      },
+      {
+        "label": "C",
+        "text": "Configure the application to connect to RDS using SSL/TLS by specifying the RDS CA certificate bundle and requiring SSL in the connection string; enforce SSL server-side using an RDS parameter group."
+      },
+      {
+        "label": "D",
+        "text": "Deploy both the EC2 instances and RDS in the same security group with no inbound rules from outside; traffic within the same security group is automatically encrypted."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "VPC Flow Logs capture traffic metadata (not payload); enabling their encryption (via KMS) protects the log data, not the actual network traffic.",
+      "D": "Traffic within the same security group is not automatically encrypted; security groups control access, not transport encryption.",
+      "B": "Amazon Macie is a data classification service for S3; it does not monitor or encrypt RDS network traffic."
+    },
+    "explanation": "RDS supports SSL/TLS encryption for connections. To enforce it, you configure the rds.force_ssl parameter to 1 in an RDS parameter group (for PostgreSQL: ssl=1; for MySQL: require_secure_transport=ON). The application must use the RDS CA certificate bundle to verify the server certificate. This ensures all EC2-to-RDS connections use TLS.",
+    "module_ref": "soa/security/rds-ssl-enforcement",
+    "tags": [
+      "rds",
+      "ssl-tls",
+      "encryption-in-transit",
+      "parameter-group"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-04-004",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company's security policy requires that all new AWS accounts created in their organization have CloudTrail, Config, and GuardDuty enabled automatically. What is the most scalable way to implement this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Publish a Runbook in Systems Manager that operations staff execute manually each time a new account is created to enable the required services."
+      },
+      {
+        "label": "B",
+        "text": "Use CloudFormation StackSets with automatic deployment to the root OU so that when a new account is added, the StackSet deploys a stack enabling CloudTrail, Config, and GuardDuty."
+      },
+      {
+        "label": "C",
+        "text": "Create an EventBridge rule in the management account that detects Organizations CreateAccount events and triggers a Lambda function to enable all three services in the new account using cross-account roles."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Control Tower Account Factory to provision new accounts; Control Tower automatically applies governance controls including enabling CloudTrail, Config, and GuardDuty through detective and preventive guardrails."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "EventBridge + Lambda is a valid vending machine pattern but requires custom code and maintenance; Control Tower provides this capability natively as a managed service.",
+      "B": "CloudFormation StackSets with automatic deployment is also valid and commonly used; however, Control Tower is the higher-level managed service that includes additional governance capabilities beyond just enabling services.",
+      "A": "Manual execution of a runbook for each new account is error-prone and does not scale; it also introduces delay between account creation and security service enablement."
+    },
+    "explanation": "AWS Control Tower provides an Account Factory for creating and vending new accounts with pre-configured governance controls. It automatically enables CloudTrail organization trail, AWS Config, and GuardDuty for each new account through its mandatory guardrails. The Account Factory also applies the organization's standard baseline configuration consistently.",
+    "module_ref": "soa/security/control-tower",
+    "tags": [
+      "control-tower",
+      "account-factory",
+      "organizations",
+      "security-baseline"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-04-005",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator is reviewing IAM Access Analyzer findings and sees an external access finding for an S3 bucket that reports the bucket is accessible by a principal outside the account. What information does this finding provide and what is the first investigation step?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The finding shows that the bucket is unencrypted and accessible externally; the first step is to enable default encryption on the bucket before investigating the access policy."
+      },
+      {
+        "label": "B",
+        "text": "The finding indicates an active data exfiltration event; the first step is to immediately revoke all bucket permissions and notify the security team of a breach."
+      },
+      {
+        "label": "C",
+        "text": "The finding identifies the external principal (account ID, organization, or public) and the specific actions permitted; the first step is to review whether the external access is intentional and matches a known use case."
+      },
+      {
+        "label": "D",
+        "text": "The finding reports that the bucket contains data classified as confidential by Amazon Macie; the first step is to quarantine the bucket and remove all public access settings."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "D": "IAM Access Analyzer does not use Macie data classification; it analyzes resource policies to identify external access paths. The finding does not indicate data classification.",
+      "B": "An Access Analyzer finding identifies a potential access path, not an active exfiltration event; the finding should be investigated to determine whether the access is intended before taking drastic action.",
+      "A": "Access Analyzer findings are about access policies, not encryption state; the first step is to understand and validate the access, not to enable encryption."
+    },
+    "explanation": "IAM Access Analyzer analyzes resource-based policies (S3 bucket policies, KMS key policies, etc.) to identify access granted to principals outside the account's zone of trust. Each finding includes the external principal ARN or public/anonymous access, the specific actions allowed, and the policy that grants the access. The first step is always to validate whether the external access is intentional.",
+    "module_ref": "soa/security/iam-access-analyzer",
+    "tags": [
+      "iam-access-analyzer",
+      "s3",
+      "external-access",
+      "investigation",
+      "findings"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-04-006",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to rotate an IAM access key for an application user without disrupting the running application. What is the correct zero-downtime key rotation procedure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deactivate (not delete) the old access key, create and deploy the new key, then delete the deactivated key once the application is confirmed working."
+      },
+      {
+        "label": "B",
+        "text": "Create a new access key for the IAM user, update the application configuration with the new key, verify the application is functioning with the new key, then delete the old key."
+      },
+      {
+        "label": "C",
+        "text": "Use Secrets Manager to rotate the IAM access key automatically; Secrets Manager rotates the key without any application downtime using a built-in Lambda rotation function."
+      },
+      {
+        "label": "D",
+        "text": "Delete the old access key, create a new one, and update the application configuration; the brief period without a key is acceptable since IAM operations complete in under 1 second."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "D": "Deleting the key before the new one is deployed causes authentication failures; even a sub-second gap can cause request failures for high-traffic applications.",
+      "A": "Deactivating the old key is also valid as a two-phase approach (deactivate \u2192 deploy new \u2192 confirm \u2192 delete); however, creating the new key first (answer A) is equally valid and avoids any period where the old key is deactivated before the new one is deployed.",
+      "C": "Secrets Manager can manage IAM access keys with a custom rotation Lambda, but this requires building a custom rotation function; the manual procedure in option A is the standard zero-downtime rotation process."
+    },
+    "explanation": "IAM users can have a maximum of two access keys simultaneously. Zero-downtime rotation requires: (1) create new key; (2) update and deploy the application with the new key; (3) verify the application is using the new key successfully; (4) delete the old key. This order ensures the application always has a valid key available.",
+    "module_ref": "soa/security/iam-key-rotation",
+    "tags": [
+      "iam",
+      "access-key",
+      "rotation",
+      "zero-downtime",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-04-007",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A security team requires that all KMS CMK key operations be logged and that an alert fires if the key is disabled or scheduled for deletion. What is the correct configuration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "KMS key operations are automatically logged to CloudTrail; create an EventBridge rule matching CloudTrail kms:DisableKey and kms:ScheduleKeyDeletion events and route to an SNS topic for alerting."
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS Config with the kms-cmk-not-scheduled-for-deletion managed rule; Config will trigger an SNS notification when the rule evaluation returns NON_COMPLIANT."
+      },
+      {
+        "label": "C",
+        "text": "Configure CloudWatch Metrics for the KMS service and create alarms on the KeyDisabled and KeyScheduledForDeletion metrics that trigger SNS notifications."
+      },
+      {
+        "label": "D",
+        "text": "Enable KMS key rotation logging in the KMS console and configure an SNS notification on the key policy that triggers when the key state changes."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "D": "There is no 'KMS key rotation logging' in the console that produces separate logs; KMS operations are logged via CloudTrail. KMS key policies do not support SNS notification triggers.",
+      "C": "There are no CloudWatch metrics named KeyDisabled or KeyScheduledForDeletion; CloudTrail is the source of KMS operation audit data.",
+      "B": "The AWS Config managed rule kms-cmk-not-scheduled-for-deletion detects keys scheduled for deletion; however, EventBridge with CloudTrail events provides real-time alerting for both disable and deletion scheduling events."
+    },
+    "explanation": "AWS KMS automatically logs all key management API calls to CloudTrail. EventBridge receives these CloudTrail management events and can filter for specific KMS operations like DisableKey and ScheduleKeyDeletion. An EventBridge rule routing these events to SNS provides near-real-time alerting when these high-impact key operations are performed.",
+    "module_ref": "soa/security/kms-key-monitoring",
+    "tags": [
+      "kms",
+      "cloudtrail",
+      "eventbridge",
+      "sns",
+      "key-monitoring"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-04-008",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to audit which IAM users and roles have not used their permissions in the last 90 days to support least privilege cleanup. Which IAM feature provides this data?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Trusted Advisor's IAM checks report users who have not logged in for 90 days and recommend disabling their accounts."
+      },
+      {
+        "label": "B",
+        "text": "IAM Last Accessed information (access advisor) shows when each service was last accessed by a user, role, or group, helping identify unused permissions for removal."
+      },
+      {
+        "label": "C",
+        "text": "Amazon GuardDuty tracks IAM user activity and reports dormant users who have not made API calls in over 90 days as potential security findings."
+      },
+      {
+        "label": "D",
+        "text": "AWS Config with the iam-user-unused-credentials-check managed rule identifies IAM users who have not used their credentials within the past 90 days."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Trusted Advisor checks for unused credentials but provides limited granularity; IAM Last Accessed provides service-level detail needed for least-privilege optimization.",
+      "C": "GuardDuty detects threats and anomalies; it does not provide a usage audit for least-privilege cleanup.",
+      "D": "The IAM Config rule identifies unused credentials (access keys and passwords), but IAM access advisor provides more granular service-level last-accessed data for policy optimization."
+    },
+    "explanation": "IAM Access Advisor (Last Accessed information) shows each AWS service that a principal (user, role, group, or policy) has accessed, along with the date of last access. For each principal, you can identify services listed as never accessed or last accessed more than 90 days ago and remove those service permissions, implementing least privilege.",
+    "module_ref": "soa/security/iam-access-advisor",
+    "tags": [
+      "iam",
+      "access-advisor",
+      "last-accessed",
+      "least-privilege",
+      "cleanup"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-04-009",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator is configuring a new AWS account. Which action regarding the root user represents AWS best practice?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create a root access key with read-only permissions for monitoring scripts, enable MFA for interactive root console logins, and use the root user for all CloudFormation deployments."
+      },
+      {
+        "label": "B",
+        "text": "Create a dedicated IAM user with AdministratorAccess for all daily tasks and keep the root user password the same as the IAM user password for simplicity."
+      },
+      {
+        "label": "C",
+        "text": "Enable MFA on the root user, do not create root access keys, create individual IAM users or use IAM Identity Center for daily administrative tasks, and lock the root user credentials in a secure vault."
+      },
+      {
+        "label": "D",
+        "text": "Share the root user credentials with the security team lead for emergency break-glass access; disable MFA to allow emergency access without requiring a second factor."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Root access keys should never be created; even read-only root keys are a security risk. Daily CloudFormation deployments should use IAM roles, not root.",
+      "D": "Sharing root credentials is a security anti-pattern; MFA should always be enabled on root and break-glass access should use an IAM role with emergency permissions.",
+      "B": "Reusing passwords between root and IAM users reduces security; root should use a unique, complex password stored securely."
+    },
+    "explanation": "AWS best practice for the root user: (1) enable hardware or virtual MFA; (2) never create root access keys; (3) use root only for tasks that specifically require root (e.g., changing account settings, enabling IAM Billing access); (4) use IAM users or IAM Identity Center for daily tasks; (5) store root credentials in a physical safe or secrets management solution.",
+    "module_ref": "soa/security/root-account-best-practices",
+    "tags": [
+      "iam",
+      "root-account",
+      "mfa",
+      "best-practices",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-04-010",
+    "domain": 4,
+    "domain_name": "Security and Compliance",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An EC2 instance is compromised and is making calls to the AWS metadata endpoint to harvest the IAM role credentials. Which IAM feature can prevent credential harvesting through Instance Metadata Service (IMDS) token replay attacks from external sources?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Add a security group outbound rule blocking traffic to 169.254.169.254 from the instance; this prevents the instance from accessing its own metadata endpoint."
+      },
+      {
+        "label": "B",
+        "text": "Disable the IAM instance profile on the compromised instance and reassign it with a role that has only read-only permissions to limit the blast radius."
+      },
+      {
+        "label": "C",
+        "text": "Enforce IMDSv2 (Instance Metadata Service v2) on the instance by setting the HttpTokens option to 'required'; IMDSv2 requires a session-oriented PUT request before metadata can be accessed, preventing server-side request forgery (SSRF) attacks."
+      },
+      {
+        "label": "D",
+        "text": "Enable IAM role session tags on the instance profile to add a unique identifier to each credential session, preventing replayed credentials from authenticating successfully."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "B": "Reducing permissions on a compromised instance is a containment step but does not prevent the metadata endpoint from being accessible; it addresses the impact, not the attack vector.",
+      "A": "Blocking outbound to 169.254.169.254 prevents the instance itself from accessing metadata, which may break legitimate application functionality; IMDSv2 is the targeted mitigation for SSRF attacks.",
+      "D": "Session tags are for attribute-based access control (ABAC); they do not prevent credential harvesting or replay attacks on IMDS."
+    },
+    "explanation": "IMDSv2 uses a session-oriented API: callers must first make a PUT request to the metadata endpoint to obtain a session token, then use that token in subsequent GET requests. A session token is only valid for the duration and hop count specified (default TTL=1). This prevents SSRF attacks where an attacker tricks the server into fetching credentials from IMDS on their behalf, since the PUT request cannot be made cross-origin in web context.",
+    "module_ref": "soa/security/imdsv2",
+    "tags": [
+      "imdsv2",
+      "instance-metadata",
+      "ssrf",
+      "ec2",
+      "credential-security"
+    ]
+  }
+]

@@ -3,6 +3,7 @@ import useAuthStore from "../../store/authStore";
 
 const STUDENT_TABS = [
   { label: "Home", path: "/dashboard" },
+  { label: "Classes", path: "/classes" },
   { label: "Assignments", path: "/assignments" },
   { label: "Modules", path: "/modules" },
   { label: "Lessons", path: "/lessons" },

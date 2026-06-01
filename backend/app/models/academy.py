@@ -33,6 +33,7 @@ class Assignment(Base):
     due_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_by: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("users.id"))
     rubric: Mapped[list] = mapped_column(JSON, default=list)
+    is_library: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
 
     creator: Mapped["User"] = relationship()
@@ -309,6 +310,10 @@ class InstructorClass(Base):
         back_populates="instructor_class",
         cascade="all, delete-orphan",
     )
+    practice_test_links: Mapped[list["ClassPracticeTestLink"]] = relationship(
+        back_populates="instructor_class",
+        cascade="all, delete-orphan",
+    )
 
 
 class ClassEnrollment(Base):
@@ -374,6 +379,26 @@ class ClassModuleLink(Base):
 
     instructor_class: Mapped["InstructorClass"] = relationship(back_populates="module_links")
     module: Mapped["Module"] = relationship()
+
+
+class ClassPracticeTestLink(Base):
+    """Practice test assigned to a class with an optional due date."""
+
+    __tablename__ = "class_practice_test_links"
+    __table_args__ = (
+        UniqueConstraint("class_id", "cert", "test_number", name="uq_class_practice_test_link"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    class_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("instructor_classes.id"), nullable=False, index=True
+    )
+    cert: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
+    test_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    due_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    assigned_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+    instructor_class: Mapped["InstructorClass"] = relationship(back_populates="practice_test_links")
 
 
 class PracticeTestAttempt(Base):

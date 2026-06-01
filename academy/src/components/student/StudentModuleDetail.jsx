@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { getModule } from "../../api/modules";
+import LessonContent from "../lesson/LessonContent";
 import { getLesson, markLessonComplete, unmarkLessonComplete } from "../../api/lessons";
 import {
   getModuleLibraryLinks,
@@ -19,17 +18,6 @@ import TutorPanel from "../tutor/TutorPanel";
 import { canAccessModule } from "../../utils/tierGates";
 
 const CANVAS_URL = import.meta.env.VITE_CANVAS_URL ?? "http://localhost:3000";
-
-// ── Markdown prose styles ─────────────────────────────────────────────────────
-
-const PROSE_CLASSES =
-  "prose prose-sm max-w-none " +
-  "prose-headings:font-semibold prose-headings:text-gray-900 " +
-  "prose-p:text-gray-700 prose-p:leading-relaxed " +
-  "prose-a:text-blue-600 prose-li:text-gray-700 " +
-  "prose-code:bg-gray-100 prose-code:rounded prose-code:px-1 prose-code:py-0.5 " +
-  "prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-lg prose-pre:p-4 " +
-  "prose-blockquote:border-l-blue-400 prose-blockquote:text-gray-600";
 
 function LessonWithTutor({ children, contextType, lessonTitle, lessonContent, moduleTitle }) {
   return (
@@ -318,9 +306,10 @@ function LibraryLessonPane({ link, onComplete, moduleTitle }) {
         {isCanvas ? (
           <div className="flex flex-col gap-6">
             {lesson.content && (
-              <div className={PROSE_CLASSES}>
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{lesson.content}</ReactMarkdown>
-              </div>
+              <LessonContent
+                content={lesson.content}
+                storageKey={`library-${lesson.id}`}
+              />
             )}
             <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-6 flex flex-col items-center gap-4 text-center">
               <div className="w-14 h-14 bg-indigo-100 rounded-xl flex items-center justify-center text-3xl">
@@ -349,9 +338,10 @@ function LibraryLessonPane({ link, onComplete, moduleTitle }) {
             </div>
           </div>
         ) : lesson.content ? (
-          <div className={PROSE_CLASSES}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{lesson.content}</ReactMarkdown>
-          </div>
+          <LessonContent
+            content={lesson.content}
+            storageKey={`library-${lesson.id}`}
+          />
         ) : (
           <div className="text-gray-400 text-sm italic">This lesson has no content yet.</div>
         )}
@@ -455,9 +445,10 @@ function CanvasLessonViewer({ lessonSummary, moduleId, allItems, onComplete, mod
 
       <div className="flex-1 overflow-y-auto px-8 py-6 flex flex-col gap-6">
         {lesson.content ? (
-          <div className={PROSE_CLASSES}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{lesson.content}</ReactMarkdown>
-          </div>
+          <LessonContent
+            content={lesson.content}
+            storageKey={`module-lesson-${lesson.id}`}
+          />
         ) : (
           <div className="text-gray-400 text-sm italic">No challenge description yet.</div>
         )}
@@ -591,9 +582,10 @@ function LessonViewer({ lessonSummary, moduleId, allItems, onComplete, moduleTit
 
       <div className="flex-1 overflow-y-auto px-8 py-6">
         {lesson.content ? (
-          <div className={PROSE_CLASSES}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{lesson.content}</ReactMarkdown>
-          </div>
+          <LessonContent
+            content={lesson.content}
+            storageKey={`module-lesson-${lesson.id}`}
+          />
         ) : (
           <div className="text-gray-400 text-sm italic">This lesson has no content yet.</div>
         )}

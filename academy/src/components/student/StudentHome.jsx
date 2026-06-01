@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import { listAssignments } from "../../api/assignments";
+import { joinClass, myEnrolledClasses } from "../../api/classes";
 
 function StatCard({ label, value, color }) {
   return (
@@ -16,14 +17,38 @@ export default function StudentHome() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const [assignments, setAssignments] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [joinCode, setJoinCode] = useState("");
+  const [joinMessage, setJoinMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    listAssignments()
-      .then(setAssignments)
-      .catch(() => setAssignments([]))
+    Promise.all([listAssignments(), myEnrolledClasses()])
+      .then(([a, c]) => {
+        setAssignments(a);
+        setClasses(c);
+      })
+      .catch(() => {
+        setAssignments([]);
+        setClasses([]);
+      })
       .finally(() => setLoading(false));
   }, []);
+
+  async function handleQuickJoin(e) {
+    e.preventDefault();
+    if (!joinCode.trim()) return;
+    setJoinMessage("");
+    try {
+      const result = await joinClass(joinCode.trim());
+      setJoinCode("");
+      setJoinMessage(`Joined ${result.name}.`);
+      const fresh = await myEnrolledClasses();
+      setClasses(fresh);
+    } catch (err) {
+      setJoinMessage(err.message ?? "Could not join");
+    }
+  }
 
   const upcoming = assignments.filter(
     (a) => a.status === "not_started" || a.status === "in_progress"
@@ -60,6 +85,43 @@ export default function StudentHome() {
         <StatCard label="Submitted" value={submitted.length} color="text-yellow-600" />
         <StatCard label="Graded" value={graded.length} color="text-green-600" />
       </div>
+
+      {/* Classes */}
+      <section className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <h2 className="text-base font-semibold text-gray-900">My classes</h2>
+            <p className="text-xs text-gray-500 mt-1">
+              {classes.length > 0
+                ? `Enrolled in ${classes.length} class${classes.length !== 1 ? "es" : ""}`
+                : "Join with a code from your instructor"}
+            </p>
+          </div>
+          <button
+            onClick={() => navigate("/classes")}
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium shrink-0"
+          >
+            View all →
+          </button>
+        </div>
+        <form onSubmit={handleQuickJoin} className="flex gap-2">
+          <input
+            type="text"
+            value={joinCode}
+            onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
+            placeholder="Class code"
+            className="flex-1 border border-gray-200 rounded-lg px-3 py-2 text-sm font-mono uppercase"
+          />
+          <button
+            type="submit"
+            disabled={!joinCode.trim()}
+            className="px-4 py-2 text-sm font-medium bg-gray-900 text-white rounded-lg disabled:opacity-50"
+          >
+            Join
+          </button>
+        </form>
+        {joinMessage && <p className="text-xs text-green-700">{joinMessage}</p>}
+      </section>
 
       {/* Practice tests promo */}
       <section className="bg-white border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between gap-4">

@@ -140,27 +140,34 @@ These are not phase-gated — they run in parallel with whatever phase is active
 **Owner:** Cursor (engine) + Cowork (content review, curriculum QA)
 **Estimated duration:** 8–10 weeks
 
+**Status (May 2026):** Practice test engine, AI tutor, and instructor dashboard core are shipped. This slice added student class enrollment UX and practice-test assignment to classes. LTI 1.3 and full 7×6 cert content remain open.
+
 ### Practice Test Engine
-- [ ] Study mode: unlimited time, per-question explanations, wrong-answer breakdowns
-- [ ] Live mode: timed per cert/difficulty, no feedback until end
-- [ ] End-of-test chart: performance by domain with module recommendations
-- [ ] 6 tests × 7 AWS certs wired to engine (content from continuous workstream)
+- [x] Study mode: unlimited time, per-question explanations, wrong-answer breakdowns
+- [x] Live mode: timed per cert/difficulty, no feedback until end
+- [x] End-of-test chart: performance by domain with module recommendations
+- [ ] 6 tests × 7 AWS certs wired to engine (content from continuous workstream) — **3 certs live** (aws-cp, aws-saa, aws-scs)
 - [ ] Questions flagged as inaccurate correctable without redeploy
 
 ### AI Tutor
-- [ ] Plain language Q&A with curriculum context injected into prompt
-- [ ] Canvas analysis: reads student's current canvas state, gives specific feedback
-- [ ] Hint-first mode: guides without giving answers directly
-- [ ] Works across all 5 LLM providers
+- [x] Plain language Q&A with curriculum context injected into prompt
+- [x] Canvas analysis: reads student's current canvas state, gives specific feedback (assignment canvas)
+- [x] Hint-first mode: guides without giving answers directly
+- [ ] Works across all 5 LLM providers (backend yes; frontend uses server default)
 
 ### Instructor Dashboard
-- [ ] Create and manage classes
-- [ ] Enroll students (manual + bulk import)
-- [ ] Assign modules, labs, practice tests with optional due dates
-- [ ] Class-level progress view with at-risk flagging
-- [ ] Individual student view
-- [ ] Mark students as graduating (triggers 6-month perk)
-- [ ] Assignment library: browse pre-built + create custom
+- [x] Create and manage classes
+- [x] Enroll students (manual + bulk import)
+- [x] Assign modules and labs with optional due dates
+- [x] Assign practice tests with optional due dates
+- [x] Class-level progress view with at-risk flagging
+- [x] Individual student view
+- [ ] Mark students as graduating (triggers 6-month perk) — **deferred** (open access; flag only)
+- [ ] Assignment library: browse pre-built + create custom — **partial** (seed + custom create; no unified browse)
+
+### Student class experience
+- [x] Join class by code (student UI)
+- [x] View assigned modules, labs, and practice tests per class
 
 ### LTI 1.3 Integration
 - [ ] Archon Academy registers as external tool with Canvas LMS

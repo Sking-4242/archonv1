@@ -4,6 +4,10 @@ export async function listAssignments(token) {
   return api.get("/academy/assignments", token);
 }
 
+export async function listLibraryAssignments(token) {
+  return api.get("/academy/assignments/library", token);
+}
+
 export async function getAssignment(id, token) {
   return api.get(`/academy/assignments/${id}`, token);
 }

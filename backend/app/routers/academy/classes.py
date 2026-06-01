@@ -12,6 +12,7 @@ from app.models.academy import (
     ClassAssignmentLink,
     ClassEnrollment,
     ClassModuleLink,
+    ClassPracticeTestLink,
     InstructorClass,
     Module,
     User,
@@ -22,7 +23,9 @@ from app.services.class_service import (
     compute_student_progress,
     generate_class_code,
     instructor_dashboard,
+    student_assigned_content,
 )
+from app.services.practice_test_service import CERT_CATALOG, list_catalog
 
 router = APIRouter(prefix="/academy/classes", tags=["academy-classes"])
 
@@ -53,6 +56,7 @@ class ClassOut(BaseModel):
     student_count: int = 0
     module_count: int = 0
     assignment_count: int = 0
+    practice_test_count: int = 0
     at_risk_count: int = 0
     pending_review: int = 0
 
@@ -68,6 +72,12 @@ class BulkEnrollIn(BaseModel):
 
 
 class AssignContentIn(BaseModel):
+    due_date: datetime | None = None
+
+
+class AssignPracticeTestIn(BaseModel):
+    cert: str
+    test_number: int = Field(ge=1, le=10)
     due_date: datetime | None = None
 
 
@@ -88,6 +98,7 @@ def _get_owned_class(db: Session, class_id: int, instructor_id: uuid.UUID) -> In
             joinedload(InstructorClass.enrollments).joinedload(ClassEnrollment.student),
             joinedload(InstructorClass.assignment_links).joinedload(ClassAssignmentLink.assignment),
             joinedload(InstructorClass.module_links).joinedload(ClassModuleLink.module),
+            joinedload(InstructorClass.practice_test_links),
         )
         .filter(InstructorClass.id == class_id, InstructorClass.instructor_id == instructor_id)
         .first()
@@ -110,6 +121,7 @@ def _serialize_class(cls: InstructorClass, db: Session) -> ClassOut:
         student_count=progress["student_count"],
         module_count=len(cls.module_links),
         assignment_count=len(cls.assignment_links),
+        practice_test_count=len(cls.practice_test_links),
         at_risk_count=progress["at_risk_count"],
         pending_review=progress["pending_review"],
     )
@@ -173,6 +185,14 @@ def my_classes(
     ]
 
 
+@router.get("/my/content")
+def my_assigned_content(
+    current_user: User = Depends(require_student),
+    db: Session = Depends(get_db),
+):
+    return student_assigned_content(db, current_user.id)
+
+
 @router.post("/join")
 def join_class(
     body: JoinClassIn,
@@ -210,6 +230,7 @@ def list_classes(
             joinedload(InstructorClass.enrollments),
             joinedload(InstructorClass.assignment_links),
             joinedload(InstructorClass.module_links),
+            joinedload(InstructorClass.practice_test_links),
         )
         .filter(InstructorClass.instructor_id == current_user.id)
         .order_by(InstructorClass.created_at.desc())
@@ -448,6 +469,16 @@ def get_student_detail(
             }
             for link in cls.module_links
         ],
+        "practice_tests": [
+            {
+                "link_id": link.id,
+                "cert": link.cert,
+                "test_number": link.test_number,
+                "title": f"{link.cert} test {link.test_number}",
+                "due_date": link.due_date.isoformat() if link.due_date else None,
+            }
+            for link in cls.practice_test_links
+        ],
         **progress,
     }
 
@@ -586,5 +617,92 @@ def unassign_module(
     )
     if link is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Module not linked")
+    db.delete(link)
+    db.commit()
+
+
+@router.get("/{class_id}/practice-tests")
+def list_class_practice_tests(
+    class_id: int,
+    current_user: User = Depends(require_instructor),
+    db: Session = Depends(get_db),
+):
+    cls = _get_owned_class(db, class_id, current_user.id)
+    return [
+        {
+            "link_id": link.id,
+            "cert": link.cert,
+            "test_number": link.test_number,
+            "due_date": link.due_date.isoformat() if link.due_date else None,
+            "assigned_at": link.assigned_at.isoformat(),
+        }
+        for link in cls.practice_test_links
+    ]
+
+
+@router.post("/{class_id}/practice-tests", status_code=status.HTTP_201_CREATED)
+def assign_practice_test(
+    class_id: int,
+    body: AssignPracticeTestIn,
+    current_user: User = Depends(require_instructor),
+    db: Session = Depends(get_db),
+):
+    cls = _get_owned_class(db, class_id, current_user.id)
+    cert = body.cert.strip()
+    if cert not in CERT_CATALOG:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Certification not found")
+
+    catalog = list_catalog(cert)
+    available = {t["test_number"] for t in catalog.get("available_tests", [])}
+    if body.test_number not in available:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No questions available for this test",
+        )
+
+    exists = (
+        db.query(ClassPracticeTestLink)
+        .filter(
+            ClassPracticeTestLink.class_id == cls.id,
+            ClassPracticeTestLink.cert == cert,
+            ClassPracticeTestLink.test_number == body.test_number,
+        )
+        .first()
+    )
+    if exists:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Already assigned")
+
+    link = ClassPracticeTestLink(
+        class_id=cls.id,
+        cert=cert,
+        test_number=body.test_number,
+        due_date=body.due_date,
+    )
+    db.add(link)
+    db.commit()
+    db.refresh(link)
+    return {
+        "link_id": link.id,
+        "cert": link.cert,
+        "test_number": link.test_number,
+        "due_date": link.due_date.isoformat() if link.due_date else None,
+    }
+
+
+@router.delete("/{class_id}/practice-tests/{link_id}", status_code=status.HTTP_204_NO_CONTENT)
+def unassign_practice_test(
+    class_id: int,
+    link_id: int,
+    current_user: User = Depends(require_instructor),
+    db: Session = Depends(get_db),
+):
+    cls = _get_owned_class(db, class_id, current_user.id)
+    link = (
+        db.query(ClassPracticeTestLink)
+        .filter(ClassPracticeTestLink.id == link_id, ClassPracticeTestLink.class_id == cls.id)
+        .first()
+    )
+    if link is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Practice test not linked")
     db.delete(link)
     db.commit()

@@ -1,0 +1,428 @@
+[
+  {
+    "id": "aws-soa-t2-02-001",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An Auto Scaling group's scale-out event was triggered, but newly launched instances are being terminated by the load balancer's health check before they can finish bootstrapping (installing packages, starting the application). What is the correct configuration to fix this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Change the Auto Scaling health check type from ELB back to EC2 so that only hardware-level failures trigger termination during the bootstrap phase."
+      },
+      {
+        "label": "B",
+        "text": "Add a lifecycle hook to the Auto Scaling group that pauses new instances in the Pending:Wait state during bootstrapping before they are registered with the load balancer."
+      },
+      {
+        "label": "C",
+        "text": "Increase the ALB target group's deregistration delay to allow instances more time to register and pass health checks before the load balancer removes them."
+      },
+      {
+        "label": "D",
+        "text": "Increase the Auto Scaling group's health check grace period to give instances sufficient time to complete bootstrapping before health checks are evaluated."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Switching back to EC2 health checks removes the benefit of ELB health checks for running instances and is a workaround rather than a proper fix.",
+      "B": "A lifecycle hook pauses instances in Pending:Wait before they enter InService; this prevents them from being registered until bootstrapping completes, which is also valid. However, the health check grace period is the simpler and more direct setting for this common pattern.",
+      "C": "Deregistration delay applies when instances are being removed from the target group (during scale-in or replacement), not when they are being registered for the first time."
+    },
+    "explanation": "The health check grace period tells Auto Scaling to wait a specified number of seconds before starting health check evaluations on a newly launched instance. Setting this value to be longer than the instance's bootstrap time prevents premature termination. The default is 300 seconds; if bootstrapping takes longer, the grace period should be extended accordingly.",
+    "module_ref": "soa/reliability/asg-grace-period",
+    "tags": [
+      "auto-scaling",
+      "health-check-grace-period",
+      "bootstrapping",
+      "elb"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-02-002",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company requires that RTO (Recovery Time Objective) for a critical database be under 15 minutes. The database uses RDS MySQL. Which configuration best meets this requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use RDS Point-in-Time Restore configured to restore within 15 minutes of failure; the restore job is automatically triggered when the primary database fails."
+      },
+      {
+        "label": "B",
+        "text": "Take hourly automated snapshots and restore from the most recent snapshot when failure occurs; restoration takes 5-15 minutes for a small database."
+      },
+      {
+        "label": "C",
+        "text": "Create an RDS Read Replica in the same AZ and promote it to primary if the main instance fails; promotion typically completes in 5-10 minutes."
+      },
+      {
+        "label": "D",
+        "text": "Enable RDS Multi-AZ deployment; automatic failover to the standby completes in 1-2 minutes, well within the 15-minute RTO requirement."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "B": "Snapshot restoration requires creating a new DB instance, which takes 15-45 minutes; for a small database it might finish under 15 minutes but is not guaranteed for larger databases.",
+      "C": "Read Replica promotion requires manual intervention (or a scripted trigger), is not automatic, and replication lag means some committed transactions may be lost.",
+      "A": "PITR is not automatically triggered on failure; it requires manual initiation and creates a new instance, making the RTO unpredictable and typically exceeding 15 minutes."
+    },
+    "explanation": "RDS Multi-AZ maintains a synchronous standby replica and performs automatic failover without manual intervention. The failover process involves updating the DNS CNAME to point to the standby, which typically completes in 1-2 minutes. This is the only RDS configuration that reliably meets a sub-15-minute RTO with automatic recovery.",
+    "module_ref": "soa/reliability/rds-rto",
+    "tags": [
+      "rds",
+      "multi-az",
+      "rto",
+      "failover",
+      "high-availability"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-02-003",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to test the resilience of an application by simulating the failure of an Availability Zone. Which AWS service supports chaos engineering experiments including AZ failure simulations?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager Automation can run a document that terminates all EC2 instances in a specified AZ, simulating an AZ failure for resilience testing."
+      },
+      {
+        "label": "B",
+        "text": "AWS Resilience Hub assesses application resilience and automatically injects AZ failures as part of its ongoing resilience scoring process."
+      },
+      {
+        "label": "C",
+        "text": "CloudWatch Synthetic Canaries can be configured to fail all requests to a specified AZ, simulating an AZ outage from the monitoring perspective."
+      },
+      {
+        "label": "D",
+        "text": "AWS Fault Injection Service (FIS) allows the administrator to create experiments that inject faults including AZ impairment, network disruption, and instance termination into running AWS infrastructure."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "SSM Automation can terminate instances, but it does not provide the controlled, targeted fault injection with blast radius controls and rollback that FIS provides.",
+      "C": "CloudWatch Synthetic Canaries monitor application endpoints; they cannot simulate infrastructure failures at the AZ level.",
+      "B": "AWS Resilience Hub assesses and scores resilience based on configuration; it does not inject live faults into production infrastructure."
+    },
+    "explanation": "AWS Fault Injection Service (FIS) is the AWS managed chaos engineering service. It supports a library of fault actions including EC2 instance termination, network latency injection, availability zone impairment, and RDS failover. Experiments include stop conditions (CloudWatch alarms) that automatically halt the experiment if the application breaches a safety threshold.",
+    "module_ref": "soa/reliability/fault-injection-service",
+    "tags": [
+      "fis",
+      "chaos-engineering",
+      "resilience-testing",
+      "az-failure"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-02-004",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An application uses Amazon SQS. During high-traffic periods, processing failures cause messages to be retried repeatedly, blocking the queue and delaying other messages. How should a SysOps administrator configure the queue to handle persistent failures?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a Dead-Letter Queue (DLQ) on the main SQS queue with a maxReceiveCount threshold; after the specified number of failed processing attempts, messages are moved to the DLQ for investigation."
+      },
+      {
+        "label": "B",
+        "text": "Set the SQS message retention period to 1 hour so that persistently failing messages are automatically deleted after 60 minutes without clogging the queue."
+      },
+      {
+        "label": "C",
+        "text": "Reduce the SQS visibility timeout to 1 second so that failed messages become visible again almost immediately and are retried more quickly to clear the backlog."
+      },
+      {
+        "label": "D",
+        "text": "Enable SQS FIFO queue type, which orders messages by arrival and prevents failed messages from blocking other messages through its deduplication mechanism."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "D": "SQS FIFO queues maintain order and prevent duplicate processing, but they do not handle processing failures differently; a DLQ is still needed for persistent failures.",
+      "C": "Reducing the visibility timeout causes more rapid retries, which increases load on the processor and does not prevent failing messages from blocking the queue indefinitely.",
+      "B": "Reducing the retention period causes messages to be deleted before they can be investigated or retried successfully; it is destructive rather than a controlled failure handling strategy."
+    },
+    "explanation": "A Dead-Letter Queue is an SQS queue that receives messages that have failed processing a configured maximum number of times (maxReceiveCount). After a message is received and returned to the queue that many times without being deleted, SQS automatically moves it to the DLQ. This isolates poisonous messages from healthy queue processing for later analysis.",
+    "module_ref": "soa/reliability/sqs-dlq",
+    "tags": [
+      "sqs",
+      "dead-letter-queue",
+      "dlq",
+      "fault-tolerance",
+      "message-queue"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-02-005",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company has a Recovery Point Objective (RPO) of 1 hour for an application backed by Amazon Aurora MySQL. Which configuration meets this requirement with the lowest operational overhead?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Aurora automated backups with a backup window aligned to the RPO requirement; Aurora continuously backs up to S3 and supports point-in-time restore to any second, providing an effective RPO of near-zero."
+      },
+      {
+        "label": "B",
+        "text": "Enable Aurora Global Database with a secondary region; transaction log replication provides an RPO of typically less than 1 second, exceeding the 1-hour requirement."
+      },
+      {
+        "label": "C",
+        "text": "Enable Aurora Backtrack with a target window of 1 hour; Backtrack allows rewinding the database to any point within the configured window without restoring a snapshot."
+      },
+      {
+        "label": "D",
+        "text": "Configure manual Aurora snapshots taken every hour using a Lambda function triggered by EventBridge, ensuring a snapshot exists within 1 hour of any data loss event."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "D": "Hourly manual snapshots via Lambda are valid but add operational overhead; Aurora's built-in continuous backup to S3 with PITR already provides a better RPO natively.",
+      "B": "Aurora Global Database is valid and exceeds the RPO requirement, but it is significantly more complex and expensive than needed for a 1-hour RPO.",
+      "C": "Aurora Backtrack is a valid option for fast in-place rewind without restoration, but it is limited to specific Aurora MySQL versions and has a maximum backtrack window of 72 hours; automated backups with PITR are more universally applicable."
+    },
+    "explanation": "Aurora automated backups upload transaction logs to S3 continuously, enabling point-in-time restore to any second within the backup retention period. This provides an effective RPO of near-zero (data loss limited to the last transaction before the failure), which far exceeds the 1-hour RPO requirement. No additional configuration beyond enabling automated backups with a retention window is needed.",
+    "module_ref": "soa/reliability/aurora-backup-rpo",
+    "tags": [
+      "aurora",
+      "backup",
+      "rpo",
+      "pitr",
+      "automated-backup"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-02-006",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A company uses Amazon S3 to store critical business documents. A SysOps administrator wants to ensure that no object can be deleted or overwritten for a minimum of 5 years to meet compliance requirements. Which S3 feature should be enabled?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable S3 Object Lock in Governance mode with a 5-year retention period; only users with the s3:BypassGovernanceRetention permission can override the lock if needed."
+      },
+      {
+        "label": "B",
+        "text": "Enable S3 Object Lock in Compliance mode with a 5-year retention period; in Compliance mode, the retention period cannot be shortened or overridden even by the root user."
+      },
+      {
+        "label": "C",
+        "text": "Apply an S3 bucket policy with a Deny statement for s3:DeleteObject actions that expires after 5 years, preventing all deletion attempts during that period."
+      },
+      {
+        "label": "D",
+        "text": "Enable S3 Versioning and an MFA Delete policy so that deleting any version requires MFA authentication, preventing accidental or unauthorized deletion for 5 years."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "D": "MFA Delete requires MFA for deleting versions but can still be disabled by a root account user with MFA; it does not provide the immutable, tamper-proof retention that Compliance mode provides.",
+      "C": "A bucket policy Deny statement can be removed by an account administrator; it does not provide the immutable retention guarantee required for compliance.",
+      "A": "Governance mode allows users with bypass permission to override the lock; for strict compliance requirements where not even the root user can override, Compliance mode is required."
+    },
+    "explanation": "S3 Object Lock in Compliance mode sets a WORM (write-once-read-many) retention policy that cannot be shortened or overridden by any user including the AWS account root user. This makes it suitable for regulatory compliance requirements (such as SEC Rule 17a-4 or HIPAA). The retention period runs from the date the object was locked.",
+    "module_ref": "soa/reliability/s3-object-lock",
+    "tags": [
+      "s3",
+      "object-lock",
+      "compliance-mode",
+      "worm",
+      "retention"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-02-007",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A fleet of EC2 instances behind an Application Load Balancer uses sticky sessions (session affinity). A SysOps administrator notices that when instances are replaced during a scale-in event, some users experience session loss. What should be configured to mitigate this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Move session state from the EC2 instances to an external store such as Amazon ElastiCache (Redis) or DynamoDB, making the application stateless so any instance can serve any request."
+      },
+      {
+        "label": "B",
+        "text": "Enable Connection Draining (deregistration delay) on the ALB target group so that in-flight requests to terminating instances complete before the instance is removed."
+      },
+      {
+        "label": "C",
+        "text": "Increase the ALB sticky session cookie duration so that session cookies persist longer, giving users more time before their sticky session expires when an instance is replaced."
+      },
+      {
+        "label": "D",
+        "text": "Configure the ALB to use application-based stickiness instead of duration-based stickiness, which provides stronger session persistence across instance replacements."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "C": "Longer cookie duration only delays the problem; when the instance is terminated, the session is lost regardless of how long the cookie is set to last.",
+      "D": "Application-based stickiness allows the application to set the cookie, but session state still resides on the instance; when the instance is terminated, the session is still lost.",
+      "B": "Connection draining ensures in-flight requests complete gracefully, but it does not preserve session state; after the instance terminates, the session is gone."
+    },
+    "explanation": "The root cause of session loss is storing session state on the instance itself. When the instance is replaced, its in-memory session data disappears. Moving session state to an external, distributed store like ElastiCache Redis decouples state from compute: any instance can retrieve the session from the shared store, making the fleet stateless and resilient to instance replacement.",
+    "module_ref": "soa/reliability/stateless-sessions",
+    "tags": [
+      "elasticache",
+      "session-management",
+      "stateless",
+      "auto-scaling",
+      "alb"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-02-008",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An application has an RTO of 4 hours and an RPO of 24 hours for a disaster recovery scenario involving complete regional failure. Which DR strategy is the most cost-effective for these requirements?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Backup and Restore: back up data to S3 in a secondary region daily and restore the infrastructure from CloudFormation templates and AMIs when a disaster occurs, targeting a 4-hour RTO."
+      },
+      {
+        "label": "B",
+        "text": "Pilot Light: keep a minimal version of the core infrastructure running in the secondary region (database replicated, AMIs current) and scale it out during a disaster."
+      },
+      {
+        "label": "C",
+        "text": "Warm Standby: maintain a reduced-capacity, fully functional replica of the production environment in the secondary region that can be scaled up rapidly during a disaster."
+      },
+      {
+        "label": "D",
+        "text": "Multi-Site Active-Active: run full capacity in two regions simultaneously so that if one region fails, the other region handles 100% of traffic with no RTO impact."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Pilot Light keeps critical components running 24/7 in the DR region, which costs more than Backup and Restore; given the 4-hour RTO and 24-hour RPO, it is more expensive than necessary.",
+      "C": "Warm Standby maintains a running scaled-down environment 24/7 in the DR region, which is even more expensive; the loose RTO and RPO do not justify this cost.",
+      "D": "Multi-Site Active-Active is the most expensive and complex approach; it is appropriate for near-zero RTO/RPO requirements, not a 4-hour/24-hour objective."
+    },
+    "explanation": "For a 4-hour RTO and 24-hour RPO, Backup and Restore is the most cost-effective strategy. Data is backed up to S3 daily (satisfying 24h RPO) and infrastructure templates are stored in the DR region. When a disaster occurs, you restore from backup and redeploy infrastructure, targeting the 4-hour window. No compute runs in the DR region between disasters, minimizing cost.",
+    "module_ref": "soa/reliability/dr-strategies",
+    "tags": [
+      "disaster-recovery",
+      "backup-restore",
+      "rto",
+      "rpo",
+      "dr-strategy"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-02-009",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "An Auto Scaling group launches instances across three Availability Zones: us-east-1a (4 instances), us-east-1b (4 instances), and us-east-1c (2 instances). Which Auto Scaling rebalancing behavior will occur?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Auto Scaling will immediately terminate 2 instances in us-east-1a and 2 instances in us-east-1b, then launch 4 instances in us-east-1c to achieve an equal distribution."
+      },
+      {
+        "label": "B",
+        "text": "Auto Scaling will not rebalance unless a scale-out or scale-in event occurs, at which point it uses the allocation strategy to place new instances in the least-populated AZ."
+      },
+      {
+        "label": "C",
+        "text": "Auto Scaling rebalancing is only triggered by AZ capacity shortages; since all three AZs are available, no rebalancing occurs regardless of the distribution imbalance."
+      },
+      {
+        "label": "D",
+        "text": "Auto Scaling will attempt to rebalance by launching a new instance in us-east-1c before terminating an instance in an over-represented AZ to maintain the desired capacity and improve balance."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Auto Scaling rebalancing is non-disruptive; it launches replacements before terminating excess instances to avoid reducing capacity below the desired count.",
+      "B": "Auto Scaling does proactively rebalance across AZs when an imbalance is detected, not just during scale events; the rebalancing activity is initiated by Auto Scaling autonomously.",
+      "C": "AZ rebalancing is triggered by imbalance detection, not only by AZ capacity shortages; Auto Scaling monitors distribution continuously."
+    },
+    "explanation": "When Auto Scaling detects that instances are unevenly distributed across Availability Zones, it initiates a rebalancing activity. To avoid reducing capacity, Auto Scaling first launches a new instance in the under-represented AZ (us-east-1c) and then terminates an instance in an over-represented AZ. This keep-before-remove approach maintains the desired capacity throughout.",
+    "module_ref": "soa/reliability/asg-az-rebalancing",
+    "tags": [
+      "auto-scaling",
+      "az-rebalancing",
+      "availability-zones",
+      "capacity"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-02-010",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to create daily backups of an Amazon DynamoDB table and retain them for 90 days. Point-in-time recovery (PITR) is already enabled. What additional configuration meets the 90-day retention requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable DynamoDB on-demand backups on a daily schedule using an EventBridge rule that triggers a Lambda function calling the CreateBackup API each day."
+      },
+      {
+        "label": "B",
+        "text": "Export the DynamoDB table to S3 daily using the ExportTableToPointInTime API and configure an S3 lifecycle rule to expire objects after 90 days."
+      },
+      {
+        "label": "C",
+        "text": "PITR alone satisfies the requirement because it retains a continuous backup window of 90 days by default, allowing restore to any second within that period."
+      },
+      {
+        "label": "D",
+        "text": "Create an AWS Backup plan with a DynamoDB resource selection, a daily backup rule, and a retention period of 90 days; AWS Backup manages the snapshot lifecycle automatically."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "DynamoDB PITR retains a rolling 35-day backup window, not 90 days; it cannot be extended to 90 days. For 90-day retention, additional backups managed by AWS Backup are required.",
+      "A": "Daily on-demand backups via Lambda EventBridge is valid but has more operational overhead than AWS Backup, which manages scheduling and retention natively.",
+      "B": "S3 export creates a static snapshot but requires custom retention management; AWS Backup is the purpose-built managed solution with built-in lifecycle management."
+    },
+    "explanation": "DynamoDB PITR provides a 35-day rolling continuous backup window. For 90-day retention, you need AWS Backup, which supports DynamoDB as a backup resource and can create on-demand or scheduled backups with retention periods up to 100 years. The AWS Backup plan manages creation, retention, and deletion of backups automatically.",
+    "module_ref": "soa/reliability/dynamodb-backup",
+    "tags": [
+      "dynamodb",
+      "aws-backup",
+      "backup-retention",
+      "pitr"
+    ]
+  }
+]

@@ -1,0 +1,339 @@
+[
+  {
+    "id": "aws-soa-t3-06-001",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A 1-year EC2 Instance Savings Plan was purchased for m5.large in us-east-1. The team switches to m5.xlarge. How does the plan apply?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Exchange the plan for an m5.xlarge plan using the Savings Plans exchange feature."
+      },
+      {
+        "label": "B",
+        "text": "The plan only covers m5.large; switching to m5.xlarge means paying On-Demand rates."
+      },
+      {
+        "label": "C",
+        "text": "EC2 Instance Savings Plans apply globally to any EC2 instance regardless of family or region."
+      },
+      {
+        "label": "D",
+        "text": "EC2 Instance Savings Plans apply to all sizes within the committed family (m5) in the committed region (us-east-1), including m5.xlarge, up to the committed hourly spend."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "B": "EC2 Instance Savings Plans cover the entire instance family within the committed region, not just the specific size.",
+      "C": "Compute Savings Plans are global; EC2 Instance Savings Plans are region-specific.",
+      "A": "Savings Plans cannot be exchanged like Convertible RIs; they automatically apply to eligible usage."
+    },
+    "explanation": "EC2 Instance Savings Plans commit to a specific instance family in a specific region and cover all sizes (large, xlarge, 2xlarge, etc.) within that family. The committed hourly rate is consumed by whatever size is running in that family and region.",
+    "module_ref": "soa/cost/ec2-instance-savings-plans",
+    "tags": [
+      "savings-plans",
+      "ec2",
+      "instance-family",
+      "flexibility"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-06-002",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "EC2 instances generate many small S3 PUT requests (under 1 KB each) and S3 request costs are high. What architectural change reduces this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use SQS to queue objects and Lambda to batch them before a single S3 PUT."
+      },
+      {
+        "label": "B",
+        "text": "Batch small objects into larger files before uploading; reducing PUT request count by combining objects significantly reduces S3 request costs per unit of data."
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 Intelligent-Tiering; it reduces PUT request costs by optimizing storage operations."
+      },
+      {
+        "label": "D",
+        "text": "Switch from S3 Standard to S3 Express One Zone for lower per-request pricing on high-frequency small-object workloads."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "D": "S3 Express One Zone has lower per-request costs but higher storage costs; batching is more universally effective.",
+      "A": "SQS + Lambda batching adds latency and complexity; direct batching by the producer is simpler.",
+      "C": "S3 Intelligent-Tiering optimizes storage class transitions; it does not reduce PUT request counts."
+    },
+    "explanation": "S3 charges per PUT request. Combining many small objects into fewer, larger uploads directly reduces the number of PUT API calls for the same data volume, lowering request costs.",
+    "module_ref": "soa/cost/s3-request-batching",
+    "tags": [
+      "s3",
+      "put-requests",
+      "batching",
+      "cost"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-06-003",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "Reserved Instance and Savings Plan discounts in the management account should apply to all member accounts. What setting must be enabled?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Cost and Usage Reports in the management account with consolidated billing; it automatically applies discounts across all accounts."
+      },
+      {
+        "label": "B",
+        "text": "Transfer Reserved Instances to each member account using the RI Marketplace."
+      },
+      {
+        "label": "C",
+        "text": "Create IAM policies granting each member account billing:ApplyDiscount permission."
+      },
+      {
+        "label": "D",
+        "text": "Enable RI and Savings Plan sharing in the AWS Billing console; this allows discounts from the payer account to apply to member accounts' usage automatically."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "There is no billing:ApplyDiscount permission; RI sharing is a billing-level setting.",
+      "B": "RI Marketplace transfers RIs to individual accounts; this is the opposite of centralized sharing.",
+      "A": "Cost and Usage Reports provide billing visibility; they do not control discount sharing."
+    },
+    "explanation": "Organizations consolidated billing aggregates usage. RI and Savings Plan sharing must be explicitly enabled in the Billing console for unused capacity and discounts to apply to member account usage automatically.",
+    "module_ref": "soa/cost/ri-sharing-organizations",
+    "tags": [
+      "reserved-instances",
+      "savings-plans",
+      "organizations",
+      "sharing"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-06-004",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An RDS instance has read IOPS consistently at maximum, causing query latency. Adding more provisioned IOPS is expensive. What is more cost-effective?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable automated backups with a smaller backup window to reduce I/O spikes, freeing IOPS for read queries."
+      },
+      {
+        "label": "B",
+        "text": "Enable RDS Multi-AZ to distribute read traffic across primary and standby; Multi-AZ supports reads on the standby."
+      },
+      {
+        "label": "C",
+        "text": "Add an ElastiCache for Redis cluster in front of RDS to cache frequent read results; this reduces RDS read IOPS by serving cached responses for repeated queries."
+      },
+      {
+        "label": "D",
+        "text": "Upgrade to a memory-optimized R-series instance; more memory allows RDS to buffer more data, reducing disk read IOPS."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "B": "Multi-AZ standby does not serve reads; it is for failover. Read Replicas serve reads.",
+      "D": "A larger instance reduces read IOPS through buffer pool expansion but is typically more expensive than adding a caching layer.",
+      "A": "Backup I/O occurs during the backup window; reducing it does not free steady-state read IOPS."
+    },
+    "explanation": "ElastiCache Redis serves repeated read results from memory, reducing the number of database queries hitting RDS. A 50-90% IOPS reduction is common for read-heavy workloads with temporal locality, making it more cost-effective than significantly increasing provisioned IOPS.",
+    "module_ref": "soa/cost/elasticache-rds-read",
+    "tags": [
+      "elasticache",
+      "rds",
+      "caching",
+      "read-iops",
+      "cost"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-06-005",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "Which AWS service provides native ML-based cost anomaly detection for EC2 with configurable alerts?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Cost Anomaly Detection uses ML on historical spend patterns; configure a monitor for EC2 and set a threshold for SNS or email alerts."
+      },
+      {
+        "label": "B",
+        "text": "AWS Trusted Advisor Cost Optimization checks continuously monitor spend for anomalies and send automated SNS alerts."
+      },
+      {
+        "label": "C",
+        "text": "AWS Budgets with an anomaly-type budget detects cost spikes and alerts when daily spend deviates from expected."
+      },
+      {
+        "label": "D",
+        "text": "CloudWatch billing alarms with dynamic thresholds automatically detect anomalous EC2 spending using CloudWatch Anomaly Detection."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "C": "Budgets alerts on actual vs. budgeted spend; they do not use ML to detect deviations from historical patterns.",
+      "D": "CloudWatch Anomaly Detection applies to CloudWatch metrics; Cost Anomaly Detection is purpose-built for billing anomalies.",
+      "B": "Trusted Advisor provides recommendations; it does not have ML-based spend anomaly detection with configurable alerts."
+    },
+    "explanation": "AWS Cost Anomaly Detection trains ML models on your historical spending patterns. Service-level monitors (e.g., EC2) detect unusual cost increases above configured thresholds and send alerts via SNS or email, enabling rapid investigation of unexpected spend.",
+    "module_ref": "soa/cost/cost-anomaly-detection",
+    "tags": [
+      "cost-anomaly-detection",
+      "machine-learning",
+      "billing",
+      "alerts"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-06-006",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "Large EC2 instances run batch jobs from 8 PM to 6 AM daily. The rest of the day they are idle. What is the most cost-effective purchasing strategy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use Spot Instances; batch workloads that checkpoint and restart on interruption benefit from up to 90% savings versus On-Demand."
+      },
+      {
+        "label": "B",
+        "text": "Purchase Dedicated Hosts; billed per host-hour they provide savings for regular daily workloads."
+      },
+      {
+        "label": "C",
+        "text": "Purchase 1-year Reserved Instances; they provide up to 40% savings for the 10-hour daily usage window."
+      },
+      {
+        "label": "D",
+        "text": "Use On-Demand with EventBridge stop/start scheduling to eliminate idle charges."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "C": "RIs for 10 hours/day (42% utilization) provide limited savings; Spot provides much deeper discounts for interruptible batch workloads.",
+      "D": "On-Demand with stop/start eliminates idle costs but still pays full On-Demand rates during the 10-hour run window.",
+      "B": "Dedicated Hosts are for compliance/licensing needs; they are significantly more expensive than Spot."
+    },
+    "explanation": "Spot Instances are the canonical choice for batch processing. Designing jobs with checkpointing to S3/EBS allows recovery from interruptions. The 2-minute interruption notice enables graceful checkpoints. Up to 90% savings versus On-Demand far exceeds RI or other alternatives for this pattern.",
+    "module_ref": "soa/cost/spot-batch",
+    "tags": [
+      "spot-instances",
+      "batch",
+      "checkpointing",
+      "cost"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-06-007",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "Data transfer costs are 25% of the total bill, mostly EC2-to-S3 in the same region. What reduces this cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Move EC2 instances to the same AZ as the S3 bucket; same-AZ transfers are free."
+      },
+      {
+        "label": "B",
+        "text": "Compress objects before upload; smaller object size reduces transfer costs proportionally."
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 Transfer Acceleration; it routes traffic through CloudFront edge locations with lower transfer rates."
+      },
+      {
+        "label": "D",
+        "text": "Create a VPC Gateway Endpoint for S3; EC2-to-S3 traffic through a Gateway Endpoint incurs no data transfer charges within the same region."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "Transfer Acceleration accelerates uploads from internet clients and costs more per GB; it does not reduce EC2-to-S3 transfer costs.",
+      "A": "S3 is a regional service without AZ affinity; there is no same-AZ discount for EC2-to-S3.",
+      "B": "Compression reduces data size and time but the billing is on the compressed bytes transferred; it doesn't eliminate the charge."
+    },
+    "explanation": "AWS does not charge for EC2-to-S3 data transfer when traffic flows through an S3 Gateway Endpoint. Without an endpoint, traffic uses the internet-facing S3 endpoint and incurs regional data transfer charges. Adding a Gateway Endpoint to the VPC route table eliminates these costs at no additional charge.",
+    "module_ref": "soa/cost/s3-gateway-endpoint-transfer",
+    "tags": [
+      "s3",
+      "gateway-endpoint",
+      "data-transfer",
+      "cost"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-06-008",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "The finance team needs monthly reports showing costs broken down by application across EC2, RDS, and ELB resources. Which feature enables this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use CloudWatch to correlate resource utilization with the Cost and Usage Report to estimate per-application costs."
+      },
+      {
+        "label": "B",
+        "text": "Enable AWS Resource Groups per application; AWS automatically generates cost reports for each resource group."
+      },
+      {
+        "label": "C",
+        "text": "Create a separate AWS account per application; consolidated billing reports per-account spend corresponding to per-application costs."
+      },
+      {
+        "label": "D",
+        "text": "Apply cost allocation tags (Application=CRM, Application=ERP, etc.) to all resources, activate them in Billing, and use Cost Explorer to group costs by the Application tag."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "Separate accounts per application is a valid isolation strategy but adds management overhead and may not suit shared services.",
+      "A": "Correlating utilization with CUR is complex and inaccurate compared to direct cost allocation tagging.",
+      "B": "Resource Groups organizes resources; it does not automatically generate cost reports. Cost allocation tags in Billing are the mechanism."
+    },
+    "explanation": "Cost allocation tags must be applied to resources and activated in the Billing console. Once active, Cost Explorer can group and filter costs by tag value, showing per-application spend across all resource types (EC2, RDS, ELB) for any time period.",
+    "module_ref": "soa/cost/cost-allocation-tags-reporting",
+    "tags": [
+      "cost-allocation-tags",
+      "cost-explorer",
+      "reporting",
+      "application-cost"
+    ]
+  }
+]

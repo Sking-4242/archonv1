@@ -1,0 +1,341 @@
+[
+  {
+    "id": "aws-soa-t1-06-001",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's AWS bill is higher than expected. A SysOps administrator wants to analyze cost and usage trends over the past six months broken down by service and linked account. Which tool provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Cost Explorer provides interactive charts and reports for visualizing historical cost and usage data broken down by service, account, region, and tags over custom date ranges."
+      },
+      {
+        "label": "B",
+        "text": "Amazon CloudWatch billing metrics track estimated charges in real time but cannot display historical breakdowns by service over a six-month period."
+      },
+      {
+        "label": "C",
+        "text": "AWS Budgets tracks spending against defined budgets and sends alerts when thresholds are exceeded but does not provide historical trend analysis or service-level breakdowns."
+      },
+      {
+        "label": "D",
+        "text": "AWS Trusted Advisor provides a cost optimization category with recommendations but does not provide historical trend charts by service or linked account."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "D": "Trusted Advisor identifies underutilized resources and provides point-in-time recommendations; it does not provide historical trend visualization.",
+      "B": "CloudWatch billing metrics show the estimated total charge; they cannot be broken down by service, account, or tag with historical trend analysis.",
+      "C": "AWS Budgets is forward-looking (budget vs. actuals) and sends alerts; it does not provide interactive historical exploration across dimensions."
+    },
+    "explanation": "AWS Cost Explorer is the primary tool for visualizing AWS cost and usage. It provides monthly or daily granularity, supports filtering and grouping by service, region, account, and cost allocation tags, and offers up to 13 months of historical data. The Rightsizing Recommendations tab identifies EC2 instances that are over-provisioned.",
+    "module_ref": "soa/cost/cost-explorer",
+    "tags": [
+      "cost-explorer",
+      "cost-analysis",
+      "billing",
+      "optimization"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-06-002",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator wants to receive an alert when monthly AWS spending exceeds $500. Which service and feature should be configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable the CloudWatch billing alarm metric and configure a CloudWatch alarm that triggers an SNS email notification when the EstimatedCharges metric exceeds $500."
+      },
+      {
+        "label": "B",
+        "text": "Create an AWS Budget with a monthly cost budget of $500 and configure a budget alert to send an email notification via SNS when the actual or forecasted cost exceeds the threshold."
+      },
+      {
+        "label": "C",
+        "text": "Set up a Trusted Advisor check that monitors the estimated monthly bill and sends an alert when the cost exceeds the configured $500 threshold."
+      },
+      {
+        "label": "D",
+        "text": "Configure Cost Explorer to run a daily report that sends an email if the monthly projected spend exceeds $500 based on the current usage trend."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "CloudWatch billing alarms are a valid approach and work correctly, but AWS Budgets is the purpose-built cost alerting service with more flexible alert conditions including actual, forecasted, and RI/SP utilization.",
+      "D": "Cost Explorer does not support automated scheduled email alerts based on thresholds; it is an interactive visualization tool.",
+      "C": "Trusted Advisor does not support custom cost threshold alerts; it provides categorical recommendations without user-defined budget limits."
+    },
+    "explanation": "AWS Budgets lets you define cost, usage, Savings Plans, and Reserved Instance budgets. For a monthly cost budget, you set the budgeted amount, configure alert thresholds (e.g., 100% of $500), and specify notification recipients via email or SNS. Alerts fire when actual or forecasted spend crosses the threshold.",
+    "module_ref": "soa/cost/aws-budgets",
+    "tags": [
+      "aws-budgets",
+      "cost-alerts",
+      "billing",
+      "sns"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-06-003",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An EC2 instance runs a predictable, steady-state workload 24 hours a day, 7 days a week. Which pricing model provides the greatest cost savings compared to On-Demand pricing?",
+    "options": [
+      {
+        "label": "A",
+        "text": "On-Demand Capacity Reservations lock in EC2 capacity in a specific AZ and provide a significant discount over standard On-Demand pricing for long-running instances."
+      },
+      {
+        "label": "B",
+        "text": "Spot Instances provide up to 90% savings compared to On-Demand and are suitable for steady-state workloads because they can be configured with persistent requests."
+      },
+      {
+        "label": "C",
+        "text": "A 3-year Reserved Instance with All Upfront payment provides the maximum discount (up to 72%) compared to On-Demand for steady-state, continuous workloads."
+      },
+      {
+        "label": "D",
+        "text": "A 1-year Reserved Instance with No Upfront payment provides the best balance of flexibility and savings for a continuous workload with predictable usage."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "D": "A 1-year No Upfront RI is cheaper than On-Demand, but 3-year All Upfront provides the deepest discount for a committed steady-state workload.",
+      "B": "Spot Instances can be interrupted by AWS with 2 minutes notice; they are not suitable for steady-state, uninterruptible workloads.",
+      "A": "On-Demand Capacity Reservations guarantee capacity but do not provide a pricing discount; you pay the On-Demand rate for the reserved capacity."
+    },
+    "explanation": "For steady-state, 24/7 workloads where you can commit to a 3-year term, 3-year All Upfront Reserved Instances provide the greatest discount: up to 72% compared to On-Demand. The deeper discount comes from the longer commitment and paying the full amount upfront.",
+    "module_ref": "soa/cost/reserved-instances",
+    "tags": [
+      "reserved-instances",
+      "cost-savings",
+      "ec2-pricing",
+      "steady-state"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-06-004",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "Objects in an S3 bucket are frequently accessed for the first 30 days after creation, then rarely accessed afterward. Which S3 storage class configuration minimizes cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Store all objects in S3 Intelligent-Tiering, which automatically moves objects between frequent and infrequent access tiers based on access patterns without lifecycle rules."
+      },
+      {
+        "label": "B",
+        "text": "Configure an S3 lifecycle rule to keep objects in S3 Standard for 30 days, then transition them to S3 Standard-Infrequent Access (S3 Standard-IA) for lower storage costs."
+      },
+      {
+        "label": "C",
+        "text": "Store all objects in S3 Glacier Instant Retrieval from the start to pay the lowest storage price, and retrieve them in milliseconds when the rare access occurs."
+      },
+      {
+        "label": "D",
+        "text": "Configure an S3 lifecycle rule to transition objects to S3 One Zone-IA after 30 days, which is cheaper than S3 Standard-IA but stores data in a single AZ."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "S3 Intelligent-Tiering is a good option when access patterns are unknown; however, it has a per-object monitoring fee that may exceed the savings for objects with a predictable access pattern.",
+      "C": "Objects stored in Glacier Instant Retrieval in the first 30 days incur higher retrieval costs than S3 Standard, and there is a minimum storage duration of 90 days.",
+      "D": "S3 One Zone-IA is cheaper than Standard-IA but stores data in only one AZ, reducing durability; for general objects, Standard-IA is more appropriate."
+    },
+    "explanation": "An S3 lifecycle rule transitioning objects from S3 Standard to S3 Standard-IA after 30 days matches the access pattern precisely. S3 Standard provides best performance for frequent access in the first 30 days. After transition, S3 Standard-IA reduces storage costs by about 40% compared to Standard with a small per-GB retrieval fee for the infrequent accesses.",
+    "module_ref": "soa/cost/s3-lifecycle",
+    "tags": [
+      "s3",
+      "lifecycle",
+      "standard-ia",
+      "cost-optimization",
+      "storage-tiers"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-06-005",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator notices that an EC2 instance running a web application has consistently high CPU but low memory utilization. What action optimizes performance and cost?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable EC2 Detailed Monitoring so CloudWatch collects metrics at 1-minute intervals, which improves CPU performance by reducing the monitoring overhead."
+      },
+      {
+        "label": "B",
+        "text": "Enable EC2 Auto Scaling with a CPU-based scaling policy so additional instances launch when CPU is high, distributing the load across a larger fleet."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Compute Optimizer recommendations to identify the optimal instance type; it may suggest a compute-optimized instance (C family) that provides more vCPUs relative to memory."
+      },
+      {
+        "label": "D",
+        "text": "Upgrade to a larger general-purpose instance (M family) to provide more CPU and memory, even though memory utilization is low, to ensure headroom for traffic spikes."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "D": "Moving to a larger M-family instance adds unnecessary memory that is already underused and increases cost without addressing the real need for more CPU relative to memory.",
+      "A": "EC2 Detailed Monitoring changes metric resolution; it does not affect instance performance or CPU processing capacity.",
+      "B": "Auto Scaling distributes load horizontally but does not optimize the per-instance cost; if the instance type is wrong, you scale with inefficient instances."
+    },
+    "explanation": "AWS Compute Optimizer uses machine learning to analyze CloudWatch metrics and recommends the optimal instance type for each workload. For high CPU/low memory utilization, it would likely recommend a compute-optimized (C family) instance that delivers a higher CPU-to-memory ratio, reducing cost compared to running an oversized general-purpose instance.",
+    "module_ref": "soa/cost/compute-optimizer",
+    "tags": [
+      "compute-optimizer",
+      "rightsizing",
+      "ec2",
+      "performance",
+      "cost"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-06-006",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A development team runs a non-production EC2 instance only during business hours (8 AM to 6 PM Monday through Friday). The instance is left running on weekends. What is the most cost-effective automated solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create EventBridge rules with cron expressions that invoke an SSM Automation document to stop the instance at 6 PM and start it at 8 AM on weekdays."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Instance Scheduler, an AWS solution that uses DynamoDB and Lambda to start and stop EC2 instances based on tags and a defined schedule."
+      },
+      {
+        "label": "C",
+        "text": "Configure an Auto Scaling Scheduled Action to set the desired capacity to 0 outside business hours, which terminates the instance and relaunches it on schedule."
+      },
+      {
+        "label": "D",
+        "text": "Enable the EC2 instance hibernate feature and configure it to hibernate automatically at 6 PM and resume at 8 AM on a CloudWatch alarm schedule."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "C": "An Auto Scaling Scheduled Action with desired=0 terminates the instance, losing any ephemeral state; for a single instance, EventBridge stop/start is simpler and preserves the instance.",
+      "B": "AWS Instance Scheduler is a valid solution for managing many instances, but a direct EventBridge approach is simpler for a single instance and requires no additional infrastructure.",
+      "D": "EC2 hibernate requires specific instance types and an encrypted root volume; it cannot autonomously hibernate on a schedule without additional tooling."
+    },
+    "explanation": "Amazon EventBridge cron-based rules can trigger SSM Automation documents (AWS-StopEC2Instance, AWS-StartEC2Instance) on a precise schedule. This is the simplest, lowest-overhead approach for scheduling start/stop of a single EC2 instance, saving approximately 64 hours of compute cost per week on a 5-day schedule.",
+    "module_ref": "soa/cost/ec2-scheduler",
+    "tags": [
+      "eventbridge",
+      "ec2",
+      "start-stop",
+      "cost-optimization",
+      "scheduling"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-06-007",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An application using Amazon RDS MySQL experiences slow query performance. A SysOps administrator wants to identify the specific queries causing the slowdown. Which RDS feature helps with this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable Enhanced Monitoring on the RDS instance to collect operating system metrics at 1-second intervals and reveal which processes are consuming the most CPU and memory."
+      },
+      {
+        "label": "B",
+        "text": "Enable slow query logging in the MySQL parameter group and publish the logs to CloudWatch Logs, then use Logs Insights to identify the slowest queries."
+      },
+      {
+        "label": "C",
+        "text": "Enable RDS Performance Insights to view a dashboard showing database load, the top SQL queries by waits, and a breakdown of which queries are consuming the most resources."
+      },
+      {
+        "label": "D",
+        "text": "Use Amazon DevOps Guru for RDS, which analyzes database metrics and automatically provides recommendations for query optimization and index creation."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Enhanced Monitoring provides OS-level metrics such as CPU and memory at the OS layer; it does not show individual SQL queries or database wait states.",
+      "B": "Slow query logging is valid but requires enabling the MySQL slow query log parameter; Performance Insights provides equivalent information with a richer real-time dashboard.",
+      "D": "Amazon DevOps Guru for RDS provides anomaly detection and can flag performance issues, but it does not provide a query-level breakdown of database load."
+    },
+    "explanation": "RDS Performance Insights provides a database performance monitoring dashboard that shows DB load over time broken down by waits, SQL queries, users, and hosts. The Top SQL view identifies which queries are generating the most database load, making it the most direct tool for diagnosing slow query issues in RDS.",
+    "module_ref": "soa/cost/rds-performance-insights",
+    "tags": [
+      "rds",
+      "performance-insights",
+      "query-optimization",
+      "database-performance"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-06-008",
+    "domain": 6,
+    "domain_name": "Cost and Performance Optimization",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator needs to identify which S3 buckets have not been accessed in over 90 days to decommission or archive them. Which service provides this access activity data most efficiently?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Cost Explorer with a grouping by S3 bucket and filter to buckets with zero data retrieval costs, which indicates no objects were accessed in the period."
+      },
+      {
+        "label": "B",
+        "text": "Amazon S3 Storage Lens provides account-wide storage usage and activity metrics including request counts per bucket and can highlight buckets with no recent activity."
+      },
+      {
+        "label": "C",
+        "text": "Enable S3 Server Access Logging on all buckets and query the log files using Amazon Athena to find buckets with no access entries in the past 90 days."
+      },
+      {
+        "label": "D",
+        "text": "Query CloudTrail event history filtering for s3:GetObject events and identify buckets with no GetObject events in the past 90 days."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "C": "S3 server access logging requires enabling logging on every bucket individually and then writing Athena queries; Storage Lens provides this insight out-of-the-box with no additional configuration.",
+      "A": "Zero data retrieval cost may miss free-tier accesses or LIST operations; it is not a reliable proxy for total access activity.",
+      "D": "CloudTrail data events for S3 GetObject are not enabled by default and generate high event volumes; enabling them incurs additional cost."
+    },
+    "explanation": "Amazon S3 Storage Lens provides analytics on storage usage and activity across your entire S3 inventory at the organization, account, region, or bucket level. The activity metrics include TotalRequestCount, GetRequests, and PutRequests, making it straightforward to identify inactive buckets without additional configuration or log querying.",
+    "module_ref": "soa/cost/s3-storage-lens",
+    "tags": [
+      "s3-storage-lens",
+      "storage-analytics",
+      "cost-optimization",
+      "unused-buckets"
+    ]
+  }
+]

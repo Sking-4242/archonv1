@@ -1,0 +1,505 @@
+[
+  {
+    "id": "aws-soa-t3-05-001",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "VPC-A (10.0.0.0/16) and VPC-B (10.0.0.0/16) need private communication. What is the immediate problem and solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Transit Gateway with route table associations; Transit Gateway resolves CIDR conflicts through its internal routing engine."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS PrivateLink; it maps one VPC's services to the other VPC's IP range, bypassing the CIDR overlap limitation."
+      },
+      {
+        "label": "C",
+        "text": "VPC peering cannot be established between VPCs with overlapping CIDRs. Re-IP one VPC with a non-overlapping CIDR before creating the peering connection."
+      },
+      {
+        "label": "D",
+        "text": "Use more specific routes (/24 or smaller) in each route table to resolve the CIDR overlap for VPC peering."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "D": "VPC peering does not support overlapping CIDRs; more specific routes cannot overcome the ambiguity.",
+      "B": "PrivateLink exposes specific services but does not provide full VPC-to-VPC routing and has its own IP requirements.",
+      "A": "Transit Gateway also requires non-overlapping CIDRs between attached VPCs."
+    },
+    "explanation": "VPC peering, Transit Gateway, and Direct Connect all require non-overlapping CIDR ranges. A VPC CIDR cannot be changed after creation; create a new VPC with a different CIDR and migrate resources to resolve the conflict.",
+    "module_ref": "soa/networking/vpc-overlapping-cidr",
+    "tags": [
+      "vpc-peering",
+      "overlapping-cidr",
+      "networking"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-05-002",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An ALB drops some requests with 503 even though all targets pass health checks. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "No listener rule matches incoming requests, so the default Fixed Response action returns 503 for unmatched requests."
+      },
+      {
+        "label": "B",
+        "text": "Target security groups block outbound responses; the ALB returns 503 when response packets are dropped."
+      },
+      {
+        "label": "C",
+        "text": "The SSL certificate has expired; 503 is returned for HTTPS connections failing TLS handshakes."
+      },
+      {
+        "label": "D",
+        "text": "The ALB surge queue is full; new connections are rejected with 503 when targets cannot accept additional connections during a traffic spike."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "An expired certificate causes TLS handshake failures visible as certificate errors, not 503 responses.",
+      "A": "A default Fixed Response returning 503 would be intentional and consistent, not intermittent.",
+      "B": "Security group outbound rules are stateful; return traffic for established connections is automatically allowed."
+    },
+    "explanation": "ALBs have connection and request limits. When the surge queue fills during traffic spikes, new requests are rejected with 503. Solutions include scaling the target group, optimizing application response time, or upgrading the target type.",
+    "module_ref": "soa/networking/alb-503-surge-queue",
+    "tags": [
+      "alb",
+      "503",
+      "surge-queue",
+      "troubleshooting"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-05-003",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A CloudFront distribution serves an S3 static website. How can the administrator prevent users from bypassing CloudFront and accessing S3 directly?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure Origin Access Control (OAC) on the CloudFront distribution and update the S3 bucket policy to allow access only from CloudFront's service principal, keeping the bucket private."
+      },
+      {
+        "label": "B",
+        "text": "Enable S3 Block Public Access with IgnorePublicAcls; this prevents direct access while allowing CloudFront to serve content."
+      },
+      {
+        "label": "C",
+        "text": "Configure CloudFront signed URLs; direct S3 access lacks the CloudFront signature and is denied."
+      },
+      {
+        "label": "D",
+        "text": "Enable S3 Transfer Acceleration; Transfer Acceleration routes restrict access to CloudFront origins only."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "D": "Transfer Acceleration speeds S3 uploads from internet clients; it does not restrict access to CloudFront.",
+      "C": "Signed URLs restrict access to the CloudFront distribution; they don't prevent users from bypassing CloudFront to hit S3 directly if the bucket is otherwise accessible.",
+      "B": "Block Public Access controls public ACLs; OAC is what grants CloudFront exclusive access to a private bucket."
+    },
+    "explanation": "Origin Access Control (OAC) signs CloudFront requests to S3. The bucket policy allows s3:GetObject only from CloudFront's service principal (cloudfront.amazonaws.com) with the distribution ARN. All other requests are denied, making the bucket only accessible through CloudFront.",
+    "module_ref": "soa/networking/cloudfront-oac-s3",
+    "tags": [
+      "cloudfront",
+      "oac",
+      "s3",
+      "private-origin"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-05-004",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An EC2 instance in a public subnet with an EIP can reach the internet but cannot resolve DNS names of other VPC resources. What should be checked?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Check that the security group allows inbound UDP/TCP port 53 from the VPC CIDR; DNS queries to the VPC resolver require a security group rule."
+      },
+      {
+        "label": "B",
+        "text": "Check that the DHCP options set points to the VPC resolver; a custom DNS server (8.8.8.8) cannot resolve private VPC DNS names."
+      },
+      {
+        "label": "C",
+        "text": "Verify a Route 53 private hosted zone is associated with the VPC; without it, EC2 DNS names are not resolvable."
+      },
+      {
+        "label": "D",
+        "text": "Verify that VPC DNS settings have enableDnsSupport and enableDnsHostnames enabled; without these, private DNS names for EC2 instances and VPC endpoints are not resolvable."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "The VPC resolver does not have a security group; DNS queries to it are not subject to security group rules.",
+      "C": "A private hosted zone is needed for custom domain names; built-in EC2 DNS names require only enableDnsSupport.",
+      "B": "DHCP options set is a valid check but enableDnsSupport/enableDnsHostnames are the primary VPC-level DNS settings to verify first."
+    },
+    "explanation": "enableDnsSupport allows the VPC to use the Amazon-provided DNS server. enableDnsHostnames assigns private DNS names to EC2 instances. Without both, instances cannot resolve each other's built-in DNS names (e.g., ip-10-0-1-5.us-east-1.compute.internal).",
+    "module_ref": "soa/networking/vpc-dns-settings",
+    "tags": [
+      "vpc",
+      "dns",
+      "enableDnsSupport",
+      "enableDnsHostnames"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-05-005",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A Site-to-Site VPN tunnel is up, but specific on-premises hosts cannot reach certain EC2 instances. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Site-to-Site VPN only supports routing to the entire VPC CIDR; create separate tunnels for each subnet."
+      },
+      {
+        "label": "B",
+        "text": "EC2 instances require Elastic IPs; VPN traffic cannot reach private IP addresses."
+      },
+      {
+        "label": "C",
+        "text": "The VPN uses IKEv1 which does not support routing to specific subnets; upgrade to IKEv2."
+      },
+      {
+        "label": "D",
+        "text": "Route tables on the on-premises router or VPC subnets are missing the specific subnet routes; check both the customer gateway routing table and the VPC route table."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "IKEv1 and IKEv2 both support subnet-level routing; the protocol version does not limit routing granularity.",
+      "A": "VPN supports routing to specific CIDRs; individual subnet routes can be advertised via static routes or BGP.",
+      "B": "VPN provides private IP connectivity; Elastic IPs are for internet access only."
+    },
+    "explanation": "Selective VPN connectivity failures are almost always routing misconfigurations. The customer gateway must advertise specific EC2 subnet CIDRs and the VPC route tables must have routes for on-premises CIDRs pointing to the VGW or Transit Gateway.",
+    "module_ref": "soa/networking/vpn-routing",
+    "tags": [
+      "vpn",
+      "routing",
+      "customer-gateway",
+      "route-table"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-05-006",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company uses 172.16.0.0/12 on-premises and plans to use the same range in a new VPC. What is the consequence for future connectivity?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Using the same CIDR in both VPC and on-premises prevents establishing VPC peering, Transit Gateway attachments, or Direct Connect private connectivity to any network using the same range."
+      },
+      {
+        "label": "B",
+        "text": "AWS prohibits RFC 1918 ranges in VPCs; a publicly routable CIDR is required."
+      },
+      {
+        "label": "C",
+        "text": "AWS auto-NATs RFC 1918 traffic to prevent overlap issues."
+      },
+      {
+        "label": "D",
+        "text": "VPCs using RFC 1918 use NAT64 to communicate with other networks, converting private addresses to unique IPv6."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "RFC 1918 ranges are fully supported as VPC CIDRs.",
+      "C": "AWS does not auto-NAT VPC traffic; routing uses private IPs directly.",
+      "D": "NAT64 converts IPv6 to IPv4 for internet access; it does not resolve CIDR overlap."
+    },
+    "explanation": "Overlapping CIDRs between connected networks prevent routing. VPC peering, Transit Gateway, and Direct Connect require non-overlapping address spaces. Plan the IP scheme upfront to avoid overlaps across all VPCs and on-premises networks.",
+    "module_ref": "soa/networking/vpc-cidr-planning",
+    "tags": [
+      "vpc",
+      "cidr",
+      "ip-planning",
+      "overlap"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-05-007",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A CloudFront distribution serves dynamic API responses from an ALB origin. Users report stale responses. What is the correct cache configuration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a CloudFront Cache Policy with minimum TTL of 0 and have the ALB return Cache-Control: no-cache; CloudFront revalidates with the origin on every request."
+      },
+      {
+        "label": "B",
+        "text": "Disable CloudFront for API paths; route API traffic directly to the ALB bypassing CloudFront caching."
+      },
+      {
+        "label": "C",
+        "text": "Set TTL to 1 second; cache entries expire almost immediately, ensuring near-real-time responses."
+      },
+      {
+        "label": "D",
+        "text": "Enable CloudFront real-time logs and configure automatic cache invalidation when new logs indicate stale content."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "CloudFront behaviors can be configured per path with different caching settings; disabling CloudFront entirely loses TLS termination and DDoS protection benefits.",
+      "C": "A 1-second TTL reduces but does not eliminate staleness; Cache-Control: no-cache with TTL=0 prevents caching entirely.",
+      "D": "Real-time logs are for analysis; they do not trigger automatic cache invalidations."
+    },
+    "explanation": "For dynamic content, the origin should return Cache-Control: no-cache or no-store. With a CloudFront Cache Policy that respects these headers (minimum TTL=0), CloudFront will not cache the response, ensuring every request reaches the origin for fresh data.",
+    "module_ref": "soa/networking/cloudfront-dynamic-cache",
+    "tags": [
+      "cloudfront",
+      "cache-policy",
+      "dynamic-content",
+      "ttl"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-05-008",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A new security group has only an inbound HTTPS (443) rule from 0.0.0.0/0. The EC2 instance cannot reach an external API at port 443. What is missing?",
+    "options": [
+      {
+        "label": "A",
+        "text": "An inbound rule for response traffic from the external API; the existing rule only allows new inbound connections."
+      },
+      {
+        "label": "B",
+        "text": "Nothing; security groups are stateful so the inbound HTTPS rule automatically allows outbound connections initiated by the instance."
+      },
+      {
+        "label": "C",
+        "text": "An explicit outbound rule allowing HTTPS (443) to 0.0.0.0/0; without an outbound rule, all outbound traffic from the instance is blocked."
+      },
+      {
+        "label": "D",
+        "text": "A separate ENI with an outbound-only security group; inbound and outbound cannot coexist on the same ENI."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "B": "Statefulness applies in the direction of the initiating connection. The inbound rule allows external parties to connect TO the instance; for the instance to initiate outbound connections, an outbound rule is needed.",
+      "A": "Security groups are stateful; return traffic for outbound connections is auto-allowed once an outbound rule permits the initial request.",
+      "D": "No requirement for separate ENIs; inbound and outbound rules coexist on the same security group."
+    },
+    "explanation": "Security group statefulness applies from the direction that initiated the connection. An inbound rule allows others to connect to the instance. For the instance to call an external API (outbound-initiated), an outbound rule is required. New security groups have a default allow-all outbound rule; if that was removed, outbound is blocked.",
+    "module_ref": "soa/networking/sg-outbound-rule",
+    "tags": [
+      "security-group",
+      "stateful",
+      "outbound",
+      "troubleshooting"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-05-009",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An ALB should only allow users authenticated through the company SSO to access the application. What ALB feature supports this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Place the ALB behind WAF with an IP rule allowing only the IdP's IP range; other requests are blocked."
+      },
+      {
+        "label": "B",
+        "text": "Configure ALB authentication using OIDC on the listener rule; the ALB redirects unauthenticated users to the IdP and validates the JWT before forwarding requests to targets."
+      },
+      {
+        "label": "C",
+        "text": "Configure an ALB listener rule matching HTTP headers set by the IdP; requests without correct headers are denied with 403."
+      },
+      {
+        "label": "D",
+        "text": "Enable IAM authentication on the ALB listener; users authenticate with AWS IAM credentials before requests reach the application."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "C": "Relying on HTTP headers is vulnerable to header spoofing; ALB OIDC validates tokens cryptographically.",
+      "A": "Restricting to IdP IPs only blocks traffic not from the IdP; it does not enforce user-level authentication.",
+      "D": "ALB does not support Signature Version 4 IAM authentication for end users; OIDC is the supported user authentication mechanism."
+    },
+    "explanation": "ALB native authentication with OIDC intercepts unauthenticated requests, redirects to the configured IdP (SAML/OIDC), and upon successful login validates the ID token before forwarding the request. This offloads authentication from the application.",
+    "module_ref": "soa/networking/alb-oidc-auth",
+    "tags": [
+      "alb",
+      "oidc",
+      "authentication",
+      "sso"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-05-010",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "After attaching an internet gateway to a VPC, EC2 instances in the public subnet still cannot reach the internet. What step was missed?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The public subnet's route table is missing a route for 0.0.0.0/0 pointing to the internet gateway; adding this route enables internet access."
+      },
+      {
+        "label": "B",
+        "text": "EC2 instances need Elastic IPs; attaching an IGW enables the route but only EIP-assigned instances can use it."
+      },
+      {
+        "label": "C",
+        "text": "The security group needs an outbound rule to 0.0.0.0/0; without it the IGW cannot route traffic."
+      },
+      {
+        "label": "D",
+        "text": "A Virtual Private Gateway is also required alongside the IGW for outbound internet access."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Auto-assigned public IPs (not EIPs) work for internet access in a public subnet; EIPs are for static, persistent public IPs.",
+      "D": "Virtual Private Gateways are for VPN connections; an IGW alone is sufficient for internet access.",
+      "C": "New security groups include a default allow-all outbound rule; the missing piece is the route table entry."
+    },
+    "explanation": "An IGW enables the path between VPC and internet, but route tables determine traffic flow. Without 0.0.0.0/0 pointing to the IGW in the subnet's route table, there is no path for outbound traffic.",
+    "module_ref": "soa/networking/igw-route-table",
+    "tags": [
+      "vpc",
+      "internet-gateway",
+      "route-table",
+      "troubleshooting"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-05-011",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "A company wants a custom domain name with TLS for an API Gateway REST API. Which combination achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Request an ACM certificate, create a custom domain name in API Gateway referencing the certificate, and create a Route 53 Alias record pointing to the API Gateway domain endpoint."
+      },
+      {
+        "label": "B",
+        "text": "Upload a self-signed certificate to IAM, attach it to the API Gateway stage, and create a Route 53 CNAME for the stage URL."
+      },
+      {
+        "label": "C",
+        "text": "Create a CloudFront distribution with API Gateway as origin, request ACM certificate in us-east-1, and create a Route 53 Alias for the distribution."
+      },
+      {
+        "label": "D",
+        "text": "Request an ACM certificate, attach it to an ALB fronting API Gateway, and create a Route 53 A record pointing to the ALB."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "D": "ALB in front of API Gateway is valid in some cases but adds unnecessary complexity for simply adding a custom domain.",
+      "B": "IAM certificate storage is legacy; ACM is recommended. Self-signed certs are not browser-trusted. CNAMEs cannot be used at the zone apex.",
+      "C": "CloudFront in front of API Gateway provides caching benefits but is more complex than needed for just a custom domain."
+    },
+    "explanation": "API Gateway native custom domain names require: (1) ACM certificate in the same region as the regional endpoint; (2) custom domain name resource in API Gateway with the certificate; (3) Route 53 Alias record to the API Gateway endpoint. No additional infrastructure required.",
+    "module_ref": "soa/networking/api-gateway-custom-domain",
+    "tags": [
+      "api-gateway",
+      "acm",
+      "route53",
+      "custom-domain"
+    ]
+  },
+  {
+    "id": "aws-soa-t3-05-012",
+    "domain": 5,
+    "domain_name": "Networking and Content Delivery",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 3,
+    "active": true,
+    "stem": "An application behind an NLB needs to enforce IP-based access controls using the client's real source IP. How are client IPs available to the application?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable VPC Flow Logs; the application queries Flow Logs to correlate source IPs per connection."
+      },
+      {
+        "label": "B",
+        "text": "Configure the NLB to add an X-Forwarded-For header containing the client IP."
+      },
+      {
+        "label": "C",
+        "text": "Enable Proxy Protocol v2 on the NLB; the application parses the Proxy Protocol header for the original client IP."
+      },
+      {
+        "label": "D",
+        "text": "NLBs preserve the client source IP by default for TCP listeners; the application sees the actual client IP in the TCP connection source address."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "B": "NLBs operate at Layer 4 and do not add HTTP headers; X-Forwarded-For is an ALB (Layer 7) feature.",
+      "C": "Proxy Protocol v2 provides additional metadata including client IP, but source IP preservation is already the default for TCP listeners without it.",
+      "A": "Querying Flow Logs per-connection in real time for enforcement is impractically slow."
+    },
+    "explanation": "Network Load Balancers preserve client source IPs for TCP and TLS listeners by default. Backend instances see the actual client IP in the TCP connection's source field, enabling direct IP-based access control in the application.",
+    "module_ref": "soa/networking/nlb-source-ip",
+    "tags": [
+      "nlb",
+      "source-ip",
+      "client-ip",
+      "layer4"
+    ]
+  }
+]

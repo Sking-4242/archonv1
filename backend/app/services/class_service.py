@@ -6,13 +6,14 @@ import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.models.academy import (
     Assignment,
     ClassAssignmentLink,
     ClassEnrollment,
     ClassModuleLink,
+    ClassPracticeTestLink,
     InstructorClass,
     Lesson,
     LessonProgress,
@@ -23,6 +24,7 @@ from app.models.academy import (
     Submission,
     User,
 )
+from app.services.practice_test_service import CERT_CATALOG, TEST_DIFFICULTY
 
 AT_RISK_LESSON_PCT = 30
 INACTIVE_DAYS = 14
@@ -176,6 +178,126 @@ def _is_at_risk(
     return False
 
 
+def _assignment_status(db: Session, assignment_id: int, student_id: uuid.UUID) -> str:
+    submission = (
+        db.query(Submission)
+        .filter(Submission.assignment_id == assignment_id, Submission.student_id == student_id)
+        .order_by(Submission.submitted_at.desc())
+        .first()
+    )
+    if submission is None:
+        return "not_started"
+    if submission.instructor_score is not None:
+        return "graded"
+    return "submitted"
+
+
+def _practice_test_completed(
+    db: Session,
+    student_id: uuid.UUID,
+    cert: str,
+    test_number: int,
+) -> bool:
+    return (
+        db.query(PracticeTestAttempt.id)
+        .filter(
+            PracticeTestAttempt.student_id == student_id,
+            PracticeTestAttempt.cert == cert,
+            PracticeTestAttempt.test_number == test_number,
+            PracticeTestAttempt.status == "completed",
+        )
+        .first()
+        is not None
+    )
+
+
+def _practice_test_label(cert: str, test_number: int) -> str:
+    meta = CERT_CATALOG.get(cert, {})
+    short = meta.get("short_title") or cert
+    difficulty = TEST_DIFFICULTY.get(test_number, "at")
+    return f"{short} — Test {test_number} ({difficulty})"
+
+
+def student_assigned_content(db: Session, student_id: uuid.UUID) -> dict:
+    """Aggregate modules, labs, and practice tests assigned via enrolled classes."""
+    enrollments = (
+        db.query(ClassEnrollment)
+        .options(
+            joinedload(ClassEnrollment.instructor_class)
+            .joinedload(InstructorClass.instructor),
+            joinedload(ClassEnrollment.instructor_class)
+            .joinedload(InstructorClass.module_links)
+            .joinedload(ClassModuleLink.module),
+            joinedload(ClassEnrollment.instructor_class)
+            .joinedload(InstructorClass.assignment_links)
+            .joinedload(ClassAssignmentLink.assignment),
+            joinedload(ClassEnrollment.instructor_class)
+            .joinedload(InstructorClass.practice_test_links),
+        )
+        .filter(ClassEnrollment.student_id == student_id)
+        .all()
+    )
+
+    classes_payload = []
+    for enrollment in enrollments:
+        cls = enrollment.instructor_class
+        if cls is None or not cls.is_active:
+            continue
+
+        modules = [
+            {
+                "module_id": link.module_id,
+                "title": link.module.title if link.module else "",
+                "due_date": link.due_date.isoformat() if link.due_date else None,
+            }
+            for link in cls.module_links
+        ]
+        assignments = []
+        for link in cls.assignment_links:
+            assignment = link.assignment
+            if assignment is None:
+                continue
+            assignments.append(
+                {
+                    "assignment_id": link.assignment_id,
+                    "title": assignment.title,
+                    "due_date": (link.due_date or assignment.due_date).isoformat()
+                    if (link.due_date or assignment.due_date)
+                    else None,
+                    "status": _assignment_status(db, link.assignment_id, student_id),
+                }
+            )
+        practice_tests = []
+        for link in cls.practice_test_links:
+            completed = _practice_test_completed(db, student_id, link.cert, link.test_number)
+            practice_tests.append(
+                {
+                    "link_id": link.id,
+                    "cert": link.cert,
+                    "test_number": link.test_number,
+                    "title": _practice_test_label(link.cert, link.test_number),
+                    "due_date": link.due_date.isoformat() if link.due_date else None,
+                    "completed": completed,
+                }
+            )
+
+        instructor = cls.instructor
+        classes_payload.append(
+            {
+                "class_id": cls.id,
+                "name": cls.name,
+                "course": cls.course,
+                "instructor_name": _student_display(instructor),
+                "enrolled_at": enrollment.enrolled_at.isoformat(),
+                "modules": modules,
+                "assignments": assignments,
+                "practice_tests": practice_tests,
+            }
+        )
+
+    return {"classes": classes_payload}
+
+
 def compute_student_progress(
     db: Session,
     instructor_class: InstructorClass,
@@ -206,6 +328,13 @@ def compute_student_progress(
     for link in instructor_class.assignment_links:
         due = link.due_date
         if due and due < now and link.assignment_id not in submitted_assignment_ids:
+            overdue_missing += 1
+
+    for link in instructor_class.practice_test_links:
+        due = link.due_date
+        if due and due < now and not _practice_test_completed(
+            db, student_id, link.cert, link.test_number
+        ):
             overdue_missing += 1
 
     graded_scores: list[int] = []
@@ -342,6 +471,7 @@ def instructor_dashboard(db: Session, instructor_id: uuid.UUID) -> dict:
                 "pending_review": progress["pending_review"],
                 "module_count": len(cls.module_links),
                 "assignment_count": len(cls.assignment_links),
+                "practice_test_count": len(cls.practice_test_links),
             }
         )
 

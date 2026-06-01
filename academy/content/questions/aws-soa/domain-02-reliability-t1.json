@@ -1,0 +1,427 @@
+[
+  {
+    "id": "aws-soa-t1-02-001",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company runs a MySQL database on Amazon RDS. The operations team wants to ensure that the database can survive the failure of a single Availability Zone with minimal downtime. What should a SysOps administrator configure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deploy a second RDS instance in a different AZ and use Route 53 DNS failover to redirect traffic when the primary instance becomes unavailable."
+      },
+      {
+        "label": "B",
+        "text": "Create a Read Replica in a different Availability Zone and configure the application to promote it to primary if the main instance fails."
+      },
+      {
+        "label": "C",
+        "text": "Take daily automated snapshots of the RDS instance and store them in a different Availability Zone for quick restoration in case of failure."
+      },
+      {
+        "label": "D",
+        "text": "Enable Multi-AZ deployment on the RDS instance so that AWS maintains a synchronous standby replica in a different AZ and automatically fails over within minutes."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "B": "Read Replicas use asynchronous replication and are not designed for automatic failover; promoting a Read Replica is a manual, time-consuming process that risks data loss.",
+      "C": "Restoring from a snapshot can take 30 minutes or more; this does not provide the minimal downtime (typically 1-2 minutes) that Multi-AZ delivers.",
+      "A": "Manually managing two RDS instances and Route 53 failover introduces significant complexity and does not provide automatic, transparent failover the way Multi-AZ does."
+    },
+    "explanation": "Amazon RDS Multi-AZ creates a synchronous standby replica in a separate Availability Zone. AWS continuously replicates data from primary to standby with zero data loss. When a failure is detected, RDS automatically fails over to the standby by updating the CNAME DNS record, typically completing in 60-120 seconds without any application code changes.",
+    "module_ref": "soa/reliability/rds-multi-az",
+    "tags": [
+      "rds",
+      "multi-az",
+      "high-availability",
+      "failover"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-02-002",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An application runs on EC2 instances in an Auto Scaling group. During a deployment, an administrator terminates several instances manually. What happens next?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Auto Scaling suspends the HealthCheck process to prevent false positives and waits for the manually terminated instances to be restarted."
+      },
+      {
+        "label": "B",
+        "text": "Auto Scaling marks the group as unhealthy and pauses all scaling activities until an administrator manually resumes the group."
+      },
+      {
+        "label": "C",
+        "text": "Auto Scaling detects that the current capacity is below the desired capacity and launches new EC2 instances to restore the group to the desired count."
+      },
+      {
+        "label": "D",
+        "text": "Auto Scaling terminates all remaining instances in the group and relaunches the entire fleet from the launch template to maintain consistency."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "B": "Auto Scaling does not pause scaling activities due to manual terminations; it continuously reconciles actual capacity with desired capacity.",
+      "D": "Auto Scaling only replaces instances that are below the desired count, not the entire fleet; it launches only the number of instances needed to reach desired capacity.",
+      "A": "Auto Scaling does not suspend health checks because instances were manually terminated; health checks continue to run independently."
+    },
+    "explanation": "An Auto Scaling group continuously monitors the number of healthy instances and compares it to the desired capacity. When instances are terminated, whether manually or due to failures, Auto Scaling detects the capacity gap and launches replacement instances using the group's launch template or launch configuration. The group converges back to the desired count automatically.",
+    "module_ref": "soa/reliability/auto-scaling-desired-capacity",
+    "tags": [
+      "auto-scaling",
+      "desired-capacity",
+      "replacement",
+      "ec2"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-02-003",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator needs to back up an EC2 instance's root EBS volume on a daily schedule without writing scripts or managing Lambda functions. Which AWS service provides this natively?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager Maintenance Windows can be configured to run an SSM Automation document that triggers EBS snapshots on a defined schedule."
+      },
+      {
+        "label": "B",
+        "text": "Amazon Data Lifecycle Manager creates snapshot policies that run on a schedule defined in a lifecycle policy, automating daily EBS snapshot creation and deletion."
+      },
+      {
+        "label": "C",
+        "text": "AWS Backup allows the administrator to create a backup plan with a daily rule that creates EBS snapshots automatically and manages retention without custom scripting."
+      },
+      {
+        "label": "D",
+        "text": "Amazon EventBridge rules can invoke a Lambda function on a schedule to call the CreateSnapshot API for the target EBS volume."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "B": "Amazon Data Lifecycle Manager (DLM) is also a valid native option for EBS snapshot scheduling; however, AWS Backup provides a broader backup management framework including cross-account and cross-region copies, making it the better managed service answer.",
+      "A": "Using SSM Maintenance Windows requires authoring an Automation document and managing the schedule manually, which is more operational overhead than using AWS Backup.",
+      "D": "EventBridge + Lambda is a valid approach but requires writing and maintaining Lambda code, which the question explicitly aims to avoid."
+    },
+    "explanation": "AWS Backup is a fully managed backup service that centralizes backup management across AWS services. For EC2 and EBS, you create a backup plan with rules specifying frequency, retention period, and backup window. AWS Backup handles snapshot creation, lifecycle, and cross-region/cross-account copies without any custom code.",
+    "module_ref": "soa/reliability/aws-backup",
+    "tags": [
+      "aws-backup",
+      "ebs",
+      "snapshots",
+      "backup-plan",
+      "automation"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-02-004",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company's S3 bucket stores critical data. The operations team wants protection against accidental deletion of objects. What S3 feature provides this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable S3 Requester Pays to introduce a cost barrier that discourages accidental deletion by charging the requester for DELETE API calls."
+      },
+      {
+        "label": "B",
+        "text": "Enable S3 Object Lock in Governance mode to prevent any user, including account root, from permanently deleting objects for a defined retention period."
+      },
+      {
+        "label": "C",
+        "text": "Configure an S3 lifecycle rule to move objects to S3 Glacier before they can be deleted, preventing immediate deletion by requiring a restore request first."
+      },
+      {
+        "label": "D",
+        "text": "Enable S3 Versioning so that delete operations add a delete marker rather than permanently removing the object; previous versions remain accessible."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "B": "Object Lock is designed for WORM (write-once-read-many) compliance requirements; it is more restrictive than needed for typical accidental deletion protection and requires planning before enabling.",
+      "C": "Lifecycle rules transition objects for cost optimization; they do not prevent deletion. Objects in Glacier can still be deleted via the S3 DeleteObject API.",
+      "A": "Requester Pays changes who is billed for requests; it does not provide any protection against deletion."
+    },
+    "explanation": "S3 Versioning maintains all versions of an object, including all writes and deletes. When an object is deleted without specifying a version ID, S3 adds a delete marker, leaving prior versions intact. Administrators can recover the object by deleting the delete marker. This is the standard, lightweight protection against accidental deletions.",
+    "module_ref": "soa/reliability/s3-versioning",
+    "tags": [
+      "s3",
+      "versioning",
+      "delete-marker",
+      "data-protection"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-02-005",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An application hosted behind an Application Load Balancer experiences occasional HTTP 504 Gateway Timeout errors. A SysOps administrator checks the load balancer and finds healthy instances registered. What is the most likely root cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The Route 53 health check for the ALB is failing, causing DNS to route requests to an unavailable endpoint and producing 504 responses."
+      },
+      {
+        "label": "B",
+        "text": "The backend EC2 instances are taking longer than the load balancer's idle timeout to respond, so the ALB closes the connection and returns a 504 error."
+      },
+      {
+        "label": "C",
+        "text": "The security group on the ALB is blocking inbound traffic, causing requests to queue indefinitely until the connection times out."
+      },
+      {
+        "label": "D",
+        "text": "The Application Load Balancer's SSL certificate has expired, causing HTTPS connections to time out before the backend can respond."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "D": "An expired SSL certificate causes TLS handshake failures (typically surfaced as 502 or 503 errors or a client-side certificate warning), not 504 Gateway Timeout.",
+      "C": "If the ALB's security group blocked inbound traffic, requests would not reach the ALB at all; the client would see a connection refused or timeout, not a 504 from the ALB.",
+      "A": "Route 53 health check failures remove the ALB from DNS responses; clients would receive no response or an NXDOMAIN, not a 504 from the ALB itself."
+    },
+    "explanation": "A 504 Gateway Timeout from an ALB means the load balancer did not receive a timely response from the registered target. The most common cause is that the application is taking longer than the ALB idle timeout (default 60 seconds) to process the request. Solutions include optimizing the application, increasing the ALB idle timeout, or offloading long-running work to asynchronous processing.",
+    "module_ref": "soa/reliability/alb-504-timeout",
+    "tags": [
+      "alb",
+      "504",
+      "timeout",
+      "troubleshooting",
+      "load-balancer"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-02-006",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator needs to restore an RDS database to a specific point in time 3 hours ago because a developer accidentally deleted important records. Which feature supports this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Restore from the most recent manual snapshot taken before the deletion, which captures the full database state at the time of the snapshot."
+      },
+      {
+        "label": "B",
+        "text": "Use RDS Point-in-Time Restore to create a new RDS instance from the automated backup plus transaction logs, restoring the database to any second within the backup retention window."
+      },
+      {
+        "label": "C",
+        "text": "Connect to the RDS instance and run a SQL ROLLBACK command to undo the DELETE statements that occurred 3 hours ago."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Backup to initiate a point-in-time restore job targeting the RDS instance and specifying the exact timestamp 3 hours ago."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "A manual snapshot captures a full backup at a specific point in time; it cannot restore to an arbitrary point between two snapshots the way transaction logs enable.",
+      "D": "AWS Backup uses the same underlying RDS point-in-time restore mechanism; the direct RDS console/API approach is the primary and most direct way to initiate this.",
+      "C": "You cannot execute ROLLBACK for a transaction that was committed hours ago; SQL ROLLBACK only applies to the current active transaction."
+    },
+    "explanation": "RDS automated backups enable Point-in-Time Restore (PITR). RDS continuously uploads transaction logs to S3, so it can restore the database to any second within the backup retention period (1\u201335 days). PITR creates a new RDS instance; the original instance is unaffected. The restored instance reflects the exact state of the database at the specified timestamp.",
+    "module_ref": "soa/reliability/rds-pitr",
+    "tags": [
+      "rds",
+      "point-in-time-restore",
+      "backup",
+      "recovery"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-02-007",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A company wants to replicate S3 objects from a bucket in us-east-1 to a bucket in eu-west-1 for disaster recovery. Which S3 feature should be configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Set up an EventBridge rule that triggers a Lambda function on every S3 PutObject event to copy the object to the destination bucket in eu-west-1."
+      },
+      {
+        "label": "B",
+        "text": "Enable S3 Cross-Region Replication (CRR) on the source bucket, specifying the destination bucket in eu-west-1 and an IAM role that allows S3 to copy objects."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS DataSync to schedule a nightly data transfer task between the source S3 bucket and the destination S3 bucket in eu-west-1."
+      },
+      {
+        "label": "D",
+        "text": "Configure an S3 lifecycle rule on the source bucket to automatically copy objects to the destination bucket in eu-west-1 after a specified number of days."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "D": "S3 lifecycle rules transition objects within a single bucket (for example, to Glacier); they cannot copy objects to a different bucket or region.",
+      "A": "Lambda-based replication is a valid architecture but introduces latency, operational overhead, and Lambda execution costs compared to native CRR.",
+      "C": "DataSync is a data transfer service for migrating data; it can sync S3 buckets, but CRR is the purpose-built, lower-latency solution for continuous replication."
+    },
+    "explanation": "S3 Cross-Region Replication (CRR) automatically replicates objects from a source bucket to a destination bucket in a different AWS Region. You enable versioning on both buckets, create a replication rule on the source bucket specifying the destination, and provide an IAM role that grants S3 permission to replicate. New objects are replicated asynchronously with typical replication times under 15 minutes.",
+    "module_ref": "soa/reliability/s3-crr",
+    "tags": [
+      "s3",
+      "crr",
+      "replication",
+      "cross-region",
+      "disaster-recovery"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-02-008",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "An Auto Scaling group uses Amazon EC2 health checks but does not replace instances that the Application Load Balancer marks as unhealthy. What must the administrator change?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Register the ALB as a lifecycle hook target so that it notifies the Auto Scaling group when an instance fails a health check."
+      },
+      {
+        "label": "B",
+        "text": "Increase the health check grace period so that the Auto Scaling group waits longer before evaluating whether instances are healthy."
+      },
+      {
+        "label": "C",
+        "text": "Enable detailed monitoring on the Auto Scaling group so that CloudWatch can pass the ALB health status to the group every minute."
+      },
+      {
+        "label": "D",
+        "text": "Change the Auto Scaling group health check type to ELB so that it uses the load balancer's health check results in addition to EC2 status checks."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "B": "Increasing the grace period delays health check evaluations; it does not change which health check source (EC2 vs ELB) the Auto Scaling group uses.",
+      "C": "Detailed monitoring increases CloudWatch metric resolution; it does not change the health check type used by the Auto Scaling group.",
+      "A": "Lifecycle hooks pause instance launches and terminations for custom actions; they do not determine the health check source for the Auto Scaling group."
+    },
+    "explanation": "By default, Auto Scaling groups use EC2 status checks, which only detect hardware-level failures. To also terminate instances that the load balancer considers unhealthy (for example, failing HTTP health checks), you must set the health check type to ELB. With ELB health checks enabled, Auto Scaling terminates and replaces any instance that the load balancer marks as OutOfService.",
+    "module_ref": "soa/reliability/asg-elb-health-checks",
+    "tags": [
+      "auto-scaling",
+      "elb",
+      "health-checks",
+      "ec2",
+      "configuration"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-02-009",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A SysOps administrator needs to ensure an EC2 instance that was terminated due to a Spot interruption is automatically replaced. What is the most operationally efficient solution?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure an EventBridge rule that detects EC2 Spot interruption notices and triggers a Lambda function to launch a replacement On-Demand instance."
+      },
+      {
+        "label": "B",
+        "text": "Use an EC2 Spot Fleet with the 'maintain' request type, which attempts to replace interrupted Spot Instances up to the target capacity automatically."
+      },
+      {
+        "label": "C",
+        "text": "Use an Auto Scaling group with a mixed instances policy that includes Spot Instances; Auto Scaling automatically replaces interrupted Spot Instances using available capacity."
+      },
+      {
+        "label": "D",
+        "text": "Configure a CloudWatch alarm on the EC2 running instance count metric that triggers an SNS notification instructing an administrator to launch a replacement."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "EventBridge + Lambda is a valid approach but introduces operational complexity; Auto Scaling is the native, managed way to handle Spot interruptions with less code.",
+      "B": "EC2 Spot Fleet with the 'maintain' request type is also a valid automated solution, but Auto Scaling groups with mixed instances policies are the more modern and recommended approach.",
+      "D": "An SNS notification to an administrator requires manual intervention; this is not an automated replacement strategy."
+    },
+    "explanation": "Auto Scaling groups with mixed instances policies combine On-Demand and Spot Instances from multiple instance types and Availability Zones. When a Spot Instance is interrupted, Auto Scaling automatically requests replacement capacity from the configured pool of instance types, maintaining the desired capacity. This is the recommended approach for Spot resilience.",
+    "module_ref": "soa/reliability/spot-interruption-handling",
+    "tags": [
+      "spot-instances",
+      "auto-scaling",
+      "mixed-instances",
+      "interruption"
+    ]
+  },
+  {
+    "id": "aws-soa-t1-02-010",
+    "domain": 2,
+    "domain_name": "Reliability and Business Continuity",
+    "type": "single",
+    "difficulty": "below",
+    "test_number": 1,
+    "active": true,
+    "stem": "A Route 53 health check is configured for a primary web server. If the health check fails, Route 53 should automatically route traffic to a secondary server. Which Route 53 routing policy achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a Geolocation routing policy to route traffic based on the user's location; when the primary region fails, the default record routes to the secondary."
+      },
+      {
+        "label": "B",
+        "text": "Configure a Failover routing policy with a primary record associated with the health check and a secondary record that receives traffic when the primary is unhealthy."
+      },
+      {
+        "label": "C",
+        "text": "Configure a Weighted routing policy with 100% weight on the primary record and 0% weight on the secondary; set the secondary to 1% when the primary fails."
+      },
+      {
+        "label": "D",
+        "text": "Configure a Latency routing policy with the primary server in the nearest region; Route 53 will automatically route to the secondary region when latency increases due to failure."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "C": "Weighted routing does not support automatic weight adjustment based on health checks; weights are static and must be changed manually.",
+      "D": "Latency routing routes based on measured network latency to each region; it does not automatically fail over when an endpoint fails a health check unless health checks are also associated.",
+      "A": "Geolocation routing directs traffic based on the geographic origin of requests; it does not automatically fail over based on health check results."
+    },
+    "explanation": "Route 53 Failover routing is specifically designed for active-passive failover scenarios. You create two records with the same name: one with routing policy 'Failover - Primary' associated with a health check, and one with 'Failover - Secondary'. When the primary's health check fails, Route 53 stops returning the primary record and returns the secondary instead, automatically rerouting traffic.",
+    "module_ref": "soa/reliability/route53-failover",
+    "tags": [
+      "route53",
+      "failover",
+      "health-check",
+      "dns",
+      "routing-policy"
+    ]
+  }
+]

@@ -1,0 +1,515 @@
+[
+  {
+    "id": "aws-soa-t2-03-001",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to update a CloudFormation stack but wants to prevent any changes that would require replacing a production RDS instance. How can this constraint be enforced?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Review the CloudFormation change set before execution; if any resource shows Replacement: True for the RDS instance, discard the change set and modify the template to avoid the replacement."
+      },
+      {
+        "label": "B",
+        "text": "Enable CloudFormation stack termination protection, which prevents any update that would result in resource replacement or deletion."
+      },
+      {
+        "label": "C",
+        "text": "Add a DeletionPolicy: Retain attribute to the RDS resource in the CloudFormation template, which prevents CloudFormation from deleting or replacing the database."
+      },
+      {
+        "label": "D",
+        "text": "Use a CloudFormation condition to evaluate the update type and skip the RDS resource block if the update would cause replacement."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "C": "DeletionPolicy: Retain prevents the resource from being deleted when the stack is deleted; it does not prevent a stack update from replacing the resource with a new one.",
+      "B": "Stack termination protection prevents the stack itself from being deleted; it does not restrict updates or resource replacements within the stack.",
+      "D": "CloudFormation conditions control whether resources are created or deleted; they cannot dynamically detect whether an update will cause replacement at template-authoring time."
+    },
+    "explanation": "A CloudFormation change set shows each resource that will be Added, Modified, or Removed. For modifications, the Replacement column indicates True (replacement required), False (in-place update), or Conditional. By reviewing the change set before execution, the administrator can identify replacement risks and discard the change set if an RDS replacement is detected.",
+    "module_ref": "soa/deployment/cloudformation-change-sets",
+    "tags": [
+      "cloudformation",
+      "change-set",
+      "replacement",
+      "rds",
+      "risk-management"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-03-002",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator manages 500 EC2 instances and needs to ensure that a specific software package is always installed and running. If it is uninstalled or stopped, it should automatically be reinstalled. Which Systems Manager feature handles this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager State Manager uses associations that continuously evaluate and enforce a desired configuration state on managed instances, automatically remediating drift."
+      },
+      {
+        "label": "B",
+        "text": "AWS Systems Manager Parameter Store stores the configuration state and SSM Agent periodically reads the parameter to apply the required software configuration."
+      },
+      {
+        "label": "C",
+        "text": "AWS Systems Manager Run Command runs the installation script immediately on all 500 instances, but does not continuously monitor or re-apply the configuration if it changes."
+      },
+      {
+        "label": "D",
+        "text": "AWS Systems Manager Patch Manager applies software patches on a schedule; it can be configured to install the required package as part of a custom patch baseline."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "C": "Run Command executes commands once on demand or on a schedule; it does not continuously monitor drift or reactively re-apply configuration when something changes.",
+      "D": "Patch Manager handles OS patches and defined package updates; it does not continuously enforce the presence of an arbitrary installed service.",
+      "B": "Parameter Store is a key-value configuration store; it does not poll instances or apply configurations autonomously."
+    },
+    "explanation": "AWS Systems Manager State Manager creates associations between SSM documents and target instances, running them on a configurable schedule (e.g., every 30 minutes). If the software package is uninstalled, the next association run detects the drift and re-applies the document, reinstalling and starting the package. This provides continuous enforcement of desired state.",
+    "module_ref": "soa/deployment/ssm-state-manager",
+    "tags": [
+      "ssm",
+      "state-manager",
+      "configuration-drift",
+      "desired-state"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-03-003",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A CloudFormation stack is in UPDATE_ROLLBACK_FAILED status. What action should the administrator take to recover the stack?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Manually fix the resource outside of CloudFormation to bring it to its expected state, then update the stack with the original template to re-enter UPDATE_ROLLBACK_IN_PROGRESS."
+      },
+      {
+        "label": "B",
+        "text": "Contact AWS Support to request a stack state reset; only AWS can recover a stack from UPDATE_ROLLBACK_FAILED status without losing data."
+      },
+      {
+        "label": "C",
+        "text": "Use the ContinueUpdateRollback API or console action, optionally skipping specific resources that are causing the rollback to fail, to resume and complete the rollback."
+      },
+      {
+        "label": "D",
+        "text": "Delete the stack and redeploy it from the original template, since a stack in UPDATE_ROLLBACK_FAILED status cannot be recovered and must be recreated."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "D": "A stack in UPDATE_ROLLBACK_FAILED is recoverable using ContinueUpdateRollback; deletion would destroy all stack resources unnecessarily.",
+      "A": "While manually fixing the resource is sometimes part of the solution, you must still use ContinueUpdateRollback (not a re-update) to resume the rollback and exit the failed state.",
+      "B": "AWS Support does not perform stack state resets; ContinueUpdateRollback is the self-service mechanism available to all customers."
+    },
+    "explanation": "UPDATE_ROLLBACK_FAILED occurs when a CloudFormation rollback encounters an error (e.g., a resource that cannot be reverted due to an external dependency). The ContinueUpdateRollback API resumes the rollback from where it failed. If a specific resource is blocking the rollback, you can specify it in the ResourcesToSkip parameter to bypass it and complete the rollback, then manually fix the skipped resource afterward.",
+    "module_ref": "soa/deployment/cloudformation-update-rollback-failed",
+    "tags": [
+      "cloudformation",
+      "update-rollback-failed",
+      "recovery",
+      "continue-rollback"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-03-004",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to deploy a new version of a containerized application on Amazon ECS using a blue/green deployment strategy with automatic rollback if the error rate exceeds 5%. Which service orchestrates this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Elastic Beanstalk blue/green deployment for ECS manages traffic shifting and rollback automatically when the CloudWatch health threshold is breached."
+      },
+      {
+        "label": "B",
+        "text": "AWS CodePipeline with a manual approval action that pauses deployment and waits for an operator to confirm no errors before completing the ECS update."
+      },
+      {
+        "label": "C",
+        "text": "AWS CodeDeploy with an ECS deployment group configured for blue/green; it shifts traffic incrementally, monitors CloudWatch alarms for error rate, and automatically rolls back if the alarm triggers."
+      },
+      {
+        "label": "D",
+        "text": "Amazon ECS service update with a rolling update deployment type and a CloudWatch alarm that triggers a Lambda function to roll back the service task definition if errors increase."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "D": "ECS rolling updates update tasks in place and do not natively support blue/green traffic shifting or automatic CloudWatch-based rollback without CodeDeploy.",
+      "B": "Manual approval pauses the pipeline for a human decision; it does not provide automated rollback based on error rate monitoring.",
+      "A": "Elastic Beanstalk manages its own environment types (web server, worker); it does not manage arbitrary ECS services deployed outside of Beanstalk."
+    },
+    "explanation": "AWS CodeDeploy supports ECS blue/green deployments. You configure a deployment group with an ECS service, a test listener, and a production listener. CodeDeploy shifts traffic using a configured strategy (e.g., linear, canary, all-at-once). You attach CloudWatch alarms to the deployment group; if an alarm fires, CodeDeploy automatically rolls back by shifting traffic to the original task set.",
+    "module_ref": "soa/deployment/codedeploy-ecs-blue-green",
+    "tags": [
+      "codedeploy",
+      "ecs",
+      "blue-green",
+      "automatic-rollback",
+      "canary"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-03-005",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to enforce that all EC2 instances launched in an account use only approved AMIs. Which mechanism prevents non-approved AMIs from being used at launch time?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an AWS Config rule that evaluates running EC2 instances against an approved AMI list and automatically terminates instances found using non-approved AMIs."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Service Catalog to publish approved AMI products; restrict all users to launch EC2 instances only through Service Catalog, which enforces AMI compliance."
+      },
+      {
+        "label": "C",
+        "text": "Create an IAM policy with a condition key aws:RequestedRegion and ec2:ImageID that limits RunInstances to approved AMI IDs, and attach this policy to all users and roles in the account."
+      },
+      {
+        "label": "D",
+        "text": "Create an SCP in AWS Organizations that denies ec2:RunInstances when the ec2:ImageID condition key does not match a list of approved AMI IDs."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "An IAM policy attached to individual users and roles can be bypassed by roles that do not have the policy attached or by new roles created later; an SCP provides organization-wide enforcement.",
+      "A": "AWS Config terminates non-compliant instances after the fact; an SCP prevents launch before it happens, which is a stronger control.",
+      "B": "Service Catalog enforces usage through its provisioned product flow, but users with direct EC2 access could bypass it; an SCP prevents all direct RunInstances calls with non-approved AMIs."
+    },
+    "explanation": "An SCP in AWS Organizations can deny ec2:RunInstances for all accounts in the organization unless the ec2:ImageID condition matches an approved set of AMI IDs. This preventive control applies to all principals in all member accounts regardless of their IAM policies, enforcing AMI compliance at the organization boundary.",
+    "module_ref": "soa/deployment/scp-ami-enforcement",
+    "tags": [
+      "scp",
+      "organizations",
+      "ami",
+      "ec2",
+      "preventive-control"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-03-006",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to retrieve a database password stored as a SecureString in AWS Systems Manager Parameter Store within a Lambda function without hardcoding credentials. What is the correct approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Store the parameter name as a Lambda environment variable and use the Lambda console's built-in SecureString resolver to automatically inject the decrypted value at invocation."
+      },
+      {
+        "label": "B",
+        "text": "Grant the Lambda function's IAM execution role ssm:GetParameter permission on the specific parameter ARN and kms:Decrypt on the KMS key used to encrypt it; the function retrieves the parameter at runtime via the SSM SDK."
+      },
+      {
+        "label": "C",
+        "text": "Embed the parameter's encrypted value in a Lambda environment variable and call the KMS Decrypt API at runtime to obtain the plaintext password."
+      },
+      {
+        "label": "D",
+        "text": "Configure a Lambda layer that includes the decrypted SecureString value; Lambda layers are encrypted at rest and the value is injected into the function's runtime securely."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "Lambda does not have a built-in SecureString resolver for environment variables; environment variables can be encrypted with KMS but cannot reference Parameter Store SecureStrings directly.",
+      "C": "Embedding an encrypted value in environment variables requires manual rotation each time the secret changes; retrieving from Parameter Store at runtime always gets the current value.",
+      "D": "Lambda layers package code and libraries, not secrets; embedding a secret in a layer creates a static credential that cannot be rotated without redeploying the layer."
+    },
+    "explanation": "The recommended pattern is to have the Lambda function retrieve the secret at runtime using the SSM GetParameter API with WithDecryption=true. The Lambda execution role must have ssm:GetParameter permission on the specific parameter ARN and kms:Decrypt on the KMS key. This approach supports automatic secret rotation without redeploying the function.",
+    "module_ref": "soa/deployment/ssm-parameter-lambda",
+    "tags": [
+      "ssm",
+      "parameter-store",
+      "lambda",
+      "iam",
+      "secure-string"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-03-007",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator is creating an Auto Scaling launch template. The application requires that an IAM instance profile, a specific security group, and a user data script be applied to every instance. Which launch template feature ensures all three are consistently applied?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create separate launch configurations for IAM, security group, and user data; combine them in the Auto Scaling group using a configuration merge policy."
+      },
+      {
+        "label": "B",
+        "text": "Configure an SSM State Manager association to apply the IAM profile and security group settings after launch, since launch templates only support user data natively."
+      },
+      {
+        "label": "C",
+        "text": "Use launch template versioning to create separate versions for each configuration element and configure the Auto Scaling group to apply all versions simultaneously."
+      },
+      {
+        "label": "D",
+        "text": "Define all three \u2014 IAM instance profile, security group, and user data \u2014 as required parameters in the launch template; Auto Scaling applies them to every instance launched from the template."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Auto Scaling uses a single launch template or launch configuration per group; there is no configuration merge policy that combines multiple configurations.",
+      "C": "Launch template versions are complete specifications; Auto Scaling uses one version at a time, not multiple versions merged together.",
+      "B": "Launch templates natively support IAM instance profile, security groups, and user data in a single definition; State Manager is not needed for these standard settings."
+    },
+    "explanation": "AWS EC2 launch templates support all standard instance configuration parameters in a single template including IAM instance profile (IamInstanceProfile), security groups (SecurityGroupIds), and user data (UserData). When Auto Scaling launches instances from the template, all specified parameters are applied consistently, eliminating the risk of missing configurations.",
+    "module_ref": "soa/deployment/launch-templates",
+    "tags": [
+      "launch-template",
+      "auto-scaling",
+      "iam",
+      "security-group",
+      "user-data"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-03-008",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to invoke an SSM Automation document when a specific CloudWatch alarm transitions to ALARM state. What is the recommended event-driven integration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS Systems Manager Maintenance Windows to schedule the automation document to run every 5 minutes and check the alarm state before executing remediation steps."
+      },
+      {
+        "label": "B",
+        "text": "Configure an SNS topic as the alarm action, then create an SQS queue subscription on the topic, and trigger an SSM Automation document via a Lambda function that polls the queue."
+      },
+      {
+        "label": "C",
+        "text": "Create an Amazon EventBridge rule that matches CloudWatch alarm state change events with the alarm name and new state ALARM, then set the target to the SSM Automation document."
+      },
+      {
+        "label": "D",
+        "text": "Configure the CloudWatch alarm to invoke the SSM Automation document directly as an alarm action; CloudWatch supports SSM as a native alarm action target."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "D": "CloudWatch alarm actions natively support SNS, EC2 actions (stop, terminate, reboot, recover), and Auto Scaling; they do not directly invoke SSM Automation documents.",
+      "B": "SNS \u2192 SQS \u2192 Lambda \u2192 SSM is a valid but unnecessarily complex chain; EventBridge directly targets SSM Automation as a first-class event target.",
+      "A": "Polling every 5 minutes on a schedule introduces latency and runs the automation unnecessarily during non-alarm periods; event-driven triggering is more efficient."
+    },
+    "explanation": "Amazon EventBridge can target AWS Systems Manager Automation documents as a first-class event target. When a CloudWatch alarm state changes to ALARM, EventBridge fires the matching rule and invokes the SSM Automation document directly, passing input parameters from the event payload. This provides event-driven, low-latency automated remediation.",
+    "module_ref": "soa/deployment/eventbridge-ssm-automation",
+    "tags": [
+      "eventbridge",
+      "ssm-automation",
+      "cloudwatch",
+      "event-driven",
+      "remediation"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-03-009",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A CloudFormation template creates an EC2 instance and an Elastic IP. After a stack update, the Elastic IP is still associated with the old instance, not the new one. What is the most likely cause?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The Elastic IP has a DeletionPolicy: Retain attribute that prevents it from being disassociated and re-associated during stack updates involving instance replacement."
+      },
+      {
+        "label": "B",
+        "text": "The EC2 instance was replaced during the update (Replacement: True), but the Elastic IP association was not updated because the EIP association resource's DependsOn or UpdatePolicy was not properly defined."
+      },
+      {
+        "label": "C",
+        "text": "The EC2 instance was updated in-place (Replacement: False) and CloudFormation preserved the existing EIP association without any changes, which is the expected behavior."
+      },
+      {
+        "label": "D",
+        "text": "CloudFormation cannot update EIP associations after initial creation; the Elastic IP must be manually reassociated with the new instance after every stack update."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "D": "CloudFormation can and does update EIP associations; if the template correctly references the new instance ID, the association is updated during the stack update.",
+      "A": "DeletionPolicy: Retain affects what happens when a resource is deleted or the stack is deleted; it does not prevent re-association during updates.",
+      "C": "If the EC2 instance was updated in place, the instance ID does not change and the EIP association remains valid; this scenario implies replacement occurred."
+    },
+    "explanation": "When an EC2 instance is replaced during a CloudFormation update, a new instance ID is generated. If the AWS::EC2::EIPAssociation resource in the template references the instance via a logical reference (Ref to the EC2 resource), CloudFormation should update the association. If the association is pointing to a hardcoded old instance ID or is missing a proper dependency, it may not update correctly.",
+    "module_ref": "soa/deployment/cloudformation-eip-association",
+    "tags": [
+      "cloudformation",
+      "eip",
+      "ec2",
+      "replacement",
+      "dependency"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-03-010",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator is configuring Elastic Beanstalk for a new Python application. The team wants to run a custom script after the application code is deployed on each instance. How is this configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure an EventBridge rule that triggers when a new Elastic Beanstalk application version is deployed and invokes the custom script via SSM Run Command on the instances."
+      },
+      {
+        "label": "B",
+        "text": "Include an .ebextensions configuration file in the application bundle that defines a container_commands section; commands in this section run after the application code is deployed."
+      },
+      {
+        "label": "C",
+        "text": "Create an Elastic Beanstalk platform hook by placing the script in the .platform/hooks/postdeploy/ directory within the application bundle."
+      },
+      {
+        "label": "D",
+        "text": "Add the custom script to the EC2 instance's user data in the Elastic Beanstalk environment configuration; the script runs after each deployment automatically."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "B": "The .ebextensions container_commands section runs commands during instance configuration (before the app is fully deployed and the server is started); for post-deployment hooks, platform hooks in .platform/hooks/postdeploy/ are the correct location.",
+      "D": "User data runs during instance launch (first boot) and is not re-executed on subsequent application deployments; it cannot be used for post-deployment script execution.",
+      "A": "EventBridge + SSM Run Command is complex and would require managing instance targeting; platform hooks are the purpose-built Elastic Beanstalk mechanism for deployment lifecycle scripts."
+    },
+    "explanation": "Elastic Beanstalk platform hooks allow scripts placed in defined directories to run at specific points in the deployment lifecycle. Scripts in .platform/hooks/postdeploy/ run after the application is deployed and the web server is running. This is the recommended way to run post-deployment tasks like cache warming, database migrations, or configuration updates.",
+    "module_ref": "soa/deployment/elastic-beanstalk-platform-hooks",
+    "tags": [
+      "elastic-beanstalk",
+      "platform-hooks",
+      "postdeploy",
+      "deployment-lifecycle"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-03-011",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to replace all references to an outdated AMI ID across 30 CloudFormation stacks in an account. Which approach minimizes manual effort?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use EC2 Image Builder to automatically replace the AMI ID in all CloudFormation stacks when a new AMI version is created in the distribution configuration."
+      },
+      {
+        "label": "B",
+        "text": "Use AWS Resource Explorer to find all stacks referencing the old AMI ID and generate a bulk update script that calls UpdateStack with the new AMI ID parameter for each stack."
+      },
+      {
+        "label": "C",
+        "text": "Use CloudFormation StackSets to update all 30 stacks simultaneously by deploying a template change that replaces the old AMI ID with the new one across all stacks in one operation."
+      },
+      {
+        "label": "D",
+        "text": "Store the AMI ID in an SSM Parameter Store parameter referenced by all 30 stacks using the SSM dynamic reference syntax ({{resolve:ssm:/path/to/ami}}); updating the parameter updates all stacks without template changes."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "StackSets work well for deploying the same template to multiple accounts/regions; updating 30 different stacks with different templates requires updating each stack individually, not via StackSets.",
+      "B": "Resource Explorer can find resources but does not generate bulk update scripts; and updating 30 stacks individually requires a stack update operation for each.",
+      "A": "EC2 Image Builder distributes AMIs but does not update CloudFormation stack parameters; the integration between Image Builder and CloudFormation is not automatic."
+    },
+    "explanation": "By storing the AMI ID in SSM Parameter Store and using the SSM dynamic reference ({{resolve:ssm:/ami/latest-ami-id:1}}) in all 30 CloudFormation templates, a single Parameter Store update propagates to all stacks that reference the parameter. On the next stack update or deploy, all stacks pick up the new AMI ID without modifying any template.",
+    "module_ref": "soa/deployment/ssm-parameter-cloudformation",
+    "tags": [
+      "ssm",
+      "parameter-store",
+      "cloudformation",
+      "dynamic-reference",
+      "ami"
+    ]
+  },
+  {
+    "id": "aws-soa-t2-03-012",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 2,
+    "active": true,
+    "stem": "A SysOps administrator needs to perform a database schema migration during a new application version deployment to ECS. The migration must run exactly once before the new application containers start. Which approach ensures this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure a CloudFormation custom resource that runs the migration Lambda function during the stack update before the ECS service is updated."
+      },
+      {
+        "label": "B",
+        "text": "Include the migration script in the application container's startup command; use an idempotent migration framework so running it multiple times on each container start has no side effects."
+      },
+      {
+        "label": "C",
+        "text": "Use an ECS task definition with an init container or a one-time ECS task that runs the migration script before the CodeDeploy blue/green deployment shifts traffic to the new task set."
+      },
+      {
+        "label": "D",
+        "text": "Run the migration as an AWS Lambda function triggered before the CodeDeploy deployment starts using a BeforeAllowTraffic lifecycle event hook."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "C": "An ECS init container approach requires custom orchestration to sequence the migration before traffic shift; CodeDeploy lifecycle hooks provide a cleaner, built-in way to sequence this.",
+      "B": "Running migrations in every container start risks concurrent migrations if multiple containers start simultaneously and complicates idempotency management.",
+      "A": "CloudFormation custom resources are valid for infrastructure-level operations; but if ECS is deployed via CodeDeploy (not just CloudFormation), the CodeDeploy lifecycle hook is the appropriate trigger point."
+    },
+    "explanation": "AWS CodeDeploy ECS blue/green deployments support lifecycle event hooks. The BeforeAllowTraffic hook fires after the new task set is running but before traffic is shifted to it. A Lambda function invoked by this hook can run the database migration exactly once. If the migration fails, CodeDeploy rolls back the deployment and does not shift any traffic.",
+    "module_ref": "soa/deployment/codedeploy-lifecycle-hooks",
+    "tags": [
+      "codedeploy",
+      "ecs",
+      "lifecycle-hooks",
+      "database-migration",
+      "blue-green"
+    ]
+  }
+]

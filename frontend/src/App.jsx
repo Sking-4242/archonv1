@@ -185,6 +185,7 @@ export default function App() {
       if (type === "GRAPH_REQUEST") {
         const { nodes: n, edges: ed } = useGraphStore.getState();
         const { securityGroups: sgs } = useSecurityStore.getState();
+        const { iamRoles: roles } = useIAMStore.getState();
         // Shape matches grader.py expectations: nodes[].data.awsType, edges[].source/target
         const graph = {
           nodes: n.map((node) => ({
@@ -199,6 +200,7 @@ export default function App() {
             target: edge.target,
           })),
           securityGroups: sgs,
+          iamRoles: roles,
         };
         window.parent.postMessage({ type: "GRAPH_SUBMIT", graph }, "*");
       }
