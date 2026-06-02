@@ -8,7 +8,7 @@ export function serializeGraph(
   securityGroups,
   iamRoles,
 ) {
-  const components = nodes.map((node) => ({
+  const components = (nodes ?? []).map((node) => ({
     id: node.id,
     type: node.type,
     label: node.data.label,
@@ -24,7 +24,7 @@ export function serializeGraph(
     category: node.data.category,
   }));
 
-  const serializedEdges = edges.map((edge) => ({
+  const serializedEdges = (edges ?? []).map((edge) => ({
     id: edge.id,
     source: edge.source,
     target: edge.target,
@@ -33,7 +33,7 @@ export function serializeGraph(
     suggested_rules: edge.suggested_rules ?? [],
   }));
 
-  const serializedSecurityGroups = securityGroups.map((sg) => ({
+  const serializedSecurityGroups = (securityGroups ?? []).map((sg) => ({
     id: sg.id,
     name: sg.name,
     description: sg.description ?? "",
@@ -42,7 +42,7 @@ export function serializeGraph(
     outbound: sg.outbound ?? [],
   }));
 
-  const serializedIAMRoles = iamRoles.map((role) => ({
+  const serializedIAMRoles = (iamRoles ?? []).map((role) => ({
     id: role.id,
     name: role.name,
     description: role.description ?? "",

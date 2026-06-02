@@ -239,7 +239,7 @@ export default function ChatPanel({ onClose }) {
 
   const { nodes: canvasNodes, edges: canvasEdges, graphMeta, applyBuild } = useGraphStore();
   const sgs = useSecurityStore((s) => s.securityGroups);
-  const iamRoles = useIAMStore((s) => s.roles);
+  const iamRoles = useIAMStore((s) => s.iamRoles);
   const provider    = useSettingsStore((s) => s.provider);
   const apiKeys     = useSettingsStore((s) => s.apiKeys);
   const models      = useSettingsStore((s) => s.models);
@@ -293,28 +293,28 @@ export default function ChatPanel({ onClose }) {
     addMessage(archId, mode, userMsg);
     setLoading(true);
 
-    // Build the full message history to send (all stored messages + this one)
-    const history = [...messages, userMsg].map((m) => ({
-      role: m.role,
-      content: m.content,
-    }));
-
-    const graph = serializeGraph(
-      graphMeta,
-      canvasNodes,
-      canvasEdges,
-      sgs,
-      iamRoles,
-    );
-
-    const llmOpts = {
-      provider,
-      apiKey: apiKeys[provider] ?? null,
-      model: models[provider] ?? null,
-      baseUrl: provider === "ollama" ? ollamaBaseUrl : null,
-    };
-
     try {
+      // Build the full message history to send (all stored messages + this one)
+      const history = [...messages, userMsg].map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
+      const graph = serializeGraph(
+        graphMeta,
+        canvasNodes,
+        canvasEdges,
+        sgs,
+        iamRoles,
+      );
+
+      const llmOpts = {
+        provider,
+        apiKey: apiKeys[provider] ?? null,
+        model: models[provider] ?? null,
+        baseUrl: provider === "ollama" ? ollamaBaseUrl : null,
+      };
+
       if (mode === "chat") {
         const { reply } = await sendChatMessage(graph, history, llmOpts);
         addMessage(archId, mode, { role: "assistant", content: reply });

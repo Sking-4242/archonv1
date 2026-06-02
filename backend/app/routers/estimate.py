@@ -131,6 +131,7 @@ def _estimate_component(
             component.type,
             component.config or {},
             region,
+            usage or {},
         )
         if live_cost is not None:
             base["monthly_cost"] = live_cost

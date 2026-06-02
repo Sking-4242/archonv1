@@ -423,9 +423,9 @@ export default function EstimatePanel({ graph, onClose }) {
               <div className="flex items-start gap-2 px-3 py-2.5 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
                 <span className="mt-0.5 flex-shrink-0">&#9888;</span>
                 <span>
-                  Live pricing unavailable &#8212; using static rates from {result.prices_as_of}.
-                  Add cloud credentials to{" "}
-                  <code className="font-mono bg-amber-100 px-0.5 rounded">.env</code> for real-time pricing.
+                  Live pricing unavailable for this architecture — using static rates from{" "}
+                  {result.prices_as_of}. Sign in for live pricing access, then recalculate.
+                  AWS live rates use the public Price List API (no cloud credentials required).
                 </span>
               </div>
             )}

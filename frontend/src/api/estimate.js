@@ -1,14 +1,5 @@
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
+import { api } from "./client";
 
 export async function fetchEstimate(graph, usageParams = {}) {
-  const res = await fetch(`${API_URL}/estimate`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ graph, usage_params: usageParams }),
-  });
-  if (!res.ok) {
-    const detail = await res.text();
-    throw new Error(`Estimate failed (${res.status}): ${detail}`);
-  }
-  return res.json();
+  return api.post("/estimate", { graph, usage_params: usageParams });
 }

@@ -1,0 +1,516 @@
+[
+  {
+    "id": "aws-soa-t4-03-001",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to deploy application configuration changes to 1,000 EC2 instances simultaneously and verify that each instance applied the change successfully. Which SSM feature provides this at scale with built-in result tracking?",
+    "options": [
+      {
+        "label": "A",
+        "text": "SSM Run Command with rate controls (MaxConcurrency and MaxErrors); it executes the command across all target instances simultaneously with per-instance success/failure tracking in the Command Results."
+      },
+      {
+        "label": "B",
+        "text": "SSM State Manager associations targeting all instances; State Manager applies the configuration and reports compliance status per instance in the SSM console."
+      },
+      {
+        "label": "C",
+        "text": "SSM Automation with a map runbook that iterates over all instance IDs; automation tracks the execution status per instance in the execution history."
+      },
+      {
+        "label": "D",
+        "text": "SSM Distributor with a package deployment job; Distributor installs packages on all instances and reports per-instance installation status in the distribution log."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "State Manager is for continuous drift remediation on a schedule; it is not the right tool for an on-demand one-time configuration change with immediate result tracking.",
+      "C": "SSM Automation map runbooks iterate over targets but are more complex to set up than Run Command for one-time configuration changes.",
+      "D": "SSM Distributor is specifically for software package distribution; it is not the general-purpose tool for configuration changes."
+    },
+    "explanation": "SSM Run Command supports targeting by tags, resource groups, or instance IDs, and executes on all matching instances simultaneously. MaxConcurrency controls how many instances run in parallel; MaxErrors sets when to stop. The Command Invocations list shows per-instance success/failure status, output, and exit codes, providing comprehensive result tracking at scale.",
+    "module_ref": "soa/deployment/ssm-run-command-scale",
+    "tags": [
+      "ssm",
+      "run-command",
+      "scale",
+      "rate-control",
+      "result-tracking"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-03-002",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A CloudFormation template creates an RDS instance. The operations team wants to prevent the RDS instance from being replaced or deleted if the stack is updated or deleted. How should both protections be configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Set DeletionPolicy: Retain on the RDS resource to prevent deletion when the stack is deleted; use UpdateReplacePolicy: Retain to keep the original RDS instance if an update would require replacement."
+      },
+      {
+        "label": "B",
+        "text": "Enable RDS Deletion Protection in the RDS settings; CloudFormation cannot delete or replace an RDS instance with Deletion Protection enabled, regardless of stack operations."
+      },
+      {
+        "label": "C",
+        "text": "Set DeletionPolicy: Snapshot on the RDS resource; CloudFormation creates a snapshot before any deletion or replacement, ensuring data is preserved."
+      },
+      {
+        "label": "D",
+        "text": "Enable CloudFormation Stack Termination Protection; this prevents all resource deletions and replacements within the stack."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "RDS Deletion Protection prevents deletion via the RDS API, which blocks CloudFormation stack delete too. However, it doesn't address the replacement scenario and would cause the stack delete to fail rather than cleanly retaining the resource.",
+      "C": "DeletionPolicy: Snapshot creates a snapshot before deletion; it still deletes the original resource. Retain keeps it in place.",
+      "D": "Stack Termination Protection prevents the stack from being deleted entirely; it doesn't prevent resource replacements during updates or allow selective resource retention."
+    },
+    "explanation": "DeletionPolicy: Retain tells CloudFormation to keep the resource when the stack is deleted (resource is disassociated from the stack but not deleted). UpdateReplacePolicy: Retain tells CloudFormation to keep the original resource when an update requires replacement (the new resource is created, but the old one is not deleted). Both together protect the RDS instance from all CloudFormation-initiated destruction.",
+    "module_ref": "soa/deployment/cloudformation-retain-policy",
+    "tags": [
+      "cloudformation",
+      "deletion-policy",
+      "update-replace-policy",
+      "rds",
+      "retain"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-03-003",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to configure Elastic Beanstalk to run a database migration script once per deployment, not on every instance startup. How is this correctly configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use .ebextensions container_commands with 'leader_only: true'; the command runs only on the instance elected as leader during deployment, not on every instance in the environment."
+      },
+      {
+        "label": "B",
+        "text": "Use .ebextensions commands section; commands run once per instance during instance configuration, which is equivalent to running once per deployment for single-instance environments."
+      },
+      {
+        "label": "C",
+        "text": "Use .platform/hooks/predeploy/ scripts; predeploy hooks run on every instance before the application is deployed but include a built-in leader election mechanism."
+      },
+      {
+        "label": "D",
+        "text": "Use an EC2 user data script with a flag file in S3; instances check S3 for the flag before running the migration and skip it if the flag exists from a previous deployment."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Commands in .ebextensions run during instance configuration but on every instance launched; for a migration that should run once per deployment in a multi-instance environment, leader_only is required.",
+      "C": "Platform hooks do not include built-in leader election; without leader_only, they run on every instance.",
+      "D": "A custom S3 flag approach is fragile and complex; it does not integrate with Elastic Beanstalk's deployment lifecycle and requires managing the flag's lifecycle separately."
+    },
+    "explanation": "The .ebextensions container_commands section runs after the application source is extracted but before the web server is started. Adding 'leader_only: true' ensures the command runs on only one instance per deployment (the elected leader), preventing concurrent database migrations in multi-instance environments.",
+    "module_ref": "soa/deployment/elastic-beanstalk-leader-only",
+    "tags": [
+      "elastic-beanstalk",
+      "ebextensions",
+      "container-commands",
+      "leader-only",
+      "database-migration"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-03-004",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to automate the creation of an AMI from a running EC2 instance, copy it to a secondary region, and share it with a specific AWS account. All steps should execute without manual intervention. Which service orchestrates this multi-step workflow?",
+    "options": [
+      {
+        "label": "A",
+        "text": "AWS Systems Manager Automation with a multi-step document that calls CreateImage, CopyImage (cross-region), and ModifyImageAttribute (add account permission) sequentially with error handling between steps."
+      },
+      {
+        "label": "B",
+        "text": "EC2 Image Builder with a distribution configuration that specifies the secondary region and the target account for sharing; Image Builder handles the full pipeline automatically on schedule."
+      },
+      {
+        "label": "C",
+        "text": "AWS CodePipeline with three stages: CreateImage (Lambda), CopyImage (Lambda), ShareImage (Lambda); Pipeline orchestrates the steps sequentially and retries on transient failures."
+      },
+      {
+        "label": "D",
+        "text": "An EventBridge scheduled rule that triggers a Lambda function to perform all three steps (CreateImage, CopyImage, ShareImage) sequentially in a single Lambda invocation."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "SSM Automation is valid for ad hoc multi-step workflows, but EC2 Image Builder is purpose-built for AMI build pipelines with scheduling, testing, and distribution.",
+      "C": "CodePipeline is a CI/CD orchestration tool; using it solely for AMI lifecycle management adds unnecessary pipeline infrastructure.",
+      "D": "A single Lambda function performing all three steps sequentially could hit Lambda's 15-minute timeout for large AMI copies; EC2 Image Builder handles long-running operations natively."
+    },
+    "explanation": "EC2 Image Builder provides a fully managed AMI pipeline. The distribution configuration specifies target regions for copying and the target AWS accounts for sharing. When the pipeline runs (manually or on schedule), Image Builder creates the AMI, copies it to all specified regions, and applies the sharing configuration automatically.",
+    "module_ref": "soa/deployment/image-builder-distribution",
+    "tags": [
+      "ec2-image-builder",
+      "ami",
+      "cross-region",
+      "share",
+      "distribution"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-03-005",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to enforce that all EC2 instances launched in the account have the 'backup' tag set to 'daily'. New instances that lack this tag should be automatically tagged within 5 minutes. What is the recommended approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an AWS Config rule checking for the required tag; configure automatic remediation with the AWS-AddTagsToAWSResources SSM Automation document to add the tag when the rule returns NON_COMPLIANT."
+      },
+      {
+        "label": "B",
+        "text": "Create an EventBridge rule matching ec2:RunInstances events; invoke a Lambda function that adds the required tag to every new instance immediately after launch."
+      },
+      {
+        "label": "C",
+        "text": "Enable AWS Organizations Tag Policies to enforce the 'backup:daily' tag requirement; Tag Policies automatically add missing tags to resources created in member accounts."
+      },
+      {
+        "label": "D",
+        "text": "Create an IAM policy denying ec2:RunInstances unless the aws:RequestTag/backup condition key equals 'daily'; enforcement prevents launching without the tag rather than adding it post-launch."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "AWS Config remediation has up to a few minutes of evaluation lag; the 5-minute requirement can be met, but Config evaluations run on configuration change events, not necessarily within 5 minutes of every launch.",
+      "C": "AWS Organizations Tag Policies enforce tag structure but do not automatically add missing tags to resources; they report non-compliance but do not remediate.",
+      "D": "Denying launches without the tag is a preventive control, not a remediation; the question asks for automatic tagging of unlabeled instances."
+    },
+    "explanation": "EventBridge receives ec2:RunInstances events within seconds of instance launch. A Lambda function triggered by this event calls the EC2 CreateTags API to add the required tag immediately. This provides near-real-time tagging with typically sub-minute latency, well within the 5-minute requirement.",
+    "module_ref": "soa/deployment/eventbridge-auto-tagging",
+    "tags": [
+      "eventbridge",
+      "lambda",
+      "tagging",
+      "ec2",
+      "automation"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-03-006",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator manages an application deployed via CloudFormation. The development team wants to make rapid changes and test them but the CloudFormation update process is too slow for iterative development. What approach supports faster iteration while maintaining infrastructure-as-code discipline?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use CloudFormation change sets for review and apply only approved changes to production; allow developers to iterate manually in a development environment and capture the final tested configuration in the CloudFormation template before promoting."
+      },
+      {
+        "label": "B",
+        "text": "Allow developers to make direct console changes in the development environment; use CloudFormation drift detection weekly to identify changes and incorporate them back into the template."
+      },
+      {
+        "label": "C",
+        "text": "Switch to AWS CDK for development environments; CDK deployments using cdk deploy are faster than direct CloudFormation template uploads and support hot reloading."
+      },
+      {
+        "label": "D",
+        "text": "Enable CloudFormation stack-level detailed monitoring; detailed monitoring increases deployment speed by allocating more compute resources to stack operations."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Weekly drift detection means manual changes accumulate for days before being captured; this leads to template drift and makes the template the source of truth only in name.",
+      "C": "CDK still compiles to CloudFormation; while cdk deploy can be faster for small stacks due to optimized change detection, it does not fundamentally change the CloudFormation update speed.",
+      "D": "There is no CloudFormation 'detailed monitoring' that affects deployment speed; CloudFormation speed depends on resource provisioning time, not a monitoring setting."
+    },
+    "explanation": "For iterative development, allowing developers to experiment in isolated development environments manually while maintaining the CloudFormation template as the canonical source of truth for promotion is a pragmatic balance. Change sets provide review gates for production. The key discipline is ensuring the final working configuration is codified before promotion.",
+    "module_ref": "soa/deployment/cloudformation-dev-workflow",
+    "tags": [
+      "cloudformation",
+      "change-sets",
+      "development-workflow",
+      "iterative"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-03-007",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to securely rotate a database password stored in AWS Secrets Manager every 30 days and ensure the application always uses the current password without redeployment. What is the correct configuration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable automatic rotation on the Secrets Manager secret with a 30-day schedule using the appropriate RDS rotation Lambda; update the application to retrieve the secret value at runtime using the Secrets Manager SDK rather than at startup."
+      },
+      {
+        "label": "B",
+        "text": "Set a 30-day password expiry in the RDS parameter group; when the password expires, Secrets Manager detects the failure and automatically generates a new password for the secret."
+      },
+      {
+        "label": "C",
+        "text": "Create an EventBridge rule that triggers a Lambda function every 30 days to call Secrets Manager RotateSecret; the Lambda function also restarts the application containers to pick up the new password."
+      },
+      {
+        "label": "D",
+        "text": "Configure the application to read the database password from an environment variable; update the environment variable via a 30-day scheduled Lambda that calls the ECS UpdateService API."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "RDS parameter groups control database engine settings; they do not trigger Secrets Manager rotation. Rotation is configured within Secrets Manager.",
+      "C": "Triggering RotateSecret via EventBridge is a workaround; the native automatic rotation schedule in Secrets Manager is the purpose-built mechanism. Restarting containers for rotation defeats the benefit.",
+      "D": "Environment variables are static; updating them requires a service restart which constitutes redeployment. The question asks for no redeployment."
+    },
+    "explanation": "Secrets Manager automatic rotation runs a managed Lambda function on the configured schedule, updating both the secret value and the database password atomically. Applications that retrieve the secret at runtime (on each request or via caching with TTL less than rotation interval) always get the current password. No application redeployment is needed.",
+    "module_ref": "soa/deployment/secrets-manager-auto-rotation",
+    "tags": [
+      "secrets-manager",
+      "rotation",
+      "rds",
+      "application-pattern",
+      "security"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-03-008",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to ensure that an EC2 Auto Scaling group only launches instances after a warm-up script has completed successfully, and terminates the instance if the script fails. Which Auto Scaling feature handles this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure an Auto Scaling lifecycle hook on the EC2_INSTANCE_LAUNCHING transition; the warm-up script runs during the Pending:Wait state, sends a success signal (CONTINUE) on completion, or an ABANDON signal on failure, which terminates the instance."
+      },
+      {
+        "label": "B",
+        "text": "Include the warm-up script in EC2 user data; if the script exits with a non-zero code, set an Auto Scaling health check to detect the failure and replace the instance automatically."
+      },
+      {
+        "label": "C",
+        "text": "Use an SSM State Manager association that runs the warm-up script after each instance launch; if the association fails, State Manager signals Auto Scaling to terminate the instance."
+      },
+      {
+        "label": "D",
+        "text": "Configure an ALB health check with a short interval; if the instance fails the health check within the grace period, Auto Scaling replaces it with a new instance."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "User data exit codes are not directly monitored by Auto Scaling; a separate health check mechanism is needed. Also, ALB health checks take time and don't catch pre-registration script failures.",
+      "C": "SSM State Manager associations run on a schedule for ongoing compliance; they do not communicate ABANDON signals to Auto Scaling to terminate individual instances.",
+      "D": "ALB health checks detect application-level failures after the instance is registered; lifecycle hooks intercept the launch before registration, allowing pre-registration validation."
+    },
+    "explanation": "Auto Scaling lifecycle hooks pause instances in a wait state (Pending:Wait). The warm-up script runs during this window. If it succeeds, it calls CompleteLifecycleAction with CONTINUE, allowing the instance to proceed to InService. If it fails, ABANDON terminates the instance before it ever joins the fleet. This prevents unhealthy instances from serving traffic.",
+    "module_ref": "soa/deployment/asg-lifecycle-hook-launch",
+    "tags": [
+      "auto-scaling",
+      "lifecycle-hook",
+      "launch",
+      "warm-up",
+      "abandon"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-03-009",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator uses CloudFormation to manage infrastructure. A security audit finds that several S3 buckets were created without server-side encryption. What preventive measure in CloudFormation ensures all future S3 bucket resources have encryption configured?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an AWS Config rule with a CloudFormation Guard conformance pack that checks all CloudFormation templates for S3 BucketEncryption before deployment; templates failing validation cannot be deployed."
+      },
+      {
+        "label": "B",
+        "text": "Enable the S3 account-level default encryption setting; all S3 buckets created by CloudFormation automatically inherit the account default encryption without requiring explicit template configuration."
+      },
+      {
+        "label": "C",
+        "text": "Use CloudFormation hooks with a pre-create hook type that evaluates the S3 bucket resource properties before provisioning; if encryption is missing, the hook fails the stack operation."
+      },
+      {
+        "label": "D",
+        "text": "Enable CloudFormation termination protection on all stacks; termination protection prevents deployment of stacks that contain unencrypted S3 bucket resources."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "B": "Account-level S3 default encryption ensures all objects are encrypted, but it doesn't enforce encryption configuration in the CloudFormation template; the bucket resource in the template would still lack explicit encryption.",
+      "A": "CloudFormation Guard conformance packs and proactive rules can validate templates, but the native mechanism to block deployments at the resource level is CloudFormation hooks.",
+      "D": "Termination protection prevents stack deletion; it has no effect on template validation or resource configuration enforcement."
+    },
+    "explanation": "CloudFormation hooks are proactive compliance controls that intercept resource create/update/delete operations before they execute. A pre-create hook on AWS::S3::Bucket resources can inspect the BucketEncryption property and fail the stack operation with a descriptive error if encryption is not configured, preventing non-compliant buckets from being created.",
+    "module_ref": "soa/deployment/cloudformation-hooks",
+    "tags": [
+      "cloudformation",
+      "hooks",
+      "s3",
+      "encryption",
+      "proactive-compliance"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-03-010",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to roll back a CodeDeploy deployment that has already completed and been marked successful, because post-deployment monitoring reveals a performance regression. What is the procedure?",
+    "options": [
+      {
+        "label": "A",
+        "text": "In CodeDeploy, manually create a new deployment using the previous application revision; CodeDeploy redeploys the old version to all instances in the deployment group."
+      },
+      {
+        "label": "B",
+        "text": "Use the CodeDeploy console to select the completed deployment and click Rollback; CodeDeploy automatically identifies the last successful revision and re-deploys it."
+      },
+      {
+        "label": "C",
+        "text": "Revert the source code repository to the previous commit and trigger a new pipeline execution; the pipeline redeploys the reverted code through the standard deployment process."
+      },
+      {
+        "label": "D",
+        "text": "Terminate the affected EC2 instances; Auto Scaling launches replacement instances that pull the previous version from the deployment group's last known good configuration."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "CodeDeploy does not have a standalone Rollback button for completed deployments; rollback is either automatic (configured in the deployment group) or manual (redeploy previous revision).",
+      "C": "Reverting and re-running the pipeline is valid but slower and requires source code access; directly deploying the previous CodeDeploy revision is faster.",
+      "D": "Auto Scaling replacement instances would run the current (bad) revision, not the previous one; the deployment group would redeploy the current app version on new instances."
+    },
+    "explanation": "For a manual rollback after a completed CodeDeploy deployment, you create a new deployment specifying the previous application revision. CodeDeploy deploys this revision to all instances in the deployment group using the configured deployment strategy. This is faster than source code reversion and directly uses the already-uploaded and tested artifact.",
+    "module_ref": "soa/deployment/codedeploy-manual-rollback",
+    "tags": [
+      "codedeploy",
+      "rollback",
+      "revision",
+      "deployment-group"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-03-011",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to deploy a Lambda function and its associated API Gateway configuration using infrastructure as code. Which approach provides the best developer experience with native Lambda and API Gateway abstractions?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use AWS SAM (Serverless Application Model); SAM templates use simplified resource types (AWS::Serverless::Function, AWS::Serverless::Api) that automatically expand to the corresponding CloudFormation resources during deployment."
+      },
+      {
+        "label": "B",
+        "text": "Use raw CloudFormation with AWS::Lambda::Function and AWS::ApiGateway::RestApi resources; CloudFormation provides full control over all properties without abstraction overhead."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS CDK with Python or TypeScript; CDK constructs for Lambda and API Gateway handle the underlying CloudFormation resource relationships automatically."
+      },
+      {
+        "label": "D",
+        "text": "Use Terraform with the aws_lambda_function and aws_api_gateway_rest_api resources; Terraform provides simpler syntax than CloudFormation for serverless deployments."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Raw CloudFormation for serverless requires manually defining dozens of related resources (integrations, methods, deployments, permissions, log groups); SAM's abstractions significantly reduce this verbosity.",
+      "C": "CDK is also valid and developer-friendly, but SAM is the AWS-native, purpose-built tool specifically designed for Lambda and API Gateway deployments.",
+      "D": "Terraform is valid but is not an AWS-native tool and the question asks for the best developer experience with native AWS abstractions."
+    },
+    "explanation": "AWS SAM is an open-source framework built on CloudFormation that provides simplified syntax for serverless resources. AWS::Serverless::Function automatically creates the Lambda function, IAM execution role, log group, and any event source mappings. AWS::Serverless::Api creates the API Gateway configuration. SAM also includes a local testing tool (sam local).",
+    "module_ref": "soa/deployment/sam-serverless",
+    "tags": [
+      "sam",
+      "lambda",
+      "api-gateway",
+      "serverless",
+      "iac"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-03-012",
+    "domain": 3,
+    "domain_name": "Deployment, Provisioning, and Automation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to manage 50 EC2 instances across 5 AWS accounts with Systems Manager without setting up individual IAM roles in each account. What is the most scalable approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use SSM Fleet Manager with AWS Organizations integration; configure a delegated administrator account for SSM and use Organization-wide managed instance policies to register instances across all accounts from a central account."
+      },
+      {
+        "label": "B",
+        "text": "Create an IAM role in each account with the AmazonSSMManagedInstanceCore policy; use CloudFormation StackSets to deploy the role to all 5 accounts simultaneously."
+      },
+      {
+        "label": "C",
+        "text": "Configure a single IAM role with cross-account assume permissions; the SSM agent on instances in all accounts assumes this centralized role for SSM communications."
+      },
+      {
+        "label": "D",
+        "text": "Enable AWS Resource Access Manager (RAM) to share the SSM managed instance registration from the central account to all 5 member accounts."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "SSM Fleet Manager with Organizations integration provides a unified management view, but instances still need IAM instance profiles in each account. The StackSets approach for role deployment is the scalable setup.",
+      "C": "The SSM Agent uses instance metadata credentials (from the attached IAM instance profile); it does not assume cross-account roles. Each account needs its own IAM instance profile.",
+      "D": "AWS RAM shares resources between accounts but does not share SSM instance registrations; managed instances must be registered through each account's SSM endpoint."
+    },
+    "explanation": "CloudFormation StackSets can deploy the IAM instance profile with AmazonSSMManagedInstanceCore to all 5 accounts in a single operation. This creates consistent, identical IAM roles for SSM in every account. Updating the role permissions later also requires only one StackSet update. Combined with SSM Fleet Manager, all instances can be viewed and managed centrally.",
+    "module_ref": "soa/deployment/ssm-multi-account-stacksets",
+    "tags": [
+      "ssm",
+      "stacksets",
+      "multi-account",
+      "iam",
+      "fleet-manager"
+    ]
+  }
+]

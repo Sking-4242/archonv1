@@ -13,10 +13,10 @@ import httpx
 
 _API = "https://prices.azure.com/api/retail/prices"
 _HOURS_PER_MONTH = 730.0
-_DEFAULT_GB = 100  # GB assumed for per-GB storage estimates
+_DEFAULT_GB = 100.0
 
 # Maps our component type ->
-#   (serviceName, skuName fragment or "", unit_hint)
+#   (serviceName, default sku fragment, unit_hint)
 # unit_hint: "hourly" | "monthly" | "per_gb"
 _SERVICE_MAP: dict[str, tuple[str, str, str]] = {
     # Compute
@@ -30,6 +30,7 @@ _SERVICE_MAP: dict[str, tuple[str, str, str]] = {
     "azure_acr":              ("Container Registry",                 "Standard",        "monthly"),
     "azure_spring_apps":      ("Azure Spring Apps",                  "Standard",        "hourly"),
     "azure_batch":            ("Azure Batch",                        "",                "hourly"),
+    "azure_static_web":       ("Static Web Apps",                    "Standard",        "monthly"),
     # Storage
     "azure_blob":             ("Storage",                            "Hot LRS",         "per_gb"),
     "azure_files":            ("Storage",                            "Files LRS",       "per_gb"),
@@ -44,7 +45,9 @@ _SERVICE_MAP: dict[str, tuple[str, str, str]] = {
     "azure_redis":            ("Redis Cache",                        "C1",              "hourly"),
     "azure_postgres":         ("Azure Database for PostgreSQL",      "General Purpose", "hourly"),
     "azure_mysql":            ("Azure Database for MySQL",           "General Purpose", "hourly"),
+    "azure_mariadb":          ("Azure Database for MariaDB",         "General Purpose", "hourly"),
     "azure_synapse":          ("Azure Synapse Analytics",            "DW100c",          "hourly"),
+    "azure_managed_instance": ("SQL Managed Instance",               "General Purpose", "hourly"),
     # Networking
     "azure_lb":               ("Load Balancer",                      "Standard",        "hourly"),
     "azure_agw":              ("Application Gateway",                "Standard v2",     "hourly"),
@@ -52,6 +55,7 @@ _SERVICE_MAP: dict[str, tuple[str, str, str]] = {
     "azure_nat_gw":           ("Virtual Network NAT",                "",                "hourly"),
     "azure_dns":              ("Azure DNS",                          "",                "monthly"),
     "azure_vpn_gateway":      ("VPN Gateway",                        "VpnGw1",          "hourly"),
+    "azure_expressroute":     ("ExpressRoute",                       "Standard",        "hourly"),
     "azure_bastion":          ("Azure Bastion",                      "Basic",           "hourly"),
     "azure_firewall":         ("Azure Firewall",                     "Standard",        "hourly"),
     # Security & identity
@@ -65,29 +69,58 @@ _SERVICE_MAP: dict[str, tuple[str, str, str]] = {
     "azure_apim":             ("API Management",                     "Developer",       "hourly"),
     "azure_logicapp":         ("Logic Apps",                         "",                "monthly"),
     "azure_signalr":          ("SignalR Service",                    "Standard",        "monthly"),
+    "azure_notification_hub": ("Notification Hubs",                "Standard",        "monthly"),
     # Analytics
     "azure_datafactory":      ("Azure Data Factory v2",              "",                "monthly"),
     "azure_databricks":       ("Azure Databricks",                   "Premium",         "hourly"),
     "azure_stream_analytics": ("Stream Analytics",                   "",                "hourly"),
-    # AI / ML
+    "azure_hdinsight":        ("HDInsight",                          "",                "hourly"),
+    "azure_cognitive":        ("Cognitive Services",                 "S0",              "monthly"),
     "azure_openai":           ("Azure OpenAI",                       "",                "monthly"),
     "azure_search":           ("Azure Cognitive Search",             "Basic",           "hourly"),
     # Monitoring
     "azure_log_analytics":    ("Log Analytics",                      "",                "per_gb"),
     "azure_app_insights":     ("Application Insights",               "",                "per_gb"),
+    "azure_monitor":          ("Azure Monitor",                      "",                "per_gb"),
 }
 
-# Components that are always free or not directly priced via the API
 _FREE = {
     "azure_nsg", "azure_vnet", "azure_subnet", "azure_aad",
-    "azure_managed_id", "azure_policy", "azure_monitor",
+    "azure_managed_id", "azure_policy",
     "azure_ddos",
     "azure_private_endpoint",
     "azure_traffic_mgr",
+    "azure_purview",
+    "azure_ml",
+    "azure_bot",
+    "azure_devops",
 }
 
+_CONFIG_SKU_KEYS = ("vm_size", "size", "tier", "sku", "instance_type")
 
-def fetch_azure_price(component_type: str, region: str) -> float | None:
+
+def _usage_float(usage: dict | None, key: str, default: float) -> float:
+    val = (usage or {}).get(key, default)
+    try:
+        return float(val)
+    except (TypeError, ValueError):
+        return float(default)
+
+
+def _sku_fragment(config: dict, default: str) -> str:
+    for key in _CONFIG_SKU_KEYS:
+        val = config.get(key)
+        if val:
+            return str(val)
+    return default
+
+
+def fetch_azure_price(
+    component_type: str,
+    region: str,
+    config: dict | None = None,
+    usage: dict | None = None,
+) -> float | None:
     """Return estimated monthly USD cost, or None if the component/region is unknown."""
     if component_type in _FREE:
         return 0.0
@@ -96,10 +129,11 @@ def fetch_azure_price(component_type: str, region: str) -> float | None:
     if not mapping:
         return None
 
-    service_name, sku_fragment, unit_hint = mapping
+    cfg = config or {}
+    service_name, default_sku, unit_hint = mapping
+    sku_fragment = _sku_fragment(cfg, default_sku)
     arm_region = region.lower()
 
-    # Build OData $filter
     clauses = [
         f"serviceName eq '{service_name}'",
         f"armRegionName eq '{arm_region}'",
@@ -122,25 +156,34 @@ def fetch_azure_price(component_type: str, region: str) -> float | None:
     if not items:
         return None
 
-    # Prefer primary-meter items; fall back to any positive price
-    candidates = sorted(items, key=lambda x: (not x.get("isPrimaryMeterRegion", False), x.get("retailPrice", 0)))
+    candidates = sorted(
+        items,
+        key=lambda x: (not x.get("isPrimaryMeterRegion", False), x.get("retailPrice", 0)),
+    )
 
     for item in candidates:
         price = item.get("retailPrice", 0.0)
         if price <= 0:
             continue
         uom = item.get("unitOfMeasure", "").lower()
-        return _to_monthly(price, uom, unit_hint)
+        return _to_monthly(price, uom, unit_hint, usage)
 
     return None
 
 
-def _to_monthly(price: float, uom: str, hint: str) -> float:
+def _to_monthly(
+    price: float,
+    uom: str,
+    hint: str,
+    usage: dict | None,
+) -> float:
     if "hour" in uom or hint == "hourly":
-        return round(price * _HOURS_PER_MONTH, 2)
+        hours = _usage_float(usage, "hours_per_month", _HOURS_PER_MONTH)
+        return round(price * hours, 2)
     if "month" in uom or hint == "monthly":
         return round(price, 2)
     if "gb" in uom or hint == "per_gb":
-        return round(price * _DEFAULT_GB, 2)
-    # Unknown unit -- treat as hourly as a safe default
-    return round(price * _HOURS_PER_MONTH, 2)
+        gb = _usage_float(usage, "storage_gb", _DEFAULT_GB)
+        return round(price * gb, 2)
+    hours = _usage_float(usage, "hours_per_month", _HOURS_PER_MONTH)
+    return round(price * hours, 2)

@@ -1,0 +1,11 @@
+{
+  "pricingAsOf": "2025-01",
+  "addedMonthly": 0,
+  "removedMonthly": 0,
+  "netDelta": 0,
+  "totalAfter": 0,
+  "lineItems": [],
+  "archonCliVersion": "0.1.0",
+  "reportType": "cost",
+  "sourceFile": ".\\sample_validate_report.json"
+}

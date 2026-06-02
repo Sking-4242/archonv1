@@ -1,0 +1,557 @@
+[
+  {
+    "id": "aws-soa-t4-01-001",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to correlate application logs from CloudWatch Logs with infrastructure metrics from CloudWatch Metrics to identify the root cause of a performance issue. Which AWS feature supports this unified investigation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "CloudWatch ServiceLens combines distributed tracing (X-Ray), metrics, and logs in a single view, allowing correlation of application performance data across services."
+      },
+      {
+        "label": "B",
+        "text": "Amazon CloudWatch Application Insights automatically correlates logs and metrics for supported application stacks, identifying root-cause anomalies across related resources."
+      },
+      {
+        "label": "C",
+        "text": "AWS X-Ray provides service maps that automatically correlate CloudWatch Logs entries with the underlying EC2 metric data from the same time period."
+      },
+      {
+        "label": "D",
+        "text": "CloudWatch Logs Insights can query CloudWatch Metrics directly within the same query, allowing combined log and metric correlation in a single result set."
+      }
+    ],
+    "correct": "B",
+    "distractors": {
+      "A": "CloudWatch ServiceLens focuses on application topology and traces from X-Ray; it does not automatically correlate infrastructure metrics with logs for root-cause analysis across multi-layer stacks.",
+      "C": "X-Ray provides distributed tracing for application requests; it does not directly correlate CloudWatch Logs entries with EC2 infrastructure metrics.",
+      "D": "CloudWatch Logs Insights queries log data only; it cannot query CloudWatch Metrics data within the same query."
+    },
+    "explanation": "Amazon CloudWatch Application Insights monitors your application resources and automatically detects anomalies by correlating metrics, logs, and events. It identifies patterns across related resources (EC2, RDS, ELB, etc.) and surfaces the most likely root cause along with relevant correlated observations, reducing mean time to detect and resolve.",
+    "module_ref": "soa/monitoring/application-insights",
+    "tags": [
+      "cloudwatch",
+      "application-insights",
+      "root-cause",
+      "correlation"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-002",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator configures a CloudWatch alarm with a 5-minute period. The metric reports only when there is actual activity (sparse data). During quiet periods the alarm enters INSUFFICIENT_DATA state and triggers false notifications. How should this be fixed?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Configure the alarm to treat missing data as 'not breaching'; during quiet periods with no data points the alarm stays in OK state rather than transitioning to INSUFFICIENT_DATA."
+      },
+      {
+        "label": "B",
+        "text": "Switch the metric to a 1-minute period; shorter periods ensure data is always available, preventing INSUFFICIENT_DATA transitions."
+      },
+      {
+        "label": "C",
+        "text": "Enable detailed monitoring on the resource; detailed monitoring fills in data gaps with zero values, preventing INSUFFICIENT_DATA periods."
+      },
+      {
+        "label": "D",
+        "text": "Add a second alarm that watches for INSUFFICIENT_DATA state and suppresses notifications from the original alarm when data is absent."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Shorter periods produce more data points when activity occurs but cannot produce data during truly idle periods; the alarm will still enter INSUFFICIENT_DATA when the metric simply has no data to report.",
+      "C": "Detailed monitoring increases the resolution of built-in metrics; it does not inject zero values to fill gaps in sparse custom or application metrics.",
+      "D": "There is no native alarm suppression mechanism based on another alarm's INSUFFICIENT_DATA state; composite alarms can suppress ALARM transitions but work differently."
+    },
+    "explanation": "CloudWatch alarms have four options for treating missing data: notBreaching (stays OK), breaching (goes to ALARM), ignore (maintains current state), and missing (transitions to INSUFFICIENT_DATA). For sparse metrics where absence of data means normal quiet operation, 'notBreaching' keeps the alarm in OK state during idle periods.",
+    "module_ref": "soa/monitoring/cloudwatch-missing-data-treatment",
+    "tags": [
+      "cloudwatch",
+      "missing-data",
+      "sparse-metrics",
+      "alarm"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-003",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to query CloudWatch Logs data older than 90 days at low cost. CloudWatch Logs Insights charges per GB scanned. What is the most cost-effective query approach for historical log analysis?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Export the CloudWatch Logs data older than 90 days to S3 using a CloudWatch Logs export task, then query with Amazon Athena; Athena costs $5 per TB scanned versus higher CloudWatch Logs Insights charges."
+      },
+      {
+        "label": "B",
+        "text": "Reduce the CloudWatch Logs retention policy to 90 days; older data is automatically deleted, eliminating the need to query it."
+      },
+      {
+        "label": "C",
+        "text": "Use CloudWatch Logs Insights with a time range filter to limit scanned data to the 90-day window; narrowing the time range reduces per-query cost."
+      },
+      {
+        "label": "D",
+        "text": "Enable CloudWatch Logs data tiering, which automatically moves logs older than 90 days to a cold storage tier with lower query pricing."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Deleting old logs eliminates the data; the question requires querying historical data, so deletion is not an option.",
+      "C": "Narrowing the time range reduces scanned data but still uses CloudWatch Logs Insights pricing; exporting to S3 and using Athena is significantly cheaper for large historical queries.",
+      "D": "CloudWatch Logs does not have a data tiering feature with separate cold storage query pricing; data is stored in a single tier."
+    },
+    "explanation": "CloudWatch Logs export tasks deliver log data to S3 in gzip-compressed format. Amazon Athena can query this data using SQL at $5 per TB scanned, which is substantially lower than CloudWatch Logs Insights pricing for large historical queries. This is the standard cost-optimization pattern for long-term log analytics.",
+    "module_ref": "soa/monitoring/cloudwatch-logs-s3-athena",
+    "tags": [
+      "cloudwatch-logs",
+      "athena",
+      "s3",
+      "cost-optimization",
+      "historical-query"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-004",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to automatically scale an ECS service based on the number of messages in an SQS queue (backlog per task). CloudWatch does not publish this composite metric by default. What is the recommended approach?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Publish a custom CloudWatch metric using a Lambda function or scheduled task that calculates SQS queue depth divided by running task count; create an Auto Scaling target tracking policy on this metric."
+      },
+      {
+        "label": "B",
+        "text": "Use Application Auto Scaling with an SQS queue depth target; Application Auto Scaling natively calculates backlog-per-task and scales ECS tasks to maintain the target depth per task."
+      },
+      {
+        "label": "C",
+        "text": "Configure ECS Service Auto Scaling with an SQS-based scaling trigger; ECS natively integrates with SQS to scale based on queue depth without custom metrics."
+      },
+      {
+        "label": "D",
+        "text": "Use AWS Lambda to poll the SQS queue and directly call the ECS UpdateService API to adjust the desired count based on queue depth calculations."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Application Auto Scaling supports target tracking on existing CloudWatch metrics; it does not natively compute backlog-per-task. The custom metric must be published first.",
+      "C": "ECS Service Auto Scaling uses CloudWatch metrics and Application Auto Scaling; it does not have a direct SQS integration that calculates backlog per task automatically.",
+      "D": "Lambda calling UpdateService directly bypasses the Auto Scaling framework and removes smoothing, cooldowns, and scaling limits that Auto Scaling policies enforce."
+    },
+    "explanation": "The recommended pattern for queue-based ECS scaling is to publish a custom metric: (ApproximateNumberOfMessages / running task count). A Lambda function or CloudWatch scheduled event calculates this ratio and calls PutMetricData. An Application Auto Scaling target tracking policy on this metric maintains the desired backlog per task.",
+    "module_ref": "soa/monitoring/ecs-sqs-custom-metric-scaling",
+    "tags": [
+      "ecs",
+      "sqs",
+      "auto-scaling",
+      "custom-metric",
+      "backlog"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-005",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An AWS Config rule evaluation returns NON_COMPLIANT for an EC2 instance. The administrator fixes the issue manually. How can the administrator confirm that Config now evaluates the resource as COMPLIANT without waiting for the next scheduled evaluation?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Trigger a re-evaluation of the specific Config rule for the resource using the StartConfigRulesEvaluation API or the 'Re-evaluate' button in the Config console; results update within minutes."
+      },
+      {
+        "label": "B",
+        "text": "Delete and recreate the EC2 instance; Config automatically evaluates new resources within 5 minutes of creation."
+      },
+      {
+        "label": "C",
+        "text": "Disable and re-enable the Config rule; re-enabling resets the evaluation state and triggers immediate evaluation for all resources."
+      },
+      {
+        "label": "D",
+        "text": "Wait for the next CloudTrail event from the resource; Config re-evaluates change-triggered rules automatically whenever CloudTrail records a new API call for the resource."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Recreating the instance would trigger a new evaluation but destroys and replaces the resource; the StartConfigRulesEvaluation API is the correct non-destructive approach.",
+      "C": "Disabling and re-enabling a Config rule resets all evaluation states; this is disruptive to the overall compliance posture for all resources evaluated by that rule.",
+      "D": "Config change-triggered rules re-evaluate on configuration changes; a manual fix to an existing resource (e.g., changing a security group rule) may trigger a re-evaluation, but the reliable method is StartConfigRulesEvaluation."
+    },
+    "explanation": "AWS Config supports on-demand re-evaluation of rules via the StartConfigRulesEvaluation API (or the console Re-evaluate button). This triggers Config to immediately re-assess the specified rule against targeted resources without waiting for the next scheduled or change-triggered evaluation cycle.",
+    "module_ref": "soa/monitoring/config-rule-re-evaluation",
+    "tags": [
+      "aws-config",
+      "re-evaluation",
+      "compliance",
+      "non-compliant"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-006",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to monitor Lambda function errors and duration across hundreds of functions from a single dashboard without creating individual alarms for each function. Which CloudWatch feature enables this at scale?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use CloudWatch Lambda Insights with a shared dashboard; Lambda Insights automatically collects function-level metrics and provides a fleet-wide view across all functions in the account."
+      },
+      {
+        "label": "B",
+        "text": "Enable CloudWatch Contributor Insights for AWS Lambda; it identifies the top-N Lambda functions by error rate and duration across the account in a single aggregated view."
+      },
+      {
+        "label": "C",
+        "text": "Create CloudWatch metric math expressions using the ALL dimension to aggregate error counts and duration across all Lambda functions; display on a single dashboard widget."
+      },
+      {
+        "label": "D",
+        "text": "Enable X-Ray tracing on all Lambda functions; the X-Ray service map provides a unified view of all function performance including errors and duration."
+      }
+    ],
+    "correct": "C",
+    "distractors": {
+      "A": "Lambda Insights provides enhanced per-function metrics but still requires configuring each function; a metric math expression with the ALL dimension aggregates across all functions in one widget without per-function setup.",
+      "B": "Contributor Insights identifies top contributors in log-based data; it does not aggregate Lambda metrics across the fleet in a CloudWatch dashboard widget.",
+      "D": "X-Ray traces individual requests; it does not produce a dashboard widget showing aggregate error counts and duration across all functions."
+    },
+    "explanation": "CloudWatch metric math supports the ALL value for the FunctionName dimension in Lambda metrics, which aggregates the metric across all functions. For example, a metric math expression using ALL on the Errors metric returns the sum of errors across every Lambda function. This populates a single dashboard widget representing the entire function fleet.",
+    "module_ref": "soa/monitoring/lambda-metric-math-all",
+    "tags": [
+      "cloudwatch",
+      "lambda",
+      "metric-math",
+      "dashboard",
+      "all-dimension"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-007",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs AWS Config to evaluate resources in all regions of an account but currently only one region is configured. What is the most efficient way to enable multi-region recording?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Enable an AWS Config aggregator with an AWS Organizations source; the aggregator collects configuration data and compliance results from all regions and accounts, and enabling the recorder in each region via a CloudFormation StackSet ensures full coverage."
+      },
+      {
+        "label": "B",
+        "text": "Enable Config in the primary region and check the 'Include global resources' checkbox; this extends Config recording to all other regions automatically."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Control Tower to enable Config globally; Control Tower provisions Config recorders in all regions as part of its baseline setup."
+      },
+      {
+        "label": "D",
+        "text": "Use CloudFormation StackSets targeting all regions to deploy a Config recorder resource; StackSets can deploy the Config recorder to every region with a single operation."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "A Config aggregator collects and displays data from multiple accounts and regions; it does not enable or deploy Config recorders in those regions. The StackSet deployment step is what enables per-region recording.",
+      "B": "The 'Include global resources' checkbox records IAM and other global resources; it does not extend recording to other AWS regions.",
+      "C": "Control Tower sets up Config in enrolled regions during initial setup; it does not retroactively deploy Config to all regions for an existing account outside of Control Tower."
+    },
+    "explanation": "AWS Config recorders must be enabled per region; there is no single toggle for all regions. CloudFormation StackSets can deploy a Config recorder stack to every enabled region in the account in a single operation, making it the most efficient multi-region Config enablement approach.",
+    "module_ref": "soa/monitoring/config-multi-region-stacksets",
+    "tags": [
+      "aws-config",
+      "multi-region",
+      "stacksets",
+      "recorder"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-008",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "An application writes JSON logs to CloudWatch Logs. A SysOps administrator wants to extract request latency values from JSON fields and compute p99 latency using CloudWatch Logs Insights. Which query syntax achieves this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Use 'parse @message' to extract the latency field from JSON, then 'stats pct(@latency, 99) as p99' to compute the 99th percentile latency across all log events."
+      },
+      {
+        "label": "B",
+        "text": "Create a CloudWatch metric filter that extracts the latency field and publishes it as a custom metric; then use the p99 statistic on the custom metric in a CloudWatch alarm."
+      },
+      {
+        "label": "C",
+        "text": "Use CloudWatch Logs Insights 'filter' to select high-latency events, then 'count()' to determine how many exceed the p99 threshold from the SLA document."
+      },
+      {
+        "label": "D",
+        "text": "Enable EMF (Embedded Metric Format) logging for the application; CloudWatch automatically computes p99 statistics for all numeric fields in EMF-formatted log events."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Metric filters extract metrics for CloudWatch alarms; they do not enable ad hoc p99 calculations on historical log data in an interactive query interface.",
+      "C": "Manually filtering high-latency events and counting them requires knowing the threshold upfront; pct() computes the actual percentile without needing a predefined threshold.",
+      "D": "EMF automatically creates CloudWatch metrics from structured logs; while it supports percentile statistics, the Logs Insights pct() function is the direct way to compute percentiles from existing JSON logs."
+    },
+    "explanation": "CloudWatch Logs Insights supports the pct() function for percentile calculations. For JSON-formatted logs, the query would be: 'parse @message * | stats pct(@latency, 99) as p99' or for structured JSON logs: 'stats pct(latency, 99) as p99'. The parse command extracts fields from log lines; pct() computes the specified percentile across all matching events.",
+    "module_ref": "soa/monitoring/logs-insights-percentile",
+    "tags": [
+      "cloudwatch-logs",
+      "logs-insights",
+      "percentile",
+      "p99",
+      "json-logs"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-009",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to automatically update a firewall block list in AWS WAF when Amazon GuardDuty detects a threat from a specific IP address. What is the recommended event-driven architecture?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an EventBridge rule matching GuardDuty findings of type UnauthorizedAccess or similar; invoke a Lambda function that adds the threat source IP to a WAF IP set used by the web ACL."
+      },
+      {
+        "label": "B",
+        "text": "Configure GuardDuty to publish findings directly to an AWS WAF IP set; GuardDuty has a native WAF integration that automatically blocks detected malicious IPs."
+      },
+      {
+        "label": "C",
+        "text": "Use AWS Security Hub with the automated response playbook; Security Hub's GUARD_DUTY_FINDING action automatically updates WAF IP sets when GuardDuty findings arrive."
+      },
+      {
+        "label": "D",
+        "text": "Configure a CloudWatch alarm on the GuardDuty ThreatIntelFeedCount metric that triggers an SNS notification; the SNS subscription Lambda updates the WAF IP set."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "GuardDuty does not have a native WAF IP set integration; EventBridge + Lambda is the standard pattern for connecting GuardDuty findings to WAF.",
+      "C": "Security Hub automated responses require custom playbooks; there is no built-in GUARD_DUTY_FINDING action that updates WAF IP sets.",
+      "D": "GuardDuty does not publish a ThreatIntelFeedCount CloudWatch metric that correlates with specific IP-based findings; findings are events, not metrics."
+    },
+    "explanation": "GuardDuty publishes findings as EventBridge events. An EventBridge rule matching specific GuardDuty finding types triggers a Lambda function that extracts the remote IP from the finding detail, then calls the WAF UpdateIPSet API to add the IP to the block list. This provides automated, near-real-time threat remediation.",
+    "module_ref": "soa/monitoring/guardduty-waf-automation",
+    "tags": [
+      "guardduty",
+      "waf",
+      "eventbridge",
+      "lambda",
+      "automated-remediation"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-010",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator configures CloudWatch Synthetics canaries to test an API endpoint every minute. The canary fails intermittently but the application logs show no errors at those times. What is the most likely cause of the discrepancy?",
+    "options": [
+      {
+        "label": "A",
+        "text": "The canary is running from a CloudWatch-managed Lambda in a specific region; intermittent failures may be due to network latency or DNS resolution issues between the canary's region and the API endpoint, not application errors."
+      },
+      {
+        "label": "B",
+        "text": "CloudWatch Synthetics canaries have a known bug where they report false failures for endpoints returning HTTP 200 with response bodies larger than 1 MB."
+      },
+      {
+        "label": "C",
+        "text": "The application logs are missing entries because the application only logs at the ERROR level; canary failures at the INFO level are not captured in the logs."
+      },
+      {
+        "label": "D",
+        "text": "The canary timeout is set too low; the endpoint responds successfully within the application's own timeout but the canary's stricter timeout causes failures."
+      }
+    ],
+    "correct": "D",
+    "distractors": {
+      "A": "Network/DNS issues between the canary Lambda region and the endpoint could cause failures, but this would typically be consistent rather than intermittent. The canary timeout is more commonly misconfigured.",
+      "B": "There is no such known bug in CloudWatch Synthetics; response body size does not cause false failures for HTTP 200 responses.",
+      "C": "Canary failures are recorded at the canary level, not the application level; mismatched log levels don't explain the discrepancy between canary failures and application logs."
+    },
+    "explanation": "CloudWatch Synthetics canaries have configurable timeouts. If the canary timeout is shorter than the application's 95th-percentile response time, occasional slow responses will exceed the canary timeout and be reported as failures even though the application eventually returns a successful response. The application logs the request as successful, while the canary records a timeout failure.",
+    "module_ref": "soa/monitoring/synthetics-timeout",
+    "tags": [
+      "cloudwatch-synthetics",
+      "canary",
+      "timeout",
+      "false-failures",
+      "api"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-011",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to ensure that CloudTrail logs for an account are immutable and cannot be deleted by any principal for 1 year. What is the correct configuration?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Deliver CloudTrail logs to an S3 bucket in a separate logging account, configure S3 Object Lock in Compliance mode with a 1-year retention period, and apply an SCP preventing the logging account from disabling Object Lock."
+      },
+      {
+        "label": "B",
+        "text": "Enable CloudTrail log file validation; validated log files cannot be modified or deleted because the digital signatures prevent AWS from accepting any modification requests."
+      },
+      {
+        "label": "C",
+        "text": "Store CloudTrail logs in an S3 bucket with MFA Delete enabled; deletion requires MFA authentication, making it effectively impossible to delete logs without physical MFA access."
+      },
+      {
+        "label": "D",
+        "text": "Enable S3 Versioning on the CloudTrail bucket with a lifecycle rule that moves all versions to Glacier Deep Archive after 1 day; archived versions cannot be deleted before the minimum storage duration."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Log file validation provides cryptographic integrity verification (detecting tampering after the fact); it does not prevent deletion or modification of the log files themselves.",
+      "C": "MFA Delete requires MFA authentication for permanent deletion; it can still be disabled by the root user and does not provide the same immutability guarantee as Object Lock Compliance mode.",
+      "D": "S3 Versioning with lifecycle rules allows deletion of versions via the DeleteObject API by authorized principals; Object Lock Compliance mode is the only mechanism that prevents deletion even by root."
+    },
+    "explanation": "S3 Object Lock Compliance mode with a 1-year retention period prevents all deletion and modification of objects during the retention period, even by the AWS account root user. Separating the logging bucket into a dedicated logging account with an SCP preventing Object Lock modification provides defense in depth against insider threats.",
+    "module_ref": "soa/monitoring/cloudtrail-immutable-logs",
+    "tags": [
+      "cloudtrail",
+      "s3",
+      "object-lock",
+      "compliance",
+      "immutable"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-012",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator is debugging why an SSM Automation document fails when triggered by Config remediation but succeeds when run manually. The document modifies a security group. What permissions difference explains this?",
+    "options": [
+      {
+        "label": "A",
+        "text": "When run manually, the administrator's IAM credentials are used. When Config triggers the document, the automation execution role specified in the Config remediation action is used; if that role lacks ec2:AuthorizeSecurityGroupIngress or similar permissions, the automation fails."
+      },
+      {
+        "label": "B",
+        "text": "Config-triggered automations run in a restricted sandbox that blocks all VPC and security group API calls; only non-network SSM documents can be triggered by Config."
+      },
+      {
+        "label": "C",
+        "text": "SSM Automation documents triggered by Config run in the us-east-1 region regardless of where the non-compliant resource is; cross-region API calls require additional configuration."
+      },
+      {
+        "label": "D",
+        "text": "Config-triggered automations use the SSM service role rather than the automation execution role; the SSM service role only has permissions for SSM-related API calls."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "Config-triggered automations can call any AWS API that the execution role permits; there is no sandbox restriction on VPC or security group calls.",
+      "C": "SSM Automation documents execute in the same region as the target resource; they do not default to us-east-1.",
+      "D": "Config remediation requires specifying an automation execution role; this role (not the SSM service role) is used for the automation's API calls."
+    },
+    "explanation": "Config automated remediation requires specifying an IAM role (the automation assume role) that SSM Automation uses when executing the document. This role must have all permissions the document needs. When run manually, the user's own credentials (which may include broader permissions) are used. Checking and expanding the automation role's policy is the correct fix.",
+    "module_ref": "soa/monitoring/config-ssm-execution-role",
+    "tags": [
+      "aws-config",
+      "ssm-automation",
+      "iam-role",
+      "permissions",
+      "troubleshooting"
+    ]
+  },
+  {
+    "id": "aws-soa-t4-01-013",
+    "domain": 1,
+    "domain_name": "Monitoring, Logging, and Remediation",
+    "type": "single",
+    "difficulty": "at",
+    "test_number": 4,
+    "active": true,
+    "stem": "A SysOps administrator needs to detect when an EC2 instance changes from running to stopped state and send an alert within 30 seconds. Which approach meets this latency requirement?",
+    "options": [
+      {
+        "label": "A",
+        "text": "Create an EventBridge rule matching EC2 instance state-change notification events with the detail.state value of 'stopped'; route to an SNS topic for immediate notification."
+      },
+      {
+        "label": "B",
+        "text": "Create a CloudWatch alarm on the EC2 StatusCheckFailed metric with a 1-minute period; the alarm transitions within 30-60 seconds of a status check failure."
+      },
+      {
+        "label": "C",
+        "text": "Configure a CloudWatch Events rule polling EC2 DescribeInstances every 30 seconds; trigger an SNS notification when any instance shows a 'stopped' state."
+      },
+      {
+        "label": "D",
+        "text": "Enable EC2 detailed monitoring with 1-minute metrics; create a CloudWatch alarm on the CPUUtilization metric dropping to 0, which indicates the instance has stopped."
+      }
+    ],
+    "correct": "A",
+    "distractors": {
+      "B": "StatusCheckFailed is for hardware/software status checks on running instances; it does not detect a graceful instance stop. Also, a 1-minute period means at least 60 seconds before alarm evaluation.",
+      "C": "CloudWatch Events (EventBridge) is event-driven, not polling-based; EC2 state change events are pushed to EventBridge when the state changes, not on a polling schedule.",
+      "D": "CPU utilization dropping to 0 on a running instance could have many causes; it does not reliably indicate that an instance has stopped."
+    },
+    "explanation": "Amazon EC2 publishes instance state change notifications to Amazon EventBridge in near-real-time (typically within seconds). An EventBridge rule matching 'stopped' state events triggers an SNS notification within seconds of the instance entering the stopped state, well within the 30-second requirement.",
+    "module_ref": "soa/monitoring/ec2-state-change-event",
+    "tags": [
+      "eventbridge",
+      "ec2",
+      "state-change",
+      "sns",
+      "real-time"
+    ]
+  }
+]
