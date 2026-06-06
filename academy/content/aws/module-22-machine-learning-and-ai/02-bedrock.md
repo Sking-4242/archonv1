@@ -9,7 +9,7 @@ cert_tags: ["SAA-C03", "MLS-C01"]
 
 ## Overview
 
-Amazon Bedrock is the managed foundation model API layer on AWS. It provides API access to powerful pre-trained models from AWS and third-party providers — Anthropic Claude, Meta Llama, Mistral, Cohere, Stability AI, and Amazon Titan — for text generation, summarization, Q&A, code generation, image generation, and embedding creation. No model infrastructure to provision, no GPUs to manage, no training required: send a request, receive a response, pay per token.
+Amazon Bedrock is the managed foundation model API layer on AWS. It provides API access to powerful pre-trained models from AWS and third-party providers — Amazon Nova, Anthropic Claude, Meta Llama, Mistral, Cohere, Stability AI, and Amazon Titan — for text generation, summarization, Q&A, code generation, image generation, and embedding creation. No model infrastructure to provision, no GPUs to manage, no training required: send a request, receive a response, pay per token.
 
 The problem Bedrock solves is the infrastructure gap between "I want to add an AI feature" and "I have a working AI feature." Before managed FM APIs, adding a chatbot to an application required: selecting a model, acquiring GPU instances, serving the model with a serving framework, scaling the inference server, monitoring GPU utilization, and patching the serving stack. Bedrock replaces all of that with an API call, letting teams focus on the application layer — prompts, context, user experience — rather than ML infrastructure.
 
@@ -23,10 +23,11 @@ For the SAA and MLS exams, understand Bedrock's model selection, the Converse AP
 
 Bedrock provides access to multiple foundation model families, each suited to different tasks:
 
-- **Anthropic Claude (3.5 Sonnet, 3.5 Haiku, etc.)**: the highest-capability models for complex reasoning, analysis, document understanding, and code generation. Different Claude versions trade off capability against cost and latency.
+- **Amazon Nova (Micro, Lite, Pro, Premier)**: AWS's current flagship model family, launched November 2024. Nova models handle text, multimodal (images + text), and agentic workloads. Nova Micro is the lowest-latency/cost option; Nova Premier is the highest-capability. Nova models are the recommended choice for AWS-native AI architectures and offer competitive performance at lower cost than many third-party models.
+- **Anthropic Claude (3.5 Sonnet, 3.5 Haiku, etc.)**: the highest-capability third-party models for complex reasoning, analysis, document understanding, and code generation. Different Claude versions trade off capability against cost and latency.
 - **Meta Llama**: open-weight models suitable for fine-tuning and deployment within AWS infrastructure. Popular for organizations requiring open-source provenance.
 - **Mistral**: high-performance European models with strong multilingual capabilities.
-- **Amazon Titan**: AWS's own text and embedding models. Titan Embeddings is the standard embedding model for RAG architectures within Bedrock.
+- **Amazon Titan**: AWS's earlier text and embedding models. Superseded by Amazon Nova for most use cases; Titan Text and Titan Embeddings V2 remain available.
 - **Stability AI**: Stable Diffusion for image generation.
 - **Cohere**: embedding and text generation models with strong retrieval performance.
 
@@ -44,7 +45,7 @@ Bedrock provides access to multiple foundation model families, each suited to di
 Foundation models are trained on general data up to a knowledge cutoff. They cannot answer questions about your proprietary documents, recent events, or internal policies without augmentation. **Retrieval-Augmented Generation (RAG)** solves this by providing relevant context from your documents at query time — retrieved from a vector database and included in the prompt.
 
 **Bedrock Knowledge Bases** automates the RAG infrastructure:
-1. **Ingestion**: upload documents (PDFs, Word, HTML, Markdown, S3 files) to S3. Knowledge Bases chunks the documents, generates embeddings using Amazon Titan Embeddings (or another configured embedding model), and stores the embeddings in a vector database.
+1. **Ingestion**: upload documents (PDFs, Word, HTML, Markdown, S3 files) to S3. Knowledge Bases chunks the documents, generates embeddings using Amazon Titan Embeddings V2 or Amazon Nova Embedding (or another configured embedding model), and stores the embeddings in a vector database.
 2. **Vector database options**: Amazon OpenSearch Serverless (default), Amazon Aurora PostgreSQL with pgvector, Pinecone, Weaviate, Redis. Choose based on existing infrastructure or cost.
 3. **Retrieval**: at query time, the user's question is embedded and semantically similar document chunks are retrieved from the vector database.
 4. **Generation**: retrieved chunks + user question are assembled into a prompt and passed to the configured foundation model. The model generates a grounded response citing your documents.

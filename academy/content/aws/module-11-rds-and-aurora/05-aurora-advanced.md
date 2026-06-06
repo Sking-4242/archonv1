@@ -21,7 +21,13 @@ Aurora Machine Learning and Aurora Export to S3 represent Aurora's integration i
 
 Aurora Global Database adds a second tier of replication: dedicated replication infrastructure that ships redo log records from the primary region's storage layer to storage layers in up to five secondary regions. This replication is entirely at the storage layer — it does not involve the Aurora compute instances at all. Because only redo log records are shipped (not full data pages), the network bandwidth required is minimal and the latency is low. AWS publishes a typical replication lag of under one second, but in practice, it is often measured in tens to hundreds of milliseconds on inter-region links.
 
-The RPO (Recovery Point Objective) for an Aurora Global Database is under one second — in most failure scenarios, the secondary region has data that is less than one second old. The RTO (Recovery Time Objective) for a managed planned failover is under one minute — Aurora coordinates the promotion of the secondary region to primary in an automated process that involves updating DNS, promoting the secondary cluster, and redirecting the global cluster endpoint.
+The RPO (Recovery Point Objective) for an Aurora Global Database is typically under one second — in most failure scenarios, the secondary region has data that is less than one second old at the time of failure.
+
+RTO depends on the type of failover:
+- **Managed planned failover (switchover)**: RTO under 1 minute. Aurora coordinates the promotion with zero data loss (`--allow-data-loss false`). Used for planned migrations, maintenance, or testing.
+- **Unplanned failover (primary region destroyed)**: RTO is several minutes. You must manually detach the secondary cluster from the global database, promote it to a standalone writable cluster, and update application connection strings. This is not an automated process. Pre-tested runbooks and automated DNS updates via Route 53 health checks can reduce RTO significantly.
+
+This distinction — managed switchover vs. unplanned detach-and-promote — is directly tested on SAP-C02. A question describing a "planned migration with zero RPO" points to managed failover; a question describing a "primary region outage" points to the manual detach-and-promote procedure.
 
 Secondary regions in an Aurora Global Database are read-only by default. Applications in those regions connect to the secondary cluster's reader endpoint for local-latency reads. If the primary region fails or you initiate a managed failover, the secondary is promoted to a fully writable primary and the old primary (if it recovers) becomes a read-only secondary.
 

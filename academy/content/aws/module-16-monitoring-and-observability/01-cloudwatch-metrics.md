@@ -30,7 +30,7 @@ Examples:
 
 AWS services publish metrics in their own namespaces automatically. You publish application metrics in a custom namespace using the `PutMetricData` API or Embedded Metric Format (EMF).
 
-**Metric resolution**: standard metrics arrive at 1-minute or 5-minute granularity. **High-resolution custom metrics** can be published at 1-second granularity for workloads requiring sub-minute alerting. High-resolution metrics cost more and are retained at full resolution for a shorter period before being rolled up.
+**Metric resolution**: standard metrics arrive at 1-minute or 5-minute granularity. **High-resolution custom metrics** can be published at 1-second granularity for workloads requiring sub-minute alerting. High-resolution metrics cost more and are retained at full 1-second resolution for only **3 hours** before being rolled up to 1-minute data. This means alarms evaluating 1-second resolution metrics must fire within the 3-hour window, and historical analysis below 1-minute granularity is not available after that window closes. Design alerting systems accordingly.
 
 **Retention policy**: CloudWatch retains metric data for 15 months, with progressive rollups as data ages — 1-second data is kept for 3 hours, 1-minute data for 15 days, 5-minute data for 63 days, 1-hour data for 15 months. When building dashboards for long-term capacity planning, you are viewing rolled-up data, not the original samples.
 

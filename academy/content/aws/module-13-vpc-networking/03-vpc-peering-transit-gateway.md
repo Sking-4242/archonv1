@@ -31,7 +31,9 @@ Requirements and constraints:
 
 ### Non-Transitivity: The Core Limitation
 
-Non-transitivity is the defining limitation of VPC Peering. It cannot be configured away — it is a fundamental property of how peering works.
+**VPC Peering is non-transitive: traffic cannot flow from VPC A through VPC B to reach VPC C using two peering connections.** If you need transitive routing across multiple VPCs, VPC Peering cannot solve it regardless of route table configuration — Transit Gateway is the required solution.
+
+Non-transitivity cannot be configured away — it is a fundamental property of how peering works.
 
 Consider three VPCs: A peers with B (connection 1), and B peers with C (connection 2). Even with routes correctly configured in all three VPCs, VPC A cannot send traffic to VPC C through VPC B. The packet from A arrives at B's VPC router, which checks its route table — the route to C's CIDR exists (pointing to peering connection 2). But AWS explicitly does not forward the packet across a different peering connection. Traffic can only use a peering connection if the source or destination is within the peered VPC.
 

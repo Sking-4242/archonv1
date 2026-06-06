@@ -57,6 +57,8 @@ The default key policy gives the AWS account root full control and enables IAM p
 
 **Automatic key rotation** can be enabled on CMKs. When enabled, KMS generates new key material on a configurable schedule and automatically uses the new material for all new encryptions. The default rotation period is one year (365 days), but since November 2023, AWS allows you to configure a custom rotation period between 90 and 2,560 days. Old key material is retained indefinitely so that data encrypted before rotation can still be decrypted. Rotation does not change the key ID or ARN — applications require no updates.
 
+> **Rotation limitations:** Automatic rotation applies only to **symmetric KMS keys with AWS-generated key material**. The following key types do **not** support automatic rotation and must be rotated manually by creating a new key and re-encrypting data: asymmetric keys (RSA, ECC, SM2), HMAC keys, and keys with imported key material (where the customer supplied the key bytes). For imported key material, manual rotation means generating a new key, importing new material, and updating applications to use the new key alias.
+
 **Multi-Region Keys** replicate the same key material to multiple AWS regions under synchronized key IDs. A value encrypted in `us-east-1` can be decrypted in `eu-west-1` without re-encryption. This matters for global active-active architectures, cross-region data replication, and DynamoDB Global Tables where the same encrypted attribute must be readable in any region. The primary key exists in one region; replica keys are synchronized copies that share the same key material.
 
 ---
@@ -104,4 +106,189 @@ aws kms create-alias \
     {
       "Sid": "AllowAppRoleToUseKey",
       "Effect": "Allow",
-      "Principal": { "AWS": "arn:aws:iam::123456
+      "Principal": { "AWS": "arn:aws:iam::123456789012:role/ProdAppRole" },
+      "Action": [
+        "kms:Decrypt",
+        "kms:GenerateDataKey",
+        "kms:DescribeKey"
+      ],
+      "Resource": "*"               // Only the actions the app actually needs — not kms:*
+    },
+    {
+      "Sid": "AllowKeyAdministration",
+      "Effect": "Allow",
+      "Principal": { "AWS": "arn:aws:iam::123456789012:role/KMSAdminRole" },
+      "Action": [
+        "kms:Create*",
+        "kms:Describe*",
+        "kms:Enable*",
+        "kms:List*",
+        "kms:Put*",
+        "kms:Update*",
+        "kms:Revoke*",
+        "kms:Disable*",
+        "kms:Get*",
+        "kms:Delete*",
+        "kms:ScheduleKeyDeletion",
+        "kms:CancelKeyDeletion"
+      ],
+      "Resource": "*"               // Admins manage the key but cannot use it to encrypt/decrypt
+    },
+    {
+      "Sid": "DenyExternalPrincipals",
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "kms:*",
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:PrincipalAccount": "123456789012"  // Block any principal not from this account
+        }
+      }
+    }
+  ]
+}
+```
+
+The separation between key users (Decrypt, GenerateDataKey) and key administrators (policy management, deletion) is a core KMS best practice. An administrator who can modify the key policy must not also be able to decrypt production data — this requires separate roles.
+
+---
+
+### Enabling Custom Key Rotation
+
+```bash
+# Enable automatic rotation with a custom period (requires AWS KMS key, not imported material)
+aws kms enable-key-rotation \
+  --key-id alias/prod-app-key \
+  --rotation-period-in-days 180    # Custom period: 180 days (range: 90–2,560 days)
+
+# Check rotation status
+aws kms get-key-rotation-status \
+  --key-id alias/prod-app-key
+
+# List all previous key versions retained for decryption of old ciphertext
+aws kms list-key-rotations \
+  --key-id alias/prod-app-key
+```
+
+---
+
+### Cross-Account Key Usage
+
+```bash
+# Grant a role in account 999999999999 the ability to use a key in account 123456789012
+# Step 1: Add the cross-account principal to the key policy (in account 123456789012):
+{
+  "Sid": "AllowCrossAccountUsage",
+  "Effect": "Allow",
+  "Principal": { "AWS": "arn:aws:iam::999999999999:role/CrossAccountRole" },
+  "Action": ["kms:Decrypt", "kms:GenerateDataKey", "kms:DescribeKey"],
+  "Resource": "*"
+}
+
+# Step 2: Add an IAM policy to the role in account 999999999999:
+{
+  "Effect": "Allow",
+  "Action": ["kms:Decrypt", "kms:GenerateDataKey"],
+  "Resource": "arn:aws:kms:us-east-1:123456789012:key/1234abcd-12ab-34cd-56ef-1234567890ab"
+}
+# Both the key policy AND the IAM policy must allow the action — either alone is insufficient.
+```
+
+---
+
+## How to Decide
+
+| Scenario | Key Type | Reason |
+|---|---|---|
+| Basic encryption, no audit or control needed | AWS Managed Key | Zero operational overhead; AWS handles rotation |
+| Need to restrict which roles can decrypt | Customer Managed Key (CMK) | Key policy controls exactly who can use it |
+| Need CloudTrail audit of every decryption | CMK | Every KMS API call is logged; AWS Managed Keys also log, but you cannot restrict usage |
+| Cross-account encryption | CMK | AWS Managed Keys cannot be shared across accounts |
+| Regulatory requirement: hold original key material | Imported key material | Customer controls key provenance; comes with expiration management responsibility |
+| FIPS 140-3 Level 3 with dedicated HSM tenancy | CloudHSM | KMS uses shared HSMs; CloudHSM provides single-tenant dedicated hardware |
+| Short-lived or temporary key access | KMS Grants | Grants can be retired without modifying the key policy |
+
+---
+
+## Exam Traps
+
+**Trap 1: "IAM policies alone control KMS key access."**
+False. KMS requires an explicit Allow in the key policy AND a matching Allow in the IAM policy (unless the key policy explicitly enables IAM delegation). An IAM policy granting `kms:Decrypt` on a CMK ARN does nothing if the key policy does not allow that principal. The key policy is the primary access control mechanism.
+
+**Trap 2: "Key rotation changes the key ID and breaks existing ciphertext."**
+False. KMS key rotation is transparent. The key ID and ARN stay the same. Old key material is retained so that data encrypted before rotation can still be decrypted. Applications require no changes when rotation occurs. KMS tracks which version of the key material was used to encrypt each data key.
+
+**Trap 3: "AWS Managed Keys give you full audit visibility."**
+Partially true. CloudTrail does log AWS Managed Key usage. However, you cannot restrict which principals use an AWS Managed Key, cannot modify its key policy, and cannot share it across accounts. For true least-privilege access control and cross-account scenarios, you need a CMK.
+
+**Trap 4: "Envelope encryption means the CMK encrypts all data directly."**
+False. The CMK encrypts the data key, not the data itself. The data is encrypted locally using the plaintext data key. The CMK never touches the actual data payload. This is why KMS can scale to any data size — the CMK API calls are limited to key material, not bulk data.
+
+**Trap 5: "Multi-Region keys are the same as cross-account sharing."**
+Different features. Multi-Region keys replicate key material to multiple regions so that data encrypted in one region can be decrypted in another without re-encryption. Cross-account sharing allows a principal in a different account to use a key from this account. Both features can be combined but serve different purposes.
+
+---
+
+## Summary
+
+- KMS provides three key types: AWS Managed Keys (no control, no cost), Customer Managed Keys (full control, require key policy configuration), and imported key material (customer controls key provenance).
+- Envelope encryption separates key management from data encryption: `GenerateDataKey` returns a plaintext data key for local encryption and an encrypted data key for storage; `Decrypt` unwraps the data key when needed. The CMK never touches bulk data.
+- Key policies are mandatory — an IAM policy alone is insufficient unless the key policy explicitly enables IAM delegation via the root principal statement.
+- Automatic rotation retains all old key versions for decryption and is transparent to applications; since November 2023, rotation periods can be customized between 90 and 2,560 days.
+- Multi-Region keys share key material across regions under synchronized key IDs, enabling cross-region decryption without re-encryption.
+- CloudHSM provides single-tenant dedicated hardware for workloads where KMS's shared HSM model fails compliance requirements.
+
+---
+
+## Examples
+
+A healthcare company stores patient records in S3. They use SSE-KMS with a CMK. The key policy restricts `kms:Decrypt` to the application's IAM role and the data access audit team. Every query that downloads a patient record generates a CloudTrail event showing the decrypting principal, timestamp, and key used. When a compliance audit requires proof that only authorized roles accessed PHI in a given quarter, the team queries CloudTrail for `kms:Decrypt` events on that CMK ARN. This is only possible with a CMK — AWS Managed Keys generate CloudTrail logs but cannot be restricted to specific principals.
+
+A financial services firm operates an active-active application across `us-east-1` and `eu-west-1`. Customer transaction records are written to DynamoDB in both regions with server-side encryption. They use Multi-Region KMS keys so that a record written in `us-east-1` can be decrypted by the `eu-west-1` replica without sending the encrypted data key back to `us-east-1` for unwrapping. The synchronized key IDs mean the same key policy governs usage in both regions.
+
+---
+
+## Think About It
+
+1. A developer asks why they cannot just store their encryption key in AWS Secrets Manager or Parameter Store instead of using KMS. What are the architectural differences, and when is KMS the necessary choice?
+2. A key policy allows `kms:Decrypt` for `arn:aws:iam::123456789012:role/AppRole`. An IAM policy on `AppRole` allows `kms:Decrypt` on the CMK ARN. But the application still gets an access denied error when calling `Decrypt`. What is the most likely cause?
+3. A team rotates their CMK today. Data encrypted six months ago is still in S3. Will the application be able to decrypt it tomorrow — and what does KMS do internally to make that work?
+4. Your CISO requires that encryption keys for a regulated workload never leave a dedicated hardware device that your organization exclusively controls. Does KMS CMK satisfy this requirement? What does, and what are the trade-offs?
+
+---
+
+## Quick Check
+
+**Q1.** What is the primary difference between an AWS Managed Key and a Customer Managed Key?
+
+- A) AWS Managed Keys cannot be used with S3; CMKs can
+- B) Customer Managed Keys allow you to define key policies and control which principals can use them; AWS Managed Keys do not
+- C) AWS Managed Keys are stored in CloudHSM; CMKs are stored in software
+- D) Customer Managed Keys must be rotated manually; AWS Managed Keys rotate automatically
+
+**Answer: B** — CMKs give you control over the key policy, usage restrictions, and cross-account access. AWS Managed Keys rotate automatically and log to CloudTrail but cannot have their key policies modified or be shared across accounts.
+
+**Q2.** An application calls `kms:GenerateDataKey` and receives a plaintext data key and an encrypted data key. What should the application do next?
+
+- A) Store both the plaintext key and encrypted data key alongside the encrypted data
+- B) Send the plaintext key to KMS for safekeeping before encrypting data
+- C) Use the plaintext key to encrypt data locally, then discard the plaintext key from memory and store only the encrypted data key alongside the ciphertext
+- D) Use the encrypted data key to encrypt the data directly
+
+**Answer: C** — Envelope encryption: encrypt data locally with the plaintext key, discard the plaintext key immediately, and store the encrypted data key with the ciphertext. Never persist the plaintext key.
+
+**Q3.** A team enables automatic key rotation on their CMK. Three months later, the rotation occurs. Data encrypted before rotation is queried by the application. What happens?
+
+- A) The query fails because the old key material no longer exists
+- B) KMS decrypts the data using the retained old key material, transparently to the application
+- C) The application must manually specify the old key version in its API call
+- D) The data must be re-encrypted before it can be decrypted
+
+**Answer: B** — KMS retains all previous key versions after rotation. The key ID and ARN are unchanged. KMS automatically uses the correct version of key material to decrypt data, requiring no application changes.
+
+---
+
+## What's Next
+
+Next: AWS Secrets Manager — managing database credentials, API keys, and other secrets with automatic rotation, cross-account access, and integration with RDS, Redshift, and custom Lambda-based rotation.

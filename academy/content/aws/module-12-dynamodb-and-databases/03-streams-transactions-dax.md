@@ -52,7 +52,7 @@ Common Streams patterns:
 - **Isolation**: transactions are serializable — no other operation can observe a partial transaction.
 - **Durability**: committed transactions are persisted to DynamoDB's multi-AZ storage.
 
-**TransactWriteItems** can include up to **100 items** per request across **multiple tables in the same region**. Supported operations within a transaction: `Put`, `Update`, `Delete`, and `ConditionCheck` (read an item and assert a condition without writing to it). If any condition check fails or any write fails, the entire transaction rolls back.
+**TransactWriteItems** can include up to **100 items** per request across **multiple tables in the same region**, subject to a **4 MB total request size limit** across all items in the transaction. Supported operations within a transaction: `Put`, `Update`, `Delete`, and `ConditionCheck` (read an item and assert a condition without writing to it). If any condition check fails or any write fails, the entire transaction rolls back.
 
 **TransactGetItems** reads up to **100 items** atomically — all reads reflect the same point-in-time snapshot, preventing phantom reads.
 

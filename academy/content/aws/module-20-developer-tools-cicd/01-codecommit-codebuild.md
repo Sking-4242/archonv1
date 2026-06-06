@@ -21,6 +21,8 @@ For the DVA exam, understand CodeBuild's `buildspec.yml` structure, how to injec
 
 ### AWS CodeCommit
 
+> **⚠️ Exam-relevant legacy content.** AWS deprecated CodeCommit for new customers in July 2024. The concepts below remain tested on DVA-C02 and SAA-C03, but CodeCommit should not be used for new projects. For new source control on AWS, use GitHub, GitLab, or Bitbucket connected via **AWS CodeStar Connections**, which integrates natively with CodePipeline and CodeBuild.
+
 CodeCommit is a fully managed, private Git repository service. It supports all standard Git operations — clone, push, pull, branch, merge, pull requests, tags — and scales to any repository size and number of contributors. There are no repository size limits and no separate user management system: access is controlled entirely through IAM policies and roles.
 
 > **Important (2024 update):** AWS announced in July 2024 that CodeCommit is no longer available to new customers. Existing customers can continue using it, but no new repositories can be created in accounts that did not already have CodeCommit enabled. For new projects, AWS recommends connecting to GitHub, GitLab, or Bitbucket via **CodeStar Connections** (or the newer **AWS Connection** resource), which integrates with CodePipeline just as CodeCommit does. The concepts covered here remain exam-relevant since CodeCommit appears on certification exams, and many existing pipelines continue to use it.

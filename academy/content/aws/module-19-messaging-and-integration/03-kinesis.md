@@ -66,12 +66,13 @@ Kinesis Data Firehose is a fully managed, near-real-time delivery service for st
 
 **Buffering**: Firehose accumulates records until a buffer threshold is met, then flushes:
 - **Buffer size**: 1–128 MB (delivery triggers when this size is reached)
-- **Buffer interval**: 60–900 seconds (delivery triggers when this time elapses)
-Delivery occurs when *either* threshold is hit first. The minimum end-to-end latency from record arrival to destination write is approximately 60 seconds — Firehose is near-real-time, not true real-time.
+- **Buffer interval**: 0–900 seconds (delivery triggers when this time elapses; 0 enables near-real-time direct delivery)
+
+> **2024 Update:** AWS updated Amazon Data Firehose (the new name for Kinesis Data Firehose) to support a buffer interval of **0 seconds**, enabling near-real-time direct delivery to destinations without a forced wait. In traditional buffered mode, the minimum interval was 60 seconds. In direct PUT mode with a 0-second interval, end-to-end latency can be under 1 second. Always clarify which delivery mode a question is describing. When the buffer interval is set to a non-zero value, delivery occurs when *either* threshold (size or interval) is hit first.
 
 **Data transformation**: Firehose can invoke a Lambda function on each buffer batch before delivery — for format conversion (JSON to Apache Parquet, JSON to ORC), PII masking, filtering, or enrichment. This is the managed ETL layer for streaming data destined for analytics storage.
 
-Use Firehose when: you want streaming data delivered to S3, Redshift, or OpenSearch without writing or managing a consumer application. Do not use Firehose when sub-minute latency is required or when per-record processing logic belongs in a stateful consumer — that is KDS + Lambda or KDS + Flink.
+Use Firehose when: you want streaming data delivered to S3, Redshift, or OpenSearch without writing or managing a consumer application. For near-real-time delivery (sub-second), use Firehose with direct PUT mode (0-second buffer interval). For true real-time per-record processing logic or stateful consumers, use KDS + Lambda or KDS + Flink — Firehose does not support custom consumer applications.
 
 ---
 
@@ -174,7 +175,7 @@ aws firehose create-delivery-stream \
 | Requirement | KDS | Firehose |
 |---|---|---|
 | Custom consumer application (Flink, KCL, Lambda) | ✅ | ❌ |
-| Sub-60-second latency | ✅ | ❌ |
+| Sub-second latency with custom consumer | ✅ | ❌ (direct PUT mode achieves near-real-time but without custom consumer logic) |
 | Multiple independent consumers | ✅ | ❌ (single destination) |
 | Replay from stored records | ✅ | ❌ |
 | Deliver to S3/Redshift/OpenSearch without code | ❌ | ✅ |
@@ -209,7 +210,7 @@ If two or more consumers need to read from the same stream at high throughput, t
 ## Exam Traps
 
 - **Kinesis and SQS are not interchangeable**: SQS messages are deleted after consumption (one consumer per message). Kinesis records persist and support multiple consumers and replay. A question describing "multiple independent consumers of the same data stream" always points to Kinesis, not SQS.
-- **Firehose has a minimum 60-second latency**: the buffer interval minimum is 60 seconds. Firehose is near-real-time, not real-time. Questions describing sub-minute latency requirements should point to KDS, not Firehose.
+- **Firehose buffering latency depends on configuration**: In traditional buffered mode, the minimum buffer interval is 60 seconds. Since 2024, Amazon Data Firehose supports a 0-second buffer interval (direct PUT mode) for near-real-time delivery. Exam questions that describe "60-second minimum latency" for Firehose are describing the traditional buffered mode. If sub-second per-record processing with custom logic is required, use KDS — Firehose does not support custom consumer applications regardless of buffer interval.
 - **Shard hot spots from bad partition keys**: using a low-cardinality partition key (e.g., a boolean flag, a constant, or a region with only a few values) concentrates writes on a small number of shards. The exam tests this by describing write throttling on a stream that appears to have enough shards — the diagnosis is hot-shard concentration from a poor partition key.
 - **Enhanced Fan-Out costs extra**: standard consumers share 2 MB/s read throughput per shard at no additional charge. Enhanced Fan-Out consumers each get dedicated 2 MB/s per shard but incur additional per-shard-hour and per-GB charges. Do not default to EFO for all consumers.
 - **KDS On-Demand vs. Provisioned**: On-Demand mode scales automatically but costs more per GB than a correctly provisioned stream. It is the right default for new or unpredictable workloads, but for well-understood, stable throughput, Provisioned mode is cheaper.
@@ -220,7 +221,7 @@ If two or more consumers need to read from the same stream at high throughput, t
 
 - Kinesis Data Streams provides a durable, ordered, replayable stream — unlike SQS, records are not deleted on consumption and multiple independent consumers can read the same data simultaneously.
 - KDS throughput is shard-based: each shard provides 1 MB/s write and 2 MB/s shared read; scale by adding or removing shards, or use On-Demand mode for automatic scaling.
-- Kinesis Data Firehose is a fully managed delivery service — it buffers, optionally transforms via Lambda, and delivers to S3, Redshift, or OpenSearch without a custom consumer application, with a minimum ~60-second latency.
+- Amazon Data Firehose (formerly Kinesis Data Firehose) is a fully managed delivery service — it buffers, optionally transforms via Lambda, and delivers to S3, Redshift, or OpenSearch without a custom consumer application. Traditional buffered mode has a configurable interval of 60–900 seconds; direct PUT mode (0-second interval) enables near-real-time delivery introduced in 2024.
 - Amazon Managed Service for Apache Flink runs stateful stream processing (windowing, stream joins, running aggregations) on KDS or MSK data — for computations that exceed what per-record Lambda processing can express.
 - Choose KDS over SQS when multiple independent consumers need the same data, replay is required, or strict per-shard ordering matters.
 - `GetRecords.IteratorAgeMilliseconds` is the key CloudWatch metric for KDS — a rising iterator age means consumers are falling behind and additional capacity or consumers are needed.

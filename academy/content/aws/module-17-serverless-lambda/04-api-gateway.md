@@ -61,7 +61,7 @@ API Gateway supports four authorization mechanisms:
 
 ### Throttling, Caching, and Stages
 
-**Throttling** operates at two levels. Account-level defaults are 10,000 requests per second (RPS) with a burst of 5,000 (token bucket algorithm). These limits are shared across all APIs in the account and region. Method-level throttle settings on specific stages and routes can override the account default for individual endpoints.
+**Throttling** operates at two levels. Account-level defaults: **10,000 requests per second (RPS) sustained**, with a **token bucket burst capacity of 5,000 requests**. The burst capacity means an API that has been idle can absorb a sudden spike of up to 5,000 additional concurrent requests above the steady-state rate before throttling kicks in — it is not a 5,000 RPS cap. Once the burst bucket is exhausted, the API is throttled at the sustained 10,000 RPS rate. These limits are shared across all APIs in the account and region. Method-level throttle settings on specific stages and routes can set lower limits for individual endpoints.
 
 **Response caching** (REST API only): API Gateway caches backend responses by cache key (path + query string parameters) for a configurable TTL (0 seconds to 1 hour). Cached responses are returned without invoking Lambda. Cache capacity ranges from 0.5 GB to 237 GB. Useful for read-heavy APIs returning semi-static data (product catalogs, reference data).
 

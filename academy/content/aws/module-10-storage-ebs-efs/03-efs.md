@@ -243,7 +243,7 @@ After creation, click **Network** tab to verify mount targets in each AZ and the
 |---|---|
 | Variable or unpredictable throughput; most new workloads | Elastic |
 | Small filesystem, consistently high throughput demand | Provisioned |
-| Large filesystem (several TB+), variable throughput, cost-sensitive | Bursting |
+| Large filesystem (several TB+), variable throughput, cost-sensitive | Elastic (Bursting is deprecated for new filesystems; Elastic handles variable throughput automatically) |
 
 ## How This Connects
 

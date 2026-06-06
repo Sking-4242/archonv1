@@ -39,7 +39,7 @@ Set the visibility timeout **longer than your maximum expected processing time**
 
 **Standard queues** provide nearly unlimited throughput, at-least-once delivery, and best-effort ordering. Messages may arrive out of order and rare duplicates are possible. Standard is the right choice for the vast majority of workloads — wherever high throughput matters more than strict ordering, and wherever consumers are designed to be idempotent.
 
-**FIFO queues** provide exactly-once processing and strict ordering within a **message group** (identified by `MessageGroupId`). Deduplication is controlled by `MessageDeduplicationId` or content hash. Messages with the same group ID are processed in strict FIFO order; messages across different groups are processed concurrently. Throughput: up to 3,000 messages/second with batching, 300 without.
+**FIFO queues** provide exactly-once processing and strict ordering within a **message group** (identified by `MessageGroupId`). Deduplication is controlled by `MessageDeduplicationId` or content hash. Messages with the same group ID are processed in strict FIFO order; messages across different groups are processed concurrently. Standard FIFO throughput: up to 3,000 messages/second with batching (10 messages/batch), 300 without. **High Throughput FIFO mode** (enabled via queue attribute) raises this to up to 70,000 API actions per second, making FIFO viable for higher-throughput scenarios while still preserving message group ordering.
 
 Use FIFO when:
 - Order matters within a group (a patient's claim amendment must follow the original claim submission)

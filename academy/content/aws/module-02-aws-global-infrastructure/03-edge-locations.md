@@ -9,7 +9,7 @@ cert_tags: ["CLF-C02", "SAA-C03"]
 
 ## Overview
 
-AWS Regions and Availability Zones are where your compute and storage workloads live. Edge Locations are something different: they are the global network of points where AWS brings its infrastructure closest to end users for content delivery and DNS resolution. As of 2024, AWS operates over 450 Edge Locations — also called Points of Presence (POPs) — spread across hundreds of cities worldwide. That number is more than ten times the number of AWS Regions. Edge Locations are primarily used by two services: Amazon CloudFront (AWS's content delivery network, or CDN) and Amazon Route 53 (AWS's DNS service). When your users load a webpage, watch a video, or download a file served through CloudFront, the content typically comes from an Edge Location in their city — not from a data center thousands of miles away.
+AWS Regions and Availability Zones are where your compute and storage workloads live. Edge Locations are something different: they are the global network of points where AWS brings its infrastructure closest to end users for content delivery and DNS resolution. AWS operates 600+ Edge Locations — also called Points of Presence (POPs) — spread across hundreds of cities worldwide, and this count grows regularly as AWS expands its CDN footprint. Always verify the current count at **infrastructure.aws** rather than memorizing a specific number. That number is more than fifteen times the number of AWS Regions. Edge Locations are primarily used by two services: Amazon CloudFront (AWS's content delivery network, or CDN) and Amazon Route 53 (AWS's DNS service). When your users load a webpage, watch a video, or download a file served through CloudFront, the content typically comes from an Edge Location in their city — not from a data center thousands of miles away.
 
 Edge Locations exist because physics imposes an unavoidable tax on data traveling long distances. Even at the speed of light, a round-trip between a user in Tokyo and a server in Virginia takes roughly 150–200 milliseconds. For loading a webpage composed of dozens of individual assets (images, scripts, stylesheets), those delays stack up. A CDN solves this problem by storing copies of frequently requested content in local caches — the Edge Locations — so that users retrieve content from a location that might be just a few miles away, reducing latency from hundreds of milliseconds to single digits. The origin server (your S3 bucket or EC2 application) only gets contacted when an Edge Location does not have a fresh cached copy, dramatically reducing load on your infrastructure as well.
 
@@ -167,7 +167,7 @@ The key judgment call with Edge Locations is whether your workload benefits from
 - C) 13
 - D) 450+
 
-**Answer: D** — AWS operates over 450 Edge Locations worldwide. 33 (or ~34) is the number of full AWS Regions. 13 is the number of Regional Edge Caches, which are a separate middle layer between Edge Locations and origin servers.
+**Answer: D** — AWS operates 600+ Edge Locations worldwide (the count grows regularly; check infrastructure.aws for the current number). 33+ is the number of full AWS Regions. 13 is the approximate number of Regional Edge Caches, which are a separate middle layer between Edge Locations and origin servers.
 
 ---
 

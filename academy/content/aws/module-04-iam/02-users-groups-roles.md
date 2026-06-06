@@ -29,7 +29,7 @@ A single IAM User can have both console and programmatic credentials simultaneou
 
 **Why long-term credentials are a structural risk:** The fundamental problem with access keys is that they don't expire on their own. The security model requires active management — regular rotation, monitoring for unused keys, immediate revocation when employees leave or keys are suspected compromised. This operational burden scales poorly and is frequently neglected. It is the main reason AWS guidance says "prefer roles to users for any non-human access."
 
-**Hard limits you must know:** 5,000 IAM Users per account. This is a hard limit that cannot be increased by a support request. For organizations with more than 5,000 employees needing AWS access — or for any organization that wants a scalable, centrally managed human access model — IAM Identity Center with federation to an external identity provider (Active Directory, Okta, Google Workspace) is the correct architecture. IAM Users simply do not scale to enterprise user counts.
+**Limits you must know:** 5,000 IAM Users per account is the default limit. This limit can technically be raised via an AWS Service Quotas increase request, but AWS strongly discourages this path — for any organization needing to scale beyond a few hundred users, IAM Identity Center with federation to an external identity provider (Active Directory, Okta, Google Workspace) is the architecturally correct solution. IAM Users simply do not scale to enterprise user counts, regardless of the quota limit.
 
 ### IAM Groups: Permission Management at Scale
 
@@ -328,7 +328,7 @@ aws sts get-caller-identity
 
 4. **Attaching a role to an EC2 instance is automatic credential management, not manual.** When you attach an IAM Role to an EC2 instance, EC2 handles the full assume-role flow automatically and refreshes credentials before they expire. The application just reads from IMDS. This is fundamentally different from a developer manually running `aws sts assume-role` from a terminal — that generates one-time temporary credentials that must be refreshed manually.
 
-5. **The 5,000 IAM User limit cannot be increased.** This is a hard service limit. No support case can raise it. For user counts approaching or exceeding 5,000, the architecture must shift to IAM Identity Center with external identity provider federation. Exam questions about large-scale human access to AWS should point to federation, not IAM Users.
+5. **The 5,000 IAM User default limit can technically be raised via Service Quotas, but this is not the right architectural path.** For user counts approaching or exceeding 5,000 — or any organization with more than a handful of human users — the architecture must shift to IAM Identity Center with external identity provider federation. Exam questions about large-scale human access to AWS should point to federation, not IAM Users or quota increases.
 
 ## Summary
 
@@ -336,7 +336,7 @@ aws sts get-caller-identity
 - IAM Groups are administrative collections of users where policies attached to the group immediately apply to all members; groups cannot be nested, cannot make API calls, and cannot be referenced as principals.
 - IAM Roles are the preferred identity construct for any non-human access; they issue temporary, auto-expiring credentials via STS and carry no long-term secrets that can leak or need rotation.
 - Every role has two policy components that must both be correct: the trust policy (who can assume the role) and permission policies (what the role can do once assumed).
-- The maximum IAM User count is 5,000 per account — a hard limit; organizations needing more human AWS access must use IAM Identity Center with external identity provider federation.
+- The default IAM User limit is 5,000 per account (raiseable via Service Quotas, but not the right architectural answer); organizations needing scalable human AWS access should use IAM Identity Center with external identity provider federation.
 - The architecture principle to internalize: roles for services and automation, users for humans at small scale or specific legacy integrations, groups to manage human permissions without per-user policy maintenance overhead.
 
 ## Examples

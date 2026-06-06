@@ -51,7 +51,7 @@ For the SAA exam, understand each DR strategy's mechanism, approximate RTO/RPO, 
 
 **RPO**: near-zero for data (synchronous or near-synchronous replication to the standby database). The replication lag is the RPO ceiling — Aurora Global Database replication lag is typically < 1 second.
 
-**RTO**: 1–4 hours (time to provision EC2/ECS infrastructure from CloudFormation templates and warm the application tier). This is the critical constraint — the infrastructure provisioning step determines how quickly you can serve traffic.
+**RTO**: 15 minutes to 2 hours depending on how infrastructure is pre-prepared. Traditional Pilot Light (provision from CloudFormation + install software) takes 1–4 hours. Modern Pilot Light designs using pre-baked AMIs, containerized workloads (ECS/EKS with pre-pulled images), and pre-tested Infrastructure as Code can achieve RTO under 30 minutes. The infrastructure provisioning step is the critical constraint — optimize it by maintaining ready-to-launch AMIs and regularly testing the full recovery runbook.
 
 **Cost**: moderate — pay for the standby database instance (smaller than production is acceptable for storage; scale up at DR time), snapshot storage, and replication data transfer.
 

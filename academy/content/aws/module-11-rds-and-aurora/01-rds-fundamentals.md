@@ -45,7 +45,7 @@ RDS uses EBS volumes for storage. Three types exist:
 
 **gp3 (General Purpose SSD, generation 3)**: The default and recommended type for most workloads. Key differentiator: IOPS and throughput are configurable independently of storage size. You can have a 100 GB volume with 6,000 IOPS without paying for more storage. Baseline is 3,000 IOPS and 125 MB/s throughput; you can provision up to 16,000 IOPS and 1,000 MB/s. Cost-efficient for most production databases.
 
-**io1 (Provisioned IOPS SSD)**: For workloads requiring sustained, consistent high IOPS — typically above 16,000 IOPS or I/O-critical transactional databases. Supports up to 64,000 IOPS. More expensive than gp3 per GB and per IOPS. Use only when you have measured an IOPS requirement that exceeds gp3 maximums.
+**io1 (Provisioned IOPS SSD)**: For workloads requiring sustained, consistent high IOPS — typically above 16,000 IOPS or I/O-critical transactional databases. Maximum IOPS depends on the database engine and instance class: MySQL and PostgreSQL support up to 64,000 IOPS on supported instances; SQL Server supports up to 40,000 IOPS. More expensive than gp3 per GB and per IOPS. Use only when you have measured an IOPS requirement that exceeds gp3 maximums.
 
 **Magnetic (standard)**: Legacy spinning-disk storage. Lower cost per GB but unpredictable IOPS, no autoscaling support, and significantly worse latency. AWS recommends against it for all new databases. It appears on the exam as a wrong answer trap.
 
@@ -79,7 +79,7 @@ aws rds create-db-instance \
   --master-user-password "MyS3cureP@ssword!" \     # Min 8 chars; use Secrets Manager in practice
   --allocated-storage 100 \                        # Initial storage size in GiB
   --storage-type gp3 \                             # gp3 | io1 | standard (avoid standard)
-  --iops 3000 \                                    # For gp3: 3000–16000; for io1: 1000–64000
+  --iops 3000 \                                    # For gp3: 3000–16000; for io1: 1000–64000 (MySQL/PostgreSQL); 1000–40000 (SQL Server)
   --storage-encrypted \                            # Enable encryption at rest with KMS
   --kms-key-id alias/aws/rds \                     # Default RDS KMS key; use customer-managed for compliance
   --db-subnet-group-name prod-db-subnet-group \    # DB Subnet Group covering at least 2 AZs

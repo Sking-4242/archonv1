@@ -72,6 +72,8 @@ The ALB sends a health check (HTTP GET to a configured path) to each task period
 
 For zero-downtime rolling deployments: minimum healthy percent = 100%, maximum percent = 200%.
 
+> **Enable the ECS Deployment Circuit Breaker on all production services.** When enabled, ECS automatically rolls back to the previous task definition revision if a deployment fails to place healthy tasks within a threshold — preventing a broken deployment from looping indefinitely. Without the circuit breaker, a deployment that creates crash-looping tasks will keep retrying until you manually intervene. Enable it by setting `deploymentCircuitBreaker.enable = true` and optionally `deploymentCircuitBreaker.rollback = true` in your service configuration. This is an AWS best practice for all ECS service deployments.
+
 **Blue/Green deployment** (via AWS CodeDeploy): deploys the new version (green) as a separate task set registered to a new target group behind the same ALB. Traffic is shifted to green in one of three modes: all-at-once, canary (small percentage first, then all if alarms don't fire), or linear (gradual shift over time). Rollback is a traffic switch back to blue — instant, no container re-deployment required.
 
 Use blue/green when: instant rollback capability is required, canary traffic testing is needed before full rollout, or the service processes financial or sensitive transactions where a few seconds of error-state traffic is unacceptable.

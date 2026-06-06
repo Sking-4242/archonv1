@@ -23,7 +23,7 @@ Aurora's storage layer consists of a fleet of purpose-built storage nodes distri
 
 This quorum model is why Aurora's durability and availability guarantees are so strong. Losing one AZ (two nodes) still leaves four nodes, which satisfies the write quorum — writes continue uninterrupted. Losing two AZs (four nodes) drops below write quorum, but the remaining two nodes still satisfy the read quorum — reads continue even though writes are blocked until nodes recover. Compare this to a synchronous standby in standard RDS Multi-AZ: losing the standby AZ forces writes to wait for recovery, and there is only one copy in each AZ.
 
-Storage is automatically provisioned and grows in 10 GB increments up to 128 TB. You never need to pre-allocate storage or set IOPS levels — Aurora manages it entirely. AWS describes this as "storage auto-scaling," but it is more accurate to say the storage is a shared service that expands on demand. You pay for what you use, not what you provision.
+Storage scales automatically as data grows, up to 128 TiB, with no provisioning or manual resizing required. You never need to pre-allocate storage or set IOPS levels — Aurora manages it entirely. AWS describes this as "storage auto-scaling," but it is more accurate to say the storage is a shared service that expands on demand. You pay for what you use, not what you provision.
 
 ### Self-Healing Storage
 
@@ -59,7 +59,7 @@ Failover when the primary fails is fast because Aurora does not need to pick up 
 
 Aurora Serverless v2 adds elastic compute scaling to the Aurora architecture. Instead of choosing a fixed instance class (db.r6g.large, etc.), you configure a minimum and maximum in Aurora Capacity Units (ACUs). One ACU is approximately 2 GB of RAM plus proportional CPU and networking. Aurora scales the compute up or down in increments as small as 0.5 ACU based on measured load, typically within seconds.
 
-Serverless v2 can scale to a minimum of 0.5 ACU, enabling near-zero cost for idle databases. Some configurations support scaling to 0 ACUs (true pause), though this incurs a cold-start latency of several seconds on the first connection. Serverless v2 is the correct choice for variable or unpredictable workloads, dev/test databases, multi-tenant SaaS architectures where individual tenant databases are mostly idle, and event-driven workloads driven by Lambda or batch jobs with irregular schedules. It is not the best choice for consistently high-load OLTP systems where a fixed instance class is more cost-predictable and avoids scaling latency.
+Serverless v2 can scale to a minimum of 0.5 ACU, enabling near-zero cost for idle databases. Aurora Serverless v2 does **not** support scaling to 0 ACUs — the minimum is always 0.5 ACU. True pause-to-zero (scaling to 0) was a feature of Aurora Serverless v1, which is now deprecated and should not be used for new workloads. Serverless v2 is the correct choice for variable or unpredictable workloads, dev/test databases, multi-tenant SaaS architectures where individual tenant databases are mostly idle, and event-driven workloads driven by Lambda or batch jobs with irregular schedules. It is not the best choice for consistently high-load OLTP systems where a fixed instance class is more cost-predictable and avoids scaling latency.
 
 ## Configuration Reference
 
@@ -195,7 +195,7 @@ Use this table to choose among Aurora configurations:
 False. Aurora replicas do not receive replicated data. They share the same distributed storage volume as the primary. There is no binary log replication between compute instances. This is why replication lag is under 10ms and why replicas can be promoted instantly — the data is already there.
 
 **Trap 2: "Aurora Serverless v2 and Aurora Serverless v1 behave the same way."**
-They do not. Aurora Serverless v1 is deprecated and scales in coarser ACU increments with longer scale-up times and a cold start on first connection after pause. Serverless v2 scales in 0.5 ACU increments within seconds and supports Multi-AZ, Global Database, and read replicas. Exam questions about "Aurora Serverless" after 2023 refer to v2 behavior unless v1 is explicitly stated.
+They do not. Aurora Serverless v1 is deprecated — it scaled in coarser ACU increments, had longer scale-up times, and supported true pause-to-zero (0 ACU). Serverless v2 scales in 0.5 ACU increments within seconds, has a minimum of 0.5 ACU (never scales to zero), and supports Multi-AZ, Global Database, and read replicas. Exam questions about "Aurora Serverless" after 2023 refer to v2 behavior unless v1 is explicitly stated. If a question describes pause-to-zero or cold-start-on-first-connection behavior, it is describing v1.
 
 **Trap 3: "The cluster endpoint balances reads across all replicas."**
 The cluster endpoint routes exclusively to the primary (writer). The reader endpoint balances reads. Sending reads to the cluster endpoint does not use replicas — it hits the primary, wasting read capacity and adding unnecessary load to the writer.
@@ -210,7 +210,7 @@ Aurora is always Multi-AZ at the storage layer — the six copies across three A
 
 - Aurora stores six copies of data across three AZs (two per AZ) and requires a 4/6 write quorum and 3/6 read quorum — this makes it durable through AZ failures without synchronous standby overhead.
 - Aurora sends only redo log records to storage (not full pages), eliminating binary log replication between replicas and reducing I/O by orders of magnitude compared to traditional MySQL/PostgreSQL.
-- Storage scales automatically in 10 GB increments up to 128 TB — no IOPS or volume provisioning required.
+- Storage scales automatically up to 128 TiB — no IOPS, volume provisioning, or manual resizing required.
 - The cluster endpoint routes writes to the primary; the reader endpoint load-balances reads across up to 15 replicas; custom endpoints route to specific subsets of instances.
 - Failover completes in under 30 seconds because replicas share storage — no data movement required; Aurora updates the cluster endpoint DNS and grants write access to the promoted replica.
 - Aurora Serverless v2 scales compute between min and max ACUs in seconds, making it the right choice for variable, unpredictable, or multi-tenant workloads.
@@ -227,7 +227,7 @@ A media company migrates from a commercial Oracle database to Aurora PostgreSQL-
 
 1. Aurora uses a 4/6 write quorum and a 3/6 read quorum. Under what failure scenario can Aurora serve reads but not writes — and is that the correct behavior for a relational database?
 2. Aurora eliminates binary log replication between the primary and read replicas because replicas share the storage layer. What does this mean for replication lag, and how does it affect the decision to use Aurora replicas versus RDS Read Replicas for read scaling?
-3. Aurora Serverless v2 can scale down to 0.5 ACU. What application behavior could cause problems if compute scales down aggressively during a brief idle period between bursts of traffic?
+3. Aurora Serverless v2 scales down to a minimum of 0.5 ACU but never to zero. What application behavior could cause problems if compute scales down aggressively during a brief idle period between bursts of traffic? How does setting a higher minimum ACU mitigate this?
 4. The Reader Endpoint load-balances in round-robin across all replicas. If you have a mix of db.r6g.large and db.r6g.4xlarge replicas and your analytics team runs expensive queries, what problem does the Reader Endpoint create — and how do custom endpoints solve it?
 5. Aurora's storage self-heals by fetching a valid copy from one of the other five nodes when a block fails a checksum. What does this imply about the value of automated storage management versus managing EBS snapshots and volume health manually on EC2-hosted MySQL?
 

@@ -37,7 +37,7 @@ Throughput on gp2 is also tied to IOPS and maxes at 250 MB/s. You cannot configu
 
 io2 Block Express is EBS's highest-performance volume type, designed for the most demanding workloads — large Oracle databases, SAP HANA, SQL Server Always On, high-frequency trading platforms. Key specifications:
 
-- **Maximum IOPS:** 256,000 per volume (64× more than gp3's 4,000 IOPS max)
+- **Maximum IOPS:** 256,000 per volume (16× more than gp3's 16,000 IOPS max)
 - **Maximum throughput:** 4,000 MB/s per volume
 - **Latency:** Sub-millisecond, consistent (not burst-based)
 - **Durability:** 99.999% (five nines) annual failure rate, compared to 99.8–99.9% for other volume types

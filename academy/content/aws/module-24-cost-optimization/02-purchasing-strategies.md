@@ -57,7 +57,7 @@ Low coverage = leaving savings on the table. Low utilization = over-committed an
 
 Spot Instances use AWS's spare EC2 capacity at discounts of up to 90% vs. On-Demand. The trade-off: AWS can interrupt Spot Instances with a 2-minute interruption notice when it needs the capacity back for On-Demand or Reserved Instance customers.
 
-**Spot interruption rate**: most Spot pools have a < 5% interruption rate per month. Individual pool rates vary by instance type, AZ, and time. The rate is dynamic — high-demand periods have higher interruption rates.
+**Spot interruption rate**: interruption rates vary widely by instance type, AZ, and time. Use the **EC2 Spot Instance Advisor** (available in the AWS console and at aws.amazon.com/ec2/spot/instance-advisor) to check the interruption frequency score for any specific instance type and AZ combination before designing a Spot-based architecture. Many pools show < 5% interruption frequency, but some high-demand pools interrupt far more often. The rate is dynamic — high-demand periods have higher interruption rates.
 
 **Appropriate workloads**: batch processing, CI/CD build fleets, simulation and rendering, EMR data processing, fault-tolerant stateless web tiers (behind ALB, graceful instance shutdown on interruption notice), genomics analysis, model training with checkpointing.
 

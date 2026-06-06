@@ -65,9 +65,13 @@ In practice, most teams should use **Savings Plans** rather than Reserved Instan
 
 ### Spot Instances: Maximum Savings for Fault-Tolerant Workloads
 
-Spot Instances access AWS's spare EC2 capacity at discounts of 60–90% below On-Demand pricing. The critical trade-off: AWS can reclaim Spot Instances with a **2-minute warning** when the capacity is needed for On-Demand customers or when the Spot price rises above your maximum bid (which by default equals the On-Demand price).
+Spot Instances access AWS's spare EC2 capacity at discounts of 60–90% below On-Demand pricing. The critical trade-off: AWS can reclaim Spot Instances when the capacity is needed for On-Demand customers or when the Spot price rises above your maximum bid (which by default equals the On-Demand price).
 
-This interruption risk sounds severe, but many workloads are genuinely tolerant of it. AWS Batch automatically retries interrupted Batch jobs. Amazon EMR handles Spot interruptions by migrating tasks to other nodes. Kubernetes with Karpenter or Spot-aware node groups drains pods gracefully on the 2-minute warning and reschedules them on other nodes.
+AWS provides two signals before reclaiming a Spot Instance:
+- **EC2 Instance Rebalance Recommendation**: an early signal (can arrive minutes before interruption) indicating the instance is at elevated interruption risk. Applications should use this signal to proactively drain and checkpoint before the 2-minute notice arrives.
+- **Spot Instance Interruption Notice**: a definitive 2-minute warning delivered via EC2 instance metadata and EventBridge. After this notice, the instance will be interrupted within 2 minutes.
+
+Designing applications to respond to the Rebalance Recommendation — not just the 2-minute notice — allows significantly more graceful draining time. This interruption risk sounds severe, but many workloads are genuinely tolerant of it. AWS Batch automatically retries interrupted Batch jobs. Amazon EMR handles Spot interruptions by migrating tasks to other nodes. Kubernetes with Karpenter or Spot-aware node groups drains pods gracefully on the Rebalance Recommendation and reschedules them on other nodes.
 
 **Designing for Spot:**
 - **Diversify across instance types and AZs**: Use 5+ instance types in 3 AZs. When one type's Spot price rises, capacity remains available in others. Use an EC2 Fleet or Auto Scaling group mixed-instances policy to implement this.

@@ -23,6 +23,8 @@ The SAA exam tests what each service does, what data sources GuardDuty analyzes,
 
 GuardDuty is a managed threat detection service that requires no agents, no infrastructure changes, and no configuration beyond enabling it. When enabled, it continuously analyzes three primary data sources: **CloudTrail management events** (API calls in the account), **VPC Flow Logs** (network traffic metadata), and **Route 53 DNS query logs** (DNS requests from VPC resources).
 
+**GuardDuty Runtime Monitoring** (launched 2023) extends threat detection beyond logs to the actual runtime behavior of workloads. Using lightweight agents deployed to ECS tasks, EKS pods, and Lambda functions, Runtime Monitoring detects threats like process injection, privilege escalation, suspicious file access, and unexpected network connections — behaviors invisible to CloudTrail or Flow Logs. Runtime Monitoring is an opt-in feature with an additional charge. It is increasingly tested on SAA-C03 as the answer for "detect threats at the container/serverless runtime level."
+
 GuardDuty uses a combination of AWS threat intelligence feeds, third-party threat intelligence (CrowdStrike, Proofpoint), and machine learning to identify threats across three categories:
 
 **Compromise indicators**: an EC2 instance communicating with a known command-and-control IP, an IAM user calling APIs from a TOR exit node, cryptocurrency mining activity detected in network traffic.

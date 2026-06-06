@@ -71,6 +71,8 @@ You configure a base On-Demand count (guaranteed minimum On-Demand instances for
 
 **Warm pools** pre-initialize instances so they are ready to join the fleet instantly when a scale-out is needed. Instances in the warm pool are in a stopped or running state (your choice), have already completed their user data bootstrap, and are waiting. When a scaling event fires, the ASG moves warm pool instances to InService in seconds rather than the typical 3–5 minutes for a cold launch. Warm pools are particularly valuable when your application has a long startup time (JVM warm-up, large model loading, cache hydration) that makes reactive scaling too slow.
 
+> **Cost note:** Warm pool instances incur standard EC2 charges when in the **running** state. To minimize cost, configure warm pool instances to use the **stopped** state — you pay only for EBS storage (not compute) while stopped, with a slightly longer scale-out time as the instance restarts. Choose the running state only when your application's cold start time after a stop/start would still be too long.
+
 ## Configuration Reference
 
 ### Create an ASG with a Launch Template (CLI)

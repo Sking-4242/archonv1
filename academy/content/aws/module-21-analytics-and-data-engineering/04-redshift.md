@@ -67,7 +67,7 @@ Redshift Spectrum extends Redshift SQL to query S3 data directly without loading
 - Query cold data in S3 that is too large or too old to economically keep in Redshift storage
 - Enable a single query to span the warehouse (hot data) and the data lake (cold data)
 
-Spectrum queries incur both Redshift compute cost (cluster running) and an additional charge per TB of S3 data scanned via Spectrum ($5/TB, same as Athena). Using Parquet and partitioning reduces Spectrum scan cost exactly as it reduces Athena cost.
+Spectrum queries incur both Redshift compute cost (cluster running) and an additional charge per TB of S3 data scanned via Spectrum ($5/TB, same as Athena's headline rate). However, the $5/TB figure is the worst-case cost against uncompressed, unpartitioned row-oriented data (CSV/JSON). Storing S3 data in **columnar Parquet or ORC format with appropriate partitioning** can reduce the effective scanned data volume by 90%+ — a query that scans 3 columns out of 30 in a Parquet file only reads those 3 columns, not the full row data. In practice, well-organized data lakes see effective Spectrum query costs far below the headline $5/TB rate. This optimization applies equally to Athena queries on the same data.
 
 ---
 

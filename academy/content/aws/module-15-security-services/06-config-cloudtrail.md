@@ -29,7 +29,7 @@ CloudTrail records two categories of events:
 
 **Data events** (data-plane): S3 object-level operations (`GetObject`, `PutObject`, `DeleteObject`), Lambda function invocations, DynamoDB item-level operations. Data events are disabled by default because they generate extremely high volume (every S3 read generates an event) and are charged per event. Enable them only on specific high-value buckets or functions where object-level audit is required.
 
-To retain events longer than 90 days, create a **Trail** — a configuration that continuously delivers events to an S3 bucket. From S3, logs can be queried with Athena, streamed to CloudWatch Logs for real-time alerting, or ingested into a SIEM. CloudTrail Lake provides a managed event data store with SQL-based querying, eliminating the need to manage Athena infrastructure for log analysis.
+To retain events longer than 90 days, create a **Trail** — a configuration that continuously delivers events to an S3 bucket. From S3, logs can be queried with Athena, streamed to CloudWatch Logs for real-time alerting, or ingested into a SIEM. **CloudTrail Lake** provides a managed event data store with SQL-based querying, eliminating the need to manage Athena infrastructure for log analysis. CloudTrail Lake retention is configurable from 90 days up to 7 years (default: 7 years) and is charged per GB ingested and per GB scanned during queries — in contrast to Event History (free, 90 days, no querying) and Trails to S3 (pay only for S3 storage, queryable via Athena).
 
 ---
 

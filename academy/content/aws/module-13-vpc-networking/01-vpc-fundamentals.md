@@ -82,6 +82,8 @@ NAT Gateways are AZ-scoped resources. A NAT Gateway deployed in `us-east-1a` can
 
 Billing for NAT Gateways has two components: an hourly charge per gateway (approximately $0.045/hour) and a data processing charge per GB of traffic (approximately $0.045/GB). For workloads with heavy outbound traffic (video processing, large data transfers), NAT Gateway costs can become significant — VPC Endpoints are often used to route AWS service traffic (S3, DynamoDB) without touching the NAT Gateway.
 
+> **IPv6 and NAT Gateway:** NAT Gateway supports **IPv4 only**. For outbound-only IPv6 traffic from private subnets, use an **Egress-Only Internet Gateway (EIGW)**. Like a NAT Gateway, an EIGW allows instances to initiate outbound IPv6 connections while blocking unsolicited inbound IPv6 connections. Add a route in the private subnet's route table pointing `::/0` to the EIGW. This is a direct exam test: NAT Gateway = IPv4 outbound; EIGW = IPv6 outbound.
+
 ### Default VPC
 
 Every AWS region has a default VPC pre-created in your account. Its properties:

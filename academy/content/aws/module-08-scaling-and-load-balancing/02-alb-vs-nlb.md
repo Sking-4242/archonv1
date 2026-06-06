@@ -63,7 +63,7 @@ aws elbv2 create-load-balancer \
   --type application \               # Layer 7 — HTTP/HTTPS/gRPC
   --scheme internet-facing \         # internet-facing | internal
   --subnets subnet-0aaa1111 subnet-0bbb2222 \  # Must specify 2+ subnets in different AZs
-  --security-groups sg-0abc99999     # ALB requires a security group; NLB does not
+  --security-groups sg-0abc99999     # ALB requires a security group; NLB supports security groups optionally (since August 2023)
 ```
 
 **Create a Network Load Balancer:**

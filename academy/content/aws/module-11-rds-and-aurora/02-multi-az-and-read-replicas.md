@@ -41,7 +41,7 @@ To monitor replica health, create CloudWatch alarms on `ReplicaLag` with a thres
 
 ### Read Replica Limits and Placement Options
 
-Standard RDS supports up to **5 Read Replicas** per source DB instance. Each replica has its own endpoint (hostname) that your application must explicitly target — RDS does not automatically load-balance reads across replicas. You must configure your application to use the replica endpoint for reads, or use a connection proxy like RDS Proxy that can route reads.
+Read Replica limits vary by engine: **MySQL and MariaDB support up to 15 Read Replicas** per source DB instance (updated in 2023); **PostgreSQL, Oracle, and SQL Server support up to 5**. Each replica has its own endpoint (hostname) that your application must explicitly target — RDS does not automatically load-balance reads across replicas. You must configure your application to use the replica endpoint for reads, or use a connection proxy like RDS Proxy that can route reads.
 
 Read Replicas can be placed in three configurations:
 
@@ -225,7 +225,7 @@ Not always. During heavy write bursts, replication lag can spike significantly. 
 ## Summary
 
 - Multi-AZ maintains a synchronous standby in a different AZ with automatic failover in 60–120 seconds and zero RPO; the standby serves no reads in standard mode.
-- Read Replicas maintain asynchronous copies with their own readable endpoints, scaling read throughput horizontally with up to 5 replicas for standard RDS.
+- Read Replicas maintain asynchronous copies with their own readable endpoints, scaling read throughput horizontally — up to 15 replicas for MySQL/MariaDB, up to 5 for PostgreSQL/Oracle/SQL Server.
 - Multi-AZ Cluster (MySQL/PostgreSQL) deploys one writer and two readable standbys with faster failover under 35 seconds, combining read scale with high availability.
 - ReplicaLag is the key CloudWatch metric for monitoring Read Replica health; alarms should be set to detect lag spikes before they cause application-visible staleness.
 - Promoting a Read Replica creates a standalone writable instance and permanently severs replication — used for major version upgrades, test environment creation, and cross-region DR activation.
