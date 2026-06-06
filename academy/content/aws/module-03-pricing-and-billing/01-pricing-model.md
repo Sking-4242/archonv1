@@ -2,7 +2,7 @@
 title: "AWS Pricing Fundamentals"
 type: content
 estimated_minutes: 18
-cert_tags: ["aws_ccp", "aws_clf_c02"]
+cert_tags: ["CLF-C02"]
 ---
 
 # AWS Pricing Fundamentals

@@ -2,7 +2,7 @@
 title: "Users, Groups, and Roles"
 type: content
 estimated_minutes: 16
-cert_tags: ["aws_ccp", "aws_saa", "aws_soa", "aws_dva"]
+cert_tags: ["CLF-C02", "SAA-C03", "SOA-C02", "DVA-C02"]
 ---
 
 # Users, Groups, and Roles
@@ -57,7 +57,7 @@ IAM Roles are the correct identity construct for any principal that is not a spe
 
 **Permission policies** — one or more identity-based policies (managed or inline) that define what the role can do once it has been assumed. These work exactly like policies attached to an IAM User. There is no structural difference between a permission policy on a role and a permission policy on a user — the same JSON format, the same evaluation logic, the same IAM actions and resource ARNs.
 
-When a principal assumes a role, AWS STS issues **temporary security credentials** consisting of: a temporary access key ID (starts with `ASIA`), a temporary secret access key, and a session token. All three must be used together — API calls using only the access key ID and secret without the session token will fail. The credentials are valid for a configurable duration (15 minutes minimum; 12 hours maximum for IAM-assumed roles; configurable per-role). When they expire, the principal must call `sts:AssumeRole` again. This automatic expiry is the core security advantage of roles over users — a leaked temporary credential becomes useless after a maximum of 12 hours without any manual action required.
+When a principal assumes a role, AWS STS issues **temporary security credentials** consisting of: a temporary access key ID (starts with `ASIA`), a temporary secret access key, and a session token. All three must be used together — API calls using only the access key ID and secret without the session token will fail. The credentials are valid for a configurable duration (15 minutes minimum; 1 hour default maximum; up to 12 hours when `MaxSessionDuration` is explicitly set on the role). When they expire, the principal must call `sts:AssumeRole` again. This automatic expiry is the core security advantage of roles over users — a leaked temporary credential becomes useless without any manual action required.
 
 **Key role use cases:**
 

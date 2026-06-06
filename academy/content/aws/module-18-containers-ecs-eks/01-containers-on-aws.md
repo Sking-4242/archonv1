@@ -1,82 +1,80 @@
 ---
 title: "Containers on AWS: ECS, EKS, and Fargate"
 type: content
-estimated_minutes: 10
-cert_tags: ["SAA-C03", "DVA-C02", "CLF-C02"]
+estimated_minutes: 13
+cert_tags: ["CLF-C02", "SAA-C03", "SAP-C02"]
 ---
 
 # Containers on AWS: ECS, EKS, and Fargate
 
 ## Overview
 
-AWS offers multiple ways to run containerized workloads: ECS (AWS-native orchestration), EKS (managed Kubernetes), and Fargate (serverless container runtime). This lesson frames the landscape and the key architectural decision between them.
+A container packages application code, runtime, dependencies, and configuration into a single portable unit. The same container image runs identically in a developer's laptop, a CI/CD pipeline, and a production cluster — eliminating the class of bugs that stem from environment differences. AWS offers a complete container platform: Amazon ECR for image storage, Amazon ECS and Amazon EKS for orchestration, and AWS Fargate as a serverless compute engine for both.
 
-## Why Containers?
+The central architectural decision in this module is which orchestration service to use: ECS (AWS's native container orchestrator, simpler and deeply integrated with AWS services) or EKS (managed Kubernetes, portable across clouds and compatible with the broader Kubernetes ecosystem). Overlaid on that choice is the compute decision: EC2 launch type (you manage the worker nodes) or Fargate (AWS manages the compute, you pay per container resource usage). These two dimensions create four combinations, each suited to different team capabilities and workload characteristics.
 
-Containers package application code, runtime, dependencies, and configuration into a portable, reproducible unit. The same container image runs identically in dev, staging, and production — eliminating 'works on my machine' problems. Containers are more lightweight than VMs: they share the host OS kernel, start in seconds, and achieve higher packing density per host. Docker is the dominant container runtime; images are stored in registries (Amazon ECR, Docker Hub).
+For the SAA exam, understand the ECS vs. EKS distinction, what Fargate provides, ECR's role, and when each combination is appropriate. SAP adds EKS networking (VPC CNI), ECS service connect, Fargate Spot for cost optimization, and multi-region container deployments. After this lesson, you will be able to map a team's workload and operational profile to the right AWS container configuration and explain why.
 
-## Amazon ECS (Elastic Container Service)
+---
 
-ECS is AWS's native container orchestration service. You define Task Definitions (CPU, memory, image, port mappings, environment variables, IAM role, logging) and Services (how many tasks to run, load balancer attachment, auto-scaling policy). ECS manages scheduling, placement, health checks, and rolling deployments. ECS integrates deeply with AWS services: ALB for load balancing, Secrets Manager for credentials, CloudWatch for logging, IAM for task-level permissions.
+## Core Concepts
 
-## Amazon EKS (Elastic Kubernetes Service)
+### Why Containers?
 
-EKS is a managed Kubernetes control plane. AWS manages the control plane (API server, etcd, scheduler) across 3 AZs with automatic patching. You manage (or use Fargate for) the worker nodes. Use EKS if: your team has existing Kubernetes expertise, you need Kubernetes-specific features (custom controllers, admission webhooks, Helm charts), you're migrating from on-premises Kubernetes, or you need portability across cloud providers. Kubernetes has a steeper learning curve than ECS but a larger ecosystem.
+Before containers, deploying an application meant configuring a server (or a VM) with the right OS version, runtime version, system libraries, and configuration files. Small differences between environments — a different Python version, a different library path, a different `ulimit` setting — caused failures that were hard to reproduce and harder to debug.
 
-## AWS Fargate: Serverless Containers
+A container solves this by packaging the application and its entire environment into a single image. The Docker image includes: the OS filesystem layer (not the kernel), the runtime (Node.js, Python, JVM), all library dependencies, and the application code. When that image runs on any container runtime, it sees the same environment it was built in.
 
-Fargate is a serverless compute engine for containers — you run ECS tasks or EKS pods without managing EC2 instances. Specify CPU and memory; Fargate provisions isolated compute for each task automatically. No cluster capacity planning, no patching EC2 worker nodes, no instance over-provisioning. Pay per vCPU-second and GB-second of actual task resource usage. Best for: variable workloads, teams that don't want EC2 management overhead, batch jobs, and microservices with bursty traffic.
+Container images are built in layers. Each instruction in a Dockerfile adds a layer. Layers are cached and shared — if 50 containers share the same base OS layer, that layer is stored once. This makes images fast to pull and efficient to store.
 
-## ECR: Elastic Container Registry
+---
 
-ECR is a fully managed Docker registry integrated with IAM, ECS, EKS, Lambda, and CodeBuild. Lifecycle policies automatically delete old or untagged images. ECR image scanning (powered by Inspector) checks images for OS package vulnerabilities on push. Use ECR as your private registry in AWS — it's tightly integrated and eliminates the latency of pulling from Docker Hub in a production environment.
+### Amazon ECR
 
-## Summary
+**Amazon Elastic Container Registry (ECR)** is a fully managed private Docker registry. It stores container images and integrates natively with ECS, EKS, Lambda, and AWS CodeBuild — all can pull images from ECR without additional authentication configuration when the correct IAM permissions are in place.
 
-AWS containers: ECS for native AWS orchestration, EKS for Kubernetes compatibility, Fargate for serverless execution of both. ECR for private image storage with vulnerability scanning. Choose ECS + Fargate for teams new to containers or prioritizing operational simplicity. Choose EKS for teams with Kubernetes expertise or needing Kubernetes-specific ecosystem.
+ECR provides:
+- **Image scanning**: powered by Amazon Inspector, scans images on push for OS package vulnerabilities (CVEs). Critical and high findings appear in the ECR console and can trigger EventBridge events for automated CI/CD pipeline blocking.
+- **Lifecycle policies**: automatically delete images matching conditions (untagged images older than 7 days, images with a specific tag prefix when more than 10 exist). Keeps the registry from accumulating thousands of stale images.
+- **Cross-region replication**: replicate images to other regions automatically for multi-region deployments or disaster recovery.
+- **Image immutability**: prevent tag overwriting — a tag, once pushed, cannot be reassigned to a different image digest. This is a critical security and reproducibility control.
 
-## Examples
+---
 
-A small e-commerce startup running a monolithic Node.js app on a single EC2 instance decides to containerize it. They build a Docker image, push it to ECR, and run it as an ECS Fargate task. Nothing changes in the code — but now the same image is used in dev, staging, and production, eliminating the classic "it works on my laptop" bug that previously cost hours per deploy. This is the most direct illustration of why containers exist: environment consistency through packaging.
+### Amazon ECS
 
-A mid-sized media company needs to migrate its on-premises Kubernetes workloads to AWS. Rather than re-learning a new orchestration model, they adopt EKS. Their existing Helm charts, custom operators, and RBAC configurations transfer with minimal changes. EKS manages the control plane — they keep their Kubernetes expertise and tooling while offloading the burden of running etcd clusters and API server upgrades. This shows when EKS wins over ECS: existing Kubernetes investment and portability requirements.
+**Elastic Container Service (ECS)** is AWS's native container orchestration service. It manages the scheduling, placement, health checking, and scaling of containers across a cluster of compute resources.
 
-A fintech company runs a fraud-detection pipeline that processes millions of transactions in bursts around paydays, then sits near-idle the rest of the month. They model it as ECS tasks on Fargate. During burst periods, dozens of tasks spin up in seconds; during off-peak hours, desired count drops to two. Because Fargate bills per vCPU-second, they pay for actual execution time rather than keeping EC2 instances warm. The packing-density and billing model make Fargate compelling specifically for this shape of workload — high variance, unpredictable peaks.
+Two key ECS concepts: **Task Definition** and **Service**.
 
-## Think About It
+A **Task Definition** is a JSON blueprint for one or more containers: the Docker image, CPU/memory allocation, port mappings, environment variables, IAM task role (permissions the container code has), logging configuration, and volume mounts. Think of it as a pod spec in Kubernetes terms — but simpler.
 
-1. Why might a team with strong Kubernetes expertise still choose ECS over EKS for a greenfield project on AWS?
-2. What would happen if you used `latest` as the image tag in a production ECS task definition? Trace through a deployment scenario where this causes an unintended rollback.
-3. How would you decide whether to store your container images in ECR versus Docker Hub for a team of five engineers shipping to AWS? What changes if the team grows to fifty engineers across multiple AWS accounts?
-4. Fargate charges per vCPU-second and GB-second of task resource usage. Under what workload pattern would EC2 launch type actually cost less than Fargate, and how would you model that decision?
-5. ECR vulnerability scanning flags a critical CVE in the base OS package of an image your service has been running in production for two weeks. What is the right sequence of actions, and who in the organization needs to be involved?
+A **Service** maintains a desired number of running tasks. If a task fails, the service replaces it. Services integrate with ALBs for load balancing, can use Auto Scaling to adjust task count based on CloudWatch metrics, and support rolling deployments (blue/green via CodeDeploy, or rolling update).
 
-## Quick Check
+ECS is deeply integrated with AWS services: Secrets Manager and Parameter Store for environment variable injection, CloudWatch Logs for logging, IAM for task-level credentials (the task role), Service Connect for service discovery, and AWS App Mesh for advanced traffic management.
 
-**Q1.** Which AWS service manages the Kubernetes control plane, including the API server and etcd, so that you do not have to?
-- A) Amazon ECS
-- B) AWS Fargate
-- C) Amazon EKS
-- D) Amazon ECR
+---
 
-**Answer: C** — EKS is the managed Kubernetes service; AWS runs the control plane across three Availability Zones with automatic patching.
+### Amazon EKS
 
-**Q2.** A team wants to run containerized batch jobs without managing any EC2 instances. Which compute model should they use?
-- A) ECS with EC2 launch type
-- B) ECS or EKS with Fargate
-- C) Self-managed Kubernetes on EC2
-- D) AWS Lambda
+**Elastic Kubernetes Service (EKS)** is managed Kubernetes. AWS manages the Kubernetes control plane — the API server, etcd (the cluster state store), controller manager, and scheduler — deployed across three Availability Zones with automatic upgrades and patches. You manage (or use Fargate for) the worker nodes.
 
-**Answer: B** — Fargate is the serverless compute engine for containers that removes EC2 instance management from both ECS and EKS workloads.
+Use EKS when: your team has existing Kubernetes expertise, you need Kubernetes-specific ecosystem components (Helm charts, custom operators, admission webhooks, CRDs), you are migrating on-premises Kubernetes workloads to AWS, or you need the option to run the same workload on other cloud providers or on-premises Kubernetes.
 
-**Q3.** What is the primary purpose of ECR Lifecycle Policies?
-- A) To control which IAM users can pull images
-- B) To automatically delete old or untagged images and reduce registry size
-- C) To replicate images across AWS Regions
-- D) To enforce image signing before deployment
+EKS adds significant operational complexity compared to ECS: you manage Kubernetes version upgrades for worker nodes, configure and maintain cluster add-ons (CoreDNS, kube-proxy, VPC CNI), and deal with Kubernetes's own RBAC on top of IAM. For teams without existing Kubernetes expertise building new AWS-native applications, ECS is almost always the right starting point.
 
-**Answer: B** — ECR Lifecycle Policies automate the cleanup of stale and untagged images, which also reduces the attack surface of the registry.
+---
 
-## What's Next
+### AWS Fargate
 
-Next up: ECS Deep Dive — task definitions, services, and deployment strategies.
+**Fargate** is a serverless compute engine for containers. Instead of provisioning and managing EC2 instances as worker nodes, you specify the CPU and memory a task needs and Fargate provisions isolated compute for each task automatically. There are no EC2 instances to patch, no node capacity to plan, and no over-provisioning to worry about.
+
+Fargate works with both ECS and EKS. Pricing is per vCPU-second and GB-second of task resource usage — you pay for actual task runtime, not for the underlying hosts.
+
+Fargate is the best choice for: variable or bursty workloads (pay only for peak periods), teams that want to minimize operational overhead, batch jobs that start and stop, and microservices with unpredictable traffic. For workloads that are densely packed, run continuously at high utilization, and need GPU access, EC2 launch type is often cheaper.
+
+**Fargate Spot** runs Fargate tasks on spare AWS capacity at a 70%+ discount. Tasks can be interrupted with a 2-minute warning. Appropriate for fault-tolerant batch processing, not for customer-facing services.
+
+---
+
+## Configuration Re

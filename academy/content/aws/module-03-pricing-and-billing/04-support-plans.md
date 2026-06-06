@@ -1,8 +1,8 @@
 ---
 title: "AWS Support Plans"
-type: lesson
+type: content
 estimated_minutes: 22
-cert_tags: ["aws_ccp", "aws_clf_c02"]
+cert_tags: ["CLF-C02"]
 ---
 
 ## Overview

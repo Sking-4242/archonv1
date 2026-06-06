@@ -2,7 +2,7 @@
 title: "IAM Overview"
 type: content
 estimated_minutes: 15
-cert_tags: ["aws_ccp", "aws_saa", "aws_soa", "aws_dva"]
+cert_tags: ["CLF-C02", "SAA-C03", "SOA-C02", "DVA-C02"]
 ---
 
 # IAM Overview

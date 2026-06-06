@@ -1,7 +1,7 @@
 ---
 title: "Amazon Bedrock: Foundation Models and Generative AI"
 type: content
-estimated_minutes: 10
+estimated_minutes: 13
 cert_tags: ["SAA-C03", "MLS-C01"]
 ---
 
@@ -9,70 +9,121 @@ cert_tags: ["SAA-C03", "MLS-C01"]
 
 ## Overview
 
-Amazon Bedrock is the managed foundation model API layer on AWS. It provides access to powerful pre-trained models for text generation, summarization, Q&A, code generation, image generation, and more — without managing any model infrastructure. This lesson covers the Bedrock API, Knowledge Bases for RAG, and Bedrock Agents.
+Amazon Bedrock is the managed foundation model API layer on AWS. It provides API access to powerful pre-trained models from AWS and third-party providers — Anthropic Claude, Meta Llama, Mistral, Cohere, Stability AI, and Amazon Titan — for text generation, summarization, Q&A, code generation, image generation, and embedding creation. No model infrastructure to provision, no GPUs to manage, no training required: send a request, receive a response, pay per token.
 
-## Bedrock Model API
+The problem Bedrock solves is the infrastructure gap between "I want to add an AI feature" and "I have a working AI feature." Before managed FM APIs, adding a chatbot to an application required: selecting a model, acquiring GPU instances, serving the model with a serving framework, scaling the inference server, monitoring GPU utilization, and patching the serving stack. Bedrock replaces all of that with an API call, letting teams focus on the application layer — prompts, context, user experience — rather than ML infrastructure.
 
-Invoke foundation models via the InvokeModel or InvokeModelWithResponseStream API. Each model has its own request/response format (Anthropic Claude, Llama, Cohere, Mistral, Titan, Stability AI Diffusion). The Converse API provides a unified conversation interface across text models — simpler for multi-turn conversations. Requests are signed with IAM Sigv4. Responses are billed per input and output token. Model inference is stateless — maintain conversation history in your application.
+For the SAA and MLS exams, understand Bedrock's model selection, the Converse API for multi-turn chat, Knowledge Bases for RAG, Bedrock Agents for multi-step automation, and Guardrails for safety. After this lesson, you will be able to design a complete generative AI feature on AWS using Bedrock and explain each component's role.
 
-## Knowledge Bases (RAG)
+---
 
-Retrieval-Augmented Generation (RAG) augments LLM responses with relevant data from your own documents. Bedrock Knowledge Bases: (1) ingest documents (PDFs, Word docs, web pages, S3 files) into a vector database (OpenSearch Serverless, Pinecone, Aurora PostgreSQL with pgvector), (2) at query time, embed the user query and retrieve semantically similar document chunks, (3) pass retrieved context plus the user question to the foundation model. RAG dramatically reduces hallucinations and lets you use the LLM on private internal data without fine-tuning.
+## Core Concepts
 
-## Bedrock Agents
+### Foundation Models and the Bedrock Model API
 
-Agents enable LLMs to take actions — not just generate text. You define: a foundation model, instructions (system prompt), action groups (Lambda functions the agent can call to perform real-world actions), and optionally a Knowledge Base. The agent reasons in a ReAct (Reason + Act) loop: analyze the user request → decide which action to take → call the Lambda → observe the result → repeat until it can answer. Example: a customer service agent that can look up order status, process refunds, and update shipping addresses via Lambda action groups backed by your APIs.
+Bedrock provides access to multiple foundation model families, each suited to different tasks:
 
-## Bedrock Guardrails
+- **Anthropic Claude (3.5 Sonnet, 3.5 Haiku, etc.)**: the highest-capability models for complex reasoning, analysis, document understanding, and code generation. Different Claude versions trade off capability against cost and latency.
+- **Meta Llama**: open-weight models suitable for fine-tuning and deployment within AWS infrastructure. Popular for organizations requiring open-source provenance.
+- **Mistral**: high-performance European models with strong multilingual capabilities.
+- **Amazon Titan**: AWS's own text and embedding models. Titan Embeddings is the standard embedding model for RAG architectures within Bedrock.
+- **Stability AI**: Stable Diffusion for image generation.
+- **Cohere**: embedding and text generation models with strong retrieval performance.
 
-Guardrails add safety and compliance controls to Bedrock API calls. Configure: content filters (block harmful content by category and severity), topic denial (prevent the model from discussing specific topics), word filters (custom blocked terms), PII redaction (detect and mask or block PII in inputs and outputs), grounding checks (verify responses are grounded in the retrieved context, not hallucinated). Guardrails apply to all models and are configured separately from the model selection.
+**API options**:
+- **InvokeModel**: single-turn, synchronous invocation. Each model has its own request/response format.
+- **InvokeModelWithResponseStream**: same as InvokeModel but streams tokens back as they are generated — better user experience for chatbots.
+- **Converse API**: unified multi-turn conversation interface that works across all text models with a consistent request/response format. Handles message history, system prompts, and tool use (function calling). Recommended for all new chat implementations.
 
-## Summary
+**Pricing**: per input token and per output token, varying by model. Output tokens are typically 3–5x more expensive than input tokens. Context window length (number of tokens) directly affects both capability and cost.
 
-Bedrock provides managed access to foundation models from multiple providers. Use the Converse API for multi-turn chat. Knowledge Bases implement RAG for private data Q&A with minimal hallucination. Agents enable LLM-driven automation with Lambda action groups. Guardrails add safety and compliance. Bedrock is the fastest path to production generative AI features on AWS.
+---
 
-## Examples
+### Knowledge Bases — Retrieval-Augmented Generation (RAG)
 
-A software company adds a customer support chatbot to their SaaS product. They use the Bedrock Converse API with Anthropic Claude, passing the last five conversation turns to maintain context. The conversation history lives in their application's database — Bedrock is stateless, so the application owns continuity. This is the most common Bedrock integration pattern: stateless inference with client-managed conversation state.
+Foundation models are trained on general data up to a knowledge cutoff. They cannot answer questions about your proprietary documents, recent events, or internal policies without augmentation. **Retrieval-Augmented Generation (RAG)** solves this by providing relevant context from your documents at query time — retrieved from a vector database and included in the prompt.
 
-A law firm builds an internal research assistant that answers questions grounded in their case archive. They configure a Bedrock Knowledge Base that ingests thousands of case documents from S3 into OpenSearch Serverless. At query time, the user's question is embedded, the most relevant case excerpts are retrieved, and Claude synthesizes an answer citing the specific documents. The RAG architecture means the model can answer questions about cases it was never trained on, with dramatically fewer hallucinations than prompting the model alone.
+**Bedrock Knowledge Bases** automates the RAG infrastructure:
+1. **Ingestion**: upload documents (PDFs, Word, HTML, Markdown, S3 files) to S3. Knowledge Bases chunks the documents, generates embeddings using Amazon Titan Embeddings (or another configured embedding model), and stores the embeddings in a vector database.
+2. **Vector database options**: Amazon OpenSearch Serverless (default), Amazon Aurora PostgreSQL with pgvector, Pinecone, Weaviate, Redis. Choose based on existing infrastructure or cost.
+3. **Retrieval**: at query time, the user's question is embedded and semantically similar document chunks are retrieved from the vector database.
+4. **Generation**: retrieved chunks + user question are assembled into a prompt and passed to the configured foundation model. The model generates a grounded response citing your documents.
 
-A fintech company deploys a Bedrock Agent that handles customer account inquiries end-to-end. The agent has three Lambda action groups — one to query account balances, one to initiate transfers, and one to retrieve transaction history. When a customer asks "Why did my balance drop last Tuesday?", the agent reasons through the request, calls the transaction Lambda to retrieve recent activity, interprets the results, and responds — all without a human in the loop. The ReAct reasoning loop is what makes this different from a simple chatbot: the agent decides which tools to call and in what order.
+**RAG dramatically reduces hallucinations** by grounding the model's response in retrieved content rather than model memory. The model can only say things that are supported by the retrieved context — or explicitly state it doesn't know.
 
-## Think About It
+---
 
-1. Why does Bedrock's stateless design shift the conversation history problem to the application layer — and what are the architectural implications of that choice for a high-traffic chatbot?
-2. What would happen if you used a foundation model to answer questions about your company's internal HR policies without a Knowledge Base, and a user asked about a policy that was updated last month?
-3. How would you decide when to use Bedrock Guardrails' grounding checks versus relying on prompt engineering alone to reduce hallucinations in a RAG system?
-4. A Bedrock Agent's Lambda action groups give the LLM the ability to take real-world actions. What security controls and design patterns would you put in place to prevent the agent from performing unintended or destructive actions?
-5. Bedrock bills per input and output token. How does this pricing model affect your architecture decisions differently than paying for a reserved GPU instance running a self-hosted model?
+### Bedrock Agents
 
-## Quick Check
+Bedrock Agents enable foundation models to take actions — not just generate text. An agent has:
+- A **foundation model** (Claude, Titan, etc.) as its reasoning engine
+- A **system prompt** (instructions defining behavior, persona, scope)
+- **Action groups**: Lambda functions the agent can invoke to interact with external systems (query databases, call APIs, update records)
+- Optionally, a **Knowledge Base** for information retrieval
 
-**Q1.** What is the primary purpose of Bedrock Knowledge Bases?
-- A) To fine-tune a foundation model on your own labeled data
-- B) To implement retrieval-augmented generation using your private documents
-- C) To store and version conversation history across sessions
-- D) To enforce content moderation on all model outputs
+Agents operate in a **ReAct loop** (Reason + Act): analyze the user's request → decide which action to take → invoke the Lambda → observe the result → decide the next action → repeat until the agent can formulate a complete response. The agent reasons about multi-step tasks autonomously.
 
-**Answer: B** — Knowledge Bases implement RAG by ingesting your documents into a vector store and retrieving relevant context at query time, grounding model responses in your private data without fine-tuning.
+**Example**: a customer service agent with action groups for `GetOrderStatus(orderId)`, `ProcessRefund(orderId, amount)`, and `UpdateShippingAddress(orderId, address)`. When a customer asks "why hasn't my order from last Tuesday arrived?", the agent calls `GetOrderStatus`, observes that the shipment is delayed, and responds with the status — without human routing or hard-coded decision trees.
 
-**Q2.** In a Bedrock Agent, what is the role of an action group?
-- A) A set of IAM permissions that control which foundation models the agent can invoke
-- B) A Lambda function the agent can call to perform real-world actions during its reasoning loop
-- C) A guardrail configuration that filters agent outputs before returning them to the user
-- D) A system prompt template that defines the agent's persona and instructions
+---
 
-**Answer: B** — Action groups are Lambda functions that the agent can invoke when it decides an action is needed, enabling the agent to interact with external systems like databases or APIs.
+### Bedrock Guardrails
 
-**Q3.** Which Bedrock Guardrails feature would you use to prevent a model from returning a customer's credit card number in its response?
-- A) Topic denial
-- B) Content filters
-- C) PII redaction
-- D) Grounding checks
+Guardrails add configurable safety and compliance controls to all Bedrock invocations. Applied at the API layer, Guardrails intercept both the input sent to the model and the output returned to the application.
 
-**Answer: C** — PII redaction detects and masks or blocks personally identifiable information — including financial data like credit card numbers — in both model inputs and outputs.
+**Control types**:
+- **Content filters**: block harmful content (hate speech, violence, sexual content, insults) by category and severity level
+- **Topic denial**: prevent the model from discussing specified topics (e.g., competitor products, legal advice, medical diagnoses)
+- **Word filters**: custom blocked terms list
+- **PII redaction**: detect and mask or block personally identifiable information (names, SSNs, credit card numbers, email addresses) in both inputs and outputs
+- **Grounding checks**: verify that the model's response is factually grounded in retrieved context (for RAG architectures) — surfaces hallucinations that claim to cite sources but don't
 
-## What's Next
+Guardrails apply to any model in Bedrock with the same configuration — you don't reconfigure per model change.
 
-Next up: Amazon SageMaker — building and training custom ML models.
+---
+
+## Configuration Reference
+
+### Example: Bedrock Converse API — Multi-Turn Chat with System Prompt
+
+```python
+import boto3
+
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
+
+# Maintain conversation history in your application (Bedrock is stateless)
+conversation_history = []
+
+def chat(user_message: str) -> str:
+    conversation_history.append({
+        "role": "user",
+        "content": [{"type": "text", "text": user_message}]
+    })
+    
+    response = bedrock.converse(
+        modelId='anthropic.claude-3-5-sonnet-20241022-v2:0',
+        system=[{
+            "text": """You are a customer support assistant for AcmeCorp.
+            - Only answer questions about our products (see knowledge base)
+            - Be concise and professional
+            - If you don't know the answer, say so — do not guess"""
+        }],
+        messages=conversation_history,    # pass full conversation history for context
+        inferenceConfig={
+            "maxTokens": 1024,            # max output tokens per response
+            "temperature": 0.7,           # 0 = deterministic, 1 = creative
+            "topP": 0.9
+        }
+    )
+    
+    # Append assistant reply to history so the next turn has full context
+    assistant_message = response['output']['message']
+    conversation_history.append(assistant_message)
+    
+    # Extract the text from the response
+    return response['output']['message']['content'][0]['text']
+
+# Multi-turn usage — history is maintained across calls
+print(chat("What is Amazon S3?"))
+print(chat("How does its pricing work?"))   # model has context from previous turn
+```

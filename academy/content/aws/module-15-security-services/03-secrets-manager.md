@@ -1,81 +1,101 @@
 ---
 title: "Secrets Manager and SSM Parameter Store"
 type: content
-estimated_minutes: 8
-cert_tags: ["SAA-C03", "DVA-C02", "SCS-C02"]
+estimated_minutes: 12
+cert_tags: ["SAA-C03", "SAP-C02"]
 ---
 
 # Secrets Manager and SSM Parameter Store
 
 ## Overview
 
-Hardcoded credentials in code are one of the most common security vulnerabilities. AWS Secrets Manager and Systems Manager Parameter Store provide secure, centralized secrets storage with IAM-controlled access, encryption, and automatic rotation. This lesson covers both services and when to use each.
+Hardcoded credentials are among the most exploited vulnerabilities in cloud environments. A database password embedded in source code, a Docker image, or an environment variable at build time is static — it cannot be rotated without a redeployment, and if it leaks, it remains valid until someone manually changes it. AWS Secrets Manager and Systems Manager Parameter Store exist to eliminate that pattern: store credentials and configuration centrally, retrieve them at runtime via SDK calls, and let AWS handle encryption and — in Secrets Manager's case — automatic rotation.
 
-## AWS Secrets Manager
+The two services serve overlapping but distinct purposes. Secrets Manager is purpose-built for credentials that must rotate: database passwords, API keys, OAuth tokens. It handles the full rotation lifecycle — calling a Lambda function to update the secret in the service, then updating the stored secret value — without application downtime. Parameter Store is broader: a hierarchical key-value store for configuration values, feature flags, and simple secrets where automatic rotation is not needed, with a free tier for standard parameters.
 
-Secrets Manager stores secrets (database passwords, API keys, OAuth tokens) as JSON key-value objects, encrypted with KMS. Applications retrieve secrets at runtime via SDK calls — no secrets in config files or environment variables. Key feature: automatic rotation. Secrets Manager can automatically rotate RDS, Redshift, and DocumentDB credentials by calling a Lambda function on a schedule, updating the secret value and the database password atomically without application downtime.
+The SAA exam tests when to use Secrets Manager versus Parameter Store, how secret rotation works, and how both services integrate with KMS. The SAP exam adds cross-account secret sharing, rotation failure handling, and the cost implications of each service at scale. After this lesson you will be able to choose the right service for a given use case, configure rotation, and retrieve secrets correctly from application code.
 
-## Secrets Manager in Applications
+---
 
-The pattern: application calls `secretsmanager:GetSecretValue` at startup or per-request (with caching). The returned JSON contains credentials. The application parses and uses them. AWS SDKs have a caching client that reduces API calls and handles version transitions during rotation transparently. IAM controls which roles can call GetSecretValue for which secrets via resource policies or IAM policies on the secret ARN.
+## Core Concepts
 
-## SSM Parameter Store
+### AWS Secrets Manager
 
-Parameter Store stores strings, StringList, or SecureString (encrypted with KMS) parameters hierarchically (e.g., `/myapp/prod/db-password`). Standard tier is free; Advanced tier supports parameters up to 8 KB and parameter policies (automatic expiration notifications, no automatic rotation built-in). Parameter Store is suitable for configuration values, feature flags, and simple secrets where automatic rotation isn't needed. Tightly integrated with SSM Run Command, CodePipeline, ECS, and Lambda environment variables.
+Secrets Manager stores secrets as JSON objects encrypted with a KMS CMK. The canonical use case is database credentials: the secret stores `{"username": "app_user", "password": "s3cr3t", "host": "db.example.com"}`. Applications call `secretsmanager:GetSecretValue` at runtime to retrieve the current value — no secrets in config files, environment variables baked into images, or source code.
 
-## Secrets Manager vs. Parameter Store
+The key differentiator is **automatic rotation**. Secrets Manager has built-in rotation support for Amazon RDS (MySQL, PostgreSQL, Oracle, SQL Server), Amazon Redshift, and Amazon DocumentDB. For any other secret, you provide a Lambda rotation function. On the configured schedule (e.g., every 30 days), Secrets Manager invokes the Lambda, which: (1) creates a new credential in the service, (2) tests the new credential, (3) updates the secret value in Secrets Manager, and (4) marks the old version as deprecated. Applications using the Secrets Manager SDK caching client pick up the new credential transparently on their next cache refresh.
 
-Secrets Manager: purpose-built for secrets, automatic rotation, cross-account support, $0.40/secret/month + API call charges. Parameter Store: config + secrets, no automatic rotation built-in, free for Standard tier. Choose Secrets Manager for database credentials and anything needing automatic rotation. Choose Parameter Store for configuration values, feature flags, and non-rotated parameters. For cost-sensitive workloads with simple secrets, Parameter Store SecureString is acceptable.
+Pricing: $0.40 per secret per month plus $0.05 per 10,000 API calls. For a workload with 20 secrets, the cost is $8/month — negligible against the operational risk of static credentials.
 
-## Summary
+---
 
-Secrets Manager provides secure secrets storage with automatic rotation — the standard solution for database credentials and API keys. SSM Parameter Store covers configuration values and simple secrets with a hierarchical namespace. Both integrate with KMS for encryption. Retrieve secrets at runtime via SDK, never embed them in code or config files.
+### SSM Parameter Store
 
-## Examples
+Parameter Store stores parameters in a hierarchical namespace (e.g., `/myapp/prod/db-host`, `/myapp/prod/db-password`). Three value types are supported: **String** (plaintext), **StringList** (comma-separated plaintext), and **SecureString** (encrypted with KMS). Standard tier parameters up to 4 KB are free; Advanced tier supports up to 8 KB and adds parameter policies.
 
-A startup's Rails application originally stored its RDS PostgreSQL password in a hardcoded environment variable inside a Docker image. After a routine image scan flagged the credential, the team migrated to Secrets Manager: the app calls `GetSecretValue` at startup, parses the returned JSON for the password, and opens its database connection. They also enable Secrets Manager's built-in RDS rotation on a 30-day schedule. Now even if the image is exfiltrated, the embedded password is gone — and the real credential rotates automatically before anyone could exploit a leak.
+Parameter Store integrates natively with CodePipeline, CodeBuild, ECS task definitions, Lambda environment variables, and Systems Manager Run Command — making it the natural store for configuration values that infrastructure tooling needs to consume without application code changes.
 
-A mid-size SaaS company manages dozens of microservices, each with its own third-party API key for payment processors, email providers, and analytics platforms. Rather than storing each key in a per-service `.env` file, the platform team stores all secrets in Secrets Manager under a naming convention like `/payments-service/prod/stripe-key`. Each service's ECS task role has an IAM policy allowing `secretsmanager:GetSecretValue` only on its own secret ARN path. When Stripe rotates an API key, the platform team updates the single secret; all containers pick it up on their next SDK cache refresh with no redeployment.
+It does **not** have built-in automatic secret rotation. You can build rotation using EventBridge + Lambda, but you are responsible for the entire rotation flow that Secrets Manager handles automatically. For simple configuration values and non-rotated secrets, Parameter Store is significantly more cost-effective. For credentials that must rotate automatically, Secrets Manager is the right choice.
 
-A DevOps team building a CI/CD pipeline needs to pass dozens of non-sensitive configuration values — feature flags, environment names, dependency URLs — alongside a handful of sensitive tokens to Lambda functions and CodeBuild jobs. They use Parameter Store Standard tier (free) for all non-secret config, with a hierarchical path structure like `/myapp/prod/feature-flags/dark-mode`. For the three sensitive tokens that require encryption, they use Parameter Store SecureString to avoid paying the $0.40/secret/month Secrets Manager cost for simple values that never need automatic rotation.
+---
 
-## Think About It
+### Secret Retrieval Patterns
 
-1. Why is retrieving a secret at application startup via SDK call safer than injecting it as an environment variable, even if the environment variable is sourced from Secrets Manager at deploy time?
-2. What would happen if two application instances retrieve a secret simultaneously during a rotation event — one gets the old version and one gets the new version? How does the Secrets Manager SDK caching client handle this, and what responsibility does your Lambda rotation function carry?
-3. How would you decide whether to use Secrets Manager or Parameter Store SecureString for a database password that changes quarterly and has no compliance requirement for automated rotation?
-4. A security team wants evidence that a specific Lambda function never accessed a production database secret. What AWS services and configurations would you need in place to produce that evidence?
-5. What trade-offs exist between caching secrets in application memory for performance versus always fetching the latest version on each request?
+The correct pattern for retrieving secrets at runtime has two parts: call the API, cache the result.
 
-## Quick Check
+**Startup retrieval with caching**: fetch the secret once at application startup and cache it in memory. Refresh the cache periodically (every 5–10 minutes) so the application automatically picks up rotated values without restarting. The AWS SDK includes a `SecretsManagerCachingClient` for Python and Java that handles this automatically.
 
-**Q1.** Which Secrets Manager capability most directly addresses the risk of a compromised database credential remaining valid for months?
+**Never use environment variables baked at deploy time.** Injecting a secret into an ECS container's environment variables at task launch time captures the credential at that moment. If the secret rotates, the container continues using the stale value until it is replaced. The correct ECS pattern is to inject the secret ARN as an environment variable (not the value) and call Secrets Manager at startup, or use ECS native secret injection which fetches the current value at container start.
 
-- A) KMS encryption of the secret value at rest
-- B) Automatic secret rotation via a Lambda function
-- C) Resource-based IAM policies on the secret ARN
-- D) Cross-account secret sharing
+**Rotation-safe retrieval**: during a Secrets Manager rotation event, two versions of the secret briefly coexist — `AWSCURRENT` (the old value, still valid) and `AWSPENDING` (the new value, being tested). The rotation Lambda must test the new credential before marking it `AWSCURRENT`. Applications requesting `AWSCURRENT` during rotation always get a valid credential. Applications caching the old value continue working until their cache expires.
 
-**Answer: B** — Automatic rotation periodically replaces the credential, limiting the window of exposure if a secret is ever compromised.
+---
 
-**Q2.** A development team wants to store 50 application configuration values and 3 database passwords in AWS. Cost is a concern and none of the config values need encryption or rotation. What is the most cost-effective approach?
+### Cross-Account Secret Sharing
 
-- A) Store all 53 values in Secrets Manager
-- B) Store all 53 values in Parameter Store SecureString
-- C) Store the 50 config values in Parameter Store Standard tier and the 3 passwords in Secrets Manager
-- D) Store everything in S3 with server-side encryption
+Secrets Manager supports resource-based policies on secrets, allowing a secret in Account A to be accessed by a role in Account B. The secret's resource policy grants `secretsmanager:GetSecretValue` to the cross-account principal, and the KMS key policy on the encrypting CMK must also grant the cross-account principal `kms:Decrypt`. Both policies must allow access — neither alone is sufficient.
 
-**Answer: C** — Parameter Store Standard tier is free and appropriate for non-sensitive config; Secrets Manager is purpose-built for secrets needing rotation, but applying it to non-sensitive config adds unnecessary cost.
+This pattern is used when a central platform team manages shared credentials (e.g., a shared analytics database) that multiple product accounts need to access without receiving a copy of the credential.
 
-**Q3.** Which statement correctly describes SSM Parameter Store's SecureString type?
+---
 
-- A) It stores the value in plaintext but restricts access to HTTPS only
-- B) It encrypts the value with a KMS key and requires appropriate KMS permissions to retrieve it
-- C) It automatically rotates the parameter value on a configurable schedule
-- D) It is only available in the Advanced parameter tier
+## Configuration Reference
 
-**Answer: B** — SecureString values are encrypted using a KMS key; the caller needs both SSM `GetParameter` permission and the appropriate KMS `Decrypt` permission to retrieve the plaintext value.
+### Storing and Rotating an RDS Secret
 
-## What's Next
+```bash
+# Store an RDS credential as a Secrets Manager secret
+aws secretsmanager create-secret \
+  --name "prod/myapp/rds-credentials" \
+  --description "Production RDS PostgreSQL credentials" \
+  --kms-key-id alias/prod-app-key \             # Use a CMK, not the default aws/secretsmanager
+  --secret-string '{"username":"app_user","password":"initial_password","host":"mydb.cluster-abc.us-east-1.rds.amazonaws.com","port":5432,"dbname":"myapp"}' \
+  --tags Key=Environment,Value=prod \
+  --region us-east-1
 
-Next up: AWS Certificate Manager, CloudHSM, and Macie — additional security services.
+# Enable automatic rotation — built-in Lambda for RDS PostgreSQL
+aws secretsmanager rotate-secret \
+  --secret-id "prod/myapp/rds-credentials" \
+  --rotation-rules AutomaticallyAfterDays=30 \  # Rotate every 30 days
+  --rotate-immediately \                         # Trigger an immediate rotation to test the setup
+  --region us-east-1
+```
+
+---
+
+### Retrieving a Secret in Application Code
+
+```python
+import boto3, json
+from botocore.exceptions import ClientError
+
+# Use the SDK caching client to reduce API calls and handle rotation transparently
+# pip install aws-secretsmanager-caching
+from aws_secretsmanager_caching import SecretCache, SecretCacheConfig
+
+client = boto3.client('secretsmanager', region_name='us-east-1')
+cache = SecretCache(config=SecretCacheConfig(), client=client)
+
+def get_db_credentials():
+    # Cache refreshes automatically every 60 seconds by default
+    # During rotation, alw

@@ -2,7 +2,7 @@
 title: "Availability Zones"
 type: content
 estimated_minutes: 15
-cert_tags: ["aws_ccp", "clf-c02", "aws_saa"]
+cert_tags: ["CLF-C02", "SAA-C03"]
 ---
 
 # Availability Zones

@@ -1,7 +1,7 @@
 ---
 title: "AWS Machine Learning Services Overview"
 type: content
-estimated_minutes: 8
+estimated_minutes: 11
 cert_tags: ["SAA-C03", "MLS-C01", "CLF-C02"]
 ---
 
@@ -9,70 +9,110 @@ cert_tags: ["SAA-C03", "MLS-C01", "CLF-C02"]
 
 ## Overview
 
-AWS offers ML services at three levels: AI services (pre-built APIs, no ML expertise needed), ML platforms (Amazon SageMaker for building custom models), and ML frameworks/infrastructure (managed Jupyter notebooks, Trainium and Inferentia chips). This lesson maps the landscape so you can choose the right service for the task.
+AWS organizes its machine learning services into three tiers based on the level of ML expertise required. Pre-built **AI services** solve specific, well-defined problems via API — no training data, no model expertise required. **Amazon Bedrock** provides access to powerful foundation models (FMs) from multiple providers via a single managed API — generative AI features without managing model infrastructure. **Amazon SageMaker** is the full MLOps platform for teams that need to build, train, and deploy custom models on their own data.
 
-## AI Services: Pre-Built Intelligence
+This tiered model matters because choosing the wrong level creates unnecessary complexity and cost. Teams that reach for SageMaker to solve a problem that Rekognition solves in two API calls have spent weeks building what could have been an afternoon's integration. Conversely, teams that try to fit their domain-specific medical imaging problem into a generic pre-built AI service end up with poor accuracy. The first question in any ML conversation is: which tier fits this problem?
 
-AWS AI services provide ML capabilities via API without any model training: Rekognition (image and video analysis — object detection, facial recognition, content moderation), Comprehend (NLP — sentiment, entity extraction, language detection, topic modeling), Translate (neural machine translation), Polly (text-to-speech), Transcribe (speech-to-text), Textract (document text extraction — tables, forms, PDFs), Forecast (time-series forecasting), Personalize (real-time recommendations). Use AI services when your use case matches a well-defined problem — no training data or ML expertise required.
+For the SAA exam, understand the three tiers and which service addresses which use case. For CLF, know the pre-built AI services at a conceptual level. MLS adds deep SageMaker and Bedrock knowledge. After this lesson, you will be able to identify the correct AWS ML tier and specific service for any problem description.
 
-## Amazon Bedrock
+---
 
-Bedrock provides access to foundation models (FMs) from AWS and third-party model providers (Anthropic Claude, Meta Llama, Mistral, Cohere, Stability AI) via a single managed API. Use Bedrock for: generative AI features (chatbots, content generation, summarization, code generation, Q&A), retrieval-augmented generation (RAG) with Knowledge Bases, and agentic AI workflows. Bedrock is serverless — no GPU instances to manage, pay per token. Model responses and inputs are not used to train models.
+## Core Concepts
 
-## Amazon SageMaker
+### Tier 1: Pre-Built AI Services
 
-SageMaker is the fully managed ML platform for building, training, and deploying custom ML models. Components: SageMaker Studio (integrated IDE for ML), Data Wrangler (visual data preparation), Feature Store (managed feature repository), Training Jobs (distributed model training on managed GPU clusters), Model Registry (versioned model catalog), Endpoints (real-time inference hosting), Batch Transform (offline bulk inference), Pipelines (MLOps CI/CD for models). Use SageMaker when you need to train custom models on your own data.
+Pre-built AI services provide ML capabilities via simple API calls — you send data, you receive predictions. No training data collection, no model selection, no infrastructure management. AWS has already trained the models on massive datasets; you consume the results.
 
-## Specialized Compute for ML
+**Computer vision**: Amazon Rekognition — object and scene detection, facial analysis, face comparison/recognition, text in images (OCR), content moderation, video analysis (people tracking, activity detection).
 
-Amazon EC2 P4d and P5 instances with NVIDIA A100/H100 GPUs for standard deep learning training. AWS Trainium chips (Trn1 instances) are purpose-built for training large language models at lower cost than GPU instances. AWS Inferentia chips (Inf2 instances) are purpose-built for low-cost, high-throughput inference deployment. For model inference at scale, Inferentia instances can reduce inference costs by up to 70% compared to GPU instances.
+**Natural language processing**: Amazon Comprehend — sentiment analysis, entity recognition (people, places, organizations, dates), key phrase extraction, language detection, topic modeling, and custom text classification/entity recognition trained on your labels.
 
-## Summary
+**Document understanding**: Amazon Textract — extracts text, tables, and form key-value pairs from PDFs, images, and scanned documents. Goes beyond OCR by understanding document layout structure.
 
-AWS ML is tiered: pre-built AI APIs for common tasks, Bedrock for generative AI with foundation models, SageMaker for custom model development. AI services require no ML expertise; Bedrock requires prompt engineering; SageMaker requires ML expertise. Choose the right level for your use case — starting with AI services avoids the complexity of custom model training when a pre-built solution exists.
+**Speech**: Amazon Transcribe (speech-to-text), Amazon Polly (text-to-speech with multiple voices and languages).
 
-## Examples
+**Translation**: Amazon Translate — neural machine translation across 75+ language pairs.
 
-A regional retailer wants to add product image tagging to their e-commerce catalog. Rather than hiring a data science team, they call the Rekognition DetectLabels API and receive structured labels — "sneaker," "white," "athletic" — in milliseconds per image. This is the AI services tier in action: a solved problem with a pre-built API, no training data required.
+**Forecasting and recommendations**: Amazon Forecast (time-series prediction), Amazon Personalize (real-time recommendations).
 
-A financial services startup is building an internal document assistant that answers questions about compliance policies stored in SharePoint. They use Amazon Bedrock Knowledge Bases to ingest the PDFs, embed them into OpenSearch Serverless, and wire up Claude via the Converse API. The team ships a working prototype in two weeks — possible because Bedrock handles the infrastructure and they only need prompt engineering skills, not ML expertise.
+The right tier test: if AWS has a pre-built service for your use case, start there. The cost is API calls instead of model development cycles.
 
-A healthcare analytics company needs to predict patient readmission risk using their proprietary EHR data — a problem no pre-built AI service covers and no foundation model has been trained on. They use SageMaker Training Jobs with a custom XGBoost container, their own labeled dataset in S3, and SageMaker Autopilot to establish a baseline. This represents the SageMaker tier: when your use case is domain-specific enough that custom model training is unavoidable.
+---
 
-## Think About It
+### Tier 2: Amazon Bedrock (Foundation Models)
 
-1. Why would you choose a pre-built AI service like Comprehend over building a custom sentiment model in SageMaker, even if you have labeled training data?
-2. What would happen if you used a foundation model via Bedrock to answer questions about your company's internal policies without grounding it in your actual documents — and how does that change your architecture decision?
-3. How would you decide which tier to start with for a new ML use case — what questions would you ask before reaching for SageMaker?
-4. AWS Inferentia chips reduce inference costs by up to 70% compared to GPU instances. What trade-offs might exist in choosing Inferentia over a standard GPU instance for a new model deployment?
-5. If AWS adds a new pre-built AI service that matches your existing custom SageMaker model's use case, what factors would drive your decision to migrate versus staying on your custom model?
+Bedrock provides API access to large, pre-trained foundation models from AWS and third-party providers: Anthropic Claude, Meta Llama, Mistral, Cohere Command, Stability AI (image generation), and Amazon Titan (text and embeddings). These models have been trained on vast corpora and can perform a wide range of language and vision tasks.
 
-## Quick Check
+**The Bedrock tier addresses**: generative text (chatbots, summarization, Q&A, content generation, code generation, reasoning), image generation, embedding generation for semantic search and RAG. Use Bedrock when the pre-built AI services don't cover your use case but training a custom model from scratch would be overkill.
 
-**Q1.** A company wants to extract key-value pairs from scanned paper forms with no ML training. Which AWS service is the best fit?
-- A) Amazon Comprehend
-- B) Amazon Textract
-- C) Amazon SageMaker with a custom OCR container
-- D) Amazon Rekognition
+**What Bedrock requires**: prompt engineering skills (how to instruct the model), understanding of model behavior and limitations (hallucinations, context window limits, token pricing), and application integration via the Bedrock API. No ML training expertise required.
 
-**Answer: B** — Textract is purpose-built for document layout analysis, including extracting structured form fields and tables from scanned documents without any model training.
+**Serverless and per-token pricing**: Bedrock is fully managed with no model infrastructure to provision. You pay per input and output token. Model selection (Claude vs. Llama vs. Titan) is a configuration choice, not an infrastructure decision.
 
-**Q2.** Which statement best describes the difference between Amazon Bedrock and Amazon SageMaker?
-- A) Bedrock trains custom models; SageMaker hosts pre-trained models
-- B) Bedrock provides API access to foundation models; SageMaker is for building and training custom models
-- C) Bedrock is only for image generation; SageMaker handles all text tasks
-- D) Bedrock requires GPU instances; SageMaker is serverless
+---
 
-**Answer: B** — Bedrock is a managed API for foundation models requiring no training infrastructure, while SageMaker is the full MLOps platform for custom model development on your own data.
+### Tier 3: Amazon SageMaker (Custom Models)
 
-**Q3.** AWS Trainium chips are optimized for which ML task?
-- A) Real-time inference on small models
-- B) Training large language models at lower cost than GPU instances
-- C) Image generation using diffusion models
-- D) Vector embedding storage and retrieval
+SageMaker is the end-to-end managed ML platform for teams building custom models on their own data. It covers the complete ML lifecycle: data preparation (Data Wrangler, Feature Store), model training (Training Jobs, Automatic Model Tuning), model evaluation and governance (Model Registry), deployment (Real-Time Endpoints, Serverless Inference, Batch Transform), and monitoring (Model Monitor for drift detection).
 
-**Answer: B** — Trainium (Trn1 instances) are purpose-built for model training, particularly large language models, offering lower cost than equivalent NVIDIA GPU instances for training workloads.
+**The SageMaker tier addresses**: domain-specific problems where no pre-built service or foundation model provides sufficient accuracy because the prediction space is specific to your data (medical imaging anomaly detection, proprietary fraud scoring, custom product ranking). Requires ML expertise: data scientists who understand algorithms, feature engineering, evaluation metrics, and model lifecycle management.
 
-## What's Next
+**Cost model**: SageMaker charges for compute time during training (GPU/CPU instances per hour), storage, and inference endpoint runtime. Unlike Bedrock (per-token) or AI services (per API call), SageMaker's cost scales with training duration and inference volume — requires capacity planning.
 
-Next up: Amazon Bedrock in depth — foundation models, Knowledge Bases, and RAG patterns.
+---
+
+### Specialized ML Compute
+
+**AWS Trainium (Trn1 instances)**: purpose-built chips for training large language models and deep neural networks. Lower cost per training token than equivalent NVIDIA GPU instances. Optimized for PyTorch via the AWS Neuron SDK. Used for cost-efficient LLM pre-training and fine-tuning within SageMaker or on EC2.
+
+**AWS Inferentia (Inf2 instances)**: purpose-built chips for running inference on trained models at high throughput and low cost. Inferentia provides up to 70% lower cost per inference versus equivalent GPU instances. Used for hosting high-traffic SageMaker Real-Time Endpoints or custom inference servers.
+
+**P-series EC2 (P4d, P5)**: NVIDIA A100/H100 GPUs for standard deep learning training workloads. P5 with H100 GPUs is the highest-performance option for large-scale model training when Trainium ecosystem compatibility is not yet available.
+
+---
+
+## Configuration Reference
+
+### Example: Quick AI Services API Comparison
+
+```python
+import boto3
+
+# Tier 1: Rekognition — detect labels in an image (no setup beyond IAM)
+rekognition = boto3.client('rekognition', region_name='us-east-1')
+response = rekognition.detect_labels(
+    Image={'S3Object': {'Bucket': 'my-images', 'Name': 'product.jpg'}},
+    MaxLabels=10,
+    MinConfidence=70
+)
+# Returns: [{"Name": "Sneaker", "Confidence": 98.7}, {"Name": "Shoe", "Confidence": 97.2}]
+
+# Tier 1: Textract — extract form fields from a document
+textract = boto3.client('textract', region_name='us-east-1')
+response = textract.analyze_document(
+    Document={'S3Object': {'Bucket': 'my-docs', 'Name': 'application_form.pdf'}},
+    FeatureTypes=['FORMS']
+)
+# Returns key-value pairs: {"First Name": "Jane", "Last Name": "Doe", "DOB": "1990-01-15"}
+
+# Tier 2: Bedrock — invoke Claude via the Converse API
+bedrock = boto3.client('bedrock-runtime', region_name='us-east-1')
+response = bedrock.converse(
+    modelId='anthropic.claude-3-5-sonnet-20241022-v2:0',
+    messages=[{
+        "role": "user",
+        "content": [{"type": "text", "text": "Summarize this contract in 3 bullet points: ..."}]
+    }]
+)
+summary = response['output']['message']['content'][0]['text']
+
+# Tier 3: SageMaker — invoke a deployed custom model endpoint
+sagemaker_runtime = boto3.client('sagemaker-runtime', region_name='us-east-1')
+response = sagemaker_runtime.invoke_endpoint(
+    EndpointName='my-custom-model-endpoint',
+    ContentType='text/csv',
+    Body='feature1,feature2,feature3\n1.2,3.4,0.8'
+)
+prediction = response['Body'].read().decode('utf-8')
+print(f"Prediction: {prediction}")
+```

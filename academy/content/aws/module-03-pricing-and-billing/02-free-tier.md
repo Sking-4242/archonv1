@@ -2,7 +2,7 @@
 title: "The AWS Free Tier"
 type: content
 estimated_minutes: 17
-cert_tags: ["aws_ccp", "aws_clf_c02"]
+cert_tags: ["CLF-C02"]
 ---
 
 # The AWS Free Tier

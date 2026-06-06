@@ -1,81 +1,97 @@
 ---
-title: "GuardDuty and AWS Security Hub"
+title: "GuardDuty, Inspector, and Security Hub"
 type: content
-estimated_minutes: 8
-cert_tags: ["SAA-C03", "SAP-C02", "SCS-C02"]
+estimated_minutes: 14
+cert_tags: ["SAA-C03", "SAP-C02"]
 ---
 
-# GuardDuty and AWS Security Hub
+# GuardDuty, Inspector, and Security Hub
 
 ## Overview
 
-AWS GuardDuty is a managed threat detection service that continuously analyzes CloudTrail, VPC Flow Logs, DNS logs, and other sources for malicious activity. Security Hub aggregates findings from GuardDuty, Macie, Inspector, and other services into a single dashboard with compliance checks.
+Encryption and access control prevent unauthorized access to resources. But what happens after an attacker gets in — through a compromised credential, a misconfigured bucket, or a vulnerable application? Threat detection, vulnerability management, and security posture monitoring are the services that tell you when something has gone wrong. Amazon GuardDuty detects active threats. Amazon Inspector finds vulnerabilities before they are exploited. AWS Security Hub aggregates findings from both — plus Macie, Firewall Manager, and IAM Access Analyzer — into a single dashboard with automated compliance scoring.
 
-## Amazon GuardDuty
+These three services address different points in the security timeline. Inspector is proactive: it finds CVEs in OS packages, container images, and Lambda dependencies before an attacker uses them. GuardDuty is reactive: it detects malicious activity in progress by analyzing CloudTrail, VPC Flow Logs, and DNS logs for known threat patterns and anomalies. Security Hub is the aggregation layer: it normalizes findings from all sources, runs compliance checks against frameworks like CIS AWS Foundations Benchmark and PCI DSS, and provides the operational view a security team needs across dozens of accounts.
 
-GuardDuty uses threat intelligence (AWS curated + third-party), machine learning, and anomaly detection to identify threats: compromised EC2 instances communicating with known C2 servers, credential exfiltration (API calls from unusual locations or TOR exit nodes), cryptocurrency mining, S3 data exfiltration, unusual IAM activity, and container escape attempts. Enable GuardDuty with one click — it reads CloudTrail and Flow Logs without any agent installation. Findings are severity-rated and can trigger EventBridge rules for automated remediation.
+The SAA exam tests what each service does, what data sources GuardDuty analyzes, how automated response works, and what Security Hub aggregates. The SAP exam adds multi-account organization management, delegated administrators, EventBridge-driven automated response design, and cross-region finding aggregation. After this lesson, you will be able to design a complete threat detection and compliance monitoring architecture for a multi-account AWS environment.
 
-## GuardDuty Automated Response
+---
 
-GuardDuty findings → EventBridge → Lambda for automated response. Example: GuardDuty detects an EC2 instance contacting a known C2 domain → Lambda isolates the instance by replacing its security group with a deny-all group → SNS notifies the security team. This automated response reduces mean time to containment. GuardDuty also integrates with AWS Security Incident Response for managed incident workflow.
+## Core Concepts
 
-## AWS Security Hub
+### Amazon GuardDuty
 
-Security Hub aggregates security findings from GuardDuty, Macie, Inspector, Firewall Manager, IAM Access Analyzer, and third-party tools into a single pane of glass. It runs compliance checks against AWS Foundational Security Best Practices, CIS AWS Foundations Benchmark, and PCI DSS. Each check produces a pass/fail finding with remediation guidance. Security Hub normalizes findings using ASFF (Amazon Security Finding Format) for consistent cross-tool correlation.
+GuardDuty is a managed threat detection service that requires no agents, no infrastructure changes, and no configuration beyond enabling it. When enabled, it continuously analyzes three primary data sources: **CloudTrail management events** (API calls in the account), **VPC Flow Logs** (network traffic metadata), and **Route 53 DNS query logs** (DNS requests from VPC resources).
 
-## AWS Inspector
+GuardDuty uses a combination of AWS threat intelligence feeds, third-party threat intelligence (CrowdStrike, Proofpoint), and machine learning to identify threats across three categories:
 
-Inspector is an automated vulnerability management service for EC2 instances, Lambda functions, and container images. It continuously scans for OS package vulnerabilities (CVEs), network reachability issues, and Lambda function code vulnerabilities. Inspector integrates with ECR — images are scanned on push and findings appear in Security Hub. Unlike the legacy Inspector Classic (agent-based), Inspector v2 is agentless for EC2 (uses SSM) and requires no configuration once enabled.
+**Compromise indicators**: an EC2 instance communicating with a known command-and-control IP, an IAM user calling APIs from a TOR exit node, cryptocurrency mining activity detected in network traffic.
 
-## Summary
+**Anomalies**: an IAM user who has never called EC2 APIs suddenly launching 50 instances, a Lambda function making an unusual number of Secrets Manager calls, API calls from a geolocation inconsistent with the user's baseline.
 
-GuardDuty provides continuous threat detection across CloudTrail, Flow Logs, and DNS without agents or configuration. Automate remediation with EventBridge + Lambda. Security Hub centralizes findings and compliance checks across GuardDuty, Macie, Inspector, and more. Enable GuardDuty and Security Hub in every account at the Organization level — it's operational security hygiene.
+**Configuration threats**: S3 bucket policy changes that expose data publicly, disabling CloudTrail logging (GuardDuty logs this before the log stream stops).
 
-## Examples
+Each finding is severity-rated (LOW, MEDIUM, HIGH, CRITICAL) and describes the specific threat, the affected resource, and evidence. Findings are surfaced in the GuardDuty console, sent to EventBridge for automated response, and forwarded to Security Hub.
 
-A gaming company notices unusual behavior: one of their EC2 instances running game servers begins making outbound DNS queries to domains associated with a known botnet command-and-control network. The security team is alerted by a GuardDuty finding — `Backdoor:EC2/C&CActivity.B` — within minutes of the first suspicious query. An EventBridge rule triggers a Lambda function that replaces the instance's security group with a deny-all isolation group and creates a snapshot of the instance for forensic analysis. The entire response takes under two minutes with no human intervention required.
+GuardDuty can be enabled at the **AWS Organizations level** with a delegated administrator account — a single account that can enable GuardDuty for every account in the organization, view all findings centrally, and manage suppression rules without needing access to each account.
 
-A mid-market retail company running 12 AWS accounts has security findings scattered across GuardDuty, Macie, and Inspector in each account — no one has a consolidated view of which accounts are most at risk. After enabling Security Hub at the Organization level with a delegated administrator account, the CISO gets a single dashboard showing all findings normalized to ASFF, color-coded by severity, with CIS AWS Foundations Benchmark scores per account. For the first time, the security team can prioritize remediation effort across the entire estate rather than logging into each account individually.
+---
 
-A fintech company runs containerized services on EKS and stores container images in ECR. After integrating Inspector v2 with ECR, every image push triggers an automatic vulnerability scan. A developer pushes a new version of the payments service image that includes a dependency with a critical CVE (CVSS 9.8). Inspector generates a finding within 90 seconds, which surfaces in Security Hub and triggers a Slack alert to the team. The image is blocked from deployment by a CodePipeline quality gate that checks for critical Inspector findings before promoting to production — the vulnerability never reaches a running container.
+### GuardDuty Automated Response
 
-## Think About It
+GuardDuty findings flow to **EventBridge** as events, enabling automated response without human intervention. The standard pattern:
 
-1. GuardDuty analyzes CloudTrail, VPC Flow Logs, and DNS logs without requiring any agents. What categories of threats would GuardDuty be unable to detect because of this design, and what other tools would you layer in to cover those gaps?
-2. Why is it important to enable GuardDuty at the AWS Organizations level with a delegated administrator, rather than enabling it independently in each account? What attack scenario does centralized management specifically prevent?
-3. Security Hub runs compliance checks against CIS AWS Foundations Benchmark and reports pass/fail. If your account fails 40% of CIS checks, how would you prioritize remediation, and what factors other than check severity would influence your approach?
-4. GuardDuty can detect an EC2 instance communicating with a known malicious IP. What actions would you take before simply terminating the instance, and why does the order of those actions matter for forensics?
-5. Inspector scans for CVEs in OS packages and Lambda function dependencies. What types of application-layer vulnerabilities would Inspector not catch, and what would you use instead?
+GuardDuty finding → EventBridge rule (matches finding type or severity) → Lambda function → remediation action.
 
-## Quick Check
+Common remediation actions: isolate a compromised EC2 instance by replacing its security group with a deny-all group (preserving the instance for forensics), disable a compromised IAM user's access keys, block an IP address in a Network ACL or WAF IP set, snapshot an EBS volume for forensic analysis, or open a ServiceNow/Jira ticket via API.
 
-**Q1.** What data sources does GuardDuty analyze by default when enabled? (Choose the best answer)
+The important design principle: **isolate, don't immediately terminate**. Terminating a compromised instance destroys evidence. The correct sequence is isolate (security group replacement) → snapshot (forensics) → notify → investigate → terminate.
 
-- A) CloudWatch metrics, S3 access logs, and EC2 instance memory
-- B) CloudTrail management events, VPC Flow Logs, and DNS query logs
-- C) Config rules, CloudTrail data events, and WAF logs
-- D) Inspector findings, Macie findings, and CloudTrail management events
+---
 
-**Answer: B** — GuardDuty's core data sources are CloudTrail management events, VPC Flow Logs, and Route 53 DNS query logs; no agents or additional configuration are required to start analyzing these.
+### Amazon Inspector
 
-**Q2.** Which format does Security Hub use to normalize findings from multiple security services?
+Inspector is an automated vulnerability management service for EC2 instances, Lambda functions, and container images stored in ECR. It scans continuously — not just on demand — using the SSM agent on EC2 (agentless from the application's perspective) and integrating directly with ECR for container images.
 
-- A) CloudWatch Events JSON
-- B) OCSF (Open Cybersecurity Schema Framework)
-- C) ASFF (Amazon Security Finding Format)
-- D) STIX/TAXII
+Inspector assesses three categories of risk:
 
-**Answer: C** — Security Hub normalizes findings from GuardDuty, Macie, Inspector, and third-party tools into ASFF, enabling consistent cross-tool correlation and automated workflows.
+**Software vulnerabilities (CVEs)**: known vulnerabilities in OS packages (Amazon Linux, Ubuntu, Windows Server) and application dependencies (Python packages, npm modules in Lambda). Each finding includes the CVE ID, CVSS score, affected package, and a fix recommendation.
 
-**Q3.** A GuardDuty finding indicates an EC2 instance is communicating with a known cryptocurrency mining pool. Which automated response pattern is considered best practice?
+**Network reachability**: identifies EC2 instances reachable from the internet on ports that are unexpected given the instance's role — an internal database server with port 3306 accessible from 0.0.0.0/0, for example.
 
-- A) Immediately terminate the instance to stop the threat
-- B) Send an SNS email to the security team and wait for manual review
-- C) Use EventBridge to trigger a Lambda that isolates the instance with a deny-all security group and notifies the security team
-- D) Enable AWS Shield Advanced to block the outbound traffic
+**Lambda code vulnerabilities**: Inspector scans Lambda function code packages for vulnerable dependencies, flagging libraries with known CVEs in the function's deployment package.
 
-**Answer: C** — The GuardDuty → EventBridge → Lambda pattern enables automated isolation that preserves the instance for forensics while stopping the threat, faster than manual response and without destroying evidence.
+Inspector integrates with ECR so that every image pushed to a repository is automatically scanned. A critical CVE in a base image generates an Inspector finding that surfaces in Security Hub and can block deployment via a CodePipeline quality gate.
 
-## What's Next
+---
 
-Next up: AWS Config and CloudTrail — compliance auditing and API activity logging.
+### AWS Security Hub
+
+Security Hub is the aggregation and compliance layer. It receives findings from GuardDuty, Macie, Inspector, Firewall Manager, IAM Access Analyzer, and over 50 third-party partner integrations. All findings are normalized to **ASFF (Amazon Security Finding Format)**, enabling consistent search, filtering, and automated workflow across all sources.
+
+In addition to aggregating findings, Security Hub runs its own **compliance checks** — automated evaluations of your AWS configuration against frameworks:
+
+- **AWS Foundational Security Best Practices** — AWS's own standard for secure configuration
+- **CIS AWS Foundations Benchmark** — a widely adopted third-party security standard
+- **PCI DSS** — Payment Card Industry compliance standard
+- **NIST SP 800-53** — US federal security controls
+
+Each check evaluates a specific resource configuration (e.g., "CloudTrail enabled in all regions," "S3 buckets block public access," "RDS instances are not publicly accessible") and produces a PASS or FAIL with remediation guidance.
+
+Security Hub supports a **delegated administrator** pattern via AWS Organizations: one account manages findings and compliance across all accounts. Cross-region aggregation allows a single Security Hub region to pull findings from all regions in the organization.
+
+---
+
+## Configuration Reference
+
+### Enabling GuardDuty at the Organization Level
+
+```bash
+# In the delegated administrator account — enable GuardDuty for the organization
+aws guardduty create-detector \
+  --enable \
+  --finding-publishing-frequency FIFTEEN_MINUTES \  # How often findings are exported to S3
+  --features '[{"Name":"S3_DATA_EVENTS","Status":"ENABLED"},{"Name":"EKS_AUDIT_LOGS","Status":"ENABLED"},{"Name":"MALWARE_PROTECTION","Status":"ENABLED"}]' \
+  --region us-east-1
+
+# Designate this account as the GuardDuty admin for the org 

@@ -1,78 +1,102 @@
 ---
 title: "AWS Systems Manager: Operational Management"
 type: content
-estimated_minutes: 8
-cert_tags: ["SAA-C03", "SAP-C02", "SCS-C02"]
+estimated_minutes: 13
+cert_tags: ["SAA-C03", "SAP-C02"]
 ---
 
 # AWS Systems Manager: Operational Management
 
 ## Overview
 
-AWS Systems Manager (SSM) is a collection of operational management tools for EC2 instances, on-premises servers, and edge devices. It enables remote command execution, patch management, configuration management, and inventory without opening SSH ports or managing bastion hosts.
+Observability tells you what is happening in your environment. Systems Manager gives you the tools to act on what you observe — remotely, at scale, without opening SSH ports or distributing credentials. AWS Systems Manager (SSM) is a collection of operational management capabilities for EC2 instances, on-premises servers, and edge devices: secure shell access without SSH, fleet-wide command execution, automated OS patching, configuration management, and inventory collection.
 
-## SSM Agent and Session Manager
+The problem SSM solves is the operational overhead of managing servers at scale. Before SSM, managing 500 EC2 instances meant maintaining SSH keys for every operator, running a bastion host as a security boundary, writing custom scripts to execute operations across a fleet in parallel, and building compliance reports by hand. Each of those creates security risk, operational complexity, and manual effort. SSM replaces that entire pattern: Session Manager provides IAM-controlled browser-based shell access with no inbound ports open; Run Command executes scripts on thousands of instances simultaneously; Patch Manager automates OS patching with compliance reporting; Parameter Store centralizes configuration. The SSM Agent — pre-installed on Amazon Linux 2, Amazon Linux 2023, and Windows Server AMIs — enables all of this without agent deployment effort on standard AWS instances.
 
-The SSM Agent runs on EC2 instances (pre-installed on Amazon Linux 2, Windows Server AMIs) and enables all SSM features without opening port 22 or 3389. Session Manager provides browser-based or CLI shell access to instances without SSH keys, bastion hosts, or open inbound ports. Access is controlled by IAM; all session activity is logged to CloudTrail and optionally to S3 or CloudWatch Logs. This is the recommended replacement for SSH/RDP in AWS environments.
+For the SAA exam, understand Session Manager (no SSH, IAM-controlled, audited), Run Command (fleet-scale execution), Patch Manager (baselines and maintenance windows), and Parameter Store's position within SSM. The SAP exam adds Automation documents, OpsCenter for incident management, maintenance window design, and cross-account SSM operation. After this lesson you will be able to design a secure, scalable operational management architecture for an EC2 fleet without SSH keys or bastion hosts.
 
-## Run Command and Automation
+---
 
-Run Command executes scripts or SSM Documents on any number of instances simultaneously (filtered by tag, instance ID, or resource group). Use for: applying OS patches, installing software, rotating credentials, running diagnostics across a fleet. Automation runs multi-step operational runbooks defined as SSM Automation documents — useful for complex procedures like creating AMI backups, patching with pre/post validation, or cross-account operations. Automation is triggered manually, on a schedule, or in response to Config rules.
+## Core Concepts
 
-## Patch Manager
+### SSM Agent and Session Manager
 
-Patch Manager automates the process of patching OS and application software on EC2 and on-premises servers. Define a Patch Baseline (which patches to apply — by severity, classification, auto-approval delay), a Maintenance Window (when patching runs), and target instances (by tag). Patch Manager reports compliance — which instances are patched and which have missing patches. Critical for meeting compliance requirements (SOC2, PCI, HIPAA) that require timely patching.
+The **SSM Agent** is a lightweight daemon pre-installed on most AWS-provided AMIs (Amazon Linux 2, Amazon Linux 2023, Windows Server 2016+, Ubuntu 18.04+). It communicates with the SSM service over **outbound HTTPS (port 443)** — the instance initiates the connection, so no inbound ports need to be open on the security group. To use SSM features, an instance needs: the SSM Agent running, outbound internet access (or a VPC endpoint for SSM), and an IAM instance profile with the `AmazonSSMManagedInstanceCore` managed policy.
 
-## Parameter Store and Inventory
+**Session Manager** provides interactive shell access to managed instances through the AWS console, CLI, or AWS Systems Manager API — without SSH keys, bastion hosts, or open port 22. Access is governed entirely by IAM policies: you grant `ssm:StartSession` on specific instance ARNs or tags. All session activity (every keystroke and output) is logged to CloudTrail and optionally to an S3 bucket or CloudWatch Logs stream for audit purposes.
 
-Parameter Store (covered in the secrets lesson) is part of Systems Manager. SSM Inventory collects metadata from managed instances: installed applications, OS details, network configuration, Windows registry keys. Inventory data is stored in S3 and queryable in the SSM console or via AWS Config. Use Inventory for: software audit, license tracking, and detecting unauthorized software installations.
+Session Manager is the recommended replacement for SSH and RDP in AWS environments. It eliminates the bastion host as an attack surface, removes the need to distribute and rotate SSH keys, and provides a complete audit trail of every command run in every session.
 
-## Summary
+Session Manager also enables **port forwarding** — tunneling a remote port to a local port over the SSM session, enabling access to internal services (RDS, private HTTP APIs, Redis) without a VPN or bastion host.
 
-Systems Manager enables agent-based operational management of EC2 and hybrid servers without SSH access. Session Manager replaces SSH/RDP with IAM-controlled browser sessions with full audit logging. Run Command and Automation execute operations at fleet scale. Patch Manager automates compliance patching. SSM is the operational backbone for well-managed AWS server fleets.
+---
 
-## Examples
+### Run Command and Automation
 
-A financial institution runs 400 EC2 instances across three regions and faced a compliance audit requiring evidence that all instances had a critical OS patch applied within 72 hours of release. Instead of coordinating SSH access across teams, their operations team used SSM Patch Manager: they defined a Patch Baseline approving critical patches after a 24-hour delay, set a Maintenance Window for Sunday nights, and targeted all instances by a `role=production` tag. The compliance report generated by Patch Manager's compliance dashboard gave auditors a timestamped record of patch status per instance — turning a multi-day manual process into an automated, auditable workflow.
+**Run Command** executes scripts and SSM Documents on any number of managed instances simultaneously. You target instances by instance ID, tag, or resource group — "run this on all instances tagged `Environment=prod` and `Role=api-server`." SSM Documents define the steps to execute (shell scripts, PowerShell, Python). Run Command returns per-instance output and a success/failure status for each target.
 
-A startup with a 20-person engineering team wanted to give developers access to debug specific EC2 instances without distributing SSH keys, managing a bastion host, or opening port 22. They configured IAM policies that allowed developers to start Session Manager sessions only on instances tagged with their team name. All session activity was automatically logged to CloudWatch Logs. When a developer accidentally deleted a config file during a debug session, the full session transcript was available for incident review — without any additional logging instrumentation. This illustrates how Session Manager replaces the entire SSH key management and bastion host operational burden.
+Use Run Command for: executing one-time operational tasks across a fleet (rotating credentials, installing a software update, running a diagnostic), emergency response (removing a compromised file from all instances), and scheduled maintenance operations.
 
-A global SaaS company needed to execute a credential rotation script on 1,200 EC2 instances simultaneously during a scheduled maintenance window after a security incident. Using SSM Run Command with a tag-based target selector and their custom SSM Document, they executed the script on all 1,200 instances in parallel and received a per-instance success/failure report within minutes. The equivalent SSH-based approach would have required scripting parallel connections, handling failures, and aggregating results manually — demonstrating Run Command's value for fleet-scale operational tasks.
+**Automation** extends Run Command with multi-step runbooks: sequences of actions with branching, approvals, cross-account operations, and wait states. An Automation document might: stop an EC2 instance → create an AMI snapshot → start the instance → validate health → notify via SNS. AWS provides pre-built Automation documents for common operations (create AMI, patch an instance, enable encryption). Automation can be triggered manually, on a schedule (Maintenance Windows), or in response to AWS Config rule violations for automatic remediation.
 
-## Think About It
+---
 
-1. Why is Session Manager considered more secure than a traditional SSH bastion host, even though both ultimately grant shell access to an instance — what attack surface does Session Manager eliminate?
-2. What would happen to your ability to use SSM features if an EC2 instance's IAM instance profile did not include the `AmazonSSMManagedInstanceCore` policy? How would you diagnose and fix this?
-3. How would you decide between using Run Command for a one-time operational task versus creating an SSM Automation document — what factors (repeatability, complexity, approval gates) tip the decision?
-4. The Patch Baseline has an "auto-approval delay" setting. What is the reasoning behind not patching immediately when a critical patch is released, and what compliance requirement might push you in the opposite direction?
-5. SSM Inventory collects data about installed software on managed instances. How could you use Inventory alongside AWS Config to detect and alert on instances running unauthorized or vulnerable software versions?
+### Patch Manager
 
-## Quick Check
+Patch Manager automates OS and application patching for EC2 instances and on-premises servers. Configuration requires three components:
 
-**Q1.** Which port must be open on an EC2 instance's security group to allow SSM Session Manager shell access?
-- A) Port 22 (SSH)
-- B) Port 3389 (RDP)
-- C) Port 443 (HTTPS outbound only)
-- D) No inbound port needs to be open — Session Manager uses outbound HTTPS from the instance
+**Patch Baseline**: defines which patches are approved for installation. You can filter by severity (Critical, Important, Moderate), classification (Security, BugFix), and set an auto-approval delay — the number of days after a patch is released before it is automatically approved for installation. The delay allows time for a patch to be tested in staging before it is approved for production.
 
-**Answer: D** — Session Manager communicates via the SSM Agent making outbound HTTPS (port 443) connections to the SSM service endpoint; no inbound ports need to be open on the security group, eliminating the attack surface of open SSH/RDP ports.
+**Maintenance Window**: defines when patching runs — the schedule (cron expression or rate), duration, and allowed downtime (how many instances can be patched simultaneously). Maintenance Windows can also trigger Run Command and Automation documents, making them a general-purpose scheduled operations facility.
 
-**Q2.** What is a Patch Baseline in AWS Systems Manager Patch Manager?
-- A) A snapshot of the current patch state of all managed instances
-- B) A definition of which patches should be applied, filtered by severity, classification, and approval delay
-- C) A schedule that determines when patching maintenance windows run
-- D) A CloudWatch alarm that triggers when instances fall out of compliance
+**Targets**: the instances to patch, selected by tag, instance ID, or resource group.
 
-**Answer: B** — A Patch Baseline defines the rules for which patches are approved for installation (e.g., Critical and Important security patches, auto-approved after 3 days), separate from the Maintenance Window that controls when patching executes.
+After patching, Patch Manager generates **compliance reports** — per-instance patch status showing which patches are installed, which are missing, and which failed to install. These reports are available in the SSM console and can be sent to AWS Config and Security Hub for compliance auditing.
 
-**Q3.** Where should you store the CloudWatch Agent configuration file when managing a fleet of EC2 instances at scale?
-- A) Embedded directly in the EC2 launch template user data
-- B) In an S3 bucket that each instance downloads at startup
-- C) In SSM Parameter Store, where the agent can retrieve it centrally and updates propagate automatically
-- D) In a Git repository that a cron job on each instance polls every hour
+---
 
-**Answer: C** — Storing the CloudWatch Agent config in SSM Parameter Store allows centralized management: one update to the Parameter Store document propagates to all instances when they refresh the configuration, without touching individual instances.
+### OpsCenter and Inventory
 
-## What's Next
+**OpsCenter** is SSM's incident management feature. An **OpsItem** is a record of an operational issue — similar to a ticket. OpsItems can be created automatically from CloudWatch Alarms, EventBridge events, or GuardDuty findings, or manually by operators. Each OpsItem includes: the issue description, affected resources, related CloudWatch alarms, related SSM Automation runbooks, and resolution notes. OpsCenter provides a centralized operational console for tracking and resolving incidents across accounts.
 
-Next up: the Module 16 Canvas Labs — designing an observability architecture.
+**Inventory** collects metadata from managed instances: installed applications, OS version, patch compliance, network interfaces, Windows registry keys, running services, and more. Inventory data is stored in S3 and indexed in a managed Config aggregator. Use Inventory for software audits, license tracking, compliance reporting, and detecting unauthorized software installations across a fleet.
+
+---
+
+## Configuration Reference
+
+### Setting Up Session Manager Access with IAM
+
+```json
+// IAM policy — allows starting a session only on instances tagged Team=payments
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:StartSession",
+        "ssm:TerminateSession",
+        "ssm:ResumeSession"
+      ],
+      "Resource": "arn:aws:ec2:us-east-1:123456789012:instance/*",
+      "Condition": {
+        "StringEquals": {
+          "ssm:resourceTag/Team": "payments"   // Restrict to tagged instances
+        }
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "ssm:DescribeSessions",
+      "Resource": "*"
+    }
+  ]
+}
+```
+
+```bash
+# Start a session from the CLI (no SSH key required, no bastion host)
+aws ssm start-session \
+  --target i-0abc1234567890def \
+  --region 

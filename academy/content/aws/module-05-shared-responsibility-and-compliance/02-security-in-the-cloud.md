@@ -2,7 +2,7 @@
 title: "Security In the Cloud (Your Responsibility)"
 type: content
 estimated_minutes: 15
-cert_tags: ["aws_ccp", "aws_saa", "aws_scs"]
+cert_tags: ["CLF-C02", "SAA-C03", "SCS-C02"]
 ---
 
 # Security In the Cloud (Your Responsibility)
@@ -34,7 +34,7 @@ Service-by-service customer responsibilities for encryption at rest:
 - **S3 objects**: AWS now enables server-side encryption (SSE-S3) by default. However, for regulated data requiring customer-managed keys (CMK), you must configure SSE-KMS with your own KMS key.
 - **RDS instances**: Encryption must be enabled at creation time and cannot be added afterward. If you create an unencrypted RDS instance, you must snapshot it, copy the snapshot with encryption enabled, and restore from the encrypted snapshot.
 - **DynamoDB tables**: Encryption is enabled by default using AWS-owned keys. For compliance requiring customer control over keys, you must configure CMK encryption.
-- **Lambda environment variables**: Sensitive values should be encrypted with KMS — Lambda does not encrypt environment variables at rest by default beyond the standard SSE layer.
+- **Lambda environment variables**: Lambda encrypts environment variables at rest using an AWS-managed KMS key by default. For compliance requirements mandating customer-controlled keys, configure additional encryption with a customer-managed KMS key (CMK). Either way, sensitive values should be stored in Secrets Manager or Parameter Store and retrieved at runtime rather than embedded in environment variables.
 
 ### Data Encryption in Transit
 

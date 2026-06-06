@@ -2,7 +2,7 @@
 title: "Principle of Least Privilege"
 type: content
 estimated_minutes: 15
-cert_tags: ["aws_ccp", "aws_saa", "aws_soa", "aws_scs"]
+cert_tags: ["CLF-C02", "SAA-C03", "SOA-C02", "SCS-C02"]
 ---
 
 # Principle of Least Privilege

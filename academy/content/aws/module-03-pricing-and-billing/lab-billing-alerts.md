@@ -2,7 +2,7 @@
 title: "Lab: Set Up Billing Alerts and Explore Cost Explorer"
 type: canvas
 estimated_minutes: 20
-cert_tags: ["aws_ccp"]
+cert_tags: ["CLF-C02"]
 ---
 
 # Lab: Set Up Billing Alerts and Explore Cost Explorer

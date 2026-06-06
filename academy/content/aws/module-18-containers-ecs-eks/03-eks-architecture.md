@@ -1,7 +1,7 @@
 ---
 title: "EKS Architecture: Nodes, Pods, and Networking"
 type: content
-estimated_minutes: 10
+estimated_minutes: 13
 cert_tags: ["SAA-C03", "SAP-C02"]
 ---
 
@@ -9,70 +9,71 @@ cert_tags: ["SAA-C03", "SAP-C02"]
 
 ## Overview
 
-EKS is managed Kubernetes. AWS runs the control plane (API server, etcd, scheduler, controller manager) across 3 AZs with automatic patching and a 99.95% SLA. You manage worker nodes (EC2 or Fargate). This lesson covers EKS node types, networking (VPC CNI), and key AWS integrations.
+Amazon EKS is managed Kubernetes — AWS runs the control plane so that you do not have to. This includes the Kubernetes API server, etcd (the cluster state store), the controller manager, and the scheduler, deployed across three Availability Zones with a 99.95% SLA and automatic version patches. What you manage (or offload to Fargate) is the data plane: the worker nodes that run your pods.
 
-## EKS Node Groups
+EKS is Kubernetes with deep AWS integration. The networking model assigns real VPC IP addresses to pods via the AWS VPC CNI plugin, making pods first-class VPC citizens reachable by security groups and route tables. IAM integration via IRSA (IAM Roles for Service Accounts) gives individual pods scoped AWS credentials without sharing the node's instance profile. The AWS Load Balancer Controller provisions ALBs directly from Kubernetes Ingress resources. These integrations make EKS feel native to AWS while preserving full Kubernetes API compatibility.
 
-Managed Node Groups are EC2 instances managed by EKS — AWS handles node provisioning, OS updates, and Kubernetes version upgrades with one API call. Self-managed nodes give you full control but require manual management. Fargate Profiles run pods on Fargate — no node management, scales to zero, but with limitations (no DaemonSets, stateful sets require EFS, no privileged containers). Use managed node groups as the default; Fargate for batch jobs and bursty microservices.
+For the SAA exam, understand the EKS control-plane/data-plane split, node group types, VPC CNI pod networking, and IRSA. SAP adds Karpenter vs. Cluster Autoscaler, EKS add-on management, Kubernetes RBAC integration with IAM, and multi-cluster networking. After this lesson, you will be able to explain EKS's networking model, configure IAM for pods using IRSA, and choose between node group types for different workload characteristics.
 
-## VPC CNI and Pod Networking
+---
 
-EKS uses the AWS VPC CNI plugin. Each pod gets a real VPC IP address from the node's subnet — pods are first-class VPC citizens, reachable via security groups and route tables. This differs from other Kubernetes CNIs where pods use an overlay network. Benefits: no overlay overhead, native VPC security groups on pods (via Security Groups for Pods), easy integration with VPC Flow Logs. Node subnet CIDR must be large enough to hold the maximum number of pods per node (varies by instance type and IP limits).
+## Core Concepts
 
-## EKS Add-ons and Integrations
+### Control Plane and Data Plane
 
-EKS Add-ons: CoreDNS (cluster DNS), kube-proxy (networking rules), AWS VPC CNI (pod networking), EBS CSI driver (persistent volumes from EBS), EFS CSI driver (persistent volumes from EFS). AWS Load Balancer Controller provisions ALB for Kubernetes Ingress resources and NLB for LoadBalancer Service types — enabling native ALB integration without manual configuration. Cluster Autoscaler or Karpenter (preferred, faster) automatically adds and removes nodes based on pending pod demand.
+**The control plane** is what EKS manages: the Kubernetes API server (where `kubectl` connects), etcd (the distributed key-value store for all cluster state), the scheduler (assigns pods to nodes), and the controller manager (runs reconciliation loops for deployments, replica sets, etc.). These run in AWS-managed accounts across three AZs. You interact with the control plane via `kubectl` and the EKS API but never manage the underlying infrastructure.
 
-## EKS IAM Integration: IRSA
+**The data plane** is what you manage (or delegate to Fargate): the worker nodes where your pods actually run. Worker nodes are EC2 instances that join the cluster using bootstrap scripts, run the `kubelet` (the Kubernetes node agent), and report their capacity to the control plane.
 
-IAM Roles for Service Accounts (IRSA) allows Kubernetes pods to assume IAM roles. A Kubernetes service account is annotated with an IAM role ARN. The pod's OIDC token is exchanged for AWS credentials via STS. This gives pods the minimal IAM permissions they need without giving node-level credentials to all pods on the instance. Always use IRSA for pod AWS access — never use node instance role credentials directly.
+---
 
-## Summary
+### Node Group Types
 
-EKS provides managed Kubernetes control plane. Use managed node groups or Fargate. AWS VPC CNI gives pods real VPC IPs. Use IRSA for pod-level IAM — never rely on node instance credentials. The AWS Load Balancer Controller connects Kubernetes Ingress to ALB. Karpenter automates efficient node scaling. EKS is Kubernetes with deep AWS integration — the expertise barrier is the main consideration.
+**Managed Node Groups** are EC2 instances managed by EKS. AWS handles: OS selection (Amazon Linux 2, Bottlerocket), node provisioning (using an Auto Scaling Group), Kubernetes version upgrades (cordoning, draining, and replacing nodes with one API call), and node health monitoring. You choose the instance type, scaling limits, and whether to use On-Demand or Spot instances. Managed node groups are the default choice for most EKS workloads.
 
-## Examples
+**Self-managed nodes** give you complete control — you manage the ASG, bootstrap scripts, OS patches, and Kubernetes version upgrades manually. Use self-managed nodes only when you need customizations not supported by managed node groups (custom AMIs with specific kernel patches, GPU configurations not yet supported by managed groups, etc.).
 
-A logistics company migrates a microservices platform from on-premises Kubernetes to EKS. Their ten backend services already have Helm charts, custom admission webhooks, and a Prometheus-based monitoring stack. With EKS and managed node groups, the control plane migration is transparent — AWS runs the API server and etcd. The team keeps their Helm deployments, adds the AWS Load Balancer Controller to replace their on-premises ingress controller, and now has an SLA-backed control plane without running a single etcd pod themselves. This is the canonical EKS migration story: Kubernetes investment preserved, undifferentiated heavy lifting removed.
+**Fargate Profiles** run pods on AWS Fargate — no nodes to manage. A Fargate Profile specifies which pods (by namespace and label selector) run on Fargate; matching pods are scheduled onto Fargate compute automatically. Limitations: no DaemonSets (Fargate doesn't support node-level agents), no privileged containers, stateful workloads require EFS (not EBS — EBS volumes cannot be shared across Fargate hosts), and cold starts are longer than on EC2 nodes. Use Fargate for batch jobs, bursty microservices, and workloads where zero-to-scale is important.
 
-A machine-learning platform team runs training jobs that are highly bursty — dozens of GPU-hungry pods queue up at 2am, then nothing runs for hours. They adopt Karpenter for node autoscaling. When pending pods request GPU nodes, Karpenter reads the pod spec, selects the cheapest appropriate instance type (often spot), and provisions it in under 60 seconds. When jobs finish, Karpenter consolidates the cluster and terminates unused nodes. Compared to Cluster Autoscaler, Karpenter's awareness of actual pod requirements (not just node utilization) leads to significantly lower average cluster cost.
+---
 
-A platform team operates a multi-tenant EKS cluster serving several internal product teams. Each product team runs pods that need to write to their own S3 bucket and read from their own DynamoDB table. Using IRSA, the team creates a separate IAM role per product team and annotates each product team's Kubernetes service account with its respective role ARN. Pods from Team A automatically receive credentials scoped only to Team A's resources — even though all pods run on the same EC2 worker nodes sharing the same instance profile. Without IRSA, any pod on the node could escalate to full node-level permissions via IMDS.
+### VPC CNI and Pod Networking
 
-## Think About It
+EKS uses the **AWS VPC CNI plugin** (Container Network Interface). Unlike most CNI plugins that create an overlay network (pods get internal IPs invisible to the VPC), the AWS VPC CNI gives each pod a **real VPC IP address** from the node's subnet CIDR.
 
-1. Why does the AWS VPC CNI plugin assign real VPC IP addresses to pods rather than using an overlay network? What operational and security benefits does this create, and what new constraint does it introduce?
-2. What would happen if the subnets backing your EKS managed node group ran out of available IP addresses? How would you detect this before it caused pod scheduling failures?
-3. How would you decide between Fargate Profiles and managed node groups for a given workload in EKS? What specific characteristics of a workload make Fargate the wrong choice?
-4. IRSA exchanges a Kubernetes OIDC token for AWS credentials via STS. What is the security principle this enforces, and how does it differ from the alternative of granting broad permissions on the EC2 node instance role?
-5. Karpenter and Cluster Autoscaler both scale EKS nodes, but their scaling logic differs fundamentally. Under what conditions would Cluster Autoscaler over-provision nodes that Karpenter would not, and why?
+This has significant implications:
+- **Pods are VPC citizens**: they can be targeted by security groups, appear in VPC Flow Logs, and are reachable from other VPC resources without NAT or overlay routing.
+- **Security Groups for Pods**: individual pods can have dedicated security groups (separate from the node's security group), enabling fine-grained network access control at the pod level.
+- **IP exhaustion risk**: each pod consumes one IP from the node's subnet. The maximum pods per node is limited by the node's ENI capacity and the number of IPs per ENI (instance-type dependent). If subnets are too small, IP exhaustion causes pod scheduling failures.
+- **Subnet planning matters**: size node subnets generously (/24 or larger) to accommodate pod IP allocation headroom.
 
-## Quick Check
+---
 
-**Q1.** What does IRSA (IAM Roles for Service Accounts) allow in an EKS cluster?
-- A) EC2 worker nodes to assume IAM roles for cluster operations
-- B) Individual Kubernetes pods to assume scoped IAM roles via OIDC token exchange
-- C) Kubernetes Ingress resources to invoke ALB APIs directly
-- D) The EKS control plane to write to CloudTrail on your behalf
+### IAM Roles for Service Accounts (IRSA)
 
-**Answer: B** — IRSA annotates a Kubernetes service account with an IAM role ARN; pods using that service account exchange an OIDC token for temporary AWS credentials scoped to that specific role.
+In standard Kubernetes, all pods on a node share the node's EC2 instance profile — all pods can assume the node's IAM role and access whatever it can access. This violates least privilege: a compromised payment pod can access the same S3 buckets as an analytics pod.
 
-**Q2.** Which EKS node option requires the least operational management and can scale to zero when no workloads are running?
-- A) Self-managed EC2 node groups
-- B) Managed node groups with On-Demand instances
-- C) Fargate Profiles
-- D) Managed node groups with Spot instances
+**IRSA** solves this by binding a Kubernetes service account to an IAM role. The process:
+1. The EKS cluster has an OIDC identity provider URL.
+2. An IAM role's trust policy allows the OIDC provider to assume the role for a specific Kubernetes service account.
+3. The Kubernetes service account is annotated with the IAM role ARN.
+4. Pods using that service account receive an OIDC token injected as a projected volume.
+5. The AWS SDK in the pod exchanges the OIDC token for temporary AWS credentials via STS.
 
-**Answer: C** — Fargate Profiles run pods on AWS-managed serverless compute with no node provisioning, patching, or minimum capacity requirements; unused pods incur no cost.
+The result: each pod (or group of pods sharing a service account) gets its own scoped AWS credentials. A payment pod gets credentials for the payments DynamoDB table only. An analytics pod gets credentials for the analytics S3 bucket only. A compromised pod cannot escalate to other pods' resources.
 
-**Q3.** What is the primary role of the AWS Load Balancer Controller in an EKS cluster?
-- A) It provides internal DNS resolution for Kubernetes Services
-- B) It provisions EBS volumes for StatefulSet pods
-- C) It translates Kubernetes Ingress and LoadBalancer Service resources into ALB and NLB configurations
-- D) It enforces pod security policies at admission time
+IRSA is the required pattern for pod AWS access in EKS. Node instance role credentials should never be broad enough for application pods to use directly.
 
-**Answer: C** — The AWS Load Balancer Controller watches Kubernetes Ingress and Service resources and automatically creates and configures ALBs and NLBs in your account to match.
+---
 
-## What's Next
+### EKS Add-ons and Karpenter
 
-Next up: Container security — image scanning, runtime security, and network policies.
+EKS **add-ons** are cluster components managed by EKS: CoreDNS (cluster DNS resolution), kube-proxy (network rules on nodes), VPC CNI (pod networking), the EBS CSI driver (EBS persistent volumes), and the EFS CSI driver (EFS persistent volumes). Add-ons can be updated via the EKS API without manually applying YAML manifests.
+
+**AWS Load Balancer Controller**: a Kubernetes controller (deployed as a pod) that watches Kubernetes Ingress and Service resources and provisions ALBs and NLBs automatically. When you create a Kubernetes Ingress with the annotation `kubernetes.io/ingress.class: alb`, the controller creates an ALB, registers pod IPs as targets, and manages path-based routing — all without manual ALB configuration.
+
+**Karpenter** is the recommended node autoscaler for EKS. Unlike the older Cluster Autoscaler (which scales existing node groups), Karpenter provisions nodes directly — selecting the right instance type, size, and purchase option (On-Demand vs. Spot) to satisfy pending pod requirements in under 60 seconds. Karpenter's consolidation feature continuously right-sizes the cluster, terminating underutilized nodes and rescheduling pods more efficiently. For ML and GPU workloads, Karpenter's ability to directly select GPU instances with the right GPU count reduces provisioning time significantly.
+
+---
+
+## Configu

@@ -2,7 +2,7 @@
 title: "AWS Organizations and Multi-Account Strategy"
 type: content
 estimated_minutes: 18
-cert_tags: ["aws_ccp", "aws_saa", "aws_scs"]
+cert_tags: ["CLF-C02", "SAA-C03", "SCS-C02"]
 ---
 
 # AWS Organizations and Multi-Account Strategy

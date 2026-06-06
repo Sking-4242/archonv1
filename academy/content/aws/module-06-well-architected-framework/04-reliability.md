@@ -2,7 +2,7 @@
 title: "Pillar: Reliability"
 type: content
 estimated_minutes: 18
-cert_tags: ["aws_ccp", "aws_saa", "aws_sap"]
+cert_tags: ["CLF-C02", "SAA-C03", "SAP-C02"]
 ---
 
 # Pillar: Reliability
@@ -52,7 +52,7 @@ WHY does testing matter if the automation should "just work"? Because the gap be
 
 A single large resource is a single point of failure — when it fails, the entire workload is affected. Multiple smaller resources in an active configuration mean that the failure of any one resource reduces overall capacity rather than eliminating it entirely. This principle applies to compute (Auto Scaling groups of EC2 instances instead of one large instance), databases (read replicas, Multi-AZ), networking (multiple NAT gateways across AZs), and any stateful component.
 
-WHY not just make the single resource more reliable instead? Because no individual resource has 100% availability. AWS's EC2 SLA is 99.99% — meaning up to 52 minutes of downtime per year for a single instance. For a two-instance active-active configuration, the probability of both failing simultaneously is 0.01% × 0.01% = 0.000001%, yielding 99.9999% combined availability. Horizontal scaling does not prevent individual failures; it prevents individual failures from causing system-wide failures.
+WHY not just make the single resource more reliable instead? Because no individual resource has 100% availability. AWS's EC2 SLA for a single instance is 99.5% — meaning up to approximately 43.8 hours of downtime per year. For a two-instance active-active configuration, the probability of both failing simultaneously is 0.5% × 0.5% = 0.0025%, yielding 99.9975% combined availability — more than a 17× improvement. Horizontal scaling does not prevent individual failures; it prevents individual failures from causing system-wide failures.
 
 ## Configuration Reference
 

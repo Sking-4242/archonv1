@@ -2,7 +2,7 @@
 title: "Edge Locations and the AWS Global Network"
 type: content
 estimated_minutes: 14
-cert_tags: ["aws_ccp", "clf-c02", "aws_saa"]
+cert_tags: ["CLF-C02", "SAA-C03"]
 ---
 
 # Edge Locations and the AWS Global Network

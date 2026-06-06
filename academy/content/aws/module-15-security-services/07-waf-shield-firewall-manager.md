@@ -1,81 +1,84 @@
 ---
 title: "WAF, Shield Advanced, and Firewall Manager"
 type: content
-estimated_minutes: 8
-cert_tags: ["SAA-C03", "SAP-C02", "SCS-C02"]
+estimated_minutes: 13
+cert_tags: ["SAA-C03", "SAP-C02"]
 ---
 
 # WAF, Shield Advanced, and Firewall Manager
 
 ## Overview
 
-The outer perimeter of AWS security includes web application firewalling, DDoS protection, and centralized firewall management. This lesson covers AWS WAF in depth, Shield Advanced, and Firewall Manager for managing security policies at organization scale.
+Encryption, access control, and threat detection protect what's inside your AWS environment. WAF, Shield, and Firewall Manager protect the perimeter — the boundary between your applications and the internet. AWS WAF filters HTTP/HTTPS requests at Layer 7 before they reach your application, blocking SQL injection, cross-site scripting, bot traffic, and other application-layer attacks. AWS Shield defends against Distributed Denial of Service (DDoS) attacks at both the network and application layers. AWS Firewall Manager ties both together, enforcing consistent WAF and Shield policies across every account in an AWS Organization.
 
-## AWS WAF Rule Groups and Managed Rules
+The design principle unifying all three is that perimeter security must be layered and centrally managed. A WAF rule attached to a CloudFront distribution protects your global edge; a second WAF on the ALB catches traffic that bypasses CloudFront; security groups restrict what reaches EC2. An organization with 50 AWS accounts cannot manually configure WAF on every ALB in every account — Firewall Manager makes that policy apply automatically to every matching resource, existing and future.
 
-WAF rules evaluate HTTP/HTTPS requests before they reach your application (ALB, CloudFront, API Gateway, AppSync). Rules can inspect any part of the request: URI, headers, body, query strings, IP, geolocation. Rule actions: Allow, Block, Count (for testing). AWS Managed Rule Groups are pre-built, AWS-maintained sets for common threats: AWSManagedRulesCommonRuleSet (OWASP Top 10), AWSManagedRulesSQLiRuleSet, AWSManagedRulesBotControlRuleSet. Rate-based rules automatically block IPs exceeding a request rate threshold (DDoS mitigation at the application layer).
+For the SAA exam, understand WAF rule types and managed rule groups, the difference between Shield Standard and Shield Advanced, and what Firewall Manager requires to function. The SAP exam tests WAF web ACL design, Shield Advanced SRT engagement, Firewall Manager policy scoping, and the full defense-in-depth architecture from edge to data tier. After this lesson you will be able to design a complete perimeter security architecture for a multi-account internet-facing application.
 
-## Shield Advanced
+---
 
-Shield Standard (automatic, free) protects against volumetric L3/L4 DDoS attacks. Shield Advanced ($3,000/month per organization) adds: L7 application-layer DDoS protection with WAF integration, DDoS cost protection (credits for scaling costs during attacks), enhanced visibility and diagnostics, access to the Shield Response Team (SRT) 24/7 for attack mitigation, and automatic application layer DDoS mitigation for protected resources. Use Shield Advanced for high-profile internet-facing applications.
+## Core Concepts
 
-## AWS Firewall Manager
+### AWS WAF
 
-Firewall Manager is a central management service for WAF, Shield Advanced, Security Groups, Network Firewall, and Route 53 DNS Firewall policies across all accounts in an AWS Organization. Define a policy once (e.g., 'all ALBs in production accounts must have WAF with the Common Rule Set') and Firewall Manager automatically applies and maintains it. Non-compliant resources are flagged or auto-remediated. Requires AWS Organizations and Config to be enabled.
+AWS WAF is a web application firewall that inspects HTTP/HTTPS requests and applies rules to allow, block, or count them. WAF can be attached to **CloudFront distributions**, **Application Load Balancers**, **API Gateway stages**, and **AppSync GraphQL APIs**. Requests are evaluated before they reach the associated resource.
 
-## Architecture Pattern: Edge to Core
+A **Web ACL** (web access control list) is the WAF resource — it contains an ordered list of rules and rule groups. Rules are evaluated in priority order; the first matching rule's action applies. A default action (Allow or Block) applies if no rule matches.
 
-Defense in depth for a web application: Route 53 (DDoS resistant, health checks) → CloudFront (WAF + Shield Advanced, caching) → ALB (WAF for any traffic not via CloudFront, Security Group) → EC2/ECS (Security Group, IMDSv2, Inspector) → Data tier (Security Group, KMS encryption, private subnet). Each layer adds a security control that an attacker must defeat independently.
+**Rule types:**
+- **IP set rules**: allow or block specific IP addresses or CIDR ranges
+- **Geo-match rules**: allow or block requests based on the country of origin
+- **Rate-based rules**: automatically block any IP that exceeds a request count within a 5-minute window — the primary WAF mechanism for stopping volumetric application-layer DDoS
+- **String match rules**: inspect specific request components (URI path, header values, query strings, body) for specific strings or regex patterns
+- **SQL injection and XSS rules**: detect and block common injection attacks in request fields
 
-## Summary
+**AWS Managed Rule Groups** are pre-built, continuously updated rule sets maintained by AWS and AWS marketplace partners. The most important: `AWSManagedRulesCommonRuleSet` (OWASP Top 10 threats), `AWSManagedRulesSQLiRuleSet` (SQL injection), `AWSManagedRulesBotControlRuleSet` (bot detection and mitigation), and `AWSManagedRulesAmazonIpReputationList` (known malicious IPs). Using managed rules eliminates the need to write and maintain individual rule definitions for common attack patterns.
 
-WAF provides L7 application-layer filtering with managed rule groups for OWASP and bot protection. Shield Advanced adds managed DDoS response and cost protection. Firewall Manager centralizes WAF, Shield, and security group policies across the organization. The defense-in-depth pattern — CloudFront WAF → ALB WAF → Security Groups → encryption — is the standard perimeter architecture.
+WAF **Count mode** allows a rule to log matches without blocking — essential for testing a new rule in production before switching to Block. Run a new managed rule group in Count mode for a week, review the sampled requests, verify no legitimate traffic matches, then switch to Block.
 
-## Examples
+---
 
-A news media organization publishes breaking stories that occasionally go viral, attracting automated scraping bots that generate 10x normal traffic volume within minutes of publication. They attach the `AWSManagedRulesBotControlRuleSet` WAF rule group to their CloudFront distribution. Bot Control identifies and blocks scrapers using browser fingerprinting and behavioral analysis, reducing bot traffic by over 80% before it ever reaches their origin. They also add a rate-based rule that blocks any single IP sending more than 2,000 requests per 5 minutes — catching unsophisticated volumetric abuse that bot control misses.
+### AWS Shield
 
-An online gaming platform with 5 million players faces a targeted DDoS attack during a major tournament. Attackers flood the platform's UDP game servers with 400 Gbps of amplification traffic. Because the company subscribed to Shield Advanced, the Shield Response Team (SRT) proactively contacts them at attack onset, implements custom mitigations at the AWS edge within 15 minutes, and the cost of the auto-scaling triggered by the attack is later credited back under Shield Advanced's DDoS cost protection. Without Shield Advanced, the platform would have faced both downtime and a six-figure AWS bill from the scaling event.
+**Shield Standard** is automatic and free. It provides always-on protection against the most common volumetric DDoS attacks at Layer 3 (network) and Layer 4 (transport) — UDP reflection, SYN floods, and similar attacks that target bandwidth and connection state. Every AWS customer gets Shield Standard for CloudFront, Route 53, Global Accelerator, Elastic IPs, and ALBs with no configuration required.
 
-A large enterprise runs 35 AWS accounts across three business units, each with dozens of ALBs and CloudFront distributions. The central security team must ensure every public-facing endpoint has the OWASP Common Rule Set enabled — but manually configuring WAF on 200+ resources across 35 accounts is untenable. They use Firewall Manager with a single WAF policy specifying `AWSManagedRulesCommonRuleSet`, scoped to all ALBs in accounts tagged `BU=retail` or `BU=wholesale`. Firewall Manager automatically applies the policy to existing and future ALBs matching that scope, and flags any resource out of compliance in Security Hub.
+**Shield Advanced** ($3,000/month per organization, not per account) adds significant capabilities for high-value internet-facing applications:
 
-## Think About It
+- **Layer 7 DDoS detection and automatic mitigation**: Shield Advanced analyzes HTTP request patterns for application-layer DDoS signatures and automatically deploys WAF rate-based rules on associated resources during an attack.
+- **Shield Response Team (SRT)**: 24/7 access to AWS DDoS specialists who monitor protected resources during attacks, implement custom mitigations, and escalate within AWS infrastructure.
+- **DDoS cost protection**: AWS credits the cost of EC2, CloudFront, and ELB scaling triggered by a DDoS attack — preventing a "bill shock" scenario where an attack causes an organization to receive a six-figure AWS invoice.
+- **Enhanced visibility**: real-time attack metrics, attack history, and diagnostics in the Shield Advanced console, accessible during and after an attack.
+- **Proactive engagement**: SRT proactively contacts you when attack activity is detected, rather than waiting for you to open a support case.
 
-1. WAF rate-based rules block IPs that exceed a request threshold. What legitimate use cases could be broken by a rate-based rule, and how would you configure the rule to avoid blocking real users while still stopping attackers?
-2. Shield Standard is free and automatic. Shield Advanced costs $3,000/month per organization. What specific business characteristics would justify paying for Shield Advanced, beyond just "we want more protection"?
-3. The defense-in-depth pattern described in this lesson layers WAF at CloudFront, then again at the ALB. Under what circumstances would you put WAF at both layers rather than just at CloudFront? What does the ALB-level WAF catch that CloudFront-level WAF might miss?
-4. Firewall Manager can auto-remediate non-compliant resources by attaching the correct WAF web ACL. What risks could arise from automatic remediation in production, and how would you mitigate them while still maintaining centralized enforcement?
-5. A new OWASP vulnerability is discovered that is not yet covered by the `AWSManagedRulesCommonRuleSet`. What options do you have in WAF to provide interim protection before AWS updates the managed rule group?
+Shield Advanced requires associating specific resources (CloudFront distributions, EIPs, ALBs, Route 53 hosted zones) with the subscription. Only associated resources receive the advanced protections.
 
-## Quick Check
+---
 
-**Q1.** Which AWS WAF feature automatically blocks IP addresses that exceed a defined request rate threshold?
+### AWS Firewall Manager
 
-- A) Geo-match rule
-- B) IP set rule
-- C) Rate-based rule
-- D) Regex pattern set rule
+Firewall Manager is a centralized policy management service for WAF Web ACLs, Shield Advanced protections, Security Group policies, Network Firewall policies, and Route 53 DNS Firewall rule groups across an AWS Organization. Define a policy once — Firewall Manager applies and maintains it across all matching accounts and resources automatically.
 
-**Answer: C** — Rate-based rules track request counts per IP over a 5-minute window and automatically block any IP that exceeds the configured threshold, providing L7 DDoS mitigation.
+A Firewall Manager **policy** specifies: the policy type (WAF, Shield, Security Group, etc.), the scope (which accounts, OUs, or resource tags it applies to), the policy rules (which Web ACL or Shield protection to apply), and whether to auto-remediate non-compliant resources.
 
-**Q2.** What does Shield Advanced provide that Shield Standard does not? (Choose the best answer)
+The critical use case: a central security team creates a WAF policy requiring that all ALBs in production accounts have `AWSManagedRulesCommonRuleSet` attached. Firewall Manager applies the Web ACL to every existing ALB in scope, and automatically applies it to any new ALB created in the future. The security team has one policy to maintain; compliance is enforced without any action from individual account teams.
 
-- A) L3/L4 DDoS protection for CloudFront and Route 53
-- B) Access to the Shield Response Team, DDoS cost protection, and application-layer attack mitigation with WAF integration
-- C) Free WAF web ACLs on all protected resources
-- D) Automatic geo-blocking of all traffic from countries associated with attack sources
+**Prerequisites**: Firewall Manager requires AWS Organizations (for account-level scope), AWS Config (for resource tracking and compliance evaluation), and a Firewall Manager administrator account designated in the management account.
 
-**Answer: B** — Shield Standard covers basic volumetric DDoS at no cost; Shield Advanced adds 24/7 SRT access, financial cost protection for scaling events caused by attacks, and integrated L7 mitigation via WAF.
+---
 
-**Q3.** Which prerequisites must be in place before AWS Firewall Manager can manage WAF policies across an Organization?
+### Defense-in-Depth Perimeter Architecture
 
-- A) GuardDuty and Inspector must be enabled in the management account
-- B) AWS Organizations must be configured and AWS Config must be enabled in all member accounts
-- C) Shield Advanced must be subscribed to in every member account
-- D) VPC Flow Logs must be enabled and sent to a centralized S3 bucket
+The standard layered architecture for an internet-facing application on AWS:
 
-**Answer: B** — Firewall Manager requires AWS Organizations for account-level policy scope and AWS Config for resource tracking and compliance evaluation; neither GuardDuty nor Shield Advanced is a prerequisite.
+**Route 53** → **CloudFront (WAF + Shield Advanced)** → **ALB (WAF + Security Group)** → **EC2/ECS (Security Group, IMDSv2)** → **Data tier (private subnet, KMS encryption, Security Group)**
 
-## What's Next
+Each layer adds an independent security control:
+- Route 53 provides anycast DDoS resilience and health-check-based failover
+- CloudFront's WAF blocks application-layer attacks at the edge before they reach your origin, and Shield Advanced provides L7 DDoS mitigation
+- ALB's WAF catches any traffic that bypasses CloudFront (direct access to the ALB DNS name) and provides an additional inspection layer
+- Security groups restrict traffic to only expected protocols and ports at every tier
+- The data tier is in a private subnet with no internet route, accessible only from the application tier
 
-Next up: the Module 15 Canvas Labs — review mode labs where you find and fix security gaps.
+---
+
+## Configuration Referenc

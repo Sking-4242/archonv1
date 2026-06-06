@@ -2,7 +2,7 @@
 title: "Lab: Attach and Resize an EBS Volume"
 type: canvas
 estimated_minutes: 25
-cert_tags: ["aws_saa", "aws_soa"]
+cert_tags: ["SAA-C03", "SOA-C02"]
 ---
 
 # Lab: Attach and Resize an EBS Volume

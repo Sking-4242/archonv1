@@ -2,7 +2,7 @@
 title: "Lab: Create Users, Groups, and Policies"
 type: canvas
 estimated_minutes: 30
-cert_tags: ["aws_ccp", "aws_saa"]
+cert_tags: ["CLF-C02", "SAA-C03"]
 ---
 
 # Lab: Create Users, Groups, and Policies

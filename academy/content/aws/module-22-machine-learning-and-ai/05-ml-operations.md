@@ -1,7 +1,7 @@
 ---
 title: "MLOps: Operationalizing Machine Learning"
 type: content
-estimated_minutes: 8
+estimated_minutes: 13
 cert_tags: ["MLS-C01", "SAA-C03"]
 ---
 
@@ -9,70 +9,205 @@ cert_tags: ["MLS-C01", "SAA-C03"]
 
 ## Overview
 
-Building a model is 20% of the ML problem. The other 80% is getting it to production reliably, monitoring it, and retraining it when it degrades. MLOps (Machine Learning Operations) applies DevOps principles to the ML lifecycle. This lesson covers the SageMaker MLOps toolset.
+Building a machine learning model is approximately 20% of the ML problem in production. The remaining 80% is the work that makes models reliable over time: automating the training pipeline so that retraining is triggered and governed, versioning models so the right model reaches production and the wrong one is blocked, serving features consistently between training and inference, and monitoring deployed models for drift so accuracy degradation is caught before it affects business outcomes. This discipline is MLOps — DevOps principles applied to the ML lifecycle.
 
-## SageMaker Pipelines
+Without MLOps, ML in production looks like: a data scientist trains a model in a notebook, copies the artifact to a shared S3 bucket, and a DevOps engineer manually updates the endpoint. A month later, accuracy has degraded due to data drift. Nobody knows which model version is currently deployed, what training data it used, or whether it was evaluated before promotion. Bugs in the model are discovered in business reports, not monitoring dashboards. SageMaker's MLOps toolset — Pipelines, Model Registry, Feature Store, and Model Monitor — addresses each of these failure modes systematically.
 
-SageMaker Pipelines is a CI/CD pipeline system for ML workflows. A pipeline defines a sequence of steps: data processing (SageMaker Processing Job), training (SageMaker Training Job), evaluation (compare model metrics against a quality threshold), conditional step (if metrics above threshold, register the model; else, fail the pipeline), model registration. Pipelines are version-controlled, parameterized, and triggered via API or EventBridge (e.g., trigger when new training data lands in S3).
+For the MLS and SAA exams, understand SageMaker Pipelines for automated ML workflows, Model Registry for governance and version control, Feature Store for training-serving consistency, and the closed-loop retraining pattern. After this lesson, you will be able to design an end-to-end MLOps architecture on AWS and explain why each component prevents a specific production failure mode.
 
-## SageMaker Model Registry
+---
 
-The Model Registry is a catalog of model versions with associated metadata: training metrics (accuracy, F1, AUC), training data lineage, evaluation results, and approval status (Pending, Approved, Rejected). Teams submit new model versions to the registry; a model review process approves or rejects before deployment. The registry tracks which model version is deployed to each endpoint, enabling rollback. This governance layer is what separates ad-hoc model experiments from production ML.
+## Core Concepts
 
-## Feature Store
+### SageMaker Pipelines
 
-SageMaker Feature Store is a managed repository for ML features — pre-computed values (customer's 30-day purchase count, item's average rating) used for both training and real-time inference. Features are stored in two stores: online (DynamoDB-backed, millisecond read for real-time inference) and offline (S3-backed, for training data export). Using a Feature Store ensures training and serving use the same feature computation — preventing training-serving skew, one of the most common ML production bugs.
+SageMaker Pipelines is a CI/CD pipeline system specifically designed for ML workflows. A pipeline defines a DAG of steps executed in dependency order:
 
-## Model Drift and Retraining
+**Pipeline step types**:
+- `ProcessingStep`: runs a SageMaker Processing Job for data preparation, feature engineering, or post-processing
+- `TrainingStep`: runs a SageMaker Training Job
+- `TuningStep`: runs Automatic Model Tuning across multiple training jobs
+- `TransformStep`: runs a Batch Transform job
+- `ModelStep`: registers a trained model artifact to the Model Registry
+- `ConditionStep`: evaluates a metric and branches the pipeline — if F1 > 0.90, proceed to registration; else, fail the pipeline
+- `LambdaStep`: invokes a Lambda function for custom logic
+- `QualityCheckStep`: runs a data or model quality baseline capture
 
-Models degrade over time as the real-world data distribution shifts (concept drift) or input features change (data drift). SageMaker Model Monitor detects drift by comparing current traffic distributions against a baseline captured from training data. When Monitor finds drift, trigger a retraining pipeline: EventBridge event → SageMaker Pipeline → retrain model on recent data → evaluate → if improved, promote to production. Automating this loop is what enables models to stay accurate without manual intervention.
+**Pipeline parameterization**: pipelines accept input parameters (S3 data paths, instance types, evaluation thresholds) so the same pipeline can run with different configurations — training on new data is a new execution with updated data paths, not a new pipeline definition.
 
-## Summary
+**Execution triggers**: pipelines are triggered via API, EventBridge (on S3 data arrival, schedule), or the Studio UI. The standard trigger: new training data lands in S3 → EventBridge rule → start pipeline execution. Every execution is versioned and its full history (step inputs, outputs, metrics) is retained.
 
-MLOps connects the ML lifecycle end-to-end: Pipelines automate train-evaluate-deploy, Model Registry provides governance and version control, Feature Store prevents training-serving skew, Model Monitor detects drift and triggers retraining. These tools transform a one-time model into a continuously improving production system. MLOps is not optional for any ML deployment that must remain accurate over time.
+---
 
-## Examples
+### SageMaker Model Registry
 
-A retail company retrains their demand forecasting model monthly by manually running training scripts on an EC2 instance, then copying the model artifact to a SageMaker endpoint by hand. When they migrate to SageMaker Pipelines, the entire workflow — data processing, training, evaluation against an accuracy threshold, and conditional deployment — runs automatically when new data lands in S3 via an EventBridge trigger. The first time the evaluation step rejects a model because accuracy dropped below threshold, the pipeline fails safely instead of pushing a degraded model to production. That guardrail alone justified the migration.
+The Model Registry is a versioned catalog of trained model artifacts with associated metadata. Each registered model version carries:
+- Training metrics (accuracy, F1, AUC, RMSE — whatever your evaluation step measured)
+- Training data lineage (S3 URI of training dataset, data version)
+- Training job ARN (link to the training job that produced the model)
+- Evaluation report (link to evaluation results)
+- Approval status: `PendingManualApproval`, `Approved`, `Rejected`
 
-A bank's ML team uses the SageMaker Model Registry to manage their credit risk models. Every new model version submitted to the registry carries its training metrics, data lineage, and a link to the evaluation report. A model risk officer reviews and approves or rejects each version before it can be deployed. When a regulator asks which model version was scoring loans in Q2 of the prior year, the registry provides an audit trail — training data, metrics, and deployment timestamps — in minutes rather than weeks of archaeology.
+**Approval workflow**: a new model version submitted to the Registry starts with `PendingManualApproval`. A data scientist, ML engineer, or model risk officer reviews the metrics and approves or rejects. Only `Approved` model versions can be deployed to production. This approval gate prevents a degraded model from being deployed because automated metrics looked acceptable but qualitative review caught an issue.
 
-A ride-sharing platform stores pre-computed features — driver acceptance rate over the last 7 days, rider's historical surge tolerance — in SageMaker Feature Store. During real-time inference, the pricing model reads fresh feature values from the online store in milliseconds. When retraining monthly, the data science team exports a point-in-time snapshot from the offline store to reconstruct exactly the feature values that were available at each historical training example's timestamp. This time-travel capability is what prevents the subtle but critical bug known as training-serving skew, where the model trains on future information that wasn't available at prediction time.
+**Deployment integration**: a Lambda function (or CodePipeline action) monitors the Registry for newly approved model versions and triggers a blue/green deployment to the SageMaker endpoint. The Registry maintains a history of which model version was deployed at each time — critical for audit purposes.
 
-## Think About It
+---
 
-1. Why is training-serving skew considered one of the most dangerous bugs in ML systems — and how does SageMaker Feature Store's design specifically prevent it?
-2. What would happen to a fraud detection model's accuracy if you never monitored for data drift and the bank introduced a new payment method that generated feature values outside the model's training distribution?
-3. How would you design the conditional step in a SageMaker Pipeline to decide whether to promote a new model — what metrics would you evaluate, and how would you handle the case where the new model is better on accuracy but worse on fairness metrics?
-4. The Model Registry requires human approval before deployment. In what situations might you want to automate that approval — and what risks does removing the human from the loop introduce?
-5. MLOps applies DevOps principles to ML. What are the key differences between a software deployment pipeline and an ML pipeline that make ML operationalization uniquely challenging?
+### SageMaker Feature Store
 
-## Quick Check
+Feature Store is a managed repository for ML features — pre-computed values derived from raw data that are inputs to ML models. Examples: `customer_30day_purchase_count`, `item_average_rating`, `session_click_through_rate`.
 
-**Q1.** What is the primary purpose of SageMaker Feature Store's online store?
-- A) To archive historical training datasets for compliance auditing
-- B) To serve pre-computed feature values with millisecond latency during real-time model inference
-- C) To visualize feature importance scores from trained models
-- D) To automatically compute features from raw S3 data during training
+**Two stores, two uses**:
+- **Online store** (DynamoDB-backed): low-latency feature retrieval for real-time inference. When a fraud detection endpoint receives a transaction, it retrieves the relevant customer and merchant features from the online store in milliseconds.
+- **Offline store** (S3-backed): historical point-in-time feature records for training data construction. When training a new model version, the data science team queries the offline store to reconstruct the exact feature values that were available at each training example's timestamp.
 
-**Answer: B** — The online store (backed by DynamoDB) provides low-latency feature retrieval for real-time inference, ensuring the serving path uses the same feature definitions as training without recomputing them on the fly.
+**Training-serving skew prevention**: the most insidious ML production bug is training-serving skew — the model trains on features computed one way but is served with features computed a different way (different logic, different data version, different aggregation window). Feature Store eliminates this by ensuring training and serving read from the same feature definitions and computation logic. If the feature computation changes, both training and serving code update together.
 
-**Q2.** A SageMaker Pipeline's evaluation step compares model metrics against a quality threshold and then uses a conditional step. What happens if the new model fails the quality threshold?
-- A) SageMaker automatically rolls back to the previous model version
-- B) The pipeline fails at the conditional step, preventing registration and deployment of the underperforming model
-- C) The model is registered with a "Rejected" status and deployed anyway for A/B testing
-- D) SageMaker triggers hyperparameter tuning to improve the model automatically
+**Point-in-time queries**: when constructing a training dataset from historical events, you must use only features that were available at the event timestamp — not future information. The offline store's time-travel capability ensures that feature values are retrieved as of the training event's timestamp, preventing "data leakage" (training on future information the model won't have at prediction time).
 
-**Answer: B** — The conditional step routes the pipeline based on whether metrics meet the threshold; if they don't, the pipeline terminates without registering or deploying the model, acting as a quality gate.
+---
 
-**Q3.** Which AWS service would you use to automatically trigger a SageMaker retraining pipeline when new training data arrives in an S3 bucket?
-- A) AWS CloudTrail
-- B) Amazon SQS
-- C) Amazon EventBridge
-- D) AWS Step Functions
+### Automated Retraining and the MLOps Loop
 
-**Answer: C** — EventBridge can detect S3 object creation events and invoke a SageMaker Pipeline execution as a target, enabling event-driven automated retraining without polling or manual intervention.
+The closed-loop MLOps pattern connects Model Monitor → EventBridge → SageMaker Pipeline:
 
-## What's Next
+1. **Model Monitor** detects drift (feature distribution shift, model quality degradation) and publishes a constraint violation as a CloudWatch metric
+2. **CloudWatch Alarm** breaches and publishes an EventBridge event
+3. **EventBridge rule** matches the violation event and starts a SageMaker Pipeline execution
+4. **Pipeline** runs: data processing → training on recent data → model evaluation → ConditionStep (if new model is better, register it)
+5. **Lambda** monitors the Model Registry for newly Approved models and triggers a blue/green endpoint update
+6. The updated model is deployed; Model Monitor establishes a new baseline
 
-Next up: the Module 22 Canvas Labs — AI service integration and Bedrock RAG architecture.
+This loop runs automatically when drift is detected — the model retrains and redeploys without a human initiating the retraining cycle (though the Model Registry approval gate ensures a human reviews before production deployment).
+
+---
+
+## Configuration Reference
+
+### Example: SageMaker Pipeline — Train, Evaluate, Conditionally Register
+
+```python
+import boto3
+import sagemaker
+from sagemaker.workflow.pipeline import Pipeline
+from sagemaker.workflow.steps import TrainingStep, ProcessingStep
+from sagemaker.workflow.conditions import ConditionGreaterThanOrEqualTo
+from sagemaker.workflow.condition_step import ConditionStep
+from sagemaker.workflow.properties import PropertyFile
+from sagemaker.workflow.parameters import ParameterString, ParameterFloat
+from sagemaker.sklearn.processing import SKLearnProcessor
+from sagemaker.xgboost import XGBoost
+
+session = sagemaker.Session()
+role = 'arn:aws:iam::123456789012:role/sagemaker-execution-role'
+
+# Pipeline parameters — can be overridden at execution time
+training_data_uri = ParameterString(name="TrainingDataUri",
+    default_value="s3://my-data-lake/curated/training/")
+accuracy_threshold = ParameterFloat(name="AccuracyThreshold", default_value=0.85)
+
+# Step 1: Processing job for feature engineering
+processor = SKLearnProcessor(
+    framework_version='1.2-1',
+    instance_type='ml.m5.xlarge',
+    instance_count=1,
+    role=role
+)
+processing_step = ProcessingStep(
+    name='FeatureEngineering',
+    processor=processor,
+    inputs=[sagemaker.processing.ProcessingInput(
+        source=training_data_uri, destination='/opt/ml/processing/input'
+    )],
+    outputs=[sagemaker.processing.ProcessingOutput(
+        output_name='train', source='/opt/ml/processing/output/train',
+        destination='s3://my-ml-artifacts/processed/train/'
+    )],
+    code='feature_engineering.py'
+)
+
+# Step 2: Training job
+xgb = XGBoost(
+    entry_point='train.py',
+    role=role,
+    instance_type='ml.m5.2xlarge',
+    instance_count=1,
+    framework_version='1.7-1'
+)
+training_step = TrainingStep(
+    name='TrainModel',
+    estimator=xgb,
+    inputs={'train': sagemaker.inputs.TrainingInput(
+        s3_data=processing_step.properties.ProcessingOutputConfig.Outputs['train'].S3Output.S3Uri
+    )},
+    depends_on=[processing_step]
+)
+
+# Step 3: Evaluation processing job — computes accuracy on held-out test set
+evaluation_report = PropertyFile(name='EvaluationReport',
+    output_name='evaluation', path='evaluation.json')
+
+evaluate_step = ProcessingStep(
+    name='EvaluateModel',
+    processor=processor,
+    inputs=[
+        sagemaker.processing.ProcessingInput(
+            source=training_step.properties.ModelArtifacts.S3ModelArtifacts,
+            destination='/opt/ml/processing/model'
+        )
+    ],
+    outputs=[sagemaker.processing.ProcessingOutput(
+        output_name='evaluation', source='/opt/ml/processing/output/evaluation'
+    )],
+    code='evaluate.py',
+    property_files=[evaluation_report],
+    depends_on=[training_step]
+)
+
+# Step 4: Conditional — only register if accuracy meets threshold
+from sagemaker.workflow.functions import JsonGet
+accuracy_condition = ConditionGreaterThanOrEqualTo(
+    left=JsonGet(step_name='EvaluateModel', property_file=evaluation_report,
+                 json_path='metrics.accuracy'),
+    right=accuracy_threshold
+)
+
+# Step 5: Register model if condition passes
+from sagemaker.workflow.model_step import ModelStep
+register_step = ModelStep(
+    name='RegisterModel',
+    step_args=xgb.register(
+        content_types=['application/json'],
+        response_types=['application/json'],
+        model_package_group_name='fraud-detection-models',
+        approval_status='PendingManualApproval'
+    )
+)
+
+condition_step = ConditionStep(
+    name='CheckAccuracy',
+    conditions=[accuracy_condition],
+    if_steps=[register_step],   # register only if accuracy >= threshold
+    else_steps=[]               # fail silently — pipeline execution ends here
+)
+
+# Assemble and upsert the pipeline (creates or updates it in SageMaker)
+pipeline = Pipeline(
+    name='fraud-detection-training-pipeline',
+    parameters=[training_data_uri, accuracy_threshold],
+    steps=[processing_step, training_step, evaluate_step, condition_step],
+    sagemaker_session=session
+)
+pipeline.upsert(role_arn=role)
+
+# Start an execution — e.g. triggered by EventBridge on S3 data arrival
+execution = pipeline.start(
+    parameters={
+        'TrainingDataUri': 's3://my-data-lake/curated/training/2024-q4/',
+        'AccuracyThreshold': 0.88
+    }
+)
+print(f"Pipeline execution ARN: {execution.arn}")
+execution.wait()   # blocks until complete; omit for async invocation
+```

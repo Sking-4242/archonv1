@@ -2,7 +2,7 @@
 title: "Lab: Create Your AWS Account"
 type: canvas
 estimated_minutes: 20
-cert_tags: ["aws_ccp"]
+cert_tags: ["CLF-C02"]
 ---
 
 # Lab: Create Your AWS Account

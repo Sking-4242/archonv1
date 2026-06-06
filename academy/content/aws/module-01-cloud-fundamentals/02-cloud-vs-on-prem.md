@@ -2,7 +2,7 @@
 title: "Cloud vs. On-Premises"
 type: content
 estimated_minutes: 18
-cert_tags: ["aws_ccp", "clf-c02"]
+cert_tags: ["CLF-C02"]
 ---
 
 # Cloud vs. On-Premises

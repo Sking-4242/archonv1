@@ -1,81 +1,141 @@
 ---
 title: "AWS SAM and Serverless Application Patterns"
 type: content
-estimated_minutes: 8
-cert_tags: ["DVA-C02", "SAA-C03"]
+estimated_minutes: 12
+cert_tags: ["SAA-C03", "SAP-C02"]
 ---
 
 # AWS SAM and Serverless Application Patterns
 
 ## Overview
 
-The AWS Serverless Application Model (SAM) is an open-source framework that extends CloudFormation to simplify defining serverless applications. SAM transforms concise YAML definitions into full CloudFormation resources, and the SAM CLI enables local testing before deployment.
+Lambda functions, API Gateway APIs, DynamoDB tables, SQS queues, and Step Functions state machines work together in serverless architectures — but deploying and connecting them manually through the console or raw CloudFormation is verbose and error-prone. The AWS Serverless Application Model (SAM) is an open-source framework built on top of CloudFormation that provides a concise syntax specifically for serverless resources, plus a CLI for local development and testing. A Lambda function with an API trigger and execution role that takes 200 lines of CloudFormation takes 15 lines of SAM.
 
-## SAM Template Syntax
+Beyond tooling, this lesson addresses the architectural patterns that underpin the majority of serverless applications: the REST API pattern, async queue processing, event-driven fan-out, and scheduled jobs. These patterns are composable — most real applications combine two or three of them. Understanding the canonical form of each pattern lets you recognize it in exam scenarios, apply it in designs, and explain the trade-offs clearly.
 
-SAM adds four resource types: AWS::Serverless::Function (Lambda + trigger + IAM role), AWS::Serverless::Api (API Gateway), AWS::Serverless::SimpleTable (DynamoDB table), and AWS::Serverless::StateMachine (Step Functions). A function with an API trigger in SAM is ~10 lines vs. 100+ lines of CloudFormation. SAM deploys via `sam deploy` which calls CloudFormation under the hood. SAM also supports nested apps from the Serverless Application Repository.
+For the SAA exam, know the core serverless patterns and when Lambda is the right compute choice versus ECS/EKS. SAP adds SAM template structure, nested applications, and the trade-offs between SAM, CDK, and Terraform for serverless infrastructure. After this lesson, you will be able to design a complete serverless architecture using standard patterns and select the right compute service for workload characteristics that disqualify Lambda.
 
-## SAM CLI and Local Testing
+---
 
-`sam local start-api` runs API Gateway and Lambda locally using Docker containers matching the Lambda runtime. `sam local invoke` runs a single function with a test event. `sam local generate-event` generates sample event payloads for S3, SQS, DynamoDB, etc. This lets you develop and test Lambda functions without deploying to AWS — critical for rapid iteration. `sam pipeline init` generates CI/CD pipeline definitions for CodePipeline or GitHub Actions.
+## Core Concepts
 
-## Common Serverless Patterns
+### AWS SAM: Concise Serverless Infrastructure
 
-REST API: API Gateway HTTP API → Lambda → DynamoDB (read/write) with Secrets Manager for any third-party credentials. Async processing: SQS → Lambda (batch processing) → DynamoDB + SNS notification. Event-driven pipeline: S3 event → Lambda → Step Functions → multiple downstream services. Scheduled jobs: EventBridge scheduled rule → Lambda. Fanout: SNS → multiple SQS queues → Lambda consumers. These patterns are the building blocks of virtually every serverless application on AWS.
+SAM adds four resource types to CloudFormation that map to commonly needed serverless combinations:
 
-## Serverless vs. Containers
+- `AWS::Serverless::Function` — a Lambda function, automatically creating its IAM execution role and any configured triggers (API Gateway routes, SQS event source mappings, S3 notifications, EventBridge rules)
+- `AWS::Serverless::Api` — an API Gateway REST API with stages
+- `AWS::Serverless::HttpApi` — an API Gateway HTTP API
+- `AWS::Serverless::SimpleTable` — a DynamoDB table with a single hash key
+- `AWS::Serverless::StateMachine` — a Step Functions state machine
 
-Lambda: event-driven, auto-scaling to zero, 15-minute max runtime, no server management. ECS/EKS: long-running processes, persistent connections, stateful workloads, over 15 minutes, full control over runtime environment. Choose Lambda for short-lived event-driven tasks; choose containers for always-on services, large memory/CPU needs (>10 GB), or complex dependencies that don't fit Lambda layers. Many architectures use both: Lambda for API handlers, ECS for background workers.
+SAM templates are valid CloudFormation templates — they include a `Transform: AWS::Serverless-2016-10-31` declaration that tells CloudFormation to process SAM resources before deployment. `sam deploy` packages your code, uploads it to S3, and deploys the resulting CloudFormation stack.
 
-## Summary
+The **Serverless Application Repository (SAR)** is a catalog of pre-built SAM applications — you can discover, deploy, and compose them into your own applications. Lambda Power Tuning, from the previous lesson, is deployed from SAR.
 
-SAM simplifies serverless development with concise templates and local testing via Docker. The SAM CLI reduces the deploy-test-fix cycle. Core serverless patterns (REST API, async queue processing, event-driven fanout) solve 80% of serverless architecture problems. Choose Lambda for short event-driven tasks; containers for long-running stateful workloads.
+---
 
-## Examples
+### SAM CLI: Local Development
 
-A developer building a personal side project uses SAM to define a REST API backed by Lambda and DynamoDB in about 30 lines of YAML. Running `sam local start-api` spins up both services locally using Docker, letting them test the full request path without an AWS account or incurring any costs. When ready, `sam deploy --guided` walks through the first deployment interactively. This illustrates SAM's core value proposition: a dramatically shorter definition and a fast local iteration loop that mirrors the real Lambda runtime.
+The SAM CLI accelerates the development loop by running Lambda functions locally using Docker containers that match the production Lambda runtime:
 
-A mid-size e-commerce company receives large batches of order CSV files from wholesale partners every night via S3. Their architecture follows the async processing pattern: S3 event → Lambda (parses CSV and sends individual order records to SQS) → Lambda (processes each SQS message, writes to DynamoDB, sends SNS confirmation). The two Lambda functions are each defined as `AWS::Serverless::Function` resources in a single SAM template. Each function is decoupled through the queue, so a downstream slowdown does not block the ingest step — a direct application of the fanout and async queue pattern.
+- `sam local invoke FunctionName -e event.json` — invokes a single function with a test event payload
+- `sam local start-api` — starts a local API Gateway and Lambda runtime, accessible at `http://localhost:3000`
+- `sam local generate-event s3 put` — generates a realistic sample event payload for any AWS event source (S3, SQS, DynamoDB, SNS, EventBridge, etc.)
+- `sam build` — packages the application, resolving dependencies
+- `sam deploy --guided` — interactive first-time deployment with prompts for stack name, region, and parameters
 
-A platform engineering team needs to decide whether to migrate their monolithic Java REST service (which holds WebSocket connections, runs background threads, and uses 8 GB of heap) to Lambda. They map the workload against the Lambda/container decision criteria from this lesson: persistent connections (Lambda cannot hold them), background threads (not supported), memory requirement of 8 GB (exceeds Lambda's 10 GB limit only at peak, but the always-on nature of WebSockets rules it out anyway). They keep the service on ECS Fargate. They do migrate the image thumbnail generation and email notification workflows to Lambda. This illustrates that the Lambda-vs-containers decision is workload-specific and the two often coexist in the same application.
+Local testing with `sam local` is not a perfect emulation of the production environment — IAM policies, VPC networking, environment variables, and some AWS API behaviors are only exercised in real deployments. But it catches the large class of bugs involving incorrect event parsing, wrong JSON paths, missing libraries, and handler logic errors, without any deployment round-trip.
 
-## Think About It
+---
 
-1. SAM templates are transformed into CloudFormation before deployment. What are the implications of this for debugging? If a `sam deploy` fails, where would you look first, and what information might be obscured by the transformation layer?
-2. `sam local start-api` runs Lambda in a Docker container matching the real runtime. What categories of bugs would local testing catch reliably, and what categories might only surface in a real AWS deployment?
-3. The fanout pattern (SNS → multiple SQS queues → multiple Lambda consumers) decouples producers from consumers. What trade-offs does this introduce compared to a producer calling each downstream service directly? When does the added complexity pay off?
-4. How would you decide whether a 12-minute batch processing job belongs on Lambda (using its 15-minute maximum) or on ECS Fargate? What factors beyond the timeout would you consider?
-5. Your team is designing a new feature and has proposed three approaches: a Lambda function called directly by the frontend, a Lambda function behind API Gateway, and an ECS service behind an ALB. What questions would you ask to determine which architecture fits the requirements?
+### Core Serverless Patterns
 
-## Quick Check
+**REST API pattern**: API Gateway → Lambda → DynamoDB (or RDS via RDS Proxy). The canonical serverless web API. Lambda handles request processing and business logic; DynamoDB provides a scalable, serverless data store. Add Cognito for authentication and Secrets Manager for any third-party API keys.
 
-**Q1.** A developer runs `sam local start-api` to test a Lambda function locally. Which underlying technology does SAM use to replicate the Lambda execution environment?
+**Async queue processing**: SQS → Lambda (with SQS event source mapping). Work items are placed in an SQS queue by producers; Lambda polls and processes them in configurable batches. Benefits: natural buffering, automatic retry on failure (message returns to queue on Lambda error), DLQ for exhausted retries. Scale Lambda concurrency with queue depth. Use this pattern when processing time is variable and producers should not block waiting for completion.
 
-- A) A lightweight Python subprocess that mimics the Lambda handler contract
-- B) Docker containers configured to match the Lambda runtime environment
-- C) A CloudFormation stack deployed to a sandbox AWS account
-- D) An EC2 instance pre-installed with the Lambda runtime agent
+**Event-driven fan-out**: SNS → multiple SQS queues → multiple Lambda consumers. A single event (new order, user registration) triggers multiple independent workflows simultaneously. SNS delivers to all subscribed SQS queues in parallel; each queue/Lambda pair scales and fails independently. No consumer blocks another.
 
-**Answer: B** — SAM local commands use Docker to pull and run the official Lambda runtime images, creating an environment that closely matches what will run in AWS and allowing local invocation without deployment.
+**Event-driven pipeline**: S3 upload → Lambda → Step Functions → downstream services. Raw data lands in S3, triggering a Lambda that starts an orchestrated processing pipeline. Used for ETL, ML inference pipelines, document processing, and image analysis workflows.
 
-**Q2.** Which serverless pattern would you use when a single upstream event (such as a new order) needs to trigger multiple independent downstream systems (inventory, billing, shipping) without any of them blocking the others?
+**Scheduled jobs**: EventBridge scheduled rule → Lambda. The serverless cron replacement — no EC2 needed for batch jobs that run on a schedule.
 
-- A) REST API pattern: API Gateway → Lambda → DynamoDB
-- B) Fanout pattern: SNS → multiple SQS queues → multiple Lambda consumers
-- C) Scheduled job pattern: EventBridge rule → Lambda
-- D) Async processing pattern: single SQS queue → single Lambda function
+---
 
-**Answer: B** — The fanout pattern uses SNS to broadcast a single message to multiple SQS queues, each consumed independently by a dedicated Lambda function, ensuring no consumer blocks another and each can scale and fail independently.
+### Lambda vs. Containers: Choosing Compute
 
-**Q3.** A workload requires persistent TCP connections to clients, runs continuously (not event-driven), and uses 12 GB of memory. Which compute option is most appropriate?
+Lambda is the right choice for workloads that are: event-driven and short-lived, stateless between invocations, tolerant of cold start latency (or using Provisioned Concurrency to eliminate it), and under 15 minutes in duration.
 
-- A) Lambda with Provisioned Concurrency to keep environments warm
-- B) Lambda with a 15-minute timeout and recursive self-invocation
-- C) ECS or EKS, because the workload requires always-on persistent connections and exceeds Lambda's constraints
-- D) Lambda with a custom runtime and a Lambda Extension to manage connections
+ECS/EKS is the right choice for workloads that: maintain persistent TCP connections, run continuously rather than in response to events, require more than 10 GB of memory, need complex or large dependency environments that don't fit in Lambda layers, run longer than 15 minutes, or require control over the underlying runtime environment.
 
-**Answer: C** — Lambda cannot maintain persistent TCP connections (environments are recycled), is not designed for always-on workloads, and has a 10,240 MB memory ceiling. ECS/EKS handles long-running, stateful, high-memory workloads correctly.
+In practice, most production applications use both: Lambda for API handlers, event processors, and scheduled tasks; ECS for long-running services, WebSocket connection handlers, and compute-intensive background workers.
 
-## What's Next
+---
 
-Next up: the Module 17 Canvas Labs — design a serverless API architecture.
+## Configuration Reference
+
+### SAM Template: REST API + Lambda + DynamoDB
+
+```yaml
+# template.yaml
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: python3.12
+    MemorySize: 512
+    Timeout: 10
+    Tracing: Active                          # X-Ray tracing on all functions
+    Environment:
+      Variables:
+        ORDERS_TABLE: !Ref OrdersTable
+        LOG_LEVEL: INFO
+
+Resources:
+  # HTTP API — automatically created by SAM from the Events on the function
+  OrdersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: orders.handler
+      CodeUri: src/orders/
+      Events:
+        GetOrders:
+          Type: HttpApi                      # Creates an HTTP API route automatically
+          Properties:
+            Path: /orders
+            Method: GET
+            Auth:
+              Authorizer: CognitoAuthorizer
+        CreateOrder:
+          Type: HttpApi
+          Properties:
+            Path: /orders
+            Method: POST
+      Policies:
+        - DynamoDBCrudPolicy:               # SAM policy template — no manual IAM required
+            TableName: !Ref OrdersTable
+
+  OrdersTable:
+    Type: AWS::Serverless::SimpleTable      # DynamoDB table with hash key "id"
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
+      BillingMode: PAY_PER_REQUEST
+
+  # Async queue processing function
+  OrderProcessorFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: processor.handler
+      CodeUri: src/processor/
+      Events:
+        OrderQueue:
+          Type: SQS                         # SAM creates the event source mapping
+          Properties:
+            Queue: !GetAtt OrderQueue.Arn
+            BatchSize: 10
+            FunctionResponseTypes:
+              - ReportBatchItemFailures     # Report individual

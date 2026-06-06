@@ -2,7 +2,7 @@
 title: "Lab: Run the Well-Architected Tool"
 type: canvas
 estimated_minutes: 25
-cert_tags: ["aws_ccp", "aws_saa"]
+cert_tags: ["CLF-C02", "SAA-C03"]
 ---
 
 # Lab: Run the Well-Architected Tool

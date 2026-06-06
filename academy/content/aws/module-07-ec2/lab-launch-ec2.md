@@ -2,7 +2,7 @@
 title: "Lab: Launch and Connect to an EC2 Instance"
 type: canvas
 estimated_minutes: 30
-cert_tags: ["aws_ccp", "aws_saa"]
+cert_tags: ["CLF-C02", "SAA-C03"]
 ---
 
 # Lab: Launch and Connect to an EC2 Instance

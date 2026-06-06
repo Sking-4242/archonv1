@@ -1,78 +1,96 @@
 ---
 title: "Container Security on AWS"
 type: content
-estimated_minutes: 8
-cert_tags: ["SAA-C03", "SAP-C02", "SCS-C02"]
+estimated_minutes: 12
+cert_tags: ["SAA-C03", "SAP-C02"]
 ---
 
 # Container Security on AWS
 
 ## Overview
 
-Containers introduce unique security considerations compared to EC2: image vulnerabilities, runtime privileges, inter-pod communication, and secrets management. This lesson covers the layered security model for containerized workloads on AWS.
+Containers change the security threat model in two important ways. First, the unit of deployment is an image — a layered artifact built outside the production environment, potentially containing hundreds of OS packages and third-party libraries with unknown vulnerabilities. Unlike EC2 where you patch a running instance, container security starts at image build time. Second, in a container orchestration cluster, many workloads share compute and network infrastructure — a compromised container can potentially reach other containers' data if access controls at the network and IAM layer are not enforced.
 
-## Image Security
+A secure container architecture applies controls at every layer of the lifecycle: image security (what is in the image before it runs), IAM (what AWS services the container can access), secrets management (how credentials reach the container), runtime security (what the running process can do), and network policy (which containers can reach which other containers). No single control is sufficient; each layer protects against the failures of the others.
 
-The first line of defense is a clean container image. Use ECR image scanning (powered by Inspector) to automatically scan images on push and receive CVE findings. Use distroless or minimal base images (Alpine, Amazon Linux 2 Minimal) to reduce attack surface — fewer packages means fewer vulnerabilities. Pin image versions (never use `latest` in production) and verify image digests. ECR Lifecycle Policies automatically clean up untagged and old images to reduce the attack surface of your registry.
+For the SAA exam, understand ECR image scanning, ECS task roles, secrets injection via task definition, and the basic container security posture. SAP adds Kubernetes NetworkPolicies, IRSA vs. node instance role risks, the Secrets Store CSI Driver for EKS, and runtime security tools like GuardDuty container threat detection. After this lesson, you will be able to design a defense-in-depth container security architecture for both ECS and EKS workloads.
 
-## Task and Pod IAM
+---
 
-For ECS: assign a Task IAM Role with least-privilege permissions — the role is assumed by the containers in the task, not the entire EC2 instance. For EKS: use IRSA (IAM Roles for Service Accounts) for pod-level IAM. Never pass AWS credentials via environment variables — use the metadata service or IRSA token exchange. For EKS, block pod access to the EC2 instance metadata service (IMDS) using a NetworkPolicy or pod security context to prevent privilege escalation to node-level credentials.
+## Core Concepts
 
-## Secrets in Containers
+### Image Security
 
-Use AWS Secrets Manager or SSM Parameter Store — never bake secrets into images or pass them as plain environment variables. For ECS: reference secrets via `secrets` in the task definition — ECS fetches the secret value at task start and injects it as an environment variable or mounted file. For EKS: use the AWS Secrets and Configuration Provider (ASCP) as a CSI driver to mount secrets as files in pods. The Secrets Store CSI Driver integrates with Secrets Manager and Parameter Store natively.
+**The attack surface starts with the base image.** A full Ubuntu base image for a Python API contains 400+ packages — each is a potential vulnerability. Switching to a minimal base (Alpine Linux, Amazon Linux 2 Minimal, distroless images) reduces the package count to under 20. Fewer packages means fewer CVEs, and CVE scan results that are actionable rather than overwhelming.
 
-## Network Policies and Service Mesh
+**ECR image scanning** (powered by Amazon Inspector) scans images on push for OS package vulnerabilities and language-level package vulnerabilities (Python pip, npm, etc.). Findings appear in the ECR console with CVE severity and a fixed-in-version. Critical and high findings can trigger EventBridge events to block image promotion in a CI/CD pipeline — preventing vulnerable images from reaching production.
 
-By default in Kubernetes, all pods can communicate with all other pods in the cluster — a flat network. Kubernetes NetworkPolicies (requires a CNI that supports them, like Calico or Cilium) restrict pod-to-pod traffic. Define policies: allow the frontend pods to reach only the API pods on port 8080; deny all other ingress. For more advanced traffic management, mTLS, and observability, consider AWS App Mesh (Envoy-based service mesh) or open-source Istio.
+**Image tag best practices**:
+- Never use `latest` in production — it is non-reproducible and mutable
+- Tag images with the git commit SHA for exact reproducibility
+- Enable **ECR image tag immutability** — prevents overwriting an existing tag with a different image, ensuring the image you tested is the image you deployed
+- Reference images by digest (`sha256:abc123...`) in the highest-security environments for complete immutability
 
-## Summary
+---
 
-Container security: clean minimal images with ECR scanning, task/pod-level IAM with least privilege, secrets from Secrets Manager via native integrations, and network policies for east-west traffic control. Add distroless base images, pin versions, and use IRSA over instance credentials. Layer these controls for defense in depth across the container lifecycle.
+### IAM: Task Roles and IRSA
 
-## Examples
+**ECS**: every task definition should specify a **task role** — an IAM role assumed by the container code, granting only the permissions that code needs (specific DynamoDB table, specific S3 bucket prefix). This is separate from the **task execution role** (used by ECS infrastructure). Never rely on the EC2 node's instance profile for application-level AWS access.
 
-A healthcare startup builds a containerized patient-data API on ECS Fargate. During a security review, they realize their Docker image is based on a full Ubuntu base image containing 400+ packages — most irrelevant to a Node.js API. They switch to an Alpine-based image, reducing the package count to under 20. The next ECR scan returns zero critical CVEs instead of fourteen. This is the simplest and highest-leverage container security win: minimize the attack surface by minimizing what is in the image before any vulnerability ever ships.
+**EKS**: use **IRSA (IAM Roles for Service Accounts)** to bind Kubernetes service accounts to IAM roles with pod-level scoping (covered in the previous lesson). The critical security concern without IRSA: all pods on an EC2 node share the node's instance profile. Any pod — including low-privilege or compromised pods — can call the EC2 Instance Metadata Service (IMDS) at `169.254.169.254` and retrieve the node's IAM credentials.
 
-A financial services company runs an EKS cluster where all pods share a flat network — any pod can reach any other pod on any port. A compromise of their low-privilege marketing analytics pod could, in theory, probe internal payment-processing pods. They implement Kubernetes NetworkPolicies using Calico: payment pods accept inbound only from the API gateway namespace on port 8443, and deny all other ingress. Marketing pods have no access to payment subnets. Defense in depth now means that even a compromised pod has a sharply limited blast radius.
+**Block IMDS access for EKS pods**: configure pods to not access the instance metadata service, or use IMDSv2 with hop-limit 1 (Fargate enforces this automatically). With hop-limit 1, requests from inside a container (which traverse one network hop from the container to the host) are blocked; the kubelet on the host can still reach IMDS.
 
-A platform team discovers that several developer-deployed pods in EKS are implicitly using the EC2 node's instance role to access AWS services — because no IRSA annotation exists on their service accounts. The node's instance role has broad S3 and DynamoDB permissions intended for logging. Any pod on the node can read that metadata endpoint and obtain those credentials. After auditing, the team blocks IMDS access at the pod level via a NetworkPolicy and migrates all service accounts to IRSA with per-service least-privilege roles. This illustrates the privilege-escalation risk that makes IRSA a requirement, not a nice-to-have.
+---
 
-## Think About It
+### Secrets in Containers
 
-1. Why is using the `latest` image tag in production a security risk beyond just deployment unpredictability? How does pinning to a specific digest improve both security posture and incident response?
-2. What would happen if an ECS task's IAM Task Role had `s3:*` on `*` instead of a scoped policy? Trace through how an application-level vulnerability in the container could be exploited to reach data it should never touch.
-3. Kubernetes NetworkPolicies require a CNI that supports them (such as Calico or Cilium), but the AWS VPC CNI does not enforce them alone. How would you decide which CNI to use in production, and what trade-offs does switching CNIs introduce in an existing EKS cluster?
-4. Secrets Manager and SSM Parameter Store both integrate with ECS task definitions via `valueFrom`. How would you decide which one to use for a database password that is rotated automatically every 30 days?
-5. A container is discovered to be running as root inside a Fargate task. What specific capabilities does this grant the process, and what mitigations are available at the task definition level to reduce the risk?
+**Never bake secrets into images.** Secrets hardcoded in Dockerfiles or application code become part of every image layer — readable from the image, from the container filesystem, and from any registry that stores the image.
 
-## Quick Check
+**Never pass secrets as plain environment variables** in task definitions or pod specs. Environment variables are visible in `docker inspect`, ECS task metadata, Kubernetes pod descriptions, and CloudTrail API logs.
 
-**Q1.** What is the recommended way to provide AWS credentials to an EKS pod so that each pod has only the permissions it needs?
-- A) Pass credentials as environment variables in the pod spec
-- B) Attach a broad IAM policy to the EC2 node instance role
-- C) Use IAM Roles for Service Accounts (IRSA) with per-service-account role annotations
-- D) Store credentials in a Kubernetes Secret and mount them as a volume
+**Correct patterns:**
 
-**Answer: C** — IRSA allows each pod to assume a scoped IAM role via OIDC token exchange, providing least-privilege credentials without sharing node-level permissions across all pods.
+For **ECS**: use the `secrets` field in the task definition. ECS fetches the secret from Secrets Manager or Parameter Store at task launch time and injects it as an environment variable or a mounted file. The task execution role must have permission to retrieve the referenced secret.
 
-**Q2.** Which approach reduces a container image's vulnerability exposure most directly at build time?
-- A) Enabling ECR image scanning after deployment
-- B) Using a minimal or distroless base image with only required packages
-- C) Running the container as a non-root user
-- D) Restricting container egress with a security group
+For **EKS**: use the **Secrets Store CSI Driver** with the **AWS Secrets and Configuration Provider (ASCP)**. This mounts Secrets Manager or Parameter Store values as files in the pod filesystem via a volume, with automatic rotation synchronization. The pod service account (with IRSA) must have permission to retrieve the secret.
 
-**Answer: B** — Fewer packages in the base image means fewer possible CVEs; a distroless or Alpine image can reduce the attack surface from hundreds of packages to a handful before scanning even runs.
+Avoid storing secrets in Kubernetes Secrets objects without encryption — by default, Kubernetes Secrets are base64-encoded (not encrypted) in etcd. Enable **KMS envelope encryption** for Kubernetes Secrets at rest if you use them.
 
-**Q3.** For an ECS task definition, how are secrets from AWS Secrets Manager injected into the running container?
-- A) The application code must call the Secrets Manager API at startup
-- B) They are baked into the container image during the build process
-- C) They are referenced via the `secrets` field in the task definition and injected by ECS at task launch
-- D) They must be stored as EC2 instance tags and read via the metadata service
+---
 
-**Answer: C** — ECS natively supports the `secrets` field in task definitions, fetching the secret value from Secrets Manager or Parameter Store at task start and making it available as an environment variable or mounted file.
+### Runtime Security
 
-## What's Next
+**Run containers as non-root.** By default, many containers run as root (UID 0). A process running as root inside a container can, under certain conditions, escape to the host. Configure containers with a specific non-root UID in the Dockerfile (`USER 1000`) and enforce it with pod security context.
 
-Next up: the Module 18 Canvas Lab — ECS Fargate microservices architecture.
+**Disable privilege escalation.** Set `allowPrivilegeEscalation: false` in the Kubernetes security context or use `readonlyRootFilesystem: true` where the application doesn't need to write to the filesystem.
+
+**Amazon GuardDuty for containers** detects runtime threats in EKS (EKS Runtime Monitoring) and ECS. It monitors system calls and container behavior for suspicious patterns — unexpected network connections, credential exfiltration via IMDS, cryptocurrency mining activity. GuardDuty findings appear in Security Hub and can trigger EventBridge automated response.
+
+---
+
+### Network Policies
+
+By default in Kubernetes, all pods can communicate with all other pods across all namespaces — a flat, open network. **Kubernetes NetworkPolicies** restrict this. A NetworkPolicy specifies which pods can send traffic to which other pods on which ports.
+
+The AWS VPC CNI alone does not enforce NetworkPolicies. You need a CNI that supports them — **Calico**, **Cilium**, or the **VPC CNI's own network policy support** (available on EKS 1.25+, using eBPF-based enforcement). Define policies that:
+- Allow the frontend namespace to reach the API namespace on port 8080 only
+- Allow the API namespace to reach the database namespace on port 5432 only
+- Deny all other ingress by default
+
+For ECS, network segmentation is enforced at the security group level — ECS tasks in awsvpc mode each get their own ENI with a security group. Configure security groups to allow only the specific service-to-service traffic your architecture requires.
+
+---
+
+## Configuration Reference
+
+### ECR Lifecycle Policy and Image Scanning
+
+```bash
+# Enable image scanning on push for a repository
+aws ecr put-image-scanning-configuration \
+  --repository-name my-api \
+  --image-scanning-configuration scanOnPush=true \
+  --region us-east-1
+
+# Create a lifecycl

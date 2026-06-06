@@ -2,7 +2,7 @@
 title: "Security Of the Cloud (AWS Responsibility)"
 type: content
 estimated_minutes: 14
-cert_tags: ["aws_ccp"]
+cert_tags: ["CLF-C02"]
 ---
 
 # Security Of the Cloud (AWS Responsibility)

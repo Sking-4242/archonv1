@@ -2,7 +2,7 @@
 title: "IAM Policies and JSON Structure"
 type: content
 estimated_minutes: 18
-cert_tags: ["aws_ccp", "aws_saa", "aws_soa", "aws_dva"]
+cert_tags: ["CLF-C02", "SAA-C03", "SOA-C02", "DVA-C02"]
 ---
 
 # IAM Policies and JSON Structure

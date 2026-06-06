@@ -2,7 +2,7 @@
 title: "Multi-Factor Authentication (MFA)"
 type: content
 estimated_minutes: 14
-cert_tags: ["aws_ccp", "aws_saa", "aws_soa", "aws_scs"]
+cert_tags: ["CLF-C02", "SAA-C03", "SOA-C02", "SCS-C02"]
 ---
 
 # Multi-Factor Authentication (MFA)

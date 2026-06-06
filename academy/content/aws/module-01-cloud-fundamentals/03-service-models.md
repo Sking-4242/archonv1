@@ -2,7 +2,7 @@
 title: "IaaS, PaaS, and SaaS"
 type: content
 estimated_minutes: 18
-cert_tags: ["aws_ccp", "clf-c02"]
+cert_tags: ["CLF-C02"]
 ---
 
 # IaaS, PaaS, and SaaS
@@ -41,7 +41,7 @@ PaaS dramatically reduces the operational overhead your team carries. Developers
 
 Software as a Service delivers a fully functional, complete application over the internet. The provider manages everything: infrastructure, operating system, runtime, middleware, the application code itself, data storage, and ongoing maintenance. You consume the application through a web browser or an API. You don't install anything, configure any servers, or make any architectural decisions about the underlying technology.
 
-AWS delivers some SaaS products directly: **Amazon WorkMail** (managed business email and calendar that integrates with Microsoft Outlook clients), **Amazon Chime** (video conferencing and messaging for teams), and **Amazon Connect** (a fully managed cloud contact center). AWS Marketplace hosts thousands of third-party SaaS applications — antivirus, monitoring tools, BI platforms, security software — that run on AWS infrastructure and are delivered as finished products. Many well-known SaaS products used by businesses everywhere — Salesforce, Slack, Zoom, Dropbox, Workday — run on AWS infrastructure, though their customers never interact with AWS directly.
+AWS delivers some SaaS products directly: **Amazon WorkMail** (managed business email and calendar that integrates with Microsoft Outlook clients), **Amazon Connect** (a fully managed cloud contact center), and **Amazon QuickSight** (managed cloud business intelligence and data visualization). AWS Marketplace hosts thousands of third-party SaaS applications — antivirus, monitoring tools, BI platforms, security software — that run on AWS infrastructure and are delivered as finished products. Many well-known SaaS products used by businesses everywhere — Salesforce, Slack, Zoom, Dropbox, Workday — run on AWS infrastructure, though their customers never interact with AWS directly.
 
 From the customer's perspective, SaaS means zero operational responsibility for the application stack. You don't patch, scale, configure infrastructure, or respond to outages in the underlying platform. Your responsibilities are limited to: managing your own data (ensuring it's accurate, appropriately categorized, and handled in compliance with your regulatory obligations) and managing user access (provisioning accounts, setting roles and permissions within the application, and deprovisioning users who leave the organization).
 
@@ -167,7 +167,7 @@ Use this step-by-step framework when choosing a service model for a given worklo
 
 - IaaS (Infrastructure as a Service) provides virtualized compute, storage, and networking — you manage everything from the operating system upward. Core AWS IaaS examples: EC2, EBS, VPC.
 - PaaS (Platform as a Service) provides a managed environment where you deploy code or use managed services — AWS manages OS, runtime, and infrastructure. Core AWS PaaS examples: Elastic Beanstalk, Lambda, RDS, DynamoDB.
-- SaaS (Software as a Service) delivers a complete, ready-to-use application — you manage only your data and user access. AWS SaaS examples: WorkMail, Chime; third-party SaaS on AWS: Salesforce, Zoom, Slack.
+- SaaS (Software as a Service) delivers a complete, ready-to-use application — you manage only your data and user access. AWS SaaS examples: WorkMail, Connect, QuickSight; third-party SaaS on AWS: Salesforce, Zoom, Slack.
 - Moving from IaaS to SaaS increases operational simplicity and reduces your team's maintenance burden, but reduces control and customization — neither extreme is universally correct.
 - Data and user access control are your responsibility in every service model, including SaaS. The Shared Responsibility line moves up the stack as you move from IaaS to SaaS, but it never eliminates your responsibility for data.
 - Most organizations use all three models simultaneously — the skill is matching each model to each workload based on control needs, team capabilities, and whether the capability is a source of competitive differentiation.
@@ -220,4 +220,4 @@ A company deciding whether to build their own video conferencing tool versus buy
 
 ## What's Next
 
-Next, we cover cloud deployment models — public cloud, private cloud, hybrid, and community cloud — including specific AWS services that enable each model and the real-world scenarios where each approach is the right architectural choice.
+Next, we cover cloud deployment models — public cloud, private cloud, hybrid, and community cloud — including specific AWS services that enable each model and the real-world scenarios where each approach 

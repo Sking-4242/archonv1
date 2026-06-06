@@ -2,7 +2,7 @@
 title: "The Shared Responsibility Model"
 type: content
 estimated_minutes: 14
-cert_tags: ["aws_ccp", "aws_saa"]
+cert_tags: ["CLF-C02", "SAA-C03"]
 ---
 
 # The Shared Responsibility Model

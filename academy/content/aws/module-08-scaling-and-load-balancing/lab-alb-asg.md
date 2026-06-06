@@ -2,7 +2,7 @@
 title: "Lab: Build an ASG Behind an ALB"
 type: canvas
 estimated_minutes: 45
-cert_tags: ["aws_saa", "aws_soa"]
+cert_tags: ["SAA-C03", "SOA-C02"]
 ---
 
 # Lab: Build an ASG Behind an ALB

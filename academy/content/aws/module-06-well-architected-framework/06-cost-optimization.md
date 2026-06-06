@@ -2,7 +2,7 @@
 title: "Pillar: Cost Optimization"
 type: content
 estimated_minutes: 16
-cert_tags: ["aws_ccp", "aws_saa", "aws_sap"]
+cert_tags: ["CLF-C02", "SAA-C03", "SAP-C02"]
 ---
 
 # Pillar: Cost Optimization

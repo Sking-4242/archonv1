@@ -2,7 +2,7 @@
 title: "Public, Private, and Hybrid Cloud"
 type: content
 estimated_minutes: 18
-cert_tags: ["aws_ccp", "clf-c02"]
+cert_tags: ["CLF-C02"]
 ---
 
 # Public, Private, and Hybrid Cloud

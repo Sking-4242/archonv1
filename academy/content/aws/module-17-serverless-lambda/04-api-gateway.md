@@ -1,81 +1,97 @@
 ---
 title: "Amazon API Gateway"
 type: content
-estimated_minutes: 10
-cert_tags: ["SAA-C03", "DVA-C02", "CLF-C02"]
+estimated_minutes: 13
+cert_tags: ["CLF-C02", "SAA-C03", "SAP-C02"]
 ---
 
 # Amazon API Gateway
 
 ## Overview
 
-API Gateway is a fully managed service for creating, publishing, and securing APIs. It acts as the front door for your backend services — Lambda, EC2, ECS, or any HTTP endpoint — handling request routing, authentication, throttling, and monitoring without any server management.
+Lambda functions do not expose HTTP endpoints on their own. API Gateway is the managed service that sits in front of Lambda (and other backends) and turns them into fully functional, production-grade APIs. It handles everything at the API layer that you would otherwise need to build yourself: request routing, TLS termination, authentication, throttling, response caching, logging, and monitoring — without any servers to manage.
 
-## REST API vs. HTTP API vs. WebSocket API
+The core value proposition is that API management infrastructure is undifferentiated work. Every API needs rate limiting, authentication, and logging. Without API Gateway, every team builds these from scratch in their application code or deploys and maintains dedicated API management software on EC2. API Gateway makes them standard features you configure, not code you write.
 
-API Gateway offers three types. REST API: feature-rich, supports API keys, usage plans, WAF integration, request/response transformation, caching. More expensive. HTTP API: faster, cheaper (~70% less cost), supports OIDC/JWT authentication and Lambda proxy integration. Choose HTTP API for most new Lambda APIs. WebSocket API: maintains persistent connections for real-time bidirectional communication (chat, live dashboards, collaborative tools).
+For the SAA exam, know the three API types (REST, HTTP, WebSocket), when to use each, integration types (especially Lambda Proxy), authorizer options, and throttling behavior. SAP adds usage plans and API keys for multi-tier rate limiting, request/response transformation with mapping templates, and canary deployments via stage variables. After this lesson, you will be able to choose the right API Gateway type for a given scenario, configure authentication, and set appropriate throttling limits.
 
-## Integration Types
+---
 
-Lambda Proxy Integration passes the entire request (headers, query params, body) to Lambda as a JSON event; Lambda returns a JSON response that API Gateway proxies back. Lambda Non-Proxy lets you use mapping templates to transform requests before Lambda and responses after. HTTP Integration proxies to any HTTP backend (EC2, load balancer, on-premises). Mock Integration returns a static response — useful for API design and testing without backend implementation.
+## Core Concepts
 
-## Authentication and Authorization
+### Three API Types
 
-Options: IAM authorization (Sigv4 signing, for internal AWS services), Lambda Authorizers (custom auth logic — validate JWT, call an auth service, return IAM policy), Cognito User Pool Authorizers (validate Cognito JWT tokens natively), API Keys (for basic access control, NOT for security — use with usage plans for rate limiting clients). For public APIs, use Cognito or a Lambda Authorizer with your identity provider's JWT validation.
+API Gateway offers three distinct API types, each suited to different use cases:
 
-## Throttling, Caching, and Stages
+**REST API** is the original, feature-complete option. It supports: API keys and usage plans for per-client rate limiting, WAF integration for L7 protection, response caching (up to 1 hour TTL), request and response transformation via mapping templates (Velocity Template Language), resource policies for IP-based access control, and custom domain names. REST API is the choice when you need any of these advanced features. Cost: ~$3.50 per million requests.
 
-API Gateway throttles requests at account level (10,000 rps default, 5,000 burst) and per-method level. Response caching (REST API only) caches backend responses by cache key (URL + query strings) for up to 1 hour — reduces Lambda invocations for static responses. Stages represent deployment environments (dev, staging, prod) with separate configuration, throttle limits, and caching settings. Stage variables are environment-specific settings accessible in mapping templates and Lambda ARNs.
+**HTTP API** was introduced to provide a simpler, cheaper alternative for Lambda-backed APIs. It supports native OIDC and JWT authentication (validate tokens from Cognito, Auth0, Okta without writing a Lambda Authorizer), Lambda proxy integration, private integrations (VPC Link to private ALBs), and automatic deployments. It does not support response caching, WAF, API key usage plans, or mapping templates. Cost: ~$1.00 per million requests (~70% cheaper than REST API). Use HTTP API for the majority of new Lambda-backed APIs.
 
-## Summary
+**WebSocket API** maintains persistent bidirectional connections between clients and the backend. Clients connect once; either side can send messages at any time. Route selection expressions determine which Lambda function handles a given message type. Use WebSocket for real-time features: live dashboards, collaborative editing, multiplayer gaming, chat applications. Each connection has a unique connection ID; the backend stores active connection IDs (typically in DynamoDB) and sends messages using the `@connections` management API.
 
-API Gateway manages the HTTP API layer: routing, authentication, throttling, and monitoring. HTTP API for most Lambda APIs (cheaper, simpler); REST API when you need WAF, API keys, or response transformation; WebSocket for real-time. Lambda Proxy integration is the standard pattern. Always combine API Gateway with Cognito or a Lambda Authorizer — API keys are not a security control.
+---
 
-## Examples
+### Integration Types
 
-A startup building a mobile fitness app uses API Gateway HTTP API in front of Lambda functions to serve user workout data. They chose HTTP API over REST API because it costs roughly 70% less per million requests and natively validates their Auth0-issued JWT tokens without writing a custom Lambda Authorizer — the OIDC/JWT support built into HTTP API handles it. For a new product with uncertain traffic, the cost difference matters more than the advanced features they do not yet need.
+API Gateway routes requests to backends using four integration types:
 
-A B2B SaaS platform exposes a public REST API that third-party developers integrate against. They use REST API (not HTTP API) specifically for two features: API Keys tied to usage plans that let them rate-limit each customer to their contracted tier, and WAF integration that blocks malicious traffic before it reaches Lambda. They also enable response caching on their most-read endpoints (product catalog lookups) with a 5-minute TTL, reducing Lambda invocations by 40% during peak hours — demonstrating REST API's advanced features justifying the higher cost.
+**Lambda Proxy Integration** (most common): the entire HTTP request — headers, query string parameters, path parameters, body, and request context — is passed to Lambda as a structured JSON event. Lambda returns a JSON response object that API Gateway unpacks into the HTTP response. This is the default and recommended pattern for new Lambda-backed APIs. The Lambda function has full visibility into the request and full control over the response.
 
-A financial data company built a real-time trading dashboard using API Gateway WebSocket API. Browser clients connect once and hold a persistent WebSocket connection; when new trade data arrives, the backend Lambda pushes updates to all connected clients by calling the `@connections` management API. The team had to design a DynamoDB table to store active connection IDs (since WebSocket is stateless at the API Gateway level) and clean up stale connections — illustrating the architectural thinking required for real-time bidirectional communication patterns.
+**Lambda Non-Proxy (Custom)**: mapping templates transform the request before it reaches Lambda and transform the response before it is returned to the client. Used when the Lambda function expects a specific input format that does not match the API request structure, or when you need to reshape the Lambda response for the client. Requires VTL (Velocity Template Language) knowledge.
 
-## Think About It
+**HTTP Integration**: proxies the request to any HTTP endpoint — an ALB in front of ECS, an EC2 instance, an on-premises server, or any external API. Used to add API Gateway's authentication, throttling, and caching to existing HTTP backends without changing the backend code.
 
-1. Why are API Keys explicitly described as "not a security control"? What attack does an API Key fail to prevent that an IAM authorizer or Cognito JWT validation would stop?
-2. How would you decide between using a Lambda Authorizer versus a Cognito User Pool Authorizer for a public-facing mobile API? What factors tip the decision each way?
-3. API Gateway throttles at 10,000 requests per second at the account level. If you have 20 different APIs across 20 teams in the same account and one API receives a traffic spike, what happens to the other 19 APIs — and what does this suggest about account architecture?
-4. What trade-offs exist between enabling response caching on an API Gateway endpoint and always forwarding requests to Lambda? Under what circumstances would caching produce incorrect behavior?
-5. You need to expose a legacy on-premises SOAP service to modern mobile clients through a clean REST interface. Which API Gateway integration type would you use, and what transformation work would be required?
+**Mock Integration**: returns a static response without invoking any backend. Used during API design (return stub responses while building the real backend) or for simple health check endpoints.
 
-## Quick Check
+---
 
-**Q1.** A team is building a new Lambda-backed API. They need JWT authentication with their existing identity provider and want to minimize cost. They do NOT need request/response transformation, WAF, or API keys. Which API Gateway type should they choose?
+### Authentication and Authorization
 
-- A) REST API — it is the most feature-complete and safest default
-- B) HTTP API — it is ~70% cheaper, supports OIDC/JWT natively, and has Lambda proxy integration
-- C) WebSocket API — it reduces per-request latency through persistent connections
-- D) REST API with a Mock Integration — it avoids Lambda costs entirely
+API Gateway supports four authorization mechanisms:
 
-**Answer: B** — HTTP API is the recommended choice for most new Lambda-backed APIs: it is significantly cheaper, natively supports OIDC/JWT validation, and supports Lambda proxy integration without the overhead of REST API features the team does not need.
+**IAM Authorization**: requests are signed with AWS Signature Version 4 (SigV4). The API Gateway validates the signature and checks the caller's IAM permissions. Use for internal, service-to-service APIs where callers are AWS principals with IAM roles.
 
-**Q2.** A developer configures API Keys on their API Gateway REST API to protect a private backend. A security reviewer flags this as insufficient. Why?
+**Lambda Authorizers**: a Lambda function is invoked with the request's token or request parameters, executes custom authorization logic (validate a JWT, query an external auth service, check a database), and returns an IAM policy document. API Gateway caches the returned policy for a configurable TTL. Use when your identity provider is not natively supported or when authorization requires business logic.
 
-- A) API Keys are not supported on REST APIs; they only work on HTTP APIs
-- B) API Keys are sent in plain text headers and can be easily extracted from client-side code or network traces; they do not prove identity or control permissions
-- C) API Keys expire after 90 days and cannot be rotated automatically
-- D) API Gateway API Keys do not work with Lambda Proxy Integration
+**Cognito User Pool Authorizers**: API Gateway natively validates tokens issued by an Amazon Cognito User Pool. No Lambda Authorizer required. Valid for REST API only. HTTP API supports Cognito tokens via its native JWT authorizer.
 
-**Answer: B** — API Keys are a client identification mechanism for rate limiting and usage tracking, not an authentication control. Anyone who obtains the key string can make authenticated requests; use Cognito or a Lambda Authorizer for actual security.
+**API Keys**: a string value included in the `x-api-key` header. API Keys are used with **usage plans** to throttle and track usage per client — not for authentication. An API key does not prove the caller's identity; it only identifies which client tier they belong to for rate limiting purposes.
 
-**Q3.** Which API Gateway type should you use to build a live collaborative document editing feature where the server needs to push change notifications to all connected users instantly?
+---
 
-- A) REST API with long polling on the client side
-- B) HTTP API with response streaming enabled
-- C) WebSocket API, which maintains persistent bidirectional connections
-- D) REST API with a 1-second cache TTL to reduce latency
+### Throttling, Caching, and Stages
 
-**Answer: C** — WebSocket API maintains persistent connections and allows the backend to push messages to clients at any time, which is the correct model for real-time collaborative features where the server initiates communication.
+**Throttling** operates at two levels. Account-level defaults are 10,000 requests per second (RPS) with a burst of 5,000 (token bucket algorithm). These limits are shared across all APIs in the account and region. Method-level throttle settings on specific stages and routes can override the account default for individual endpoints.
 
-## What's Next
+**Response caching** (REST API only): API Gateway caches backend responses by cache key (path + query string parameters) for a configurable TTL (0 seconds to 1 hour). Cached responses are returned without invoking Lambda. Cache capacity ranges from 0.5 GB to 237 GB. Useful for read-heavy APIs returning semi-static data (product catalogs, reference data).
 
-Next up: SAM and Serverless patterns — packaging and deploying serverless applications.
+**Stages** represent deployment snapshots of an API configuration — `dev`, `staging`, `prod`. Each stage can have independent throttle limits, caching settings, logging configurations, and stage variables. Stage variables act like environment variables for the stage — you can parameterize Lambda ARNs with stage variables to point the same API route to different Lambda function aliases per stage.
+
+---
+
+## Configuration Reference
+
+### Creating an HTTP API with JWT Authorization
+
+```bash
+# Create an HTTP API (simplest, cheapest option for Lambda backends)
+aws apigatewayv2 create-api \
+  --name "prod-orders-api" \
+  --protocol-type HTTP \
+  --cors-configuration AllowOrigins="https://app.example.com",AllowMethods=GET,POST,AllowHeaders=Authorization,Content-Type \
+  --region us-east-1
+
+# Add a JWT authorizer (validates tokens from Cognito User Pool)
+aws apigatewayv2 create-authorizer \
+  --api-id abc1234567 \
+  --name "CognitoJWT" \
+  --authorizer-type JWT \
+  --identity-source '$request.header.Authorization' \
+  --jwt-configuration Audience=1234567890abcdef,Issuer=https://cognito-idp.us-east-1.amazonaws.com/us-east-1_XXXXXXXX \
+  --region us-east-1
+
+# Create a Lambda integration
+aws apigatewayv2 create-integration \
+  --api-id abc1234567 \
+  --integration-type AWS_PROXY \
+  --integration-uri arn:aws:lambda:us-east-1:123456789012:fu

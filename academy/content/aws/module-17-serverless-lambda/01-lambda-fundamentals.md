@@ -1,85 +1,91 @@
 ---
 title: "Lambda Fundamentals: Functions, Triggers, and Runtimes"
 type: content
-estimated_minutes: 10
-cert_tags: ["SAA-C03", "DVA-C02", "CLF-C02"]
+estimated_minutes: 14
+cert_tags: ["CLF-C02", "SAA-C03", "SAP-C02"]
 ---
 
 # Lambda Fundamentals: Functions, Triggers, and Runtimes
 
 ## Overview
 
-AWS Lambda is the foundational serverless compute service — you upload code, configure a trigger, and Lambda runs your function in response to events without provisioning or managing servers. You pay only for compute time consumed (in 1ms increments) and never for idle time. This lesson covers the Lambda execution model, runtimes, and event sources.
+AWS Lambda is the serverless compute service that lets you run code without provisioning or managing servers. You package your code as a function, configure what event triggers it, and Lambda handles everything else: allocating compute, scaling to meet demand, and shutting down when idle. You pay only for the compute time your function actually uses — billed in 1-millisecond increments — and pay nothing when it is not running.
 
-## The Lambda Execution Model
+The design philosophy behind Lambda is that most application code does not need a server running continuously. An image resize operation only needs compute when an image is uploaded. An API handler only needs compute when a request arrives. A data processing job only needs compute during the processing window. Lambda makes that model the default rather than the exception — you define the work, Lambda supplies the compute on demand.
 
-Lambda functions run in isolated execution environments (micro-VMs using AWS Firecracker). Each invocation may reuse an existing warm execution environment or start a new one (cold start). A warm environment reuses the initialized runtime and any initialized global variables, database connections, and cached data — this is the motivation for moving expensive initialization outside the handler function. Cold starts add 100ms to seconds of latency depending on runtime and package size.
+For the SAA exam, Lambda is tested heavily as the compute layer in serverless architectures: what triggers it, how it scales, and how to handle errors. The SAP exam adds concurrency limits, provisioned concurrency design, VPC networking, and Lambda's role in event-driven systems. After this lesson, you will understand how Lambda executes code, how to configure memory and timeout correctly, and how to choose the right trigger type for a given integration pattern.
 
-## Runtimes and Layers
+---
 
-Lambda supports: Node.js, Python, Java, Go, Ruby, .NET, and custom runtimes via the Runtime API. Each runtime has a managed version (AWS patches it) and custom runtime options. Lambda Layers are ZIP archives containing shared libraries, dependencies, or configuration. Layers mount into the execution environment and can be shared across multiple functions — useful for large dependency packages (e.g., pandas, numpy) to keep your deployment package small and speed up cold starts.
+## Core Concepts
 
-## Memory, CPU, and Timeout
+### The Execution Model
 
-Lambda allocates CPU proportionally to memory. At 1,769 MB, a function gets 1 full vCPU; at 3,548 MB, 2 vCPUs. For CPU-bound workloads, increasing memory reduces execution time (and may reduce cost). Maximum memory is 10,240 MB; maximum timeout is 15 minutes. For tasks longer than 15 minutes, use Step Functions or ECS. Configure the timeout to slightly above the expected p99 execution time — not to the maximum.
+Lambda runs each function invocation in an isolated **execution environment** — a lightweight virtual machine (powered by AWS Firecracker) that provides a fixed amount of memory, CPU, and ephemeral storage. Each environment runs exactly one invocation at a time.
 
-## Event Sources and Triggers
+A **cold start** occurs when Lambda must create a new execution environment to handle an invocation. This initialization phase — downloading and extracting your deployment package, starting the runtime, running any initialization code outside your handler — adds latency ranging from tens of milliseconds (compiled runtimes) to several seconds (large Java or .NET packages). After the handler returns, Lambda may keep the execution environment alive for a period (typically minutes) in case another invocation arrives — this is a **warm** environment. Warm invocations skip the initialization phase.
 
-Lambda integrates with: API Gateway and ALB (synchronous HTTP trigger), S3 (asynchronous event notification), DynamoDB Streams and Kinesis (stream polling), SQS (queue polling with automatic scaling), SNS (push-based async), EventBridge (event bus rules), Cognito, IoT, and more. Synchronous invokes return a response; asynchronous invokes (S3, SNS, EventBridge) buffer events and retry on failure. For async invokes, configure a Dead Letter Queue (SQS or SNS) to capture failed events.
+The practical implication: move expensive initialization (database connections, SDK client creation, loading large configuration files) **outside the handler function**, into module-level code. That initialization runs once during cold start and is reused across all subsequent warm invocations. The handler itself should only contain request-specific logic.
 
-## Concurrency and Throttling
+---
 
-Lambda scales automatically by running more concurrent instances of your function. The account default concurrency limit is 1,000 concurrent executions per region (can be raised). Reserve concurrency sets a maximum for a specific function, ensuring other functions have capacity. Provisioned Concurrency pre-initializes execution environments, eliminating cold starts — use for latency-sensitive API functions. Throttled invocations return HTTP 429; handle this in callers with exponential backoff.
+### Memory, CPU, and Timeout
 
-## Summary
+Lambda does not let you configure CPU directly. Instead, **memory allocation** controls CPU proportionally. At 1,769 MB of memory, a function receives exactly one full vCPU. At 3,538 MB, two vCPUs. Maximum memory is 10,240 MB (10 GB), providing approximately 6 vCPUs. For CPU-bound tasks, increasing memory reduces execution time and may reduce total cost even though the per-GB-second price stays constant — because the function finishes faster.
 
-Lambda runs code in response to events without servers. The execution model: cold starts are expensive, keep initialization outside the handler. Memory controls CPU allocation. Concurrency scales automatically up to account limits; use reserved concurrency to protect critical functions. Async triggers use DLQs for error capture. Lambda is the compute layer for serverless architectures.
+Maximum **timeout** is 15 minutes. Set the timeout to slightly above the expected p99 execution time — not to the maximum. An overly generous timeout means stuck invocations consume concurrency for much longer than necessary before timing out, which can exhaust concurrency limits during failures.
 
-## Examples
+**Ephemeral storage** (`/tmp`) provides up to 10 GB per execution environment for temporary file operations. This storage persists across warm invocations within the same execution environment but is not shared across concurrent invocations.
 
-A small e-commerce startup uses Lambda to resize product images immediately after a merchant uploads them to S3. When a file lands in the S3 bucket, an event notification triggers the Lambda function, which reads the original image, creates thumbnail versions, and writes them back. The team pays nothing when no uploads are happening — illustrating Lambda's event-driven, pay-per-invocation model and the S3 async trigger.
+---
 
-A mid-size fintech company processes real-time payment authorization requests through an API Gateway → Lambda chain. Because authorization must complete in under 200 ms, their team discovered that cold starts on their Python function with large dependencies were occasionally breaching SLA. They moved heavy imports outside the handler and enabled Provisioned Concurrency on the function, eliminating cold starts for their latency-sensitive path — a direct application of the execution model and concurrency configuration concepts.
+### Runtimes and Layers
 
-A media streaming platform uses a single Lambda function for video metadata lookups that runs at roughly 50,000 req/min during peak hours. An engineering review found the function was being throttled during traffic spikes because a separate, low-priority batch job was consuming most of the account's 1,000-unit concurrent execution limit. By setting reserved concurrency on the batch function to cap it at 100, they protected the API function — demonstrating why reserved concurrency exists not just to limit a function, but to protect others.
+Lambda supports managed runtimes for: Node.js, Python, Java, Go, Ruby, .NET (C#, F#), and custom runtimes via the **Lambda Runtime API** (any language that can speak the Runtime API protocol). AWS patches and updates managed runtimes; you are responsible for custom runtimes.
 
-## Think About It
+**Lambda Layers** are ZIP archives containing shared libraries, dependencies, or configuration. Layers are mounted into the execution environment at `/opt` and can be shared across multiple functions. Common uses: sharing a large dependency package (pandas, numpy, a company-wide logging library) across functions without including it in every deployment package, and distributing configuration or binary utilities. A function can use up to five layers simultaneously.
 
-1. Why does moving database connection initialization outside the Lambda handler improve performance, and under what circumstances could it actually cause a problem?
-2. What would happen if you set a Lambda function's timeout to the maximum 15 minutes for a task that normally completes in 3 seconds? What are the cost and reliability implications?
-3. How would you decide whether to use reserved concurrency versus provisioned concurrency for a latency-sensitive API endpoint? What information would you need?
-4. An asynchronous Lambda triggered by S3 fails three times and the events land in the DLQ. What trade-offs exist between processing DLQ messages immediately versus batching them for reprocessing later?
-5. If two different teams share the same AWS account and one team's Lambda workload unexpectedly consumes the full 1,000-unit concurrency limit, what options does the other team have — and what does this suggest about account-level architecture decisions?
+Layers reduce deployment package size, which speeds up cold starts and simplifies dependency management across a large function portfolio.
 
-## Quick Check
+---
 
-**Q1.** A Lambda function that processes uploaded files is experiencing latency spikes on the first invocation after a period of inactivity. What is the most likely cause?
+### Event Sources and Invocation Models
 
-- A) The function's reserved concurrency is set too low
-- B) A cold start is occurring because the execution environment was recycled
-- C) The function's memory is undersized, causing CPU throttling
-- D) The S3 event notification is delayed by eventual consistency
+Lambda triggers fall into three invocation models:
 
-**Answer: B** — Cold starts happen when Lambda must initialize a new execution environment after one has been recycled due to inactivity, adding latency before the handler even runs.
+**Synchronous**: the caller waits for the function to complete and return a response. API Gateway, ALB, and direct SDK invocations use this model. The caller handles errors — if the function throws, the response contains the error. No automatic retries.
 
-**Q2.** You increase a Lambda function's memory from 512 MB to 1,769 MB. What else changes automatically?
+**Asynchronous**: the caller hands the event to Lambda's internal queue and does not wait for a result. S3 event notifications, SNS, EventBridge, and Cognito use this model. Lambda retries failed invocations twice (three attempts total). After all retries are exhausted, the event is sent to a **Dead Letter Queue** (DLQ — an SQS queue or SNS topic) or a **Lambda Destination** (a more flexible routing mechanism that handles both success and failure outcomes).
 
-- A) The maximum timeout increases from 5 minutes to 15 minutes
-- B) The function gains access to a dedicated VPC
-- C) CPU allocation scales proportionally, giving the function one full vCPU
-- D) The function is automatically assigned a reserved concurrency of 1
+**Poll-based (streaming/queue)**: Lambda itself polls the source and processes events in batches. DynamoDB Streams, Kinesis Data Streams, SQS, MSK, and self-managed Kafka use this model. Lambda scales the number of concurrent executions based on the number of shards (Kinesis, DynamoDB) or the queue depth (SQS). Failed batch processing behavior depends on the source and bisect-on-error configuration.
 
-**Answer: C** — Lambda allocates CPU proportionally to memory; at 1,769 MB the function receives exactly one full vCPU, which can dramatically speed up CPU-bound workloads.
+---
 
-**Q3.** Which invocation model requires configuring a Dead Letter Queue to capture events that fail all retry attempts?
+### Concurrency and Throttling
 
-- A) Synchronous (API Gateway trigger)
-- B) Asynchronous (S3 or SNS trigger)
-- C) Stream polling (Kinesis trigger)
-- D) SQS queue trigger
+Lambda **concurrency** is the number of function instances executing simultaneously. Each invocation consumes one unit of concurrency for its duration. The account-level default limit is 1,000 concurrent executions per region (this limit can be raised via a support request).
 
-**Answer: B** — Asynchronous invocations buffer events and retry on failure; a DLQ (SQS or SNS) captures events that exhaust all retries so they are not silently lost.
+**Reserved concurrency** allocates a fixed pool of concurrency to a specific function, guaranteeing it is always available and preventing it from consuming other functions' capacity. A function with reserved concurrency of 200 can run at most 200 concurrent executions, and 200 units are always reserved for it (reducing what other functions can use).
 
-## What's Next
+**Provisioned concurrency** pre-initializes a specified number of execution environments, keeping them warm and ready to handle invocations instantly. This eliminates cold starts entirely for those environments. Provisioned concurrency has an additional hourly cost but is the correct solution for latency-sensitive APIs that cannot tolerate cold start variability.
 
-Next up: Lambda with VPC, environment variables, and advanced configuration.
+Throttled invocations return HTTP 429 (TooManyRequests). Callers should handle throttling with exponential backoff.
+
+---
+
+## Configuration Reference
+
+### Deploying a Lambda Function with Key Settings
+
+```bash
+# Create a Lambda function with optimized configuration
+aws lambda create-function \
+  --function-name prod-image-resizer \
+  --runtime python3.12 \
+  --role arn:aws:iam::123456789012:role/LambdaExecutionRole \
+  --handler image_resizer.handler \
+  --zip-file fileb://function.zip \
+  --memory-size 1024 \              # 1 GB — provides ~0.58 vCPU
+  --timeout 30 \                    # 30-second timeout; set above expected p99
+  --environment Variables='{
+    "DESTINATION_BUC

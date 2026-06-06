@@ -1,7 +1,7 @@
 ---
 title: "AI Services: Rekognition, Comprehend, Textract, and More"
 type: content
-estimated_minutes: 10
+estimated_minutes: 12
 cert_tags: ["SAA-C03", "MLS-C01", "CLF-C02"]
 ---
 
@@ -9,70 +9,183 @@ cert_tags: ["SAA-C03", "MLS-C01", "CLF-C02"]
 
 ## Overview
 
-AWS's pre-built AI services solve specific ML problems via API — no training data required. This lesson covers the most important AI services: computer vision (Rekognition), NLP (Comprehend), document understanding (Textract), forecasting (Forecast), and recommendations (Personalize).
+AWS's pre-built AI services solve specific, well-defined ML problems via simple API calls — no training data required (unless you use custom variants), no model infrastructure to manage. This lesson covers the major AI services in depth: Amazon Rekognition (computer vision), Amazon Comprehend (NLP), Amazon Textract (document understanding), Amazon Forecast (time-series prediction), and Amazon Personalize (recommendations). Together these services cover the most common ML use cases in production applications.
 
-## Amazon Rekognition
+The architectural principle these services embed is: start at the lowest complexity tier that solves the problem. A team that uses Rekognition `DetectLabels` for product image tagging ships in a day. The same team building a custom image classification model in SageMaker ships in weeks. When the pre-built service is accurate enough, the ROI gap is enormous. The question is always: can this service solve the problem at the accuracy level my use case requires?
 
-Rekognition analyzes images and videos for: object and scene detection (identify that an image contains 'car', 'tree', 'person'), facial analysis (detect faces, estimate age/gender/emotion, find facial landmarks), face comparison and recognition (is this face the same as a reference face?), text in images (OCR), content moderation (detect explicit or violent content), and video analysis (track people, detect activities, segment scenes). Use for: content moderation pipelines, identity verification, video surveillance analysis, product catalog image tagging.
+For the SAA exam, understand each service's core use case and when to prefer one over another. MLS adds Comprehend Custom Classification, Rekognition Custom Labels, Textract Queries, and the A2I human-in-the-loop integration. After this lesson, you will be able to match any NLP, computer vision, or document processing requirement to the correct AWS AI service.
 
-## Amazon Comprehend
+---
 
-Comprehend is NLP-as-a-service. Capabilities: sentiment analysis (positive/negative/neutral/mixed per document or per entity), entity recognition (extract people, places, organizations, dates, quantities), key phrase extraction, language detection, topic modeling (LDA over document collections), and custom classification/entity recognition (train on your labeled data). Comprehend Medical is a specialized version for clinical text — extracts medical conditions, medications, dosages, and relationships. Use for: analyzing customer feedback, extracting information from contracts, routing support tickets.
+## Core Concepts
 
-## Amazon Textract
+### Amazon Rekognition
 
-Textract goes beyond simple OCR — it analyzes document layout and extracts tables, forms (key-value pairs), and handwriting from PDFs, images, and scanned documents. Queries mode lets you ask natural language questions about a document ('What is the patient name?') without complex parsing. Lending AI and Expense Analysis are specialized Textract analyzers for loan documents and receipts. Integrate Textract with A2I (Augmented AI) to route low-confidence extractions to human reviewers for validation.
+Rekognition analyzes images and videos using pre-trained deep learning models. Core capabilities:
 
-## Amazon Forecast and Personalize
+**Image analysis**:
+- `DetectLabels`: identify objects, scenes, and activities in an image — "Person", "Car", "Outdoor", "Beach" with confidence scores
+- `DetectFaces`: detect face bounding boxes and attributes (approximate age range, emotions, glasses, eyes open, quality metrics)
+- `CompareFaces`: compare two faces and determine if they are the same person, with a similarity score
+- `RecognizeCelebrities`: identify public figures
+- `DetectText`: extract text from images (OCR) — printed or handwritten
+- `DetectModerationLabels`: identify explicit, violent, or inappropriate content for content moderation pipelines
+- `DetectProtectiveEquipment`: detect PPE (hard hat, mask, safety vest) on people — industrial safety use cases
 
-Forecast produces time-series predictions using deep learning models — for demand forecasting, inventory planning, financial metrics. You provide historical data (sales by SKU, by day) and related data (promotions, holidays); Forecast trains and deploys a model automatically. Personalize provides real-time recommendations using the same algorithms as Amazon.com — train on user-item interaction history and serve personalized product recommendations, video recommendations, or content ranking. Both services abstract the ML complexity; you provide data and consume predictions via API.
+**Video analysis** (via Video API — asynchronous): person tracking across frames, activity recognition, face search against a collection, scene detection, segment detection (technical cue, shot change).
 
-## Summary
+**Rekognition Custom Labels**: train a custom image classification or object detection model on your own labeled images (minimum 10 images per class, typically 100+ for good accuracy). Uses transfer learning — you provide labels, Rekognition handles the training. Used when pre-built labels don't cover your specific objects (company logos, proprietary products, domain-specific visual inspection).
 
-Rekognition for computer vision, Comprehend for NLP, Textract for document extraction, Forecast for time-series prediction, Personalize for recommendations. All operate as API services — no ML expertise required. These cover the most common ML use cases for application developers. Use them before reaching for SageMaker — they're faster to integrate and operationally simpler.
+---
 
-## Examples
+### Amazon Comprehend
 
-A user-generated content platform receives tens of thousands of image uploads per hour. Before displaying any image publicly, they pass each through Rekognition's content moderation API, which scores the image for explicit and violent content. Images that score above a threshold are held for human review; the rest publish automatically. This replaces a 20-person moderation team for routine cases and lets humans focus only on borderline content — a direct application of Rekognition's content moderation capability at operational scale.
+Comprehend performs NLP on text — extracting meaning from unstructured language. Core capabilities:
 
-An insurance company receives thousands of claim forms as scanned PDFs each day. Their previous process required clerks to manually key data from the forms into their claims management system. By routing each PDF through Textract with form extraction enabled, they receive structured key-value pairs — policyholder name, claim date, amount requested — that feed directly into their database. Where Textract's confidence is low, they route to Amazon A2I for human review, creating a hybrid human-in-the-loop pipeline rather than a fully manual one.
+**Built-in analysis** (no training required):
+- `DetectSentiment`: positive, negative, neutral, or mixed sentiment per document
+- `DetectEntities`: extract named entities — PERSON, LOCATION, ORGANIZATION, DATE, QUANTITY, EVENT, TITLE, BRAND
+- `DetectKeyPhrases`: identify the most significant noun phrases
+- `DetectLanguage`: identify the language of text (100+ languages)
+- `ClassifyDocument`: classify text against Comprehend's built-in ontology (sports, finance, health, etc.)
+- `DetectPiiEntities`: identify and optionally redact PII (names, addresses, SSNs, credit card numbers, phone numbers)
 
-A streaming platform with 50 million users wants to improve content recommendations beyond a simple "most popular" ranking. They use Amazon Personalize, feeding it years of user-item interaction history. Within days, the service trains a recommendation model using the same deep learning techniques as Amazon.com and exposes a real-time API. The platform's engineering team never wrote a recommendation algorithm — they just provided data in Personalize's expected format and consumed the API. The key insight is that Personalize handles the cold start problem, new item injection, and model retraining automatically.
+**Custom models** (requires labeled training data):
+- **Custom Classification**: train a multi-class or multi-label text classifier on your labeled examples. Minimum 50 examples per class, recommended 100+. Used for: routing support tickets, classifying loan applications, tagging news articles with custom categories.
+- **Custom Entity Recognition**: train a custom NER model to extract domain-specific entities not covered by the built-in entity types (medical device names, legal clause identifiers, proprietary product codes).
 
-## Think About It
+**Comprehend Medical**: specialized version trained on clinical text — extracts diagnoses, medications, dosages, symptoms, treatments, and relationships between them. HIPAA eligible. Standard Comprehend is not trained on medical terminology and produces poor results on clinical notes; Comprehend Medical is necessary for healthcare NLP.
 
-1. Why would a company use Amazon Comprehend for sentiment analysis of customer support tickets rather than simply counting positive and negative keywords with a rules-based approach?
-2. What would happen if a healthcare company used standard Amazon Comprehend instead of Comprehend Medical to extract diagnoses from clinical notes — and why does the distinction matter?
-3. How would you decide whether to use Amazon Forecast or to build a custom time-series model in SageMaker for a demand forecasting use case with strong seasonality and external influencing factors like promotions?
-4. Rekognition's facial recognition capability raises privacy concerns if misused. What architectural controls would you design into a system to ensure it's used only for legitimate, consented identity verification?
-5. Amazon Personalize requires a minimum amount of interaction history to produce accurate recommendations. What would you do in the early days of a new product when that interaction data doesn't yet exist?
+---
 
-## Quick Check
+### Amazon Textract
 
-**Q1.** A company wants to automatically classify incoming customer support emails into categories like "billing," "technical issue," and "account access" without building a model from scratch. Which Comprehend feature is most appropriate?
-- A) Entity recognition
-- B) Topic modeling
-- C) Custom classification
-- D) Sentiment analysis
+Textract extracts text, tables, and structured form data from PDFs, JPGs, PNGs, and TIFF images — going beyond basic OCR by understanding document layout.
 
-**Answer: C** — Comprehend Custom Classification lets you train a text classifier on your own labeled examples, enabling domain-specific routing categories that Comprehend's built-in capabilities don't cover.
+**Analysis modes**:
+- `DetectDocumentText`: raw text extraction, block by block
+- `AnalyzeDocument(FeatureTypes=['TABLES'])`: extract table structure with row/column relationship preserved
+- `AnalyzeDocument(FeatureTypes=['FORMS'])`: extract key-value pairs from form fields ("First Name: Jane Doe")
+- `AnalyzeDocument(FeatureTypes=['SIGNATURES'])`: detect signature blocks
+- `AnalyzeDocument(FeatureTypes=['QUERIES'])`: answer natural language questions about the document ("What is the patient's date of birth?" → "March 15, 1987")
 
-**Q2.** What makes Amazon Textract different from a standard OCR service?
-- A) Textract only works with handwritten text, while OCR handles printed text
-- B) Textract understands document layout and extracts structured tables and form key-value pairs, not just raw text
-- C) Textract requires a custom trained model for each document type
-- D) Textract uses Rekognition under the hood to identify document regions
+**Specialized analyzers**:
+- **Lending AI**: purpose-built for loan documents — extracts data from paystubs, bank statements, W-2s, tax returns
+- **Expense Analysis**: extracts line items, totals, vendor names, and dates from receipts and invoices
 
-**Answer: B** — Textract analyzes document structure, enabling extraction of structured data like form fields and table cells — not just a flat stream of characters that OCR alone would produce.
+**Amazon A2I (Augmented AI) integration**: route low-confidence Textract extractions to human reviewers. Define a confidence threshold — extractions below the threshold go into an A2I work queue where human reviewers validate and correct them. A2I provides a managed review interface and integrates directly with Textract and Rekognition. Use for: financial document processing where errors are costly, medical form data entry, any workflow where 100% automation introduces unacceptable risk.
 
-**Q3.** Which AWS AI service would you use to build a real-time product recommendation feature for an e-commerce site based on user purchase and browsing history?
-- A) Amazon Forecast
-- B) Amazon Comprehend
-- C) Amazon Personalize
-- D) Amazon Rekognition
+---
 
-**Answer: C** — Personalize is specifically designed for real-time personalized recommendations trained on user-item interaction data, analogous to the recommendation engine powering Amazon.com.
+### Amazon Forecast and Amazon Personalize
 
-## What's Next
+**Amazon Forecast**: fully managed time-series forecasting service. Provide historical target data (sales by day, demand by SKU, energy consumption by hour) and optional related data (holidays, weather, promotions). Forecast automatically: selects the best algorithm (DeepAR+, CNN-QR, ARIMA, Prophet, NPTS, ETS), trains multiple models, and selects the best via backtesting. Deploy the model as a predictor and query forecasts via API.
 
-Next up: the Module 22 Canvas Labs — integrating AI services into an application architecture.
+Use Forecast when: you need multi-horizon probabilistic forecasts (point estimates + confidence intervals), the data has strong seasonality or external drivers, or you need to forecast thousands of time series simultaneously (one model per SKU, per store).
+
+**Amazon Personalize**: real-time personalized recommendations using the same algorithms that power Amazon.com product recommendations. Provide: user-item interaction history (purchases, views, ratings), optional item metadata (category, price, genre), optional user metadata (age, preferences). Personalize trains a recommendation model automatically and exposes a real-time inference API.
+
+Use Personalize when: you need personalized product recommendations, video/content recommendations, ranked search results, or "related items" features. Personalize handles the cold start problem (new users and new items), automatic model retraining as new interactions arrive, and filters (exclude out-of-stock items from recommendations).
+
+---
+
+## Configuration Reference
+
+### Example: Rekognition Content Moderation Pipeline
+
+```python
+import boto3
+
+rekognition = boto3.client('rekognition', region_name='us-east-1')
+sqs = boto3.client('sqs', region_name='us-east-1')
+
+def moderate_user_upload(bucket: str, key: str) -> dict:
+    """Moderate an image and return the moderation decision."""
+    
+    response = rekognition.detect_moderation_labels(
+        Image={'S3Object': {'Bucket': bucket, 'Name': key}},
+        MinConfidence=60    # only return labels with >= 60% confidence
+    )
+    
+    labels = response['ModerationLabels']
+    
+    # Check for high-severity violations
+    high_severity = [
+        label for label in labels
+        if label['ParentName'] in ['Explicit Nudity', 'Violence', 'Weapons']
+        and label['Confidence'] > 85
+    ]
+    
+    # Check for lower-severity content requiring review
+    needs_review = [
+        label for label in labels
+        if label['Confidence'] > 60 and label not in high_severity
+    ]
+    
+    if high_severity:
+        return {'action': 'block', 'reason': high_severity}
+    elif needs_review:
+        # Route to human review via A2I
+        return {'action': 'review', 'labels': needs_review}
+    else:
+        return {'action': 'approve'}
+
+# Triggered by S3 upload event via Lambda
+result = moderate_user_upload('user-uploads', 'profile_photo_12345.jpg')
+if result['action'] == 'block':
+    print(f"Image blocked: {result['reason']}")
+elif result['action'] == 'review':
+    # Send to A2I human review queue
+    print(f"Image sent for human review: {result['labels']}")
+else:
+    print("Image approved for publication")
+```
+
+---
+
+### Example: Comprehend Custom Classification and PII Detection
+
+```python
+import boto3
+
+comprehend = boto3.client('comprehend', region_name='us-east-1')
+
+# Use built-in PII detection for real-time redaction
+def redact_pii(text: str) -> str:
+    """Redact PII entities from text before storage."""
+    
+    response = comprehend.detect_pii_entities(
+        Text=text,
+        LanguageCode='en'
+    )
+    
+    # Replace each PII entity with its type label, working backwards to preserve offsets
+    entities = sorted(response['Entities'], key=lambda e: e['BeginOffset'], reverse=True)
+    text_chars = list(text)
+    for entity in entities:
+        replacement = f"[{entity['Type']}]"
+        text_chars[entity['BeginOffset']:entity['EndOffset']] = list(replacement)
+    return ''.join(text_chars)
+
+# Example: redact PII from a support ticket before logging
+raw = "Hi, I'm Jane Doe, my SSN is 123-45-6789 and my email is jane@example.com"
+clean = redact_pii(raw)
+print(clean)
+# Output: "Hi, I'm [NAME], my SSN is [SSN] and my email is [EMAIL]"
+
+# Use a custom classifier to route support tickets
+CLASSIFIER_ARN = 'arn:aws:comprehend:us-east-1:123456789012:document-classifier/support-router/version/v2'
+
+def classify_ticket(ticket_text: str) -> str:
+    response = comprehend.classify_document(
+        Text=ticket_text,
+        EndpointArn=CLASSIFIER_ARN
+    )
+    # Return the highest-confidence class
+    top_class = max(response['Classes'], key=lambda c: c['Score'])
+    return top_class['Name']
+
+ticket = "My order hasn't arrived and tracking shows it's been stuck for a week"
+queue = classify_ticket(ticket)
+print(f"Route to: {queue}")   # e.g. "SHIPPING_ISSUE"
+```

@@ -2,7 +2,7 @@
 title: "Compliance Programs and AWS Artifact"
 type: content
 estimated_minutes: 16
-cert_tags: ["aws_ccp", "aws_saa"]
+cert_tags: ["CLF-C02", "SAA-C03"]
 ---
 
 # Compliance Programs and AWS Artifact

@@ -1,78 +1,91 @@
 ---
 title: "ECS Deep Dive: Tasks, Services, and Deployments"
 type: content
-estimated_minutes: 10
-cert_tags: ["SAA-C03", "DVA-C02"]
+estimated_minutes: 13
+cert_tags: ["SAA-C03", "SAP-C02"]
 ---
 
 # ECS Deep Dive: Tasks, Services, and Deployments
 
 ## Overview
 
-This lesson goes deep on ECS architecture: how task definitions and services work, how ECS integrates with ALB, and how to roll out updates with zero downtime using rolling and blue/green deployment strategies.
+The previous lesson established ECS as a container orchestration service. This lesson goes deep on how it actually works: the anatomy of a Task Definition, how Services maintain desired state, how load balancer integration works, how deployments happen without downtime, and how ECS auto-scales in response to demand. These are the operational mechanics that determine whether a production ECS service is reliable, cost-effective, and easy to operate.
 
-## Task Definitions
+The central operational concept in ECS is **desired state reconciliation**. You declare what you want — 5 running tasks using this task definition revision, registered to this target group, in these subnets — and ECS continuously works to make reality match that declaration. If a task fails its health check, ECS replaces it. If the auto-scaler decides 8 tasks are needed, ECS launches 3 more. If you deploy a new task definition revision, ECS orchestrates the transition from old to new according to your deployment configuration.
 
-A task definition is a blueprint for one or more containers: Docker image URI (from ECR or Docker Hub), CPU and memory allocations, port mappings, environment variables, secrets (from Secrets Manager or Parameter Store via `valueFrom`), log configuration (CloudWatch Logs driver), IAM Task Role (permissions for the running container), and health check command. Versions (revisions) are immutable — each update creates a new revision. A task is a running instance of a task definition.
+For the SAA exam, understand task definitions, services, rolling deployments, and ALB integration. SAP adds blue/green deployment mechanics, ECS Service Connect for service-to-service discovery, capacity providers and cluster auto-scaling, and multi-region ECS patterns. After this lesson, you will be able to configure a production ECS service with zero-downtime deployments, ALB integration, and appropriate auto-scaling.
 
-## ECS Services
+---
 
-An ECS Service maintains a desired count of running tasks, replaces unhealthy tasks, registers tasks with a load balancer, and applies deployment configuration. Service configuration includes: task definition revision, desired count, placement strategy (binpack, spread, random), capacity provider (Fargate, Fargate Spot, EC2), and deployment type. Services support auto-scaling: CPU/memory target tracking, scheduled scaling, and step scaling based on CloudWatch metrics.
+## Core Concepts
 
-## Load Balancer Integration
+### Task Definitions
 
-Attach an ALB (for HTTP/HTTPS), NLB (for TCP), or no load balancer to an ECS service. ECS registers and deregisters task ENIs automatically as tasks start and stop. Use dynamic port mapping (hostPort=0) for EC2 launch type to let multiple tasks of the same service run on one instance using different host ports — the ALB target group handles routing. With Fargate, each task gets its own ENI and a dedicated port.
+A **Task Definition** is the immutable blueprint for one or more containers. Each update creates a new **revision** (task-definition:1, task-definition:2, etc.). The revision is immutable — once registered, it cannot be edited. This provides an audit trail and ensures rollback is always to a known-good revision.
 
-## Rolling vs. Blue/Green Deployments
+Key fields in a task definition:
+- **Image**: the full ECR or Docker Hub URI including the specific tag or digest (`123456789012.dkr.ecr.us-east-1.amazonaws.com/my-api:abc1234`)
+- **CPU and memory**: at the task level (Fargate) and optionally at the container level (EC2)
+- **Network mode**: `awsvpc` (required for Fargate, gives each task its own ENI) or `bridge`/`host` (EC2 only)
+- **Task execution role**: the IAM role ECS uses to pull images from ECR, write logs to CloudWatch, and retrieve secrets from Secrets Manager
+- **Task role**: the IAM role granted to the running container code — what AWS services the application can call
+- **Environment variables and secrets**: plain values or references to Secrets Manager and Parameter Store via `valueFrom` (the secret is fetched at task launch, not baked into the image)
+- **Log configuration**: `awslogs` driver sends container stdout/stderr to CloudWatch Logs
+- **Health check**: a command ECS runs to determine if the container is healthy (separate from the ALB health check)
 
-Rolling deployment (default): ECS replaces old tasks with new ones gradually. Configure minimum healthy percent (keep N% of old tasks during deploy) and maximum percent (allow up to N% above desired count). Blue/Green deployment (via CodeDeploy): deploys the new version as a separate 'green' target group behind the ALB, runs health checks and optional canary traffic shift, then switches all traffic at once. Blue/Green enables instant rollback by switching traffic back to the blue group. Best for production services where rollback speed matters.
+A **task** is a single running instance of a task definition. ECS schedules tasks onto compute capacity (EC2 instances or Fargate).
 
-## Summary
+---
 
-Task definitions blueprint containers; services maintain desired count, handle load balancer registration, and apply deployment strategy. Rolling updates suit most services; blue/green via CodeDeploy enables instant rollback. ALB integration registers tasks automatically. Fargate eliminates EC2 cluster management — use it as the default launch type for new ECS services.
+### ECS Services
 
-## Examples
+An **ECS Service** maintains a desired count of running tasks and manages their lifecycle. The service:
+- Launches tasks when running count falls below desired count (health check failure, task crash)
+- Registers and deregisters task ENIs with the attached ALB target group as tasks start and stop
+- Applies deployment configuration to control how new task definition revisions are rolled out
+- Integrates with auto-scaling to adjust desired count based on demand
 
-A SaaS company runs a REST API as an ECS service behind an ALB. When they ship a new feature, they trigger a rolling deployment configured with minimum healthy percent at 100% and maximum percent at 200%. ECS launches new task instances first, waits until the ALB health check passes, then terminates old ones. Because the minimum healthy threshold is 100%, no capacity is removed before replacements are healthy — users experience zero downtime during a weekday release.
+**Placement strategies** (EC2 launch type only) control how tasks are distributed across EC2 instances:
+- **Binpack**: pack tasks as densely as possible onto the fewest instances (minimize cost)
+- **Spread**: distribute tasks across AZs and instances (maximize availability)
+- **Random**: place tasks randomly
 
-A payments platform needs to deploy a critical pricing-engine update with the ability to roll back in under a minute if error rates spike. They adopt blue/green deployments via CodeDeploy: the new version is deployed to a "green" target group, canary traffic (10%) is shifted to green for five minutes, and CloudWatch alarms monitor 5xx rates. If an alarm fires, CodeDeploy switches all traffic back to the blue target group instantly. This scenario illustrates exactly why blue/green exists — the rollback is a traffic switch, not a re-deployment.
+**Capacity providers** associate a service with a compute source. For Fargate, you specify the Fargate or Fargate Spot capacity provider. For EC2, you can use managed scaling with Auto Scaling Groups — ECS automatically adjusts the ASG to match cluster demand.
 
-A data-processing company uses ECS task definitions with secrets referenced via `valueFrom` pointing to SSM Parameter Store paths. When the database password is rotated in Secrets Manager, the old task definition revision still holds the previous ARN reference — but since revisions are immutable, they create a new task definition revision pointing to the updated secret. The service is updated to the new revision. This shows how task definition immutability interacts with operational practices: secret rotation requires a new revision and a service update, not an in-place edit.
+---
 
-## Think About It
+### ALB Integration and Service Connect
 
-1. Why are task definition revisions immutable rather than editable in place? What operational or audit benefit does immutability provide?
-2. What would happen if you set minimum healthy percent to 0% and maximum percent to 100% during a rolling deployment? Describe the failure mode this creates for a user-facing API.
-3. How would you decide between a rolling deployment and a blue/green deployment for a service that processes financial transactions? What specific properties of each strategy are relevant to that decision?
-4. An ECS service is configured with target tracking auto-scaling on CPU at 70%. A sudden traffic spike hits and CPU jumps to 90% — but new tasks take 45 seconds to start and register with the ALB. What architectural options exist to reduce the time-to-capacity gap?
-5. A task definition references an environment variable for the database hostname directly in the definition. What are the trade-offs of this approach versus using AWS Systems Manager Parameter Store, and under what conditions does each become the right choice?
+ECS Services integrate with ALBs through **target groups**. The service registers each task's ENI and container port as a target when the task starts passing health checks, and deregisters it when the task stops. This happens automatically — you do not manage target group registrations manually.
 
-## Quick Check
+The ALB sends a health check (HTTP GET to a configured path) to each task periodically. Tasks that fail health checks are removed from the target group and replaced by the service.
 
-**Q1.** In ECS, what is the relationship between a task definition and a task?
-- A) A task definition is a running instance; a task is the blueprint
-- B) A task is a running instance of a task definition
-- C) They are the same concept — the terms are interchangeable
-- D) A task definition is specific to Fargate; a task is for EC2 launch type
+**ECS Service Connect** is a managed service discovery and inter-service communication layer. Rather than hard-coding DNS names or using an external service mesh, Service Connect lets services find each other by name within the cluster, with built-in load balancing, retries, and traffic metrics. Service Connect is the recommended approach for service-to-service communication in ECS, replacing manual Cloud Map configuration.
 
-**Answer: B** — A task definition is the immutable blueprint (image, CPU, memory, IAM role, etc.), and a task is a single running instance of that blueprint.
+---
 
-**Q2.** Which ECS deployment strategy enables the fastest rollback by switching traffic between target groups rather than re-deploying containers?
-- A) Rolling deployment with 100% minimum healthy percent
-- B) In-place deployment via ECS console
-- C) Blue/green deployment via AWS CodeDeploy
-- D) Canary deployment via ALB weighted routing alone
+### Deployment Strategies
 
-**Answer: C** — Blue/green deployments keep the old version running in a separate target group; rollback is a traffic switch with no new container launches required.
+**Rolling update** (default): ECS replaces old tasks with new ones gradually. Two configuration parameters:
+- **Minimum healthy percent**: the minimum percentage of desired count that must remain healthy during deployment. At 100%, ECS must launch new tasks and wait for them to be healthy before stopping old ones — zero downtime, requires temporary double capacity.
+- **Maximum percent**: the maximum percentage of desired count that can run simultaneously. At 200%, ECS can run double the desired count during deployment.
 
-**Q3.** What does dynamic port mapping (hostPort=0) accomplish on an EC2 ECS launch type?
-- A) It exposes all container ports to the public internet
-- B) It allows multiple tasks of the same service to run on one EC2 instance using different host ports
-- C) It disables port mapping and relies on service discovery only
-- D) It binds the container to port 80 automatically
+For zero-downtime rolling deployments: minimum healthy percent = 100%, maximum percent = 200%.
 
-**Answer: B** — With hostPort=0, the EC2 host assigns a random available port per task, allowing multiple task instances to run on the same EC2 host without port conflicts; the ALB handles routing.
+**Blue/Green deployment** (via AWS CodeDeploy): deploys the new version (green) as a separate task set registered to a new target group behind the same ALB. Traffic is shifted to green in one of three modes: all-at-once, canary (small percentage first, then all if alarms don't fire), or linear (gradual shift over time). Rollback is a traffic switch back to blue — instant, no container re-deployment required.
 
-## What's Next
+Use blue/green when: instant rollback capability is required, canary traffic testing is needed before full rollout, or the service processes financial or sensitive transactions where a few seconds of error-state traffic is unacceptable.
 
-Next up: EKS architecture — nodes, pods, and the managed control plane.
+---
+
+### ECS Auto Scaling
+
+ECS Service Auto Scaling adjusts the desired count based on demand:
+
+**Target tracking**: maintain a target value for a metric (CPU utilization at 70%, request count per task at 1,000/minute). ECS automatically scales out when the metric exceeds the target and scales in when it falls below.
+
+**Step scaling**: define specific scaling actions at specific metric thresholds (add 5 tasks when CPU > 80%, add 10 tasks when CPU > 90%).
+
+**Scheduled scaling**: increase desired count before a known traffic event (sports event, marketing campaign, market open).
+
+Scaling out is fast (30–60 seconds for Fargate tasks to start). Scaling in is delayed by the **scale-in cooldown period** (default 300 seconds) to prevent thrashing. For workloads with

@@ -1097,6 +1097,17 @@
           "cert_tags": []
         },
         {
+          "file": "08-flow-logs.md",
+          "title": "VPC Flow Logs",
+          "minutes": 10,
+          "type": "content",
+          "cert_tags": [
+            "aws_saa",
+            "aws_soa",
+            "aws_scs"
+          ]
+        },
+        {
           "file": "lab-vpc-build.md",
           "title": "Canvas Lab: Build a Three-Tier VPC",
           "minutes": 30,

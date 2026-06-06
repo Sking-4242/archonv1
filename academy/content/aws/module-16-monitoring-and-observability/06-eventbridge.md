@@ -1,78 +1,102 @@
 ---
 title: "Amazon EventBridge: Event-Driven Architecture"
 type: content
-estimated_minutes: 8
-cert_tags: ["SAA-C03", "DVA-C02"]
+estimated_minutes: 13
+cert_tags: ["SAA-C03", "SAP-C02"]
 ---
 
 # Amazon EventBridge: Event-Driven Architecture
 
 ## Overview
 
-Amazon EventBridge (formerly CloudWatch Events) is a serverless event bus that routes events from AWS services, your applications, and SaaS providers to target services. It's the foundation of event-driven architecture on AWS — decoupling event producers from event consumers.
+Every lesson in this module has described monitoring and responding to events — CloudWatch alarms firing when metrics cross thresholds, GuardDuty findings triggering Lambda remediation, Config rules detecting non-compliance. The connective tissue behind all of that is Amazon EventBridge: the serverless event bus that routes events from AWS services, your applications, and SaaS providers to targets like Lambda, Step Functions, SQS, and SSM. EventBridge is the foundation of event-driven architecture on AWS.
 
-## Event Buses and Rules
+The problem EventBridge solves is coupling. Without it, if you want Service A to trigger Service B when something happens, Service A must directly invoke Service B — it must know B's endpoint, handle B's failures, and be updated every time you add a Service C. With EventBridge, Service A publishes an event to an event bus and knows nothing about who consumes it. A rule matches the event and routes it to any number of targets simultaneously. Adding Service C as a consumer requires no changes to Service A — just a new rule. This decoupling makes systems more extensible, more testable, and more resilient.
 
-An event bus receives events. The default event bus receives events from AWS services automatically. Custom event buses receive events from your applications. Partner event buses receive events from AWS Partner SaaS providers (Zendesk, Shopify, Datadog). Rules are patterns that match incoming events and route them to one or more targets. A rule can match on event source, type, and specific fields in the JSON payload using pattern matching.
+For the SAA exam, understand event buses (default, custom, partner), rules and pattern matching, common sources and targets, and scheduled rules. The SAP exam adds schema registry, EventBridge Pipes for enrichment pipelines, archive and replay for event sourcing, and cross-account event routing. After this lesson, you will be able to design an event-driven automation architecture on AWS using EventBridge as the central routing layer.
 
-## Event Sources and Targets
+---
 
-Sources: any AWS service (S3 puts, EC2 state changes, CodePipeline state changes, GuardDuty findings, etc.), custom app events via PutEvents API, scheduled events (cron or rate expressions — replaced CloudWatch Events scheduled rules). Targets: Lambda, Step Functions, SQS, SNS, Kinesis, API Gateway, ECS tasks, SSM Run Command, CodePipeline, and more. One rule can have multiple targets, and targets receive a copy of the event.
+## Core Concepts
 
-## Schema Registry and Discovery
+### Event Buses and Event Structure
 
-EventBridge Schema Registry maintains a catalog of event schemas. Enable schema discovery and EventBridge automatically infers schemas from observed events. From a schema, you can generate typed binding code (TypeScript, Python, Java, Go) for type-safe event handling in your consumers. The registry also hosts AWS service schemas — useful for understanding the exact shape of events from S3, EC2, etc.
+An **event bus** is the channel through which events flow. Every AWS account has three types:
 
-## EventBridge Pipes and Archive
+**Default event bus**: receives events from AWS services automatically — EC2 state changes, S3 object creation, CloudTrail API activity, GuardDuty findings, CodePipeline state changes, Config rule evaluations, and dozens more. You do not need to configure AWS services to send events here; it happens automatically.
 
-EventBridge Pipes provides point-to-point integration between event sources and targets with built-in filtering, enrichment (via Lambda or Step Functions), and transformation. Sources: SQS, Kinesis, DynamoDB Streams, Kafka. Targets: same as rules. Archive stores all events on an event bus with configurable retention — enabling replay. Replay sends archived events through rules again, useful for testing new rule targets against historical event data.
+**Custom event buses**: receive events from your own applications via the `PutEvents` API. You create custom buses to logically separate different applications or domains — an `orders` bus for order service events, a `payments` bus for payment events. Custom buses can also receive events from other AWS accounts, enabling cross-account event routing.
 
-## Summary
+**Partner event buses**: receive events from AWS Partner SaaS providers — Shopify, Zendesk, Datadog, PagerDuty, GitHub, and others. You subscribe to a partner's event source in the EventBridge Partner section, and their events arrive on a partner bus without custom webhook infrastructure.
 
-EventBridge is the hub of event-driven architecture on AWS. Default bus for AWS service events; custom buses for application events; partner buses for SaaS. Rules match patterns and route to targets. Schema registry provides typed event contracts. Archive and replay enable event sourcing patterns. Use EventBridge over direct service invocation — it decouples producers from consumers and makes the system more extensible.
+All events share the same JSON structure: `source` (the producer), `detail-type` (a human-readable classification), `detail` (the event payload), `time`, `region`, and `account`. This consistent structure is what makes pattern matching across diverse event sources possible.
 
-## Examples
+---
 
-A retailer integrated their AWS environment with Shopify (an EventBridge Partner). When a new order was placed in Shopify, an event arrived on the partner event bus automatically — no polling, no custom webhook plumbing. An EventBridge rule matched events where `detail-type` was `"Order Created"` and routed them to a Lambda function that reserved inventory in DynamoDB. The entire integration required zero changes to the Shopify configuration and no servers to manage. This demonstrates how partner event buses eliminate the custom integration work that would otherwise require building and maintaining webhook receivers.
+### Rules and Pattern Matching
 
-A DevOps team at a software company wanted to enforce a governance rule: every time an EC2 instance was launched without the required `cost-center` tag, an alert should fire and the instance should be stopped. They created an EventBridge rule on the default bus matching the `EC2 Instance State-change Notification` event (state: running), with a pattern filter checking for the absence of the tag. The rule triggered a Step Functions workflow that checked the tag, sent an SNS alert to the team, and stopped the non-compliant instance. This shows EventBridge turning an AWS service event into an automated governance enforcement action — with no polling and sub-second reaction time.
+A **rule** watches an event bus for events matching a pattern, then routes matching events to one or more targets. Rules are evaluated against every event that arrives on the bus; matching is done on the event's JSON fields.
 
-A platform team building a microservices order management system used EventBridge Archive and Replay to validate a new rule they were deploying for their billing service. They had 30 days of archived `OrderCompleted` events on their custom bus. Before going live, they replayed one week of archived events through the new billing rule in a staging environment, verified the Lambda target processed them correctly, and only then deployed the rule to production. This illustrates the archive-and-replay pattern as a testing and event sourcing tool — one of EventBridge's most powerful but under-used capabilities.
+**Event patterns** are JSON documents that specify the conditions for a match. You can match on:
+- **Source**: `"source": ["aws.ec2"]` — only EC2 events
+- **Detail-type**: `"detail-type": ["EC2 Instance State-change Notification"]`
+- **Specific field values**: `"detail": {"state": ["running"]}` — only when state is "running"
+- **Absence of a field**: match events where a specific key does not exist (e.g., missing required tags)
+- **Prefix matching**: `"detail": {"bucketName": [{"prefix": "prod-"}]}`
 
-## Think About It
+A rule can have **up to five targets**. All matching targets receive a copy of the event simultaneously. Targets can be Lambda functions, Step Functions state machines, SQS queues, SNS topics, Kinesis streams, API Gateway endpoints, ECS tasks, SSM Run Command documents, CodePipeline pipelines, and more. EventBridge retries failed deliveries to targets for up to 24 hours with exponential backoff.
 
-1. Why does routing events through EventBridge (rather than having Service A directly invoke Service B via API call) make a system more extensible — what happens when you need to add a third consumer for the same event?
-2. What trade-offs do you accept when using EventBridge scheduled rules (rate/cron) to trigger Lambda functions instead of using CloudWatch Events or a dedicated scheduler like EventBridge Scheduler?
-3. How would you design an EventBridge rule that handles events from multiple sources (S3 and DynamoDB Streams) but routes them to different targets based on which service produced the event?
-4. EventBridge delivers events at least once but does not guarantee exactly-once delivery. How should your Lambda targets be designed to handle this, and what pattern addresses idempotency concerns?
-5. The Schema Registry can generate typed code bindings from event schemas. What problem does this solve in a team environment where multiple services must agree on event structure, and what happens to consumers if a producer changes the schema without notice?
+---
 
-## Quick Check
+### Scheduled Rules and EventBridge Scheduler
 
-**Q1.** Which EventBridge event bus receives events from AWS services (like S3 and EC2) automatically without any configuration?
-- A) Custom event bus
-- B) Partner event bus
-- C) Default event bus
-- D) Global event bus
+Rules can also be triggered on a **schedule** rather than in response to events — using a cron expression (`cron(0 8 * * ? *)` for 8 AM daily) or a rate expression (`rate(5 minutes)`). Scheduled rules are the replacement for CloudWatch Events scheduled rules and the standard mechanism for triggering Lambda functions or ECS tasks on a schedule.
 
-**Answer: C** — The default event bus in every AWS account automatically receives events published by AWS services; custom buses are for your own application events and partner buses are for SaaS provider events.
+**EventBridge Scheduler** is a newer, more powerful scheduled invocation service. Unlike scheduled rules (which create events on a bus), Scheduler directly invokes targets with configurable time zones, one-time schedules (fire once at a specific timestamp), and flexible time windows (deliver within a time range rather than at an exact time). Scheduler supports over 270 API targets directly — not just Lambda and Step Functions.
 
-**Q2.** What does EventBridge Archive and Replay enable?
-- A) Cross-region replication of events to a backup event bus
-- B) Storage of events on an event bus with configurable retention, and the ability to re-send those stored events through current rules
-- C) Automatic retry of failed rule targets up to 24 hours after the original event
-- D) Versioning of EventBridge rules so previous rule configurations can be restored
+---
 
-**Answer: B** — Archive captures all events on a bus with a configurable retention period; Replay sends those archived events back through the bus's current rules, enabling use cases like testing new rule targets against historical data or recovering from processing failures.
+### Schema Registry and EventBridge Pipes
 
-**Q3.** What is the purpose of the EventBridge Schema Registry?
-- A) To enforce that all events on a custom bus conform to a predefined JSON schema before they are routed
-- B) To store a catalog of event schemas and optionally generate typed code bindings for event consumers
-- C) To validate IAM permissions before allowing a producer to publish events to a bus
-- D) To deduplicate events that match the same schema within a five-minute window
+The **Schema Registry** maintains a searchable catalog of event schemas. AWS publishes schemas for all service events — the exact JSON structure of every EC2, S3, CloudTrail, and GuardDuty event. For custom buses, enable **schema discovery** and EventBridge automatically infers schemas from events as they arrive.
 
-**Answer: B** — The Schema Registry maintains a searchable catalog of event schemas (including all AWS service schemas), supports automatic schema discovery from observed events, and generates typed code in multiple languages so consumers can handle events with compile-time type safety.
+From any schema, you can generate **typed code bindings** in TypeScript, Python, Java, or Go — pre-built data classes that represent the event structure, enabling compile-time type safety in event handlers. This eliminates the "what fields does this event have?" question and prevents schema drift from silently breaking consumers.
 
-## What's Next
+**EventBridge Pipes** provides point-to-point integration with built-in filtering, enrichment, and transformation. A Pipe has a source (SQS queue, Kinesis stream, DynamoDB stream, Kafka topic), optional filtering, optional enrichment (call a Lambda or Step Functions to add data to the event), and a target. Pipes are designed for use cases where you need to transform or enrich events before they reach the consumer, without writing custom routing infrastructure.
 
-Next up: the Module 16 Canvas Labs — monitoring architecture design.
+---
+
+### Archive and Replay
+
+**Archive** captures all events published to an event bus with a configurable retention period (1 day to indefinitely). Every event that flows through the bus is stored in the archive.
+
+**Replay** sends archived events back through the bus's current rules as if they were arriving now. The events pass through all rules and reach all matching targets exactly as they would have when originally published.
+
+Archive and replay enable several patterns: testing a new rule target against historical event data before going live, recovering from a processing failure by replaying events that targets missed while offline, implementing event sourcing where the event log is the source of truth for rebuilding application state.
+
+---
+
+## Configuration Reference
+
+### Creating a Rule for GuardDuty Findings → Lambda Remediation
+
+```bash
+# Create a rule on the default bus matching HIGH/CRITICAL GuardDuty findings
+aws events put-rule \
+  --name "guardduty-high-severity-response" \
+  --event-bus-name default \
+  --event-pattern '{
+    "source": ["aws.guardduty"],
+    "detail-type": ["GuardDuty Finding"],
+    "detail": {
+      "severity": [{"numeric": [">=", 7.0]}]
+    }
+  }' \
+  --state ENABLED \
+  --description "Route HIGH/CRITICAL GuardDuty findings to remediation Lambda" \
+  --region us-east-1
+
+# Add a Lambda target to the rule
+aws events put-targets \
+  --rule "guardduty-high-severity-response" \
+  --event-bus-name default \

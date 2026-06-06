@@ -2,7 +2,7 @@
 title: "Lab: Explore the AWS Infrastructure Map"
 type: canvas
 estimated_minutes: 15
-cert_tags: ["aws_ccp"]
+cert_tags: ["CLF-C02"]
 ---
 
 # Lab: Explore the AWS Infrastructure Map

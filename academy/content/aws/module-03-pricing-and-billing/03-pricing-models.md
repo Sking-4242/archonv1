@@ -2,7 +2,7 @@
 title: "EC2 Pricing Models: On-Demand, Reserved, Spot, and Savings Plans"
 type: content
 estimated_minutes: 18
-cert_tags: ["aws_ccp", "aws_clf_c02", "aws_saa"]
+cert_tags: ["CLF-C02", "SAA-C03"]
 ---
 
 # EC2 Pricing Models: On-Demand, Reserved, Spot, and Savings Plans

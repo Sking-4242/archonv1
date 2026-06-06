@@ -1,78 +1,110 @@
 ---
 title: "Reserved Instances, Savings Plans, and Spot"
 type: content
-estimated_minutes: 10
-cert_tags: ["SAA-C03", "SAP-C02", "CLF-C02"]
+estimated_minutes: 13
+cert_tags: ["CLF-C02", "SAA-C03", "SAP-C02"]
 ---
 
 # Reserved Instances, Savings Plans, and Spot
 
 ## Overview
 
-On-Demand pricing is the most flexible but most expensive compute option. AWS offers significant discounts for committed usage (Reserved Instances, Savings Plans) and for using spare capacity with interruption tolerance (Spot). This lesson maps the options and when to use each.
+On-Demand pricing is AWS's full-price, no-commitment rate. It is appropriate for short-lived workloads, experiments, and capacity you genuinely can't predict. For everything else — the stable production database, the always-on application servers, the nightly batch fleet — On-Demand pricing is significantly more expensive than it needs to be. AWS offers three commitment-based pricing mechanisms that reduce compute costs by 40–90%: Reserved Instances, Savings Plans, and Spot Instances.
 
-## Reserved Instances (RIs)
+These three mechanisms address different scenarios. Reserved Instances and Savings Plans reduce cost through usage commitments — you commit to a minimum level of usage and AWS discounts the rate. Spot Instances reduce cost by using AWS's spare capacity — you accept interruption risk and AWS prices unused capacity at a fraction of On-Demand. Together, they form the toolkit for a cost-optimized compute strategy.
 
-RIs provide up to 72% discount over On-Demand in exchange for a 1 or 3-year usage commitment. Standard RIs lock in instance type and region; Convertible RIs allow changing the instance type within the same family during the term (lower discount, ~54%). Payment options: All Upfront (maximum discount), Partial Upfront, No Upfront. RIs apply automatically to matching On-Demand usage in your account or organization. Unused RI capacity can be listed in the RI Marketplace. Use Standard RIs for stable, predictable workloads running 24/7 (production databases, always-on application servers).
+For the SAA and SAP exams, understand the specific commitment models of each option, their applicable use cases, the Convertible vs. Standard RI trade-off, and why Compute Savings Plans are now the preferred commitment vehicle for most workloads. After this lesson, you will be able to design a compute purchasing strategy that optimally blends On-Demand, committed, and Spot capacity.
 
-## Savings Plans
+---
 
-Savings Plans commit to a consistent dollar amount of usage per hour (e.g., $10/hr) in exchange for discounts — but are more flexible than RIs. Compute Savings Plans apply across EC2 instance families, sizes, regions, and even Fargate and Lambda — just committing to a compute spend amount. EC2 Instance Savings Plans apply to a specific instance family in a region but are fully flexible across AZ, size, OS. Savings Plans are recommended over RIs for most new commitments because of their flexibility — if you change instance type or move to Fargate, the commitment still applies.
+## Core Concepts
 
-## Spot Instances
+### Reserved Instances (RIs)
 
-Spot Instances use EC2 spare capacity at up to 90% discount. The catch: AWS can interrupt Spot Instances with 2-minute notice when capacity is needed elsewhere. Appropriate workloads: batch processing, big data (EMR), CI/CD build machines, stateless web tier (behind ALB with graceful shutdown), simulation and rendering. Not appropriate: databases, stateful applications, anything that can't handle interruption. Use Spot with Auto Scaling (Spot-aware ASG with multiple instance types and AZs for interruption resilience) — configure On-Demand for a minimum baseline and Spot for the rest.
+Reserved Instances provide discounts of up to 72% over On-Demand in exchange for a 1-year or 3-year usage commitment. RIs apply automatically to matching running instances in the same account (or across the organization with consolidated billing) — no code or configuration change is required.
 
-## Purchasing Strategy in Practice
+**Standard Reserved Instances**: lock in instance family, size, and region (and optionally AZ). Provide the maximum discount (up to 72% for 3-year All Upfront). Cannot change instance family during the term. Convertible RIs allow exchanging for a different instance family, OS, or tenancy during the term at a lower discount (~54%).
 
-A well-optimized compute strategy: 1-year Compute Savings Plan covering ~70% of baseline compute spend (the stable, always-running workload). Remaining On-Demand for flexibility. Spot for batch and scale-out capacity. Review Savings Plan coverage reports monthly — if coverage is below 70%, buy more. If you're consistently underutilizing a Savings Plan, you may be over-committed. The goal is 70-80% of compute covered by commitments.
+**Payment options**: All Upfront (highest discount, pay 100% at purchase), Partial Upfront (moderate discount, pay ~50% upfront + monthly), No Upfront (lowest discount, pay monthly — but still significantly cheaper than On-Demand). The discount difference between All Upfront and No Upfront is about 5–8 percentage points.
 
-## Summary
+**Scope**: Region-scoped RIs apply to any AZ within the region. AZ-scoped RIs apply to a specific AZ and also reserve capacity in that AZ (useful for compliance workloads requiring specific AZ placement).
 
-Reserved Instances and Savings Plans provide 40-72% discounts for committed usage. Savings Plans are more flexible — recommended over RIs for most new commitments. Spot Instances provide up to 90% discounts for interruption-tolerant workloads. Strategy: Savings Plan for the stable baseline, Spot for batch/variable, On-Demand for the unpredictable edge. Review coverage monthly.
+**RI Marketplace**: unused Standard RIs can be listed for sale in the RI Marketplace, allowing early exit from an unwanted commitment. Convertible RIs cannot be sold in the Marketplace.
 
-## Examples
+**Use Standard RIs for**: specific, long-lived services with known instance types that will not change — production databases (RDS, ElastiCache), dedicated EC2 workloads with stable profiles.
 
-A healthcare analytics company runs a HIPAA-compliant PostgreSQL database on RDS 24 hours a day, 365 days a year, with predictable and stable load. They purchase a 1-year Standard Reserved Instance for that database instance class and region, immediately cutting their RDS compute bill by 40% with zero architectural change. This is the clearest beginner case for Reserved Instances: a stable, always-on workload that will not change instance type is exactly what RIs are designed for.
+---
 
-A startup begins with EC2 but over 12 months migrates parts of their workload from EC2 to AWS Fargate containers and Lambda functions. Because they purchased a Compute Savings Plan rather than EC2 Instance RIs, their hourly dollar commitment automatically applies to Fargate and Lambda usage — they retain the discount throughout the migration without purchasing new commitments. This is the key reason Savings Plans are now preferred over RIs: flexibility across compute types means the commitment survives architectural evolution.
+### Savings Plans
 
-A media company runs video transcoding jobs nightly. Each job takes 2–4 hours, is embarrassingly parallel across hundreds of workers, and can be safely restarted if interrupted. They configure an Auto Scaling group with a mix of six different instance types across three Availability Zones using Spot Instances. Even with a 15% interruption rate, their total transcoding cost is 85% lower than On-Demand — and because interrupted jobs automatically retry, no output is lost. This scenario illustrates the architectural discipline Spot requires: multi-type, multi-AZ placement and graceful shutdown handling are non-negotiable.
+Savings Plans commit to a consistent dollar amount of compute spend per hour in exchange for discounts. They are more flexible than RIs and are now the preferred commitment vehicle for most workloads.
 
-## Think About It
+**Compute Savings Plans**: apply to any EC2 usage (any family, size, region, OS, tenancy), AWS Fargate usage, and AWS Lambda usage — all from a single hourly commitment. The discount is approximately 66% vs. On-Demand. If you migrate from EC2 to Fargate, or move a workload to a different region, the Savings Plan commitment still applies. This flexibility is the key advantage over Standard RIs.
 
-1. Why does AWS offer a higher discount for Standard RIs than Convertible RIs? What risk does AWS take on with each, and how does that risk translate into pricing?
-2. A team wants to cover their baseline compute spend with a Compute Savings Plan. They currently spend $8/hour on EC2. What information would you need before committing, and what would happen if the team's compute spend dropped to $5/hour six months into a 1-year commitment?
-3. What would happen if a company applied Spot Instances to their primary production RDS-backed application server without any architectural changes? Walk through the failure scenario step by step.
-4. How would you decide the right split between Savings Plan coverage, On-Demand, and Spot for a workload that has a stable base of 20 instances but scales up to 80 instances during peak hours each weekday?
-5. Savings Plans commit to a dollar-per-hour spend, not a specific instance count. What are the implications of this when instance prices change — for example, when AWS releases a new generation that is cheaper per compute unit?
+**EC2 Instance Savings Plans**: apply to a specific EC2 instance family in a specific region (e.g., all `m5` instances in us-east-1). More flexible than Standard RIs (size, AZ, and OS are flexible within the family) with higher discounts (~72%). Less flexible than Compute Savings Plans.
 
-## Quick Check
+**How Savings Plans apply**: AWS bills your compute usage against On-Demand rates and then calculates the savings from your Savings Plan commitment. The commitment is a dollar-per-hour floor — if your actual hourly compute spend is $15 and your Savings Plan covers $10/hour, the $10/hour receives the plan discount and the remaining $5/hour is billed at On-Demand.
 
-**Q1.** A company wants the largest possible discount on EC2 but knows their production database instance type will never change. Which purchasing option best fits this requirement?
-- A) Compute Savings Plan
-- B) Convertible Reserved Instance
-- C) Standard Reserved Instance
-- D) Spot Instance
+**Coverage vs. utilization**: monitor both metrics in Cost Explorer:
+- **Coverage**: what percentage of your compute spend is covered by a commitment (goal: 70–80%)?
+- **Utilization**: what percentage of your Savings Plan commitment is being used (goal: > 90%)?
 
-**Answer: C** — Standard RIs provide the highest discount (up to 72%) and are ideal when the instance type, family, and region are stable and predictable, as is typical for a long-running production database.
+Low coverage = leaving savings on the table. Low utilization = over-committed and paying for unused capacity.
 
-**Q2.** Why are Compute Savings Plans generally recommended over Reserved Instances for most new commitments?
-- A) Compute Savings Plans always provide a higher discount percentage
-- B) Compute Savings Plans apply across EC2 families, Fargate, and Lambda regardless of instance type or region
-- C) Compute Savings Plans require no upfront payment
-- D) Compute Savings Plans can be sold in the RI Marketplace if unused
+---
 
-**Answer: B** — Compute Savings Plans commit to a dollar-per-hour spend amount rather than a specific instance type, so the discount automatically applies across EC2 instance families, Fargate, and Lambda, making them resilient to architectural changes.
+### Spot Instances
 
-**Q3.** Which of the following workloads is LEAST appropriate for Spot Instances?
-- A) Nightly ETL batch processing jobs that can be restarted
-- B) A CI/CD build farm running automated test suites
-- C) A primary production relational database
-- D) A distributed video rendering pipeline
+Spot Instances use AWS's spare EC2 capacity at discounts of up to 90% vs. On-Demand. The trade-off: AWS can interrupt Spot Instances with a 2-minute interruption notice when it needs the capacity back for On-Demand or Reserved Instance customers.
 
-**Answer: C** — Spot Instances can be interrupted with only 2 minutes notice; a relational database cannot safely handle sudden termination without risking data corruption or loss, making it fundamentally incompatible with Spot.
+**Spot interruption rate**: most Spot pools have a < 5% interruption rate per month. Individual pool rates vary by instance type, AZ, and time. The rate is dynamic — high-demand periods have higher interruption rates.
 
-## What's Next
+**Appropriate workloads**: batch processing, CI/CD build fleets, simulation and rendering, EMR data processing, fault-tolerant stateless web tiers (behind ALB, graceful instance shutdown on interruption notice), genomics analysis, model training with checkpointing.
 
-Next up: Storage cost optimization — S3 tiering, EBS right-sizing, and data transfer costs.
+**Inappropriate workloads**: production databases (interruption = corruption risk), stateful applications that cannot safely resume, any workload where a 2-minute shutdown window is insufficient.
+
+**Spot best practices**:
+- Use multiple instance types across multiple AZs (capacity pool diversification)
+- Configure `capacity-optimized` Spot allocation strategy (picks the pool with most available capacity → lower interruption risk)
+- Handle the interruption notice: poll the EC2 Instance Metadata Service for the `spot/termination-time` endpoint; drain connections and checkpoint state when notice arrives
+- Set a baseline of On-Demand instances for stability; use Spot for additional capacity
+
+---
+
+## Configuration Reference
+
+### Example: Purchase a Compute Savings Plan (AWS CLI)
+
+```bash
+# Step 1: Get a Savings Plan recommendation from Cost Explorer
+aws savingsplans describe-savings-plans-offering-rates \
+  --savings-plan-offering-types COMPUTE_SP \
+  --products EC2 Fargate Lambda \
+  --region us-east-1
+
+# Step 2: Check your current Savings Plan coverage to inform commitment amount
+aws ce get-savings-plan-coverage \
+  --time-period '{"Start":"2024-11-01","End":"2024-12-01"}' \
+  --granularity MONTHLY \
+  --query 'SavingsPlansCoverages[0].Coverage.CoverageHoursPercentage' \
+  --region us-east-1
+# Target: 70-80% coverage. If current coverage is 40%, buy more.
+# If current coverage is 95%, you may be over-committed.
+
+# Step 3: Purchase a 1-year Compute Savings Plan (All Upfront)
+aws savingsplans create-savings-plan \
+  --savings-plan-type COMPUTE_SP \
+  --term-duration-in-years 1 \
+  --payment-option ALL_UPFRONT \
+  --commitment 12.50 \
+  --region us-east-1
+# commitment 12.50: $12.50 per hour — commits to this spend rate for 12 months
+# ALL_UPFRONT: full payment now for maximum discount
+# This plan covers ~$110,000 of annual compute at ~66% savings vs On-Demand
+```
+
+> **Note:** Start with a 1-year term before committing to 3 years — architectural changes over 3 years (moving to Fargate, changing regions) can make a rigid commitment wasteful. Compute Savings Plans are more resilient to architectural evolution than EC2 Instance Savings Plans or Standard RIs, but a 3-year term still assumes significant stability.
+
+---
+
+### Exam

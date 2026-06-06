@@ -2,7 +2,7 @@
 title: "AWS Cost Management Tools: Cost Explorer, Budgets, and More"
 type: content
 estimated_minutes: 17
-cert_tags: ["aws_ccp", "aws_clf_c02", "aws_soa"]
+cert_tags: ["CLF-C02", "SOA-C02"]
 ---
 
 # AWS Cost Management Tools: Cost Explorer, Budgets, and More

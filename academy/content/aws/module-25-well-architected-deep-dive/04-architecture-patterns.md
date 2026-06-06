@@ -1,7 +1,7 @@
 ---
 title: "Architecture Patterns: Putting It All Together"
 type: content
-estimated_minutes: 10
+estimated_minutes: 12
 cert_tags: ["SAA-C03", "SAP-C02"]
 ---
 
@@ -9,70 +9,95 @@ cert_tags: ["SAA-C03", "SAP-C02"]
 
 ## Overview
 
-After 25 modules of service-specific learning, this lesson synthesizes the common full-stack architecture patterns that appear on exams and in real-world AWS deployments. These patterns combine multiple services into coherent, production-ready architectures.
+After learning individual AWS services, the next challenge is knowing how they fit together into coherent, production-ready architectures. AWS exams — especially the SAA-C03 and SAP-C02 — test this synthesis heavily. A question rarely asks "what does SQS do?" It asks "a company needs to decouple a high-throughput order processing system from its fulfillment backend — which architecture handles back-pressure and retry correctly?" That question requires recognizing a pattern, not just recalling a service.
 
-## Three-Tier Web Application
+Four patterns appear repeatedly across exam questions and real-world AWS deployments: the three-tier web application (the foundational pattern for traditional workloads), the serverless API backend (the default for new event-driven services), event-driven microservices (the pattern for large-scale decoupled systems), and the data lake and analytics platform (the pattern for business intelligence and ML). Real architectures mix these patterns — a three-tier application may fan out events to a microservices backbone, which feeds a data lake. Understanding each pattern individually makes the combinations legible.
 
-The canonical AWS architecture: Route 53 (DNS + health check) → CloudFront (CDN + WAF + TLS) → ALB (load balancing + HTTP routing) → EC2 Auto Scaling Group or ECS Fargate (application tier, across 2+ AZs) → Aurora Multi-AZ (primary database) + Aurora Read Replica (read scaling) → ElastiCache Redis (session store + application cache). Optionally: RDS Proxy between app tier and Aurora for connection pooling. S3 for static assets, CloudFront for serving them. This pattern handles millions of users when each layer is right-sized.
+For the SAA-C03 exam, know which services belong at each layer of each pattern and why. SAP-C02 adds migration scenarios (how do you evolve from a monolith to event-driven microservices?), multi-region patterns (how do you make the three-tier pattern globally available?), and governance concerns (how do you secure a data lake with row-level access control?). After this lesson, you will be able to design any of these four patterns from scratch and identify the Well-Architected gaps in a described architecture.
 
-## Serverless API Backend
+---
 
-API Gateway (HTTP API with JWT auth via Cognito) → Lambda (function per route or monolambda with routing) → DynamoDB (primary data store) + ElastiCache Redis (session/hot data cache) + S3 (file storage) + Secrets Manager (database credentials). Async: Lambda → SQS → Lambda (background workers). Events: DynamoDB Streams → Lambda (fan-out processing). Monitoring: X-Ray (distributed tracing), CloudWatch EMF (custom metrics from Lambda), CloudWatch Logs. This pattern scales to zero and up automatically.
+## Core Concepts
 
-## Event-Driven Microservices
+### Pattern 1: Three-Tier Web Application
 
-Services communicate through events rather than direct calls: EventBridge (event bus) + SNS (fan-out) + SQS (buffered consumption) + Kinesis (high-throughput streaming). Each service owns its data store (bounded context). Step Functions orchestrates multi-service workflows. Service discovery via Route 53 private hosted zones or App Mesh. This pattern maximizes service independence and resilience.
+The foundational AWS architecture for user-facing web and mobile applications. Layers from edge to data:
 
-## Data Lake and Analytics Platform
+**Edge/CDN tier**: Route 53 (DNS, health-check-based failover) → CloudFront (global CDN, TLS termination, WAF integration for edge protection, S3 static asset serving).
 
-Ingestion: Kinesis Firehose (real-time) + DMS (CDC from RDS) + AppFlow (SaaS) → S3 raw zone. Transform: Glue ETL → S3 curated zone (Parquet, partitioned). Query: Athena (ad-hoc) + Redshift Spectrum (joins with Redshift tables) + Redshift (structured warehouse queries). Visualization: QuickSight (dashboards). Governance: Lake Formation (row/column security). Orchestration: Step Functions or MWAA. Monitoring: CloudWatch alarms on Glue job failures, Athena query times, Firehose delivery.
+**Load balancing tier**: Application Load Balancer (HTTP/HTTPS routing, host and path-based rules, sticky sessions, target group health checks). The ALB is the single entry point for all application traffic from CloudFront.
 
-## Summary
+**Compute tier**: EC2 Auto Scaling Group (or ECS Fargate tasks) across a minimum of two Availability Zones. The ASG maintains a minimum of instances and scales out on CPU or custom CloudWatch metrics. Application code runs here; no business logic runs in the database layer.
 
-The core patterns: three-tier web app for traditional workloads, serverless API for event-driven services, event-driven microservices for decoupled systems, and data lake + analytics platform for business intelligence. Real architectures mix these patterns. The exam tests whether you can select the right services for each layer of each pattern. Master these four patterns and you have the foundation to design any AWS architecture.
+**Data tier**: Aurora Multi-AZ (primary writer + standby replica for automatic failover) and one or more Aurora Read Replicas for read scaling. RDS Proxy sits between the compute tier and Aurora to pool database connections — critical when Lambda or auto-scaling EC2 causes connection count spikes. ElastiCache Redis provides session storage and application-layer caching.
 
-## Examples
+**Supporting services**: S3 (static assets, file uploads, application logs), Secrets Manager (database credentials, API keys), KMS (encryption at rest), CloudWatch (logs, metrics, alarms).
 
-A startup building a B2C mobile fitness app launched their backend using the serverless API pattern: API Gateway with JWT auth via Cognito, Lambda functions per route, DynamoDB as the primary data store, and S3 for storing user-uploaded workout videos. When their app was featured in the App Store, daily active users jumped from 2,000 to 200,000 in 48 hours. Because the architecture scaled automatically — Lambda concurrency expanded, DynamoDB on-demand mode absorbed the read/write spike, and API Gateway had no capacity to pre-provision — the app stayed up without any operational intervention. The three-tier web pattern with fixed EC2 fleets would have required frantic manual scaling.
+---
 
-A mid-market retailer modernizing a legacy monolith decomposed it into event-driven microservices over eighteen months. Each domain team owned its service and its data store — the inventory service owned an Aurora Postgres instance; the order service owned DynamoDB. Services communicated exclusively through EventBridge events. When the shipping service needed to know about order confirmations, it subscribed to the `order.confirmed` event from EventBridge rather than calling the order service API directly. A shipping bug that caused that service to crash during peak hours no longer cascaded into order failures — the order service published events to EventBridge whether or not the shipping service was healthy, and the shipping service caught up from the event stream when it recovered. This bounded context and loose coupling is the defining property of the event-driven microservices pattern.
+### Pattern 2: Serverless API Backend
 
-A digital media company built a data lake to consolidate clickstream events from their publishing platform, subscription data from Salesforce via AppFlow, and article content metadata from their CMS via DMS. Kinesis Firehose landed raw events in S3; Glue ETL jobs transformed them hourly into Parquet with date partitioning in the curated zone. Their editorial team used Athena for ad-hoc queries ("which articles drove the most subscriptions last week?") while their data warehouse team ran Redshift against structured aggregates. QuickSight dashboards showed editors real-time article performance. The pattern — raw zone → curated zone → query layer → visualization — is the data lake architecture from this lesson applied to a concrete editorial analytics use case.
+The default pattern for greenfield API services and event-driven backends. Eliminates idle compute cost and operational overhead of instance management.
 
-## Think About It
+**API layer**: API Gateway (HTTP API or REST API) with JWT authorization via Cognito (or Lambda authorizer for custom auth). API Gateway handles TLS, throttling, usage plans, and request/response mapping.
 
-1. Why does the three-tier web application pattern place the ALB between the internet and the application tier rather than exposing EC2 instances directly? What specific failure modes and security risks does that layer resolve?
-2. What would happen if a Lambda function in the serverless API backend pattern directly queried Aurora MySQL with a new database connection on every invocation under high load? How does RDS Proxy address this, and what does it reveal about the difference between how EC2 applications and Lambda functions handle database connections?
-3. How would you decide whether a new feature in an event-driven microservices system should communicate via EventBridge (fire-and-forget events) versus Step Functions (orchestrated workflow with retries and state)? What characteristics of the feature would push you toward one or the other?
-4. In the data lake pattern, raw data lands in S3 before being transformed into the curated zone. What is the operational value of retaining the raw zone indefinitely rather than deleting it after transformation — and what cost and governance trade-offs does that decision create?
-5. Real architectures mix these patterns. If you were asked to add a real-time recommendation engine to the three-tier web application, which elements from the other three patterns (serverless API, event-driven microservices, data lake) would you pull in, and why?
+**Compute layer**: Lambda functions — one function per route, or a single "monolambda" that handles routing internally (useful for migrating an existing Express.js app to Lambda). Functions are stateless; all state lives in data stores.
 
-## Quick Check
+**Data layer**: DynamoDB (primary key-value/document store, on-demand capacity for unpredictable traffic), S3 (file and object storage, static assets), Secrets Manager (credentials), ElastiCache Redis (session store and hot data cache for repeated queries).
 
-**Q1.** In the three-tier web application architecture described in this lesson, what is the purpose of RDS Proxy between the application tier and Aurora?
-- A) To encrypt all database traffic with TLS
-- B) To provide connection pooling and reduce database connection overhead
-- C) To replicate data across multiple AWS Regions
-- D) To cache frequently read rows in memory
+**Async processing**: Lambda → SQS → Lambda (background workers with automatic retries and dead-letter queue for failed messages). Step Functions orchestrates multi-step workflows with error handling, retries, and parallel branches.
 
-**Answer: B** — RDS Proxy sits between the application and Aurora to pool and reuse database connections, which is especially important when many Lambda functions or auto-scaling EC2 instances are opening connections simultaneously.
+**Event streaming**: DynamoDB Streams → Lambda (process every item-level change, fan out to downstream services). Kinesis Data Streams → Lambda (high-throughput event ingestion and processing).
 
-**Q2.** In the event-driven microservices pattern, which AWS service acts as the central event bus through which services publish and subscribe to events?
-- A) Amazon SQS
-- B) Amazon SNS
-- C) Amazon EventBridge
-- D) AWS Step Functions
+**Observability**: X-Ray (distributed tracing across API Gateway, Lambda, DynamoDB), CloudWatch EMF (emit custom metrics from Lambda without a separate PutMetricData call), CloudWatch Logs Insights (query structured Lambda logs).
 
-**Answer: C** — EventBridge is the managed event bus in the event-driven microservices pattern; services publish domain events to EventBridge and other services subscribe to the event types they care about, enabling loose coupling.
+---
 
-**Q3.** In the data lake architecture pattern, what file format is used in the curated zone for query efficiency, and why?
-- A) CSV, because it is human-readable and widely supported
-- B) JSON, because it preserves nested document structure
-- C) Parquet, because it is columnar and compresses well for analytical queries
-- D) Avro, because it includes schema evolution support
+### Pattern 3: Event-Driven Microservices
 
-**Answer: C** — Parquet is the standard curated zone format because its columnar layout allows query engines like Athena and Redshift Spectrum to read only the columns needed, dramatically reducing both query time and cost.
+Services communicate through events rather than synchronous API calls. Each service owns its data store (bounded context). Failures in one service do not cascade to others.
 
-## What's Next
+**Event bus**: EventBridge is the central event routing engine. Services publish domain events (`order.confirmed`, `payment.failed`, `inventory.reserved`) to EventBridge. Other services subscribe to the event types they care about via EventBridge rules. The publisher has no knowledge of consumers — loose coupling.
 
-Next up: the Module 25 Canvas Lab — conduct a Well-Architected Review on a real architecture.
+**Fan-out**: SNS (publish-subscribe) fans out a single message to multiple SQS queues, Lambda functions, or HTTP endpoints simultaneously. Use when one event needs to trigger multiple independent downstream actions.
+
+**Buffered consumption**: SQS provides durable message queuing between producers and consumers. Consumers pull from SQS at their own pace — decouples producers from consumer capacity and handles back-pressure. Configure dead-letter queues (DLQ) for messages that fail processing repeatedly.
+
+**Orchestration**: Step Functions coordinates multi-step workflows across multiple services with explicit state, retries, error handling, and parallel branches. Use Step Functions when the workflow has dependencies between steps; use EventBridge when steps are independent reactions to the same event.
+
+**Service discovery**: Route 53 private hosted zones resolve service hostnames within the VPC. AWS App Mesh provides service mesh capabilities (mutual TLS between services, circuit breaking, traffic shifting for canary deployments of microservices).
+
+---
+
+### Pattern 4: Data Lake and Analytics Platform
+
+The pattern for ingesting, transforming, and analyzing large volumes of structured and semi-structured data at scale.
+
+**Ingestion layer**: Kinesis Data Firehose (real-time streaming data → S3 raw zone with optional Glue-based transformation), AWS DMS (change data capture from operational RDS/Aurora databases), AppFlow (SaaS data sources: Salesforce, Marketo, ServiceNow), S3 direct upload (batch file drops from on-premises systems).
+
+**Storage zones** (all in S3):
+- **Raw zone**: exactly as received, no transformation. Never delete.
+- **Curated zone**: transformed, validated, partitioned by date, stored as Parquet. This is the query-optimized layer.
+- **Aggregated/presentation zone**: pre-aggregated tables or materialized views optimized for specific dashboard queries.
+
+**Transformation**: AWS Glue ETL jobs (serverless Spark-based transformation from raw to curated), Glue Crawlers (auto-detect schema and update the Glue Data Catalog), Lambda (lightweight record-level transformation at ingest time via Firehose).
+
+**Query layer**: Athena (interactive SQL against S3 Parquet using the Glue Catalog, pay per TB scanned), Redshift (structured warehouse queries, joins across petabyte-scale tables), Redshift Spectrum (query S3 from within Redshift without loading data).
+
+**Governance**: AWS Lake Formation (table-level, column-level, and row-level access control on top of the Glue Catalog — controls which IAM principals can query which tables and columns). Lake Formation is the correct answer for "restrict data lake access to specific columns for specific teams."
+
+**Visualization**: Amazon QuickSight (dashboards connected to Athena, Redshift, or S3 directly; SPICE in-memory engine for fast dashboard queries).
+
+---
+
+## Configuration Reference
+
+### Example: Three-Tier Application — ALB Listener Rules
+
+```bash
+# Create ALB listener rules for path-based routing
+# /api/* → API target group (EC2/ECS application servers)
+# /* → static assets target group (or redirect to CloudFront S3 origin)
+
+aws elbv2 create-rule \
+  --listener-arn "arn:aws:elasticloadbalancing:us-east-1:123456789012:listener/a
