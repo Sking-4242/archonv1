@@ -32,7 +32,7 @@
       "B",
       "D"
     ],
-    "explanation": "IAM Access Analyzer identifies unused permissions (establishing a baseline of dormant access), and a sudden volume spike in CloudTrail S3 data events shows the previously unused access is now being exercised. However, conclusive exfiltration evidence requires confirming that data actually left the account \u2014 corroborating with VPC Flow Logs for network egress or S3 server access logs with requester IP/bytes transferred completes the signal chain. Option A is insufficient alone. Option C is incorrect \u2014 Object Lock does not generate exfiltration alerts. Option D is not the first required action.",
+    "explanation": "IAM Access Analyzer identifies unused permissions (establishing a baseline of dormant access), and a sudden volume spike in CloudTrail S3 data events shows the previously unused access is now being exercised. However, conclusive exfiltration evidence requires confirming that data actually left the account — corroborating with VPC Flow Logs for network egress or S3 server access logs with requester IP/bytes transferred completes the signal chain. Option A is insufficient alone. Option C is incorrect — Object Lock does not generate exfiltration alerts. Option D is not the first required action.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -77,7 +77,7 @@
       "C",
       "D"
     ],
-    "explanation": "This is a classic S3 ransomware pattern: the attacker re-encrypts objects with a key they control (making the data unreadable to the owner), deletes all versions, and removes lifecycle protections. Recovery is only possible if a separate unencrypted or independently encrypted copy exists \u2014 ideally in a separate account with S3 Object Lock (WORM) enabled under a different KMS key policy the attacker cannot access. Option B is wrong because SSE-S3 is already present and the attack leverages the owner's own KMS permissions. Option C is wrong \u2014 GuardDuty does not trigger automatic restoration. Option D is incorrect because GuardDuty uses VPC Flow Logs and DNS logs, not CloudTrail, for its core detection.",
+    "explanation": "This is a classic S3 ransomware pattern: the attacker re-encrypts objects with a KMS key they control (making the data unreadable to the bucket owner), deletes all object versions, and removes lifecycle protections. Recovery is only possible if a separate copy exists that the attacker cannot reach — ideally in a separate AWS account with S3 Object Lock (WORM mode) enabled under a different KMS key and key policy.\n\nOption A is wrong — GuardDuty does not trigger automatic S3 Object Lock restoration; findings require human or automated response.\nOption C is wrong — CloudTrail management events ARE one of GuardDuty's primary data sources (alongside VPC Flow Logs, DNS query logs, and S3 data events). This attack would be visible in GuardDuty because the KMS key usage and bucket policy changes generate CloudTrail events that GuardDuty analyzes.\nOption D is wrong — SSE-S3 is irrelevant here; the attack exploits the owner's own KMS permissions, not the absence of encryption.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -106,7 +106,7 @@
       },
       {
         "label": "B",
-        "text": "Attach an explicit Deny policy to the IAM user to block all actions, disable console access and rotate access keys, capture current CloudTrail context as a forensic snapshot, then notify the security team \u2014 preserving the user object for investigation rather than deleting it."
+        "text": "Attach an explicit Deny policy to the IAM user to block all actions, disable console access and rotate access keys, capture current CloudTrail context as a forensic snapshot, then notify the security team — preserving the user object for investigation rather than deleting it."
       },
       {
         "label": "C",
@@ -123,7 +123,7 @@
       "C",
       "D"
     ],
-    "explanation": "The correct response attaches an explicit IAM Deny policy (immediate containment without destroying evidence), disables console password and rotates/deletes access keys, and captures a forensic snapshot of the CloudTrail events and active session tokens before any cleanup. Deleting the user (A) destroys audit trails needed for investigation. Enabling MFA delete on S3 (C) does not contain the IAM user's other permissions. IAM users exist at the account level, not in AWS Organizations OUs (D), so moving to a separate OU has no effect on an existing IAM user \u2014 SCPs apply to accounts, not individual IAM users.",
+    "explanation": "The correct response attaches an explicit IAM Deny policy (immediate containment without destroying evidence), disables console password and rotates/deletes access keys, and captures a forensic snapshot of the CloudTrail events and active session tokens before any cleanup. Deleting the user (A) destroys audit trails needed for investigation. Enabling MFA delete on S3 (C) does not contain the IAM user's other permissions. IAM users exist at the account level, not in AWS Organizations OUs (D), so moving to a separate OU has no effect on an existing IAM user — SCPs apply to accounts, not individual IAM users.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -169,7 +169,7 @@
       "C",
       "D"
     ],
-    "explanation": "CreateRole by itself is a legitimate operation performed regularly by administrators and automation. The privilege escalation pattern requires correlating the full sequence: CreateRole + AttachRolePolicy with a high-privilege managed policy + AssumeRole of that new role within a short window. EventBridge can match on specific API call sequences using a combination of rules and Step Functions or by using CloudTrail Insights for anomaly detection. Option B is wrong \u2014 IAM management events including CreateRole are logged in CloudTrail by default. Option C is wrong \u2014 Macie focuses on data classification, not IAM activity. Option D is partially true (IAM is global) but alerting on CreateRole alone remains insufficient regardless of region.",
+    "explanation": "CreateRole by itself is a legitimate operation performed regularly by administrators and automation. The privilege escalation pattern requires correlating the full sequence: CreateRole + AttachRolePolicy with a high-privilege managed policy + AssumeRole of that new role within a short window. EventBridge can match on specific API call sequences using a combination of rules and Step Functions or by using CloudTrail Insights for anomaly detection. Option B is wrong — IAM management events including CreateRole are logged in CloudTrail by default. Option C is wrong — Macie focuses on data classification, not IAM activity. Option D is partially true (IAM is global) but alerting on CreateRole alone remains insufficient regardless of region.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -214,7 +214,7 @@
       "B",
       "D"
     ],
-    "explanation": "The Lambda role was given insufficient permissions for the revocation step \u2014 a least-privilege misconfiguration. The correct fix is to grant the specific Lambda function the iam:DeleteAccessKey and related permissions scoped tightly to the instance profile role ARN pattern, then validate the entire workflow against GuardDuty finding test events before production. Option B is incorrect \u2014 Step Functions is fully supported for GuardDuty remediation. Option C is wrong \u2014 failing open on security controls is dangerous; the workflow should use Step Functions error handling (Catch states) to alert on step failures while still attempting subsequent steps. Option D is wrong \u2014 iam:DeleteAccessKey and revoking active sessions via attaching an inline Deny policy are both achievable through automation.",
+    "explanation": "The Lambda role was given insufficient permissions for the revocation step — a least-privilege misconfiguration. The correct fix is to grant the specific Lambda function the iam:DeleteAccessKey and related permissions scoped tightly to the instance profile role ARN pattern, then validate the entire workflow against GuardDuty finding test events before production. Option B is incorrect — Step Functions is fully supported for GuardDuty remediation. Option C is wrong — failing open on security controls is dangerous; the workflow should use Step Functions error handling (Catch states) to alert on step failures while still attempting subsequent steps. Option D is wrong — iam:DeleteAccessKey and revoking active sessions via attaching an inline Deny policy are both achievable through automation.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -260,7 +260,7 @@
       "C",
       "D"
     ],
-    "explanation": "Fargate tasks have no underlying EC2 instance accessible to customers \u2014 AWS manages the host. Containment requires stopping the specific task via ECS StopTask, rolling the ECS service back to a known-good task definition (to prevent the same malicious task from restarting), and restricting outbound DNS at the security group level. Option B is wrong \u2014 customers cannot access Fargate host instances. Option C is wrong \u2014 GuardDuty Runtime Monitoring findings at any severity require customer action; AWS does not auto-stop tasks. Option D would block the entire subnet affecting other tasks, and Fargate tasks do not expose memory for forensic capture via ECS Exec once stopped.",
+    "explanation": "Fargate tasks have no underlying EC2 instance accessible to customers — AWS manages the host. Containment requires stopping the specific task via ECS StopTask, rolling the ECS service back to a known-good task definition (to prevent the same malicious task from restarting), and restricting outbound DNS at the security group level. Option B is wrong — customers cannot access Fargate host instances. Option C is wrong — GuardDuty Runtime Monitoring findings at any severity require customer action; AWS does not auto-stop tasks. Option D would block the entire subnet affecting other tasks, and Fargate tasks do not expose memory for forensic capture via ECS Exec once stopped.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -285,7 +285,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Re-enable S3 Block Public Access at the account level, revert the bucket ACL to private, and revoke the third-party vendor role s3:PutBucketAcl and s3:PutAccountPublicAccessBlock permissions \u2014 then audit all vendor role permissions against the principle of least privilege to identify additional over-permissioned actions"
+        "text": "Re-enable S3 Block Public Access at the account level, revert the bucket ACL to private, and revoke the third-party vendor role s3:PutBucketAcl and s3:PutAccountPublicAccessBlock permissions — then audit all vendor role permissions against the principle of least privilege to identify additional over-permissioned actions"
       },
       {
         "label": "B",
@@ -306,7 +306,7 @@
       "C",
       "D"
     ],
-    "explanation": "The root cause is an over-permissioned vendor IAM role that had s3:PutBucketAcl and s3:PutAccountPublicAccessBlock \u2014 permissions a third-party vendor should never hold. Re-enabling Block Public Access and reverting the ACL treats the symptoms; the fix that addresses root cause is removing those permissions from the vendor role and auditing all vendor permissions for similar over-permissioning. Option B is operationally unnecessary \u2014 ACL changes are fully reversible. Option C is wrong \u2014 this is a genuine finding indicating a real policy change. Option D is wrong \u2014 Object Lock prevents object deletions/overwrites but does not govern bucket ACL or account-level public access settings.",
+    "explanation": "The root cause is an over-permissioned vendor IAM role that had s3:PutBucketAcl and s3:PutAccountPublicAccessBlock — permissions a third-party vendor should never hold. Re-enabling Block Public Access and reverting the ACL treats the symptoms; the fix that addresses root cause is removing those permissions from the vendor role and auditing all vendor permissions for similar over-permissioning. Option B is operationally unnecessary — ACL changes are fully reversible. Option C is wrong — this is a genuine finding indicating a real policy change. Option D is wrong — Object Lock prevents object deletions/overwrites but does not govern bucket ACL or account-level public access settings.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -336,7 +336,7 @@
       },
       {
         "label": "B",
-        "text": "An attacker with IAM console access will weaken the account password policy \u2014 reducing minimum length and removing complexity requirements \u2014 to make future brute-force or credential stuffing attacks against other IAM users easier and to maintain persistence without requiring malware."
+        "text": "An attacker with IAM console access will weaken the account password policy — reducing minimum length and removing complexity requirements — to make future brute-force or credential stuffing attacks against other IAM users easier and to maintain persistence without requiring malware."
       },
       {
         "label": "C",
@@ -353,7 +353,7 @@
       "C",
       "D"
     ],
-    "explanation": "The Stealth:IAMUser/PasswordPolicyChange finding is significant because attackers who gain account access often deliberately weaken the password policy as a stealth persistence technique \u2014 making future password-based attacks easier while avoiding more obvious indicators like creating new users or roles. In a VPN credential compromise scenario, the attacker used stolen VPN credentials to gain console access, then weakened the password policy to facilitate further lateral movement. Option B mischaracterizes the finding \u2014 it is not about the API call source. Option C is wrong \u2014 Stealth findings relate to evasion tactics, not necessarily Tor. Option D is wrong \u2014 this is a native GuardDuty finding, not forwarded from AWS Config.",
+    "explanation": "The Stealth:IAMUser/PasswordPolicyChange finding is significant because attackers who gain account access often deliberately weaken the password policy as a stealth persistence technique — making future password-based attacks easier while avoiding more obvious indicators like creating new users or roles. In a VPN credential compromise scenario, the attacker used stolen VPN credentials to gain console access, then weakened the password policy to facilitate further lateral movement. Option B mischaracterizes the finding — it is not about the API call source. Option C is wrong — Stealth findings relate to evasion tactics, not necessarily Tor. Option D is wrong — this is a native GuardDuty finding, not forwarded from AWS Config.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -383,7 +383,7 @@
       },
       {
         "label": "B",
-        "text": "The finding continues to recur \u2014 even a single new occurrence within the 90-day window resets the timer \u2014 so the finding has not gone 90 consecutive days without a matching event, which is why it remains ACTIVE and was not auto-archived"
+        "text": "The finding continues to recur — even a single new occurrence within the 90-day window resets the timer — so the finding has not gone 90 consecutive days without a matching event, which is why it remains ACTIVE and was not auto-archived"
       },
       {
         "label": "C",
@@ -400,7 +400,7 @@
       "C",
       "D"
     ],
-    "explanation": "GuardDuty auto-archives findings after 90 days only if the finding has NOT recurred during that window. Each new occurrence matching the same finding pattern resets the 90-day timer, keeping the finding ACTIVE. After 95 days with an ACTIVE finding, the most likely explanation is that the underlying malicious activity continues to occur, refreshing the finding. Option A is wrong \u2014 acknowledgment is not required for auto-archival. Option C is wrong \u2014 auto-archival applies across severity levels. Option D is wrong \u2014 auto-archival is conditioned on no recurrence, not a fixed calendar timer.",
+    "explanation": "GuardDuty auto-archives findings after 90 days only if the finding has NOT recurred during that window. Each new occurrence matching the same finding pattern resets the 90-day timer, keeping the finding ACTIVE. After 95 days with an ACTIVE finding, the most likely explanation is that the underlying malicious activity continues to occur, refreshing the finding. Option A is wrong — acknowledgment is not required for auto-archival. Option C is wrong — auto-archival applies across severity levels. Option D is wrong — auto-archival is conditioned on no recurrence, not a fixed calendar timer.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -428,7 +428,7 @@
       },
       {
         "label": "B",
-        "text": "Configure the Rotate state with a Retry policy using exponential backoff for ThrottlingException, and configure the Verify state with its own Retry policy with jitter \u2014 since Step Functions re-executes only the failed state on retry, the Rotate state will not be re-invoked, preventing duplicate rotation"
+        "text": "Configure the Rotate state with a Retry policy using exponential backoff for ThrottlingException, and configure the Verify state with its own Retry policy with jitter — since Step Functions re-executes only the failed state on retry, the Rotate state will not be re-invoked, preventing duplicate rotation"
       },
       {
         "label": "C",
@@ -445,7 +445,7 @@
       "C",
       "D"
     ],
-    "explanation": "Step Functions Standard Workflows track execution state at the individual state level. When a Retry is configured on the Verify state, only the Verify state is retried \u2014 the Rotate state is not re-executed. Configuring exponential backoff with jitter on the Verify state Retry policy handles intermittent API throttling without risk of duplicate credential rotation. Option B is wrong \u2014 restarting from Detect re-executes the entire workflow including Rotate, risking duplicate rotation. Option C is wrong \u2014 Express Workflows provide at-least-once execution, not exactly-once; Standard Workflows provide exactly-once for state transitions. Option D partially addresses idempotency but restarting from Isolate is unnecessary and re-runs containment steps that already succeeded.",
+    "explanation": "Step Functions Standard Workflows track execution state at the individual state level. When a Retry is configured on the Verify state, only the Verify state is retried — the Rotate state is not re-executed. Configuring exponential backoff with jitter on the Verify state Retry policy handles intermittent API throttling without risk of duplicate credential rotation. Option B is wrong — restarting from Detect re-executes the entire workflow including Rotate, risking duplicate rotation. Option C is wrong — Express Workflows provide at-least-once execution, not exactly-once; Standard Workflows provide exactly-once for state transitions. Option D partially addresses idempotency but restarting from Isolate is unnecessary and re-runs containment steps that already succeeded.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -474,7 +474,7 @@
       },
       {
         "label": "B",
-        "text": "Accessing the Docker socket from within a container grants control over the Docker daemon on the host node, allowing privileged container spawning with host filesystem mounts \u2014 the primary mitigation is to never mount the Docker socket via hostPath volumes, enforced with an OPA Gatekeeper or Kyverno admission controller policy."
+        "text": "Accessing the Docker socket from within a container grants control over the Docker daemon on the host node, allowing privileged container spawning with host filesystem mounts — the primary mitigation is to never mount the Docker socket via hostPath volumes, enforced with an OPA Gatekeeper or Kyverno admission controller policy."
       },
       {
         "label": "C",
@@ -491,7 +491,7 @@
       "C",
       "D"
     ],
-    "explanation": "The Docker socket (/var/run/docker.sock) is the Unix socket that the Docker daemon listens on. A container that can communicate with it effectively has root-level control over the host container runtime \u2014 it can create new containers with --privileged flags and hostPath mounts that expose the host filesystem, enabling full node compromise (container breakout). The mitigation is to prohibit hostPath volume mounts of the Docker socket through admission control policies (OPA/Gatekeeper or Kyverno). Option B conflates network traffic with socket access. Option C is partially correct that Fargate has stronger isolation, but the finding context and mitigation advice applies broadly to EKS. Option D is entirely incorrect \u2014 the Docker socket is the daemon control interface, not a health check mechanism.",
+    "explanation": "The Docker socket (/var/run/docker.sock) is the Unix socket that the Docker daemon listens on. A container that can communicate with it effectively has root-level control over the host container runtime — it can create new containers with --privileged flags and hostPath mounts that expose the host filesystem, enabling full node compromise (container breakout). The mitigation is to prohibit hostPath volume mounts of the Docker socket through admission control policies (OPA/Gatekeeper or Kyverno). Option B conflates network traffic with socket access. Option C is partially correct that Fargate has stronger isolation, but the finding context and mitigation advice applies broadly to EKS. Option D is entirely incorrect — the Docker socket is the daemon control interface, not a health check mechanism.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -517,7 +517,7 @@
     "options": [
       {
         "label": "A",
-        "text": "This is cross-account data exfiltration via snapshot copy: the attacker shares a snapshot to an account they control and accesses the data offline \u2014 preventive control is an SCP denying ec2:ModifySnapshotAttribute unless the target account is in an approved allowlist, combined with GuardDuty Impact:EC2/SnapshotTenancyModification for detection."
+        "text": "This is cross-account data exfiltration via snapshot copy: the attacker shares a snapshot to an account they control and accesses the data offline — preventive control is an SCP denying ec2:ModifySnapshotAttribute unless the target account is in an approved allowlist, combined with GuardDuty Impact:EC2/SnapshotTenancyModification for detection."
       },
       {
         "label": "B",
@@ -538,7 +538,7 @@
       "C",
       "D"
     ],
-    "explanation": "ModifySnapshotAttribute allows sharing an EBS snapshot with any AWS account. An attacker with this permission can share a production volume snapshot to an account they control, copy it to their account, and restore the full volume \u2014 accessing all data without any network connection to the victim account. The GuardDuty finding detects this pattern. The SCP-based preventive control restricts snapshot sharing to approved account IDs. Option B is wrong \u2014 shared snapshots include full data blocks. Option C is wrong \u2014 AWS Backup cross-account copies do not use ModifySnapshotAttribute in the same unsanctioned pattern; this is a genuine signal. Option D is wrong \u2014 re-encrypting a snapshot does not revoke previously granted sharing permissions; those must be explicitly revoked via ModifySnapshotAttribute.",
+    "explanation": "ModifySnapshotAttribute allows sharing an EBS snapshot with any AWS account. An attacker with this permission can share a production volume snapshot to an account they control, copy it to their account, and restore the full volume — accessing all data without any network connection to the victim account. The GuardDuty finding detects this pattern. The SCP-based preventive control restricts snapshot sharing to approved account IDs. Option B is wrong — shared snapshots include full data blocks. Option C is wrong — AWS Backup cross-account copies do not use ModifySnapshotAttribute in the same unsanctioned pattern; this is a genuine signal. Option D is wrong — re-encrypting a snapshot does not revoke previously granted sharing permissions; those must be explicitly revoked via ModifySnapshotAttribute.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",
@@ -564,11 +564,11 @@
     "options": [
       {
         "label": "A",
-        "text": "Use SELECT with COUNT(DISTINCT element_at(additionalEventData, 'sourceCountry')) grouped by userIdentity.arn and DATE(eventTime), with a HAVING clause filtering the count above a threshold \u2014 CloudTrail Lake stores sourceCountry as a map element within additionalEventData for ConsoleLogin events, enabling direct geographic aggregation without external enrichment"
+        "text": "Use SELECT with COUNT(DISTINCT element_at(additionalEventData, 'sourceCountry')) grouped by userIdentity.arn and DATE(eventTime), with a HAVING clause filtering the count above a threshold — CloudTrail Lake stores sourceCountry as a map element within additionalEventData for ConsoleLogin events, enabling direct geographic aggregation without external enrichment"
       },
       {
         "label": "B",
-        "text": "Use SELECT with COUNT(DISTINCT sourceIPAddress) grouped by userIdentity.arn and DATE(eventTime), filter with HAVING COUNT(DISTINCT sourceIPAddress) above a threshold \u2014 then enrich results by joining against a MaxMind GeoIP reference table loaded into Athena, since CloudTrail Lake does not store geographic metadata natively in its event schema"
+        "text": "Use SELECT with COUNT(DISTINCT sourceIPAddress) grouped by userIdentity.arn and DATE(eventTime), filter with HAVING COUNT(DISTINCT sourceIPAddress) above a threshold — then enrich results by joining against a MaxMind GeoIP reference table loaded into Athena, since CloudTrail Lake does not store geographic metadata natively in its event schema"
       },
       {
         "label": "C",
@@ -585,7 +585,7 @@
       "C",
       "D"
     ],
-    "explanation": "CloudTrail Lake stores ConsoleLogin events with geographic metadata including sourceCountry within the additionalEventData map field. The correct SQL uses COUNT(DISTINCT element_at(additionalEventData, 'sourceCountry')) grouped by principal and date, with a HAVING clause to filter principals appearing in more than the threshold number of countries \u2014 directly detecting T1078 impossible travel patterns without external enrichment. Option A describes an Athena plus external GeoIP approach which is a valid alternative but not the most direct CloudTrail Lake native approach. Option C is wrong \u2014 CloudTrail Lake fully supports GROUP BY on nested fields using dot notation and map functions. Option D is wrong \u2014 CloudTrail Lake SQL supports HAVING clauses; the claim about being unable to filter aggregated results is false.",
+    "explanation": "CloudTrail Lake stores ConsoleLogin events with geographic metadata including sourceCountry within the additionalEventData map field. The correct SQL uses COUNT(DISTINCT element_at(additionalEventData, 'sourceCountry')) grouped by principal and date, with a HAVING clause to filter principals appearing in more than the threshold number of countries — directly detecting T1078 impossible travel patterns without external enrichment. Option A describes an Athena plus external GeoIP approach which is a valid alternative but not the most direct CloudTrail Lake native approach. Option C is wrong — CloudTrail Lake fully supports GROUP BY on nested fields using dot notation and map functions. Option D is wrong — CloudTrail Lake SQL supports HAVING clauses; the claim about being unable to filter aggregated results is false.",
     "module_ref": "domain-01",
     "tags": [
       "aws-scs",

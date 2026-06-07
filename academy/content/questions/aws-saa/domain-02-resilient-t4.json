@@ -23,7 +23,7 @@
       },
       {
         "label": "D",
-        "text": "Enable Aurora Fast Failover \u2014 Aurora promotes the replica with the least replication lag."
+        "text": "Deploy RDS Proxy in front of the Aurora cluster — the proxy maintains persistent connection pools and retries failed connections during the failover window, reducing application-visible downtime to under 10 seconds."
       }
     ],
     "correct": "D",
@@ -32,7 +32,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "Aurora Fast Failover typically completes DNS propagation in 30-120 seconds. To get under 10 seconds, use RDS Proxy: the proxy maintains connection pooling and retries automatically during the Aurora failover window \u2014 the application connects to the proxy endpoint (which is stable) and the proxy handles reconnection to the new writer. Aurora Multi-Master was deprecated for MySQL. Aurora Global Database provides cross-region DR but doesn't reduce single-region failover time. RDS read replicas outside Aurora don't benefit from Aurora's fast failover mechanism.",
+    "explanation": "Aurora native failover (without RDS Proxy) completes in 30–120 seconds because the cluster endpoint DNS record must propagate and applications must re-establish connections. RDS Proxy solves this: the application connects to the stable proxy endpoint (which never changes), and the proxy handles connection pooling and automatic reconnection to the new Aurora writer during failover. Application-visible downtime drops to under 10 seconds.\n\nOption A (Aurora Multi-Master): deprecated for Aurora MySQL; was never available for MySQL 8.0-compatible Aurora versions.\nOption B (cross-region read replica + promote): a DR strategy for regional failure, not for reducing single-region failover time — promotion takes minutes.\nOption C (Aurora Global Database): provides cross-region DR and managed failover, but does not reduce intra-region failover time below the 30–120 second window.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "aurora",
@@ -96,7 +96,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Modifying DBInstanceClass in CloudFormation triggers an in-place instance class change with brief downtime \u2014 not a resource replacement. Data is preserved on the existing storage."
+        "text": "Modifying DBInstanceClass in CloudFormation triggers an in-place instance class change with brief downtime — not a resource replacement. Data is preserved on the existing storage."
       },
       {
         "label": "B",
@@ -117,7 +117,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "In CloudFormation, RDS DBInstanceClass is an Update with Some Interruption property \u2014 it resizes the instance in-place with a brief restart, but does NOT destroy and recreate the instance. No data migration is required. Properties that DO cause replacement include DBInstanceIdentifier (when changed), Engine, and MultiAZ (in some cases). DeletionPolicy: Retain protects the RDS instance from being deleted if the stack is deleted, but does not affect update behavior. The correct approach for zero-downtime resizing is to use a Blue/Green deployment or an RDS read replica promotion.",
+    "explanation": "In CloudFormation, RDS DBInstanceClass is an Update with Some Interruption property — it resizes the instance in-place with a brief restart, but does NOT destroy and recreate the instance. No data migration is required. Properties that DO cause replacement include DBInstanceIdentifier (when changed), Engine, and MultiAZ (in some cases). DeletionPolicy: Retain protects the RDS instance from being deleted if the stack is deleted, but does not affect update behavior. The correct approach for zero-downtime resizing is to use a Blue/Green deployment or an RDS read replica promotion.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "cloudformation",
@@ -139,7 +139,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Weighted routing always distributes to all healthy records \u2014 there is no failover within a weighted record set"
+        "text": "Weighted routing always distributes to all healthy records — there is no failover within a weighted record set"
       },
       {
         "label": "B",
@@ -160,7 +160,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "Route 53 only fails over to other records when health checks are associated with the specific routing record. In a latency \u2192 weighted routing chain: if the weighted records under us-east-1 don't have health checks configured, Route 53 will continue to include unhealthy endpoints in the weighted distribution. Health checks must be configured at the weighted record level (not just the latency level) to remove unhealthy endpoints from the rotation. Option D is wrong \u2014 weighted routing DOES skip unhealthy records when health checks are configured. The issue is missing health checks on the weighted tier.",
+    "explanation": "Route 53 only fails over to other records when health checks are associated with the specific routing record. In a latency → weighted routing chain: if the weighted records under us-east-1 don't have health checks configured, Route 53 will continue to include unhealthy endpoints in the weighted distribution. Health checks must be configured at the weighted record level (not just the latency level) to remove unhealthy endpoints from the rotation. Option D is wrong — weighted routing DOES skip unhealthy records when health checks are configured. The issue is missing health checks on the weighted tier.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "route53",
@@ -182,7 +182,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Global tables have automatic conflict resolution \u2014 the older write wins and the data will self-correct"
+        "text": "Global tables have automatic conflict resolution — the older write wins and the data will self-correct"
       },
       {
         "label": "B",
@@ -203,7 +203,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "PITR (Point-in-Time Recovery) allows restoring to any second within the last 35 days. The team restores the DynamoDB table (or uses selective restore for specific items using ExportTableToPointInTime to S3, then import) to a NEW table at a timestamp before the bug ran. They then read the 50,000 correct item values from the restored table and write them back to the live global table. This corrects both regions (global table replication propagates the fixes). Disabling replication is complex and risks more data inconsistency. Streams contain the corrupted events. Global table LWW conflict resolution is based on timestamps \u2014 if corrupted data has a later timestamp, it wins.",
+    "explanation": "PITR (Point-in-Time Recovery) allows restoring to any second within the last 35 days. The team restores the DynamoDB table (or uses selective restore for specific items using ExportTableToPointInTime to S3, then import) to a NEW table at a timestamp before the bug ran. They then read the 50,000 correct item values from the restored table and write them back to the live global table. This corrects both regions (global table replication propagates the fixes). Disabling replication is complex and risks more data inconsistency. Streams contain the corrupted events. Global table LWW conflict resolution is based on timestamps — if corrupted data has a later timestamp, it wins.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "dynamodb",
@@ -245,7 +245,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "`kubectl rollout undo deployment/<name>` instantly rolls back to the previous ReplicaSet (which Kubernetes maintains by default, keeping the last 10 revisions). The rollback completes in seconds as Kubernetes shifts traffic from the new pods to the old ReplicaSet's pods. This is the purpose-built Kubernetes rollback mechanism. Re-applying YAML from source control requires locating the previous version and reapplying \u2014 slower. Scaling manually is error-prone. Deleting/recreating node groups is a cluster-level operation that would cause much longer downtime and is completely unrelated to application rollback.",
+    "explanation": "`kubectl rollout undo deployment/<name>` instantly rolls back to the previous ReplicaSet (which Kubernetes maintains by default, keeping the last 10 revisions). The rollback completes in seconds as Kubernetes shifts traffic from the new pods to the old ReplicaSet's pods. This is the purpose-built Kubernetes rollback mechanism. Re-applying YAML from source control requires locating the previous version and reapplying — slower. Scaling manually is error-prone. Deleting/recreating node groups is a cluster-level operation that would cause much longer downtime and is completely unrelated to application rollback.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "eks",
@@ -288,7 +288,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "DeletionPolicy: Retain instructs CloudFormation to keep the underlying resource when the stack is deleted. The stack itself (the CloudFormation logical resource tracking) is removed from the CloudFormation console, but all physical resources (EC2 instances, RDS databases, S3 buckets, etc.) continue to run and are not affected. The resources become 'orphaned' \u2014 running but no longer managed by any CloudFormation stack. This is intentional for protecting stateful resources (databases, S3 buckets with data) from accidental deletion. The deletion is NOT blocked \u2014 it proceeds immediately.",
+    "explanation": "DeletionPolicy: Retain instructs CloudFormation to keep the underlying resource when the stack is deleted. The stack itself (the CloudFormation logical resource tracking) is removed from the CloudFormation console, but all physical resources (EC2 instances, RDS databases, S3 buckets, etc.) continue to run and are not affected. The resources become 'orphaned' — running but no longer managed by any CloudFormation stack. This is intentional for protecting stateful resources (databases, S3 buckets with data) from accidental deletion. The deletion is NOT blocked — it proceeds immediately.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "cloudformation",
@@ -309,19 +309,19 @@
     "options": [
       {
         "label": "A",
-        "text": "Yes \u2014 adding a read replica distributes write traffic across multiple nodes"
+        "text": "Yes — adding a read replica distributes write traffic across multiple nodes"
       },
       {
         "label": "B",
-        "text": "No \u2014 Aurora read replicas cannot accept writes; the correct approach is to enable Aurora Multi-Master (if MySQL version supports it) or shard the."
+        "text": "No — Aurora read replicas cannot accept writes; the correct approach is to enable Aurora Multi-Master (if MySQL version supports it) or shard the."
       },
       {
         "label": "C",
-        "text": "No \u2014 Aurora read replicas cannot accept writes; to scale writes, scale up the writer instance to a larger instance type or enable Aurora Parallel Query"
+        "text": "No — Aurora read replicas cannot accept writes; to scale writes, scale up the writer instance to a larger instance type or enable Aurora Parallel Query"
       },
       {
         "label": "D",
-        "text": "Yes \u2014 enabling the Aurora writer endpoint load balancing routes writes to the least-loaded replica"
+        "text": "Yes — enabling the Aurora writer endpoint load balancing routes writes to the least-loaded replica"
       }
     ],
     "correct": "B",
@@ -330,7 +330,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Aurora read replicas ONLY handle read traffic \u2014 they cannot accept writes. This is a common misconception. Aurora MySQL Multi-Master was an option for multiple write nodes but is deprecated for new clusters. The architecturally correct answers for write scaling are: (1) Vertical scaling (larger writer instance); (2) Application-level sharding (split the data across multiple Aurora clusters); (3) Rethinking the write pattern (batching, async writes). Aurora Parallel Query improves analytical read query performance, not write throughput. There is no write load balancing across replicas in Aurora MySQL.",
+    "explanation": "Aurora read replicas ONLY handle read traffic — they cannot accept writes. This is a common misconception. Aurora MySQL Multi-Master was an option for multiple write nodes but is deprecated for new clusters. The architecturally correct answers for write scaling are: (1) Vertical scaling (larger writer instance); (2) Application-level sharding (split the data across multiple Aurora clusters); (3) Rethinking the write pattern (batching, async writes). Aurora Parallel Query improves analytical read query performance, not write throughput. There is no write load balancing across replicas in Aurora MySQL.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "aurora",
@@ -351,7 +351,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Use the traffic splitting deployment policy \u2014 send a configurable percentage (e.g., 5%) of traffic"
+        "text": "Use the traffic splitting deployment policy — send a configurable percentage (e.g., 5%) of traffic"
       },
       {
         "label": "B",
@@ -414,7 +414,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Exponential backoff with jitter is the AWS-recommended pattern for handling transient failures: retry after 1s, 2s, 4s (+ random jitter to prevent thundering herd). For requests that still fail after retries, pushing to SQS for later processing provides durability \u2014 the transaction is not lost and will be retried when the payment API recovers. Waiting 15 minutes in Lambda is wasteful and exceeds the timeout for synchronous user-facing transactions. FIFO serialization prevents duplicate processing but doesn't handle the 503 transient failure. Caching payment API responses is inappropriate \u2014 payment APIs are stateful/transactional and cannot be served from cache.",
+    "explanation": "Exponential backoff with jitter is the AWS-recommended pattern for handling transient failures: retry after 1s, 2s, 4s (+ random jitter to prevent thundering herd). For requests that still fail after retries, pushing to SQS for later processing provides durability — the transaction is not lost and will be retried when the payment API recovers. Waiting 15 minutes in Lambda is wasteful and exceeds the timeout for synchronous user-facing transactions. FIFO serialization prevents duplicate processing but doesn't handle the 503 transient failure. Caching payment API responses is inappropriate — payment APIs are stateful/transactional and cannot be served from cache.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "resilience",
@@ -440,7 +440,7 @@
       },
       {
         "label": "B",
-        "text": "Enable EC2 instance recovery in CloudWatch \u2014 it recovers the instance on the same host with the same EBS volume"
+        "text": "Enable EC2 instance recovery in CloudWatch — it recovers the instance on the same host with the same EBS volume"
       },
       {
         "label": "C",
@@ -457,7 +457,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "Externalizing state is the correct HA pattern but the question asks for LEAST code modification. However, option D (EC2 recovery) only recovers from hardware failures (not AZ failures) on the same hardware \u2014 this doesn't achieve near-zero RPO if the storage fails. Option C is the architecturally correct answer even though it requires code changes for session externalization and file path changes. The question's correct answer is C \u2014 the RPO near zero requires no local state (EFS is multi-AZ shared storage, ElastiCache Redis Multi-AZ keeps session data). All other options have significant RPO or RTO gaps.",
+    "explanation": "Near-zero RPO requires that no state is stored only on the failed instance. The correct solution is option D: externalize session state to ElastiCache Redis (Multi-AZ, in-memory, sub-millisecond reads) and move files to EFS (Multi-AZ shared filesystem), then run the application in an Auto Scaling group with multiple instances. If any instance fails, ASG launches a replacement that reconnects to the same ElastiCache and EFS — no data is lost, achieving RPO ≈ 0.\n\nOption A (ASG + EBS snapshot restore): snapshots are periodic — RPO is the time since the last snapshot (minutes to hours), not near-zero.\nOption B (EC2 instance recovery): recovers from underlying hardware failures on the same physical host with the same EBS volume, but does not protect against EBS volume failure or AZ failure, and in-memory session state is still lost.\nOption C (AWS Backup every 5 minutes): achieves 5-minute RPO, not near-zero, and requires manual restore on failure. Option D requires code changes to externalize state, but it is the only option that genuinely achieves near-zero RPO.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "ec2",
@@ -483,7 +483,7 @@
       },
       {
         "label": "B",
-        "text": "Decouple Function A from Function B using SQS \u2014 Function A enqueues requests."
+        "text": "Decouple Function A from Function B using SQS — Function A enqueues requests."
       },
       {
         "label": "C",
@@ -500,7 +500,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Synchronous Lambda-to-Lambda calls create tight coupling and propagate failures (a throttled Function B fails Function A and ultimately the end user). The correct pattern is asynchronous decoupling via SQS: Function A enqueues the work and returns immediately (202 Accepted with a request ID); Function B processes from the queue at its own pace. This prevents cascading failures \u2014 queue depth builds up but no requests are lost. Provisioned Concurrency helps with cold starts but doesn't solve the concurrency limit problem (a fixed number of pre-initialized instances). Retries worsen thundering herd when Function B is throttled. Unlimited concurrency could overwhelm downstream dependencies.",
+    "explanation": "Synchronous Lambda-to-Lambda calls create tight coupling and propagate failures (a throttled Function B fails Function A and ultimately the end user). The correct pattern is asynchronous decoupling via SQS: Function A enqueues the work and returns immediately (202 Accepted with a request ID); Function B processes from the queue at its own pace. This prevents cascading failures — queue depth builds up but no requests are lost. Provisioned Concurrency helps with cold starts but doesn't solve the concurrency limit problem (a fixed number of pre-initialized instances). Retries worsen thundering herd when Function B is throttled. Unlimited concurrency could overwhelm downstream dependencies.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "lambda",
@@ -522,11 +522,11 @@
     "options": [
       {
         "label": "A",
-        "text": "No risk \u2014 ALBs are fully managed with 99.99% availability; no mitigation needed"
+        "text": "No risk — ALBs are fully managed with 99.99% availability; no mitigation needed"
       },
       {
         "label": "B",
-        "text": "A single ALB is a correlated failure point \u2014 if the ALB fails."
+        "text": "A single ALB is a correlated failure point — if the ALB fails."
       },
       {
         "label": "C",
@@ -543,7 +543,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "While AWS ALBs are highly available, a single ALB is a shared infrastructure component \u2014 any configuration errors, deployments, or rare AWS-side issues affect all services. For a service with 99.99% availability requirements, a dedicated ALB provides independent failure isolation: the payment service ALB can have its own security policies, WAF rules, and is not affected by changes to other services' ALB configurations. Cross-zone load balancing prevents AZ imbalance but doesn't isolate failure domains. NLBs have higher throughput but are not inherently more available than ALBs for this purpose.",
+    "explanation": "While AWS ALBs are highly available, a single ALB is a shared infrastructure component — any configuration errors, deployments, or rare AWS-side issues affect all services. For a service with 99.99% availability requirements, a dedicated ALB provides independent failure isolation: the payment service ALB can have its own security policies, WAF rules, and is not affected by changes to other services' ALB configurations. Cross-zone load balancing prevents AZ imbalance but doesn't isolate failure domains. NLBs have higher throughput but are not inherently more available than ALBs for this purpose.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "alb",
@@ -564,7 +564,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Use Step Functions Callback pattern with a taskToken \u2014 pause the workflow until the external API calls"
+        "text": "Use Step Functions Callback pattern with a taskToken — pause the workflow until the external API calls"
       },
       {
         "label": "B",
@@ -585,7 +585,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "The Step Functions Callback (Wait for Task Token) pattern: the workflow sends a request to the external API including a unique taskToken; the workflow PAUSES (no state transitions while waiting \u2014 zero polling cost); when the external API completes, it calls SendTaskSuccess/SendTaskFailure with the taskToken, resuming the workflow. This eliminates all intermediate state transitions. Increasing wait duration reduces but doesn't eliminate polling cost. Lambda polling still costs money for the polling compute. EventBridge Scheduler-triggered checks still incur state transitions for each check.",
+    "explanation": "The Step Functions Callback (Wait for Task Token) pattern: the workflow sends a request to the external API including a unique taskToken; the workflow PAUSES (no state transitions while waiting — zero polling cost); when the external API completes, it calls SendTaskSuccess/SendTaskFailure with the taskToken, resuming the workflow. This eliminates all intermediate state transitions. Increasing wait duration reduces but doesn't eliminate polling cost. Lambda polling still costs money for the polling compute. EventBridge Scheduler-triggered checks still incur state transitions for each check.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "step-functions",
@@ -607,7 +607,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Use RDS Blue/Green Deployments \u2014 create a staging environment (Green) from the production (Blue) database, apply the schema change to Green,"
+        "text": "Use RDS Blue/Green Deployments — create a staging environment (Green) from the production (Blue) database, apply the schema change to Green,"
       },
       {
         "label": "B",
@@ -628,7 +628,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "RDS Blue/Green Deployments create a synchronized staging environment (Green) that replicates from the production (Blue). Schema changes are applied to Green; after verification, a switchover (typically <1 minute) redirects traffic to Green. If issues arise, switching back to Blue (the original production) is a <1-minute operation. The Blue environment is maintained post-switchover for rollback. Read replica promotion requires asynchronous replication and doesn't support fast rollback. Snapshot restore takes 20-60 minutes \u2014 not <1 minute. DMS introduces complex migration pipelines.",
+    "explanation": "RDS Blue/Green Deployments create a synchronized staging environment (Green) that replicates from the production (Blue). Schema changes are applied to Green; after verification, a switchover (typically <1 minute) redirects traffic to Green. If issues arise, switching back to Blue (the original production) is a <1-minute operation. The Blue environment is maintained post-switchover for rollback. Read replica promotion requires asynchronous replication and doesn't support fast rollback. Snapshot restore takes 20-60 minutes — not <1 minute. DMS introduces complex migration pipelines.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "rds",
@@ -654,15 +654,15 @@
       },
       {
         "label": "B",
-        "text": "CodeDeployDefault.LambdaAllAtOnce \u2014 deploy to all traffic immediately"
+        "text": "CodeDeployDefault.LambdaAllAtOnce — deploy to all traffic immediately"
       },
       {
         "label": "C",
-        "text": "CodeDeployDefault.LambdaCanary10Percent5Minutes \u2014 shift 10% traffic, wait 5 minutes, then 100%"
+        "text": "CodeDeployDefault.LambdaCanary10Percent5Minutes — shift 10% traffic, wait 5 minutes, then 100%"
       },
       {
         "label": "D",
-        "text": "CodeDeployDefault.LambdaLinear10PercentEvery1Minute \u2014 gradually shift traffic over 10 minutes"
+        "text": "CodeDeployDefault.LambdaLinear10PercentEvery1Minute — gradually shift traffic over 10 minutes"
       }
     ],
     "correct": "A",
@@ -671,7 +671,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "The question asks about ROLLBACK speed, not deployment speed. All CodeDeploy configurations support automatic rollback (CloudWatch alarm or health check failure) that redirects the Lambda alias back to the previous version \u2014 this takes under 30 seconds regardless of deployment config. However, a custom configuration with pre-traffic hooks allows validation BEFORE any production traffic hits the new version, catching issues earlier. The key insight: CodeDeploy rollback for Lambda (alias pointer update) is near-instant regardless of configuration. The real differentiator for rollback protection is the monitoring alarm configuration and hook-based validation.",
+    "explanation": "The question asks about ROLLBACK speed, not deployment speed. All CodeDeploy configurations support automatic rollback (CloudWatch alarm or health check failure) that redirects the Lambda alias back to the previous version — this takes under 30 seconds regardless of deployment config. However, a custom configuration with pre-traffic hooks allows validation BEFORE any production traffic hits the new version, catching issues earlier. The key insight: CodeDeploy rollback for Lambda (alias pointer update) is near-instant regardless of configuration. The real differentiator for rollback protection is the monitoring alarm configuration and hook-based validation.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "lambda",
@@ -701,7 +701,7 @@
       },
       {
         "label": "C",
-        "text": "DynamoDB uses Last Writer Wins (LWW) based on the item's timestamp attribute \u2014 the write with the most recent timestamp is preserved in all replicas"
+        "text": "DynamoDB uses Last Writer Wins (LWW) based on the item's timestamp attribute — the write with the most recent timestamp is preserved in all replicas"
       },
       {
         "label": "D",
@@ -735,7 +735,7 @@
     "options": [
       {
         "label": "A",
-        "text": "StackSet failure tolerance is controlled by MaxConcurrentCount/MaxConcurrentPercentage and FailureToleranceCount/FailureTolerancePercentage \u2014 with default settings, failures stop further"
+        "text": "StackSet failure tolerance is controlled by MaxConcurrentCount/MaxConcurrentPercentage and FailureToleranceCount/FailureTolerancePercentage — with default settings, failures stop further"
       },
       {
         "label": "B",
@@ -756,7 +756,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "CloudFormation StackSets deployment behavior: FailureToleranceCount/Percentage determines how many account failures are acceptable before the StackSet operation stops. With default tolerance=0, even 1 failure stops further deployment (remaining queued accounts don't deploy) but already-deployed accounts remain deployed (no rollback). The 47 successful accounts keep their stack instances. The 3 failed accounts have failed stack instances that can be retried. MaxConcurrentCount/Percentage controls how many accounts are processed in parallel. This is important for large-scale deployments \u2014 understanding that StackSets don't roll back successful deployments on failure.",
+    "explanation": "CloudFormation StackSets deployment behavior: FailureToleranceCount/Percentage determines how many account failures are acceptable before the StackSet operation stops. With default tolerance=0, even 1 failure stops further deployment (remaining queued accounts don't deploy) but already-deployed accounts remain deployed (no rollback). The 47 successful accounts keep their stack instances. The 3 failed accounts have failed stack instances that can be retried. MaxConcurrentCount/Percentage controls how many accounts are processed in parallel. This is important for large-scale deployments — understanding that StackSets don't roll back successful deployments on failure.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "cloudformation",
@@ -773,7 +773,7 @@
     "difficulty": "above",
     "test_number": 4,
     "active": true,
-    "stem": "A company uses SQS for order processing. The consumer is a fleet of EC2 instances that scale based on queue depth. During a deployment, the new consumer version has a bug and all messages are being processed incorrectly (but not failing \u2014 the consumer reports success). The original messages are deleted from SQS. After 10 minutes, the team discovers the bug. How can the company recover the lost messages?",
+    "stem": "A company uses SQS for order processing. The consumer is a fleet of EC2 instances that scale based on queue depth. During a deployment, the new consumer version has a bug and all messages are being processed incorrectly (but not failing — the consumer reports success). The original messages are deleted from SQS. After 10 minutes, the team discovers the bug. How can the company recover the lost messages?",
     "options": [
       {
         "label": "A",
@@ -798,7 +798,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "SQS messages that are explicitly deleted by the consumer are permanently removed \u2014 there is no SQS backup or recovery mechanism for acknowledged messages. This is a fundamental SQS design principle: once deleted, messages are gone. Recovery requires reprocessing from the upstream source (e.g., re-reading from S3, re-sending from the originating application, replaying from Kinesis if the data was also streamed there). This highlights the importance of idempotent processing and maintaining source records. DLQ replay only works for messages that are in the DLQ \u2014 messages successfully (incorrectly) processed are gone.",
+    "explanation": "SQS messages that are explicitly deleted by the consumer are permanently removed — there is no SQS backup or recovery mechanism for acknowledged messages. This is a fundamental SQS design principle: once deleted, messages are gone. Recovery requires reprocessing from the upstream source (e.g., re-reading from S3, re-sending from the originating application, replaying from Kinesis if the data was also streamed there). This highlights the importance of idempotent processing and maintaining source records. DLQ replay only works for messages that are in the DLQ — messages successfully (incorrectly) processed are gone.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "sqs",
@@ -840,7 +840,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "The reader endpoint round-robins across all available replicas \u2014 if OLTP reads also use the reader endpoint, analytics queries on a shared replica still cause contention for OLTP read traffic. The correct isolation: a dedicated read replica for analytics only (not included in the reader endpoint DNS pool), while OLTP reads use the writer/reader endpoint. This provides complete resource isolation. Aurora Parallel Query improves full-table-scan performance but doesn't eliminate locking contention. Option B is partially correct but shares the reader endpoint \u2014 if analytics saturates one replica, OLTP reads on the same replica degrade.",
+    "explanation": "The reader endpoint round-robins across all available replicas — if OLTP reads also use the reader endpoint, analytics queries on a shared replica still cause contention for OLTP read traffic. The correct isolation: a dedicated read replica for analytics only (not included in the reader endpoint DNS pool), while OLTP reads use the writer/reader endpoint. This provides complete resource isolation. Aurora Parallel Query improves full-table-scan performance but doesn't eliminate locking contention. Option B is partially correct but shares the reader endpoint — if analytics saturates one replica, OLTP reads on the same replica degrade.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "aurora",
@@ -862,19 +862,19 @@
     "options": [
       {
         "label": "A",
-        "text": "5 minutes \u2014 RDS automated backups run every 5 minutes"
+        "text": "5 minutes — RDS automated backups run every 5 minutes"
       },
       {
         "label": "B",
-        "text": "0 minutes \u2014 Aurora stores data in S3 which is region-wide, not AZ-specific"
+        "text": "0 minutes — Aurora stores data in S3 which is region-wide, not AZ-specific"
       },
       {
         "label": "C",
-        "text": "Up to 24 hours \u2014 Aurora PITR data is region-local; without a cross-region replica, the RPO equals all data since the last manual cross-region snapshot"
+        "text": "Up to 24 hours — Aurora PITR data is region-local; without a cross-region replica, the RPO equals all data since the last manual cross-region snapshot"
       },
       {
         "label": "D",
-        "text": "1 hour \u2014 RDS transaction logs are synced to S3 every hour"
+        "text": "1 hour — RDS transaction logs are synced to S3 every hour"
       }
     ],
     "correct": "C",
@@ -883,7 +883,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "This is a critical AWS architecture trap: Aurora's automated backups and PITR data are stored in S3 within the same region (us-east-1). If the entire region is unavailable, BOTH the database AND its PITR backup data are inaccessible. The actual RPO is the age of the last backup that was cross-region replicated (none, in this scenario). Aurora's data is stored across multiple AZs in S3, but this is within the same region \u2014 a full region failure makes it all inaccessible. The correct DR setup for 5-minute RPO would require Aurora Global Database or cross-region automated backup copy.",
+    "explanation": "This is a critical AWS architecture trap: Aurora's automated backups and PITR data are stored in S3 within the same region (us-east-1). If the entire region is unavailable, BOTH the database AND its PITR backup data are inaccessible. The actual RPO is the age of the last backup that was cross-region replicated (none, in this scenario). Aurora's data is stored across multiple AZs in S3, but this is within the same region — a full region failure makes it all inaccessible. The correct DR setup for 5-minute RPO would require Aurora Global Database or cross-region automated backup copy.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "aurora",
@@ -917,7 +917,7 @@
       },
       {
         "label": "D",
-        "text": "Configure AWS Backup Vault Lock in Compliance mode \u2014 once locked."
+        "text": "Configure AWS Backup Vault Lock in Compliance mode — once locked."
       }
     ],
     "correct": "D",
@@ -926,7 +926,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "AWS Backup Vault Lock in Compliance mode is the most powerful protection: once a vault is locked in Compliance mode (after a 72-hour grace period), NO user \u2014 including the root account, AWS Support, or any IAM principal \u2014 can delete backups before the minimum retention period. The lock cannot be removed. This provides immutable backups for compliance (WORM \u2014 Write Once Read Many). S3 versioning is not applicable (Backup uses its own storage). SCPs can be bypassed by the management account. MFA delete exists for S3, not AWS Backup recovery points.",
+    "explanation": "AWS Backup Vault Lock in Compliance mode is the most powerful protection: once a vault is locked in Compliance mode (after a 72-hour grace period), NO user — including the root account, AWS Support, or any IAM principal — can delete backups before the minimum retention period. The lock cannot be removed. This provides immutable backups for compliance (WORM — Write Once Read Many). S3 versioning is not applicable (Backup uses its own storage). SCPs can be bypassed by the management account. MFA delete exists for S3, not AWS Backup recovery points.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "aws-backup",

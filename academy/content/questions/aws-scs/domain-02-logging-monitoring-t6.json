@@ -114,7 +114,7 @@
       "B",
       "D"
     ],
-    "explanation": "The CloudWatch Embedded Metrics Format (EMF) lets you embed metric directives inside JSON log lines. The CloudWatch Logs service automatically extracts and publishes the metrics without requiring any separate metric filter configuration. EMF supports custom dimensions and high-resolution one-second metrics. Option A requires a manually created metric filter. Option C works but bypasses logs entirely and does not reduce setup complexity. Option D captures predefined Lambda performance metrics, not arbitrary application metrics.",
+    "explanation": "The CloudWatch Embedded Metrics Format (EMF) lets you embed metric directives directly inside structured JSON log output. The CloudWatch Logs service automatically extracts and publishes the metrics — no separate metric filter configuration is required. EMF supports custom dimensions and one-second high-resolution metrics.\n\nOption A (Lambda Insights): captures predefined Lambda performance metrics (memory usage, CPU time, init duration, invoke count) via the Lambda Insights extension layer — not arbitrary application-defined metrics with custom dimensions. Does not eliminate the need for additional metric filter setup for custom application metrics.\nOption B (PutMetricData API): publishes custom metrics directly to CloudWatch Metrics without going through CloudWatch Logs. Valid but adds an additional API call per metric emission and creates no associated log record — losing the correlation between metrics and log context.\nOption D (CloudWatch Logs metric filter): requires a separate filter pattern configuration step on the log group — exactly what the question says should be avoided. Metric filters cannot emit high-resolution one-second metrics.",
     "module_ref": "domain-02",
     "tags": [
       "aws-scs",
@@ -401,7 +401,7 @@
       "C",
       "D"
     ],
-    "explanation": "AWS-managed GuardDuty threat intelligence feeds are updated continuously in near-real-time as new threat indicators are identified. Custom ThreatIntelSets are static S3 files that GuardDuty reads when first activated and on subsequent UpdateThreatIntelSet API calls \u2014 they do not auto-refresh. The security team must re-upload or call UpdateThreatIntelSet to incorporate new indicators. Options A, B, and D all mischaracterize the update cadence of one or both feed types.",
+    "explanation": "AWS-managed GuardDuty threat intelligence feeds are updated continuously in near-real-time as new threat indicators are identified. Custom ThreatIntelSets are static S3 files that GuardDuty reads when first activated and on subsequent UpdateThreatIntelSet API calls — they do not auto-refresh. The security team must re-upload or call UpdateThreatIntelSet to incorporate new indicators. Options A, B, and D all mischaracterize the update cadence of one or both feed types.",
     "module_ref": "domain-02",
     "tags": [
       "aws-scs",
@@ -565,7 +565,7 @@
       "C",
       "D"
     ],
-    "explanation": "S3 server access logging is a best-effort service \u2014 AWS does not guarantee that every request will be logged or that logs will be delivered within a specific time window. For compliance requirements demanding a complete audit trail, CloudTrail S3 data events are the correct choice because they provide guaranteed durable delivery of every authenticated API call. Option B partially describes a difference but overstates CloudTrail gaps regarding presigned URLs. Option C is false because server access logging does not guarantee completeness. Option D is incorrect; CloudTrail data events are specifically designed to capture object-level S3 operations.",
+    "explanation": "S3 server access logging is a best-effort service — AWS does not guarantee that every request will be logged or that logs will be delivered within a specific time window. For compliance requirements demanding a complete audit trail, CloudTrail S3 data events are the correct choice because they provide guaranteed durable delivery of every authenticated API call. Option B partially describes a difference but overstates CloudTrail gaps regarding presigned URLs. Option C is false because server access logging does not guarantee completeness. Option D is incorrect; CloudTrail data events are specifically designed to capture object-level S3 operations.",
     "module_ref": "domain-02",
     "tags": [
       "aws-scs",

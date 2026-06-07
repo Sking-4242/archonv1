@@ -76,7 +76,7 @@
       "C",
       "D"
     ],
-    "explanation": "Within the same AWS Region, a security group in one VPC can be referenced as the source in another VPC's security group rule when those VPCs are connected via VPC peering. This is more precise than CIDR-based rules because it scopes access to the specific security group rather than the entire VPC CIDR. Option A is incorrect \u2014 same-region cross-VPC SG references are supported. Option B is incorrect because cross-VPC SG referencing is only supported for same-region peering, not inter-region. Option D mischaracterizes security group capabilities across peering.",
+    "explanation": "Within the same AWS Region, a security group in one VPC can be referenced as the source/destination in another VPC's security group rule when those VPCs are connected via VPC peering. Referencing the application security group ID directly is more precise than a CIDR rule — it scopes access to only instances in that specific security group, not to any instance in the entire VPC CIDR.\n\nOption B is wrong — cross-VPC security group referencing is only supported for same-region peering. Inter-region VPC peering does NOT support cross-VPC security group references; those connections require CIDR-based rules.\nOption C is wrong — cross-VPC security group referencing IS supported for same-region peering, making CIDR-based rules less precise and less secure.\nOption D is wrong — security groups CAN filter traffic that crosses a VPC peering connection. NACLs provide a secondary control layer but security groups are the primary and sufficient mechanism here.",
     "module_ref": "domain-03",
     "tags": [
       "aws-scs",
@@ -119,7 +119,7 @@
       "B",
       "C"
     ],
-    "explanation": "AWS Network Firewall alert logs are generated when traffic matches a stateful rule with an alert or drop action, and they include rule match details such as signature metadata, source and destination IP and port, and the action taken \u2014 making them the correct source for forensic investigation of blocked traffic. Flow logs record connection-level metadata for all traffic but do not include matched rule details or payload signatures. Option C is partially correct but alert logs are the specific answer for blocked traffic with rule match context. Option D incorrectly states DROP actions do not generate alert logs.",
+    "explanation": "AWS Network Firewall alert logs are generated when traffic matches a stateful rule with an alert or drop action, and they include rule match details such as signature metadata, source and destination IP and port, and the action taken — making them the correct source for forensic investigation of blocked traffic. Flow logs record connection-level metadata for all traffic but do not include matched rule details or payload signatures. Option C is partially correct but alert logs are the specific answer for blocked traffic with rule match context. Option D incorrectly states DROP actions do not generate alert logs.",
     "module_ref": "domain-03",
     "tags": [
       "aws-scs",
@@ -146,7 +146,7 @@
       },
       {
         "label": "B",
-        "text": "Create two Transit Gateway route tables \u2014 one for production attachments and one for development attachments \u2014 and propagate routes only within each respective table."
+        "text": "Create two Transit Gateway route tables — one for production attachments and one for development attachments — and propagate routes only within each respective table."
       },
       {
         "label": "C",
@@ -182,7 +182,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "An S3 VPC endpoint is deployed in a private subnet to allow EC2 instances to access a read-only reference data bucket. Security policy requires that instances can only download objects \u2014 they must not be able to upload, delete, or list bucket contents through this endpoint. Which configuration enforces this constraint most directly?",
+    "stem": "An S3 VPC endpoint is deployed in a private subnet to allow EC2 instances to access a read-only reference data bucket. Security policy requires that instances can only download objects — they must not be able to upload, delete, or list bucket contents through this endpoint. Which configuration enforces this constraint most directly?",
     "options": [
       {
         "label": "A",
@@ -207,7 +207,7 @@
       "C",
       "D"
     ],
-    "explanation": "A VPC endpoint policy acts as a resource-based policy that restricts which API actions can be performed through the endpoint. By specifying only s3:GetObject in the Allow statement, all other S3 actions are implicitly denied for any traffic going through the endpoint, regardless of the IAM identity's permissions. Option A uses a bucket policy which works per-bucket but can be bypassed if the instance reaches S3 via another path. Option C incorrectly states that endpoint policies cannot restrict individual API operations \u2014 they can. Option D is incorrect \u2014 endpoint policies are enforced, not informational.",
+    "explanation": "A VPC endpoint policy acts as a resource-based policy that restricts which API actions can be performed through the endpoint. By specifying only s3:GetObject in the Allow statement, all other S3 actions are implicitly denied for any traffic going through the endpoint, regardless of the IAM identity's permissions. Option A uses a bucket policy which works per-bucket but can be bypassed if the instance reaches S3 via another path. Option C incorrectly states that endpoint policies cannot restrict individual API operations — they can. Option D is incorrect — endpoint policies are enforced, not informational.",
     "module_ref": "domain-03",
     "tags": [
       "aws-scs",
@@ -339,7 +339,7 @@
       "B",
       "C"
     ],
-    "explanation": "An SCP using the condition key ec2:MetadataHttpTokens with a StringNotEquals condition set to 'required' on the ec2:RunInstances action prevents any principal in the organization from launching an instance unless IMDSv2 is explicitly required at launch time. This is a preventive control that acts before the instance exists. Option A is a reactive detective control \u2014 it detects and remediates after launch but doesn't prevent a window where IMDSv1 instances are running. Option C is also reactive with a race window between launch and remediation. Option D sets an account default but can be overridden per-instance at launch time and doesn't prevent overrides.",
+    "explanation": "An SCP using the condition key ec2:MetadataHttpTokens with a StringNotEquals condition set to 'required' on the ec2:RunInstances action prevents any principal in the organization from launching an instance unless IMDSv2 is explicitly required at launch time. This is a preventive control that acts before the instance exists. Option A is a reactive detective control — it detects and remediates after launch but doesn't prevent a window where IMDSv1 instances are running. Option C is also reactive with a race window between launch and remediation. Option D sets an account default but can be overridden per-instance at launch time and doesn't prevent overrides.",
     "module_ref": "domain-03",
     "tags": [
       "aws-scs",
@@ -427,7 +427,7 @@
       "B",
       "D"
     ],
-    "explanation": "NAT Gateway is a fully managed AWS service and does not support security group attachment \u2014 its only network-layer control mechanism is the NACL on the subnet where it resides, and NACLs are stateless. A NAT Instance is an EC2 instance with source/destination check disabled and IP forwarding enabled, so it natively supports security group attachment for stateful port-level filtering of return traffic. Customers needing stateful filtering on NAT must use a NAT Instance or a more capable network appliance. Option A reverses the capabilities of the two options. Option B incorrectly claims NAT Gateway supports security groups. Option D is incorrect about NAT Instance.",
+    "explanation": "NAT Gateway is a fully managed AWS service and does not support security group attachment — its only network-layer control mechanism is the NACL on the subnet where it resides, and NACLs are stateless. A NAT Instance is an EC2 instance with source/destination check disabled and IP forwarding enabled, so it natively supports security group attachment for stateful port-level filtering of return traffic. Customers needing stateful filtering on NAT must use a NAT Instance or a more capable network appliance. Option A reverses the capabilities of the two options. Option B incorrectly claims NAT Gateway supports security groups. Option D is incorrect about NAT Instance.",
     "module_ref": "domain-03",
     "tags": [
       "aws-scs",
@@ -534,7 +534,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A security team wants CloudFront to add HTTP security headers \u2014 including Strict-Transport-Security, X-Content-Type-Options, and X-Frame-Options \u2014 to all responses delivered to browsers, without modifying the origin application code. Which CloudFront feature achieves this with the lowest operational overhead?",
+    "stem": "A security team wants CloudFront to add HTTP security headers — including Strict-Transport-Security, X-Content-Type-Options, and X-Frame-Options — to all responses delivered to browsers, without modifying the origin application code. Which CloudFront feature achieves this with the lowest operational overhead?",
     "options": [
       {
         "label": "A",
@@ -603,7 +603,7 @@
       "B",
       "C"
     ],
-    "explanation": "VPC peering is explicitly non-transitive in AWS. Even with VPC-A peered to VPC-B and VPC-B peered to VPC-C, AWS does not route packets from VPC-A across two separate peering connections to reach VPC-C. This is an architectural constraint, not a configuration problem. To connect VPC-A directly to VPC-C, a direct peering connection between them or a Transit Gateway must be used. Option C describes a route table scenario that applies to other architectures but does not overcome the transitive routing limitation \u2014 AWS blocks this at the network level regardless of routing entries. Options A and D describe unrelated constraints.",
+    "explanation": "VPC peering is explicitly non-transitive in AWS. Even with VPC-A peered to VPC-B and VPC-B peered to VPC-C, AWS does not route packets from VPC-A across two separate peering connections to reach VPC-C. This is an architectural constraint, not a configuration problem. To connect VPC-A directly to VPC-C, a direct peering connection between them or a Transit Gateway must be used. Option C describes a route table scenario that applies to other architectures but does not overcome the transitive routing limitation — AWS blocks this at the network level regardless of routing entries. Options A and D describe unrelated constraints.",
     "module_ref": "domain-03",
     "tags": [
       "aws-scs",
@@ -735,7 +735,7 @@
       "B",
       "D"
     ],
-    "explanation": "When an EKS cluster has a private-only endpoint, the API server DNS name resolves to a private IP address within the VPC. For a developer on a corporate network connected via site-to-site VPN to access the endpoint, two things must work: the VPN must route traffic to the VPC CIDR, and DNS must resolve the private endpoint hostname to its VPC-internal IP. Route 53 Resolver inbound endpoints allow the on-premises DNS resolver to forward queries to Route 53 across the VPN for the private hosted zone, enabling proper name resolution. Without DNS resolution, kubectl cannot reach the endpoint even when routing is correct. Option A is overly restrictive \u2014 VPN with DNS works. Option C is incorrect about the port. Option D is incorrect \u2014 VPN connectivity is fully supported.",
+    "explanation": "When an EKS cluster has a private-only endpoint, the API server DNS name resolves to a private IP address within the VPC. For a developer on a corporate network connected via site-to-site VPN to access the endpoint, two things must work: the VPN must route traffic to the VPC CIDR, and DNS must resolve the private endpoint hostname to its VPC-internal IP. Route 53 Resolver inbound endpoints allow the on-premises DNS resolver to forward queries to Route 53 across the VPN for the private hosted zone, enabling proper name resolution. Without DNS resolution, kubectl cannot reach the endpoint even when routing is correct. Option A is overly restrictive — VPN with DNS works. Option C is incorrect about the port. Option D is incorrect — VPN connectivity is fully supported.",
     "module_ref": "domain-03",
     "tags": [
       "aws-scs",
@@ -780,7 +780,7 @@
       "B",
       "C"
     ],
-    "explanation": "When a Secrets Manager rotation Lambda runs inside a VPC private subnet with no internet access (no NAT gateway), it cannot reach the public Secrets Manager API endpoint. The solution is to create an AWS PrivateLink interface VPC endpoint for Secrets Manager, which routes the Lambda's API calls to Secrets Manager through the private AWS network without requiring any internet path. Option A addresses a permissions issue, but the question states IAM permissions are unchanged and the error is a connection timeout, not an authorization error. Option B is incorrect \u2014 Lambda rotation functions can and should run inside a VPC for isolation; removing VPC attachment reduces security. Option D is impractical because Secrets Manager does not publish a fixed IP range suitable for NACL management.",
+    "explanation": "When a Secrets Manager rotation Lambda runs inside a VPC private subnet with no internet access (no NAT gateway), it cannot reach the public Secrets Manager API endpoint. The solution is to create an AWS PrivateLink interface VPC endpoint for Secrets Manager, which routes the Lambda's API calls to Secrets Manager through the private AWS network without requiring any internet path. Option A addresses a permissions issue, but the question states IAM permissions are unchanged and the error is a connection timeout, not an authorization error. Option B is incorrect — Lambda rotation functions can and should run inside a VPC for isolation; removing VPC attachment reduces security. Option D is impractical because Secrets Manager does not publish a fixed IP range suitable for NACL management.",
     "module_ref": "domain-03",
     "tags": [
       "aws-scs",

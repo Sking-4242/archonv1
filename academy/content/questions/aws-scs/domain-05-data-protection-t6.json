@@ -7,7 +7,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A security engineer wants to ensure that a KMS customer managed key used for S3 server-side encryption cannot be called directly by IAM principals or any other AWS service \u2014 only S3 itself may invoke the key. Which key policy condition achieves this restriction?",
+    "stem": "A security engineer wants to ensure that a KMS customer managed key used for S3 server-side encryption cannot be called directly by IAM principals or any other AWS service — only S3 itself may invoke the key. Which key policy condition achieves this restriction?",
     "options": [
       {
         "label": "A",
@@ -32,7 +32,7 @@
       "B",
       "D"
     ],
-    "explanation": "The kms:ViaService condition key restricts KMS API calls to those made on behalf of a specific AWS service. A Deny with kms:ViaService StringNotEquals s3.amazonaws.com will block any caller\u2014including direct IAM calls\u2014that does not route through S3. Option A limits callers by account, not by service. Option C uses aws:SourceService which is not a valid KMS condition key; kms:ViaService is the correct key. Option D scopes access by organization membership, not by which AWS service invokes the key.",
+    "explanation": "The kms:ViaService condition key restricts KMS API calls to those made on behalf of a specific AWS service. A Deny statement with kms:ViaService StringNotEquals s3.amazonaws.com blocks any caller — including direct IAM API calls — that does not route through S3. Only S3 can invoke the key on behalf of principals.\n\nOption A (aws:PrincipalOrgID) restricts by organization membership, not by which AWS service is invoking the key — IAM principals inside or outside the org could still call the key directly.\nOption B (kms:CallerAccount) restricts by AWS account ID, not by service — any principal in the account could still call the key directly.\nOption D (aws:SourceService equal to s3.amazonaws.com in an Allow statement) — aws:SourceService is not a valid KMS condition key. Additionally, an Allow statement without a corresponding Deny does not block direct IAM calls — kms:ViaService in a Deny statement is the correct pattern.",
     "module_ref": "domain-05",
     "tags": [
       "aws-scs",
@@ -120,7 +120,7 @@
       "C",
       "D"
     ],
-    "explanation": "The S3 bucket key feature fetches a single data key from KMS and caches it at the bucket level. S3 uses this bucket-level DEK to generate unique per-object data keys locally, dramatically reducing KMS API calls \u2014 often by 99% for high-throughput workloads. Option C (Intelligent-Tiering) is a storage class feature unrelated to KMS call volume. Option D changes the encryption type entirely, removing customer control of the key. Option B is a misconception; multipart upload still calls KMS for each object regardless of part count.",
+    "explanation": "The S3 bucket key feature fetches a single data key from KMS and caches it at the bucket level. S3 uses this bucket-level DEK to generate unique per-object data keys locally, dramatically reducing KMS API calls — often by 99% for high-throughput workloads. Option C (Intelligent-Tiering) is a storage class feature unrelated to KMS call volume. Option D changes the encryption type entirely, removing customer control of the key. Option B is a misconception; multipart upload still calls KMS for each object regardless of part count.",
     "module_ref": "domain-05",
     "tags": [
       "aws-scs",
@@ -430,7 +430,7 @@
       "B",
       "C"
     ],
-    "explanation": "ACM is designed so that private keys for ACM-managed certificates are never exposed. This is a deliberate security control \u2014 the keys are stored and used only within AWS services and cannot be downloaded or exported. If a certificate needs to be installed on external infrastructure, the operator must generate the key pair themselves, create a CSR, obtain a certificate from an external or private CA, and then import both into ACM. Option C is incorrect; ACM Private CA certificates issued through ACM also cannot have their managed keys exported. Options A and B describe non-existent features.",
+    "explanation": "ACM is designed so that private keys for ACM-managed certificates are never exposed. This is a deliberate security control — the keys are stored and used only within AWS services and cannot be downloaded or exported. If a certificate needs to be installed on external infrastructure, the operator must generate the key pair themselves, create a CSR, obtain a certificate from an external or private CA, and then import both into ACM. Option C is incorrect; ACM Private CA certificates issued through ACM also cannot have their managed keys exported. Options A and B describe non-existent features.",
     "module_ref": "domain-05",
     "tags": [
       "aws-scs",
@@ -606,7 +606,7 @@
       "C",
       "D"
     ],
-    "explanation": "ACM Private CA supports cross-account certificate issuance through two mechanisms: AWS Resource Access Manager (RAM) sharing of the CA resource, and CA resource-based policies. When you share the CA via RAM and grant the acm-pca:IssueCertificate permission via a resource-based policy, principals in the application account can issue certificates directly without needing access to the CA's KMS key \u2014 the key operations happen transparently in the security account. Option B describes importing a CA cert for trust, not for issuance. Option C is a valid fallback but requires managing a cross-account role and is not the designed mechanism for this use case. Option D describes a non-existent console feature.",
+    "explanation": "ACM Private CA supports cross-account certificate issuance through two mechanisms: AWS Resource Access Manager (RAM) sharing of the CA resource, and CA resource-based policies. When you share the CA via RAM and grant the acm-pca:IssueCertificate permission via a resource-based policy, principals in the application account can issue certificates directly without needing access to the CA's KMS key — the key operations happen transparently in the security account. Option B describes importing a CA cert for trust, not for issuance. Option C is a valid fallback but requires managing a cross-account role and is not the designed mechanism for this use case. Option D describes a non-existent console feature.",
     "module_ref": "domain-05",
     "tags": [
       "aws-scs",
@@ -695,7 +695,7 @@
       "B",
       "D"
     ],
-    "explanation": "S3 Batch Operations is designed for exactly this use case: performing operations on millions of S3 objects at scale without custom code. A Batch Operations Copy job copies each object to the same key in the same bucket (a same-bucket copy), allowing you to specify SSE-KMS with a customer managed key. S3 replaces the existing object with the newly encrypted copy. Option A using AWS Config auto-remediation is not designed for bulk object operations and would be extremely slow and costly at this scale. Option B is a common misconception; enabling default encryption only applies to new objects uploaded after the setting is changed \u2014 it does not retroactively encrypt existing objects. Option D works but is operationally inefficient compared to the purpose-built Batch Operations service.",
+    "explanation": "S3 Batch Operations is designed for exactly this use case: performing operations on millions of S3 objects at scale without custom code. A Batch Operations Copy job copies each object to the same key in the same bucket (a same-bucket copy), allowing you to specify SSE-KMS with a customer managed key. S3 replaces the existing object with the newly encrypted copy. Option A using AWS Config auto-remediation is not designed for bulk object operations and would be extremely slow and costly at this scale. Option B is a common misconception; enabling default encryption only applies to new objects uploaded after the setting is changed — it does not retroactively encrypt existing objects. Option D works but is operationally inefficient compared to the purpose-built Batch Operations service.",
     "module_ref": "domain-05",
     "tags": [
       "aws-scs",

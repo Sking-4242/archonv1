@@ -32,7 +32,7 @@
       "C",
       "D"
     ],
-    "explanation": "The immediate priority in a key compromise is containment \u2014 deactivate the key now to stop the bleeding. Rotating (creating a new key first) takes longer and leaves the window of exposure open. CloudTrail analysis follows containment.",
+    "explanation": "The immediate priority in a key compromise is containment — deactivate the key now to stop the bleeding. Rotating (creating a new key first) takes longer and leaves the window of exposure open. CloudTrail analysis follows containment.",
     "module_ref": "scs-m1",
     "tags": [
       "incident-response",
@@ -73,7 +73,7 @@
       "C",
       "D"
     ],
-    "explanation": "GuardDuty does not natively isolate instances. The standard pattern is: GuardDuty finding \u2192 EventBridge rule matches the finding type \u2192 Lambda function updates the instance's security group to a deny-all isolation group.",
+    "explanation": "GuardDuty does not natively isolate instances. The standard pattern is: GuardDuty finding → EventBridge rule matches the finding type → Lambda function updates the instance's security group to a deny-all isolation group.",
     "module_ref": "scs-m1",
     "tags": [
       "guardduty",
@@ -241,7 +241,7 @@
       "C",
       "D"
     ],
-    "explanation": "GuardDuty suppression rules use filter criteria (finding type, resource attributes) to automatically archive matching findings. This is the correct way to handle known-good behavior without disabling entire finding categories or altering the threat model.",
+    "explanation": "GuardDuty suppression rules use filter criteria (finding type, resource attributes such as instance ID) to automatically archive matching findings. This is the correct mechanism for handling known-good behavior from a specific internal resource — it targets the exact combination of resource and finding type, preserves an audit trail of archived findings, and does not affect other GuardDuty detection logic.\n\nOption C (trusted IP list) is designed for external IP addresses that you want to exclude from generating threat findings — for example, a known external partner's IP range. Trusted IP lists affect findings where the listed IPs are the remote source of potentially malicious external traffic. For an internal EC2 instance performing authorized port scans within the VPC, a suppression rule scoped to the instance's resource ID and finding type is the correct and more precise mechanism.\nOption A (delete/re-enable GuardDuty) would reset the baseline model and lose all existing findings — it does not suppress a specific resource.\nOption D (disable the entire Recon finding category) would suppress all port-scan detection across all resources, creating a significant security blind spot.",
     "module_ref": "scs-m1",
     "tags": [
       "guardduty",

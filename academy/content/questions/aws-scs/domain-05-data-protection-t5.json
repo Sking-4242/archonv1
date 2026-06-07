@@ -32,7 +32,7 @@
       "B",
       "C"
     ],
-    "explanation": "KMS grants are designed exactly for temporary, programmatic access delegation without modifying the key policy. A grant can be scoped to specific operations, specific encryption contexts, and includes a retiring principal so the grantee or security team can retire it when done. Modifying the key policy (option B) requires key admin permissions and is a permanent change until manually reverted. Permission boundaries (option C) restrict, not expand, permissions. SCPs (option D) affect the entire account or OU, not a specific key or time window.",
+    "explanation": "KMS grants are designed exactly for temporary, programmatic access delegation without modifying the key policy. A grant can be scoped to specific operations (e.g., kms:Decrypt only), specific encryption contexts, and includes a retiring principal — either the grantee or the key owner — that can retire the grant when the job completes. No key policy changes, no IAM policy changes.\n\nOption A (time condition in key policy) requires key administrator permissions to modify the key policy, and the condition must be manually removed afterward — it is a permanent policy change until explicitly reverted.\nOption B (SCP with date condition) applies a policy at the account or OU level, affecting all principals in the scope — far broader than needed for a single developer's temporary access window.\nOption C (permission boundary) restricts the maximum permissions a role can exercise — it cannot expand permissions beyond what the identity policy allows. A permission boundary cannot grant access that does not already exist in the identity policy.",
     "module_ref": "domain-05",
     "tags": [
       "aws-scs",
@@ -252,7 +252,7 @@
       "C",
       "D"
     ],
-    "explanation": "KMS multi-region keys allow the same key material (identified by the mrk- key ID prefix) to exist in multiple AWS regions. Ciphertext encrypted in us-east-1 can be decrypted directly in eu-west-1 without any re-encryption step, because the underlying key material is identical. Copying a key policy (option A) creates a new key with different key material \u2014 existing ciphertext cannot be decrypted with it. Manual import (option C) is operationally complex and not the designed solution. S3 replication with SSE-KMS (option D) re-encrypts with a destination key during replication, meaning the encryption key changes rather than the same material being used.",
+    "explanation": "KMS multi-region keys allow the same key material (identified by the mrk- key ID prefix) to exist in multiple AWS regions. Ciphertext encrypted in us-east-1 can be decrypted directly in eu-west-1 without any re-encryption step, because the underlying key material is identical. Copying a key policy (option A) creates a new key with different key material — existing ciphertext cannot be decrypted with it. Manual import (option C) is operationally complex and not the designed solution. S3 replication with SSE-KMS (option D) re-encrypts with a destination key during replication, meaning the encryption key changes rather than the same material being used.",
     "module_ref": "domain-05",
     "tags": [
       "aws-scs",
@@ -640,7 +640,7 @@
       },
       {
         "label": "D",
-        "text": "No, ACM-issued public certificates are always logged to Certificate Transparency logs and this cannot be opted out of."
+        "text": "For practical purposes, CT logging cannot be disabled for ACM public certificates: while the CertificateTransparencyLoggingPreference: DISABLED parameter exists in the ACM API, any certificate not logged to a public CT log will be distrusted by all major browsers, making it non-functional for public-facing use. Use AWS Private CA for internal domains that must not appear in public CT logs."
       }
     ],
     "correct": "D",
@@ -649,7 +649,7 @@
       "B",
       "C"
     ],
-    "explanation": "Certificate Transparency logging is mandatory for all publicly trusted TLS certificates including those issued by ACM. Major browser vendors require CT logging and will distrust certificates not included in public logs. ACM automatically submits all public certificates to CT logs and this behavior cannot be disabled. For internal domains that must not appear in CT logs, the correct approach is to use AWS Private CA to issue private certificates, which are not submitted to public CT logs. Option A describes a preference flag that does not override the public CA requirement. Option C is incorrect as SCPs cannot block AWS-internal CT submission behavior. Option D is incorrect because full domain names are plainly visible in CT logs.",
+    "explanation": "Certificate Transparency logging is required for all publicly trusted TLS certificates. Major browser vendors (Chrome, Firefox, Safari) mandate CT logging and will show a \"certificate not trusted\" error for any certificate not present in a public CT log. While the ACM API exposes a CertificateTransparencyLoggingPreference parameter that can be set to DISABLED, doing so renders the certificate non-functional for any browser-facing use case.\n\nFor internal domain names that must not be visible in public CT logs, the correct solution is to use AWS Private CA (formerly ACM Private CA) to issue private certificates, which are not submitted to public CT logs.\n\nOption A is wrong — full domain names are plainly visible in CT logs; they are not hashed.\nOption B is wrong — SCPs cannot block AWS-internal CT log submission behavior; CT logging is performed by the ACM service infrastructure, not a controllable API call in the account.\nOption C is technically present as an API parameter but renders the certificate browser-distrusted — it is not a viable operational option for public certificates.",
     "module_ref": "domain-05",
     "tags": [
       "aws-scs",

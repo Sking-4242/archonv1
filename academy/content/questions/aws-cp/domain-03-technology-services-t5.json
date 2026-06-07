@@ -11,15 +11,15 @@
     "options": [
       {
         "label": "A",
-        "text": "ALB connection draining \u2014 delays instance removal during scale-in to allow in-flight requests to complete before deregistering the target."
+        "text": "ALB connection draining — delays instance removal during scale-in to allow in-flight requests to complete before deregistering the target."
       },
       {
         "label": "B",
-        "text": "EC2 instance tenancy \u2014 Dedicated Hosts launch faster"
+        "text": "EC2 instance tenancy — Dedicated Hosts launch faster"
       },
       {
         "label": "C",
-        "text": "Warm pools \u2014 pre-initialized EC2 instances that are ready"
+        "text": "Warm pools — pre-initialized EC2 instances that are ready"
       },
       {
         "label": "D",
@@ -28,7 +28,7 @@
     ],
     "correct": "C",
     "distractors": {
-      "A": "ALB connection draining \u2014 delays instance removal during scale-in to allow in-flight requests to complete before deregistering the target.",
+      "A": "ALB connection draining — delays instance removal during scale-in to allow in-flight requests to complete before deregistering the target.",
       "B": "",
       "D": ""
     },
@@ -116,7 +116,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "DynamoDB TTL allows you to define an attribute on each item containing an expiry timestamp. DynamoDB automatically deletes expired items in the background without consuming write capacity units. This is the correct tool for data lifecycle management in DynamoDB \u2014 cleaning up old data reduces table size and can improve query performance on active data. Streams+Lambda could work but TTL is built-in and simpler. Global Tables adds regions, not lifecycle management.",
+    "explanation": "DynamoDB TTL allows you to define an attribute on each item containing an expiry timestamp. DynamoDB automatically deletes expired items in the background without consuming write capacity units. This is the correct tool for data lifecycle management in DynamoDB — cleaning up old data reduces table size and can improve query performance on active data. Streams+Lambda could work but TTL is built-in and simpler. Global Tables adds regions, not lifecycle management.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "dynamodb",
@@ -141,11 +141,11 @@
       },
       {
         "label": "B",
-        "text": "Increase the RDS instance size (vertical scaling) \u2014 this is the only option for RDS write scaling"
+        "text": "Increase the RDS instance size (vertical scaling) — this is the only option for RDS write scaling"
       },
       {
         "label": "C",
-        "text": "Enable RDS Multi-AZ \u2014 the standby handles write scaling"
+        "text": "Enable RDS Multi-AZ — the standby handles write scaling"
       },
       {
         "label": "D",
@@ -158,7 +158,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "RDS PostgreSQL has limited write scaling options \u2014 Read Replicas handle reads only. True write scaling for relational databases typically requires migrating to Aurora (which has higher write throughput) or application-level sharding. Aurora Serverless v2 can auto-scale capacity. Multi-AZ standby is for failover, not scaling \u2014 it doesn't serve writes. Vertical scaling (larger instance) helps but has hard limits.",
+    "explanation": "RDS PostgreSQL has limited write scaling options — Read Replicas handle reads only. True write scaling for relational databases typically requires migrating to Aurora (which has higher write throughput) or application-level sharding. Aurora Serverless v2 can auto-scale capacity. Multi-AZ standby is for failover, not scaling — it doesn't serve writes. Vertical scaling (larger instance) helps but has hard limits.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "rds",
@@ -200,7 +200,7 @@
       "C": "Amazon SQS with multiple queues decouples components but does not orchestrate multi-step workflows with conditional logic, retries, and parallel execution.",
       "D": "AWS Lambda with recursive calls can chain functions but creates tight coupling, no visual workflow tracking, and makes error handling and timeouts difficult."
     },
-    "explanation": "Step Functions state machines natively support sequential states, parallel branches, error handling, and conditional branching. The workflow described (sequential \u2192 parallel \u2192 conditional) is exactly what Step Functions is built for. SQS is for message queuing, not workflow orchestration with conditional logic. EventBridge is for event routing, not stateful workflow management. Recursive Lambda calls are error-prone and lack native parallelism control.",
+    "explanation": "Step Functions state machines natively support sequential states, parallel branches, error handling, and conditional branching. The workflow described (sequential → parallel → conditional) is exactly what Step Functions is built for. SQS is for message queuing, not workflow orchestration with conditional logic. EventBridge is for event routing, not stateful workflow management. Recursive Lambda calls are error-prone and lack native parallelism control.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "step-functions",
@@ -242,7 +242,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "S3 Event Notifications fire immediately on object creation. Routing to SNS enables fan-out to multiple Lambda functions simultaneously \u2014 one per resolution. Lambda scales automatically per invocation. This is fully event-driven with no polling and no persistent compute. EC2 polling introduces latency and requires idle compute. CloudWatch scheduled rules are time-based, not event-based. SQS batch processing is not real-time.",
+    "explanation": "S3 Event Notifications fire immediately on object creation. Routing to SNS enables fan-out to multiple Lambda functions simultaneously — one per resolution. Lambda scales automatically per invocation. This is fully event-driven with no polling and no persistent compute. EC2 polling introduces latency and requires idle compute. CloudWatch scheduled rules are time-based, not event-based. SQS batch processing is not real-time.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "s3-events",
@@ -305,28 +305,28 @@
     "options": [
       {
         "label": "A",
-        "text": "Read-through caching \u2014 the cache always fetches from RDS on misses"
+        "text": "Read-through caching — the cache always fetches from RDS on misses"
       },
       {
         "label": "B",
-        "text": "Cache-aside pattern with graceful degradation \u2014 application handles cache miss by falling back to the database"
+        "text": "Cache-aside pattern with graceful degradation — application handles cache miss by falling back to the database"
       },
       {
         "label": "C",
-        "text": "Single point of failure \u2014 the cache creates a bottleneck and the architecture should use Multi-AZ ElastiCache replication to eliminate this dependency."
+        "text": "Single point of failure — the cache creates a bottleneck and the architecture should use Multi-AZ ElastiCache replication to eliminate this dependency."
       },
       {
         "label": "D",
-        "text": "Write-through caching \u2014 all writes go to the cache first"
+        "text": "Write-through caching — all writes go to the cache first"
       }
     ],
     "correct": "B",
     "distractors": {
       "A": "",
-      "C": "Single point of failure \u2014 the cache creates a bottleneck and the architecture should use Multi-AZ ElastiCache replication to eliminate this dependency.",
+      "C": "Single point of failure — the cache creates a bottleneck and the architecture should use Multi-AZ ElastiCache replication to eliminate this dependency.",
       "D": ""
     },
-    "explanation": "The cache-aside (lazy loading) pattern means the application checks the cache first. On a miss (or cache failure), it queries the database directly. This provides graceful degradation \u2014 a cache failure degrades performance but doesn't cause an outage. The RDS fallback means the cache is a performance optimization, not a hard dependency. Write-through and read-through are different caching patterns.",
+    "explanation": "The cache-aside (lazy loading) pattern means the application checks the cache first. On a miss (or cache failure), it queries the database directly. This provides graceful degradation — a cache failure degrades performance but doesn't cause an outage. The RDS fallback means the cache is a performance optimization, not a hard dependency. Write-through and read-through are different caching patterns.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "elasticache",
@@ -368,7 +368,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "Aurora's architecture uses a shared distributed storage layer \u2014 read replicas can serve reads from this shared storage without replicating data. However, all writes go to the single primary writer instance. You can scale reads by adding up to 15 replicas, but write scaling requires a larger primary instance (vertical) or application-level sharding. Aurora Multi-AZ is failover, not write scaling. Global Database has a single writer region.",
+    "explanation": "Aurora's architecture uses a shared distributed storage layer — read replicas can serve reads from this shared storage without replicating data. However, all writes go to the single primary writer instance. You can scale reads by adding up to 15 replicas, but write scaling requires a larger primary instance (vertical) or application-level sharding. Aurora Multi-AZ is failover, not write scaling. Global Database has a single writer region.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "aurora",
@@ -439,7 +439,7 @@
       },
       {
         "label": "C",
-        "text": "Lambda Provisioned Concurrency \u2014 pre-initializes execution environments to eliminate cold"
+        "text": "Lambda Provisioned Concurrency — pre-initializes execution environments to eliminate cold"
       },
       {
         "label": "D",
@@ -485,7 +485,7 @@
       },
       {
         "label": "D",
-        "text": "AWS Cloud Map \u2014 service discovery for AWS resources including ECS."
+        "text": "AWS Cloud Map — service discovery for AWS resources including ECS."
       }
     ],
     "correct": "D",
@@ -557,7 +557,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Amazon Lightsail containers \u2014 provide GPU access"
+        "text": "Amazon Lightsail containers — provide GPU access"
       },
       {
         "label": "B",
@@ -565,11 +565,11 @@
       },
       {
         "label": "C",
-        "text": "AWS Fargate \u2014 supports GPU containers automatically"
+        "text": "AWS Fargate — supports GPU containers automatically"
       },
       {
         "label": "D",
-        "text": "AWS Lambda \u2014 supports GPU acceleration for ML workloads"
+        "text": "AWS Lambda — supports GPU acceleration for ML workloads"
       }
     ],
     "correct": "B",
@@ -695,7 +695,7 @@
       },
       {
         "label": "D",
-        "text": "Max I/O performance mode \u2014 scales to higher throughput"
+        "text": "Max I/O performance mode — scales to higher throughput"
       }
     ],
     "correct": "D",
@@ -746,7 +746,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "Rekognition is a fully managed API service. The standard pattern is: S3 Event Notification (on PutObject) \u2192 Lambda \u2192 Rekognition API call with the S3 object reference. Rekognition reads directly from S3 and returns labels/tags. Lambda handles the orchestration. Rekognition has no client-side software to install. Glue is for ETL, not ML inference. S3 Inventory doesn't trigger ML processing.",
+    "explanation": "Rekognition is a fully managed API service. The standard pattern is: S3 Event Notification (on PutObject) → Lambda → Rekognition API call with the S3 object reference. Rekognition reads directly from S3 and returns labels/tags. Lambda handles the orchestration. Rekognition has no client-side software to install. Glue is for ETL, not ML inference. S3 Inventory doesn't trigger ML processing.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "rekognition",
@@ -813,7 +813,7 @@
       },
       {
         "label": "B",
-        "text": "Use Amazon RDS Proxy \u2014 it pools and multiplexes database connections."
+        "text": "Use Amazon RDS Proxy — it pools and multiplexes database connections."
       },
       {
         "label": "C",
@@ -855,15 +855,15 @@
       },
       {
         "label": "B",
-        "text": "AWS KMS \u2014 encrypt secrets in etcd"
+        "text": "AWS KMS — encrypt secrets in etcd"
       },
       {
         "label": "C",
-        "text": "Amazon S3 \u2014 store secrets in an encrypted S3 bucket and mount in pods"
+        "text": "Amazon S3 — store secrets in an encrypted S3 bucket and mount in pods"
       },
       {
         "label": "D",
-        "text": "AWS IAM \u2014 embed secrets in IAM policies attached to the pod's service account"
+        "text": "AWS IAM — embed secrets in IAM policies attached to the pod's service account"
       }
     ],
     "correct": "A",
@@ -872,7 +872,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "The AWS Secrets and Config Provider (ASCP) with the Secrets Store CSI Driver allows Kubernetes pods to mount secrets from AWS Secrets Manager or Parameter Store as volumes or environment variables \u2014 secrets never touch the container image or Kubernetes secrets (etcd). KMS can encrypt etcd but doesn't inject secrets into pods. S3 file mounting is not native Kubernetes secret management. IAM policies cannot store application secrets.",
+    "explanation": "The AWS Secrets and Config Provider (ASCP) with the Secrets Store CSI Driver allows Kubernetes pods to mount secrets from AWS Secrets Manager or Parameter Store as volumes or environment variables — secrets never touch the container image or Kubernetes secrets (etcd). KMS can encrypt etcd but doesn't inject secrets into pods. S3 file mounting is not native Kubernetes secret management. IAM policies cannot store application secrets.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "eks",
@@ -897,7 +897,7 @@
       },
       {
         "label": "B",
-        "text": "CloudWatch Alarm with an EC2 recovery action \u2014 automatically recovers the instance to the same host or a new host with the same instance ID and metadata."
+        "text": "CloudWatch Alarm with an EC2 recovery action — automatically recovers the instance to the same host or a new host with the same instance ID and metadata."
       },
       {
         "label": "C",
@@ -914,7 +914,7 @@
       "C": "CloudWatch Contributor Insights analyzes log patterns to identify top contributors to issues but does not trigger any automated remediation or recovery action.",
       "D": "A CloudWatch Events scheduled rule can restart instances on a schedule but cannot detect and respond to individual instance status check failures in real time."
     },
-    "explanation": "CloudWatch supports EC2 recovery actions on alarms that monitor StatusCheckFailed_System. When triggered, EC2 performs an instance recovery \u2014 migrating the instance to healthy hardware while preserving the instance ID, private IP, Elastic IP, and EBS volumes. This is different from termination and relaunch (which loses the instance ID and private IP). Scheduled restarts are not event-driven. Contributor Insights and Logs are analytical tools.",
+    "explanation": "CloudWatch supports EC2 recovery actions on alarms that monitor StatusCheckFailed_System. When triggered, EC2 performs an instance recovery — migrating the instance to healthy hardware while preserving the instance ID, private IP, Elastic IP, and EBS volumes. This is different from termination and relaunch (which loses the instance ID and private IP). Scheduled restarts are not event-driven. Contributor Insights and Logs are analytical tools.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "cloudwatch",
@@ -956,7 +956,7 @@
       "B": "S3 Standard-IA is designed for infrequent but rapidly accessible data and has higher storage and retrieval costs than Glacier for long-term archival.",
       "C": "S3 Intelligent-Tiering automatically moves objects between access tiers based on usage patterns but carries a monitoring fee and is not optimized for pure archival."
     },
-    "explanation": "For data accessed less than once per year, S3 Glacier Flexible Retrieval provides the lowest storage cost \u2014 approximately 1/10th of S3 Standard pricing. Retrieval times are minutes to hours. Standard-IA and One Zone-IA are designed for monthly access patterns and have per-retrieval fees that become expensive for very infrequent access. Intelligent-Tiering is optimal for data with unknown or changing patterns \u2014 for truly archival data (< yearly access), Glacier is cheaper.",
+    "explanation": "For data accessed less than once per year, S3 Glacier Flexible Retrieval provides the lowest storage cost — approximately 1/10th of S3 Standard pricing. Retrieval times are minutes to hours. Standard-IA and One Zone-IA are designed for monthly access patterns and have per-retrieval fees that become expensive for very infrequent access. Intelligent-Tiering is optimal for data with unknown or changing patterns — for truly archival data (< yearly access), Glacier is cheaper.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "s3",
@@ -985,7 +985,7 @@
       },
       {
         "label": "C",
-        "text": "DynamoDB conditional writes \u2014 update the item only"
+        "text": "DynamoDB conditional writes — update the item only"
       },
       {
         "label": "D",
@@ -1015,23 +1015,23 @@
     "difficulty": "above",
     "test_number": 5,
     "active": true,
-    "stem": "A company uses AWS Elastic Beanstalk to deploy their application. They want to deploy a new version to 25% of instances first, monitor for errors, then gradually roll out to the rest \u2014 and be able to quickly revert if issues arise. Which Elastic Beanstalk deployment policy supports this?",
+    "stem": "A company uses AWS Elastic Beanstalk to deploy their application. They want to deploy a new version to 25% of instances first, monitor for errors, then gradually roll out to the rest — and be able to quickly revert if issues arise. Which Elastic Beanstalk deployment policy supports this?",
     "options": [
       {
         "label": "A",
-        "text": "Rolling \u2014 deploys in batches across all instances"
+        "text": "Rolling — deploys in batches across all instances"
       },
       {
         "label": "B",
-        "text": "All at once \u2014 deploys to all instances simultaneously"
+        "text": "All at once — deploys to all instances simultaneously"
       },
       {
         "label": "C",
-        "text": "Immutable or Traffic-splitting \u2014 deploys new version to a separate fleet and"
+        "text": "Immutable or Traffic-splitting — deploys new version to a separate fleet and"
       },
       {
         "label": "D",
-        "text": "Rolling with additional batch \u2014 adds new instances during deployment"
+        "text": "Rolling with additional batch — adds new instances during deployment"
       }
     ],
     "correct": "C",
@@ -1145,19 +1145,19 @@
     "options": [
       {
         "label": "A",
-        "text": "Amazon Redshift Spectrum \u2014 queries only S3 data from Redshift"
+        "text": "Amazon Redshift Spectrum — queries only S3 data from Redshift"
       },
       {
         "label": "B",
-        "text": "Amazon Athena Federated Query \u2014 can query data across multiple sources including S3,"
+        "text": "Amazon Athena Federated Query — can query data across multiple sources including S3,"
       },
       {
         "label": "C",
-        "text": "AWS Data Pipeline \u2014 moves data between sources for unified querying"
+        "text": "AWS Data Pipeline — moves data between sources for unified querying"
       },
       {
         "label": "D",
-        "text": "Amazon Glue \u2014 creates a unified data catalog"
+        "text": "Amazon Glue — creates a unified data catalog"
       }
     ],
     "correct": "B",
@@ -1187,7 +1187,7 @@
     "options": [
       {
         "label": "A",
-        "text": "SQS FIFO supports higher throughput than Standard (up to 30,000 messages/second with high throughput mode vs. SQS Standard's 3,000/second)"
+        "text": "SQS FIFO supports higher throughput than Standard (up to 30,000 messages/second with high throughput mode vs. SQS Standard's unlimited throughput)"
       },
       {
         "label": "B",
@@ -1210,7 +1210,7 @@
       "A": "",
       "D": ""
     },
-    "explanation": "SQS Standard: nearly unlimited throughput, at-least-once delivery (rare duplicates possible), best-effort ordering. SQS FIFO: exactly-once processing, strict FIFO ordering per message group, but lower throughput (3,000/sec standard, 30,000/sec in high throughput mode). FIFO is ideal for order-sensitive workloads like financial transactions. Standard has much higher throughput than FIFO, not the reverse. Standard does NOT guarantee ordering.",
+    "explanation": "SQS Standard: nearly unlimited throughput, at-least-once delivery (rare duplicates possible), best-effort ordering. SQS FIFO: exactly-once processing, strict FIFO ordering per message group, lower throughput ceiling (3,000/sec standard mode, up to 70,000/sec in high throughput mode). FIFO is ideal for order-sensitive workloads like financial transactions. Answer A is wrong — Standard has effectively unlimited throughput, far exceeding FIFO. The 3,000/sec figure belongs to FIFO standard mode, not Standard queues. Answer D is wrong — Standard guarantees best-effort ordering only, not strict FIFO.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "sqs",

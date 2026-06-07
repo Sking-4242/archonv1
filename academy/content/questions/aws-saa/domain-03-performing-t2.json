@@ -32,7 +32,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "DAX is an API-compatible in-memory cache for DynamoDB. Since 80% of reads hit 100 hot items, these will be cached in DAX with high hit rate \u2014 eliminating 80% of DynamoDB RCU consumption for those reads. On-Demand mode changes how capacity is billed but not the RCU rate. Increasing provisioned capacity costs more, not less. Moving hot items to ElastiCache requires application changes (different API); DAX is drop-in.",
+    "explanation": "DAX is an API-compatible in-memory cache for DynamoDB. Since 80% of reads hit 100 hot items, these will be cached in DAX with high hit rate — eliminating 80% of DynamoDB RCU consumption for those reads. On-Demand mode changes how capacity is billed but not the RCU rate. Increasing provisioned capacity costs more, not less. Moving hot items to ElastiCache requires application changes (different API); DAX is drop-in.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "dynamodb",
@@ -57,7 +57,7 @@
       },
       {
         "label": "B",
-        "text": "S3 Event Notification \u2192 Lambda \u2192 triggers an AWS Batch job or ECS Fargate task."
+        "text": "S3 Event Notification → Lambda → triggers an AWS Batch job or ECS Fargate task."
       },
       {
         "label": "C",
@@ -65,7 +65,7 @@
       },
       {
         "label": "D",
-        "text": "S3 Event Notification \u2192 Lambda \u2192 splits the video into 14-minute chunks and processes each concurrently"
+        "text": "S3 Event Notification → Lambda → splits the video into 14-minute chunks and processes each concurrently"
       }
     ],
     "correct": "B",
@@ -74,7 +74,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Lambda's 15-minute maximum is a hard limit. For long-running tasks, Lambda should act as an orchestrator \u2014 it receives the S3 event and submits a job to AWS Batch or launches an ECS Fargate task, then returns. The Fargate task runs the 45-minute transcoding job to completion. Provisioned Concurrency pre-warms environments but doesn't extend the timeout. Splitting video into chunks adds complexity and may not work for all transcoding scenarios.",
+    "explanation": "Lambda's 15-minute maximum is a hard limit. For long-running tasks, Lambda should act as an orchestrator — it receives the S3 event and submits a job to AWS Batch or launches an ECS Fargate task, then returns. The Fargate task runs the 45-minute transcoding job to completion. Provisioned Concurrency pre-warms environments but doesn't extend the timeout. Splitting video into chunks adds complexity and may not work for all transcoding scenarios.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "lambda",
@@ -158,7 +158,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Serverless (API Gateway + Lambda) is ideal for unpredictable peaks: Lambda scales from 0 to thousands of concurrent invocations automatically without pre-provisioning. You pay per request and execution duration \u2014 no idle costs. At 100,000 RPS, Lambda handles this through automatic horizontal scaling. EC2 Spot scaling has a 1-5 minute lag before new instances are ready. Scheduled scaling requires knowing when peaks occur.",
+    "explanation": "Serverless (API Gateway + Lambda) is ideal for unpredictable peaks: Lambda scales from 0 to thousands of concurrent invocations automatically without pre-provisioning. You pay per request and execution duration — no idle costs. At 100,000 RPS, Lambda handles this through automatic horizontal scaling. EC2 Spot scaling has a 1-5 minute lag before new instances are ready. Scheduled scaling requires knowing when peaks occur.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "api-gateway",
@@ -187,7 +187,7 @@
       },
       {
         "label": "C",
-        "text": "Deploy Amazon CloudFront in front of S3 \u2014 CloudFront caches S3 objects at edge locations"
+        "text": "Deploy Amazon CloudFront in front of S3 — CloudFront caches S3 objects at edge locations"
       },
       {
         "label": "D",
@@ -200,7 +200,7 @@
       "B": "Use S3 Batch Operations to pre-fetch objects copies or transforms objects at scale but does not cache or distribute content closer to geographically distributed users.",
       "D": "Enable S3 Transfer Acceleration speeds up direct S3 uploads and downloads through CloudFront edge locations but does not cache content for repeated global access."
     },
-    "explanation": "CloudFront caches S3 objects at edge locations globally. High cache hit ratios (objects accessed repeatedly) mean most GETs are served from CloudFront cache without touching S3 \u2014 dramatically reducing S3 API request costs and improving latency. CloudFront data transfer to users replaces S3 data transfer fees (often at comparable or lower rates). Transfer Acceleration speeds uploads. Intelligent-Tiering optimizes storage, not GET costs.",
+    "explanation": "CloudFront caches S3 objects at edge locations globally. High cache hit ratios (objects accessed repeatedly) mean most GETs are served from CloudFront cache without touching S3 — dramatically reducing S3 API request costs and improving latency. CloudFront data transfer to users replaces S3 data transfer fees (often at comparable or lower rates). Transfer Acceleration speeds uploads. Intelligent-Tiering optimizes storage, not GET costs.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "cloudfront",
@@ -225,7 +225,7 @@
       },
       {
         "label": "B",
-        "text": "Deploy Amazon CloudFront in front of S3 to cache S3 objects at CloudFront edge locations, serving global users with low latency without hitting the S3 origin each time."
+        "text": "st1 (Throughput Optimized HDD) — optimized for large sequential workloads with up to 500 MB/s throughput at lower cost than SSD options, ideal for nightly bulk read/write patterns."
       },
       {
         "label": "C",
@@ -238,11 +238,11 @@
     ],
     "correct": "B",
     "distractors": {
-      "A": "sc1 (Cold HDD) is designed for infrequently accessed large data with the lowest EBS cost but provides much lower throughput than st1 for sequential workloads.",
-      "C": "io2 Block Express delivers the maximum IOPS and sub-millisecond latency for transactional databases but is designed for random I/O patterns, not sequential log streaming.",
-      "D": "gp3 provides a configurable balance of IOPS and throughput for general workloads but cannot match the sequential throughput of st1 for large streaming use cases."
+      "A": "",
+      "C": "",
+      "D": ""
     },
-    "explanation": "500 GB of sequential read/write nightly is a classic st1 (Throughput Optimized HDD) use case. st1 is optimized for large sequential workloads with up to 500 MB/s throughput at lower cost than SSD options. Reading 500 GB at 500 MB/s takes ~17 minutes vs. hours on lower-throughput storage. io2 is optimized for high-IOPS random access (databases). gp3 is balanced general purpose. sc1 is for cold data with max 250 MB/s.",
+    "explanation": "500 GB of sequential read/write nightly is a classic st1 (Throughput Optimized HDD) use case. st1 is designed for large streaming workloads that access data sequentially — log processing, data warehouses, big data pipelines. It delivers up to 500 MB/s throughput, reading 500 GB in ~17 minutes. sc1 (Cold HDD) is for infrequently accessed data with lower max throughput (250 MB/s). io2 Block Express is optimized for high-IOPS random I/O (databases), not sequential streaming. gp3 is general-purpose SSD — good balance of IOPS and throughput but more expensive per GB than st1 for purely sequential workloads.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "ebs",
@@ -263,7 +263,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Enable DynamoDB Streams \u2192 Lambda \u2192 index items in Amazon OpenSearch Service"
+        "text": "Enable DynamoDB Streams → Lambda → index items in Amazon OpenSearch Service"
       },
       {
         "label": "B",
@@ -275,7 +275,7 @@
       },
       {
         "label": "D",
-        "text": "Enable DynamoDB Global Tables \u2014 replicas support full-text search"
+        "text": "Enable DynamoDB Global Tables — replicas support full-text search"
       }
     ],
     "correct": "A",
@@ -326,7 +326,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "CloudFront invalidations purge specific object paths from all edge caches, forcing the next request to fetch fresh content from the origin. This is the standard mechanism for immediate cache updates. Setting TTL to 0 disables caching (every request goes to origin) \u2014 eliminates the CDN benefit. Renaming objects works but requires application changes. Disabling caching eliminates all CloudFront performance benefits.",
+    "explanation": "CloudFront invalidations purge specific object paths from all edge caches, forcing the next request to fetch fresh content from the origin. This is the standard mechanism for immediate cache updates. Setting TTL to 0 disables caching (every request goes to origin) — eliminates the CDN benefit. Renaming objects works but requires application changes. Disabling caching eliminates all CloudFront performance benefits.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "cloudfront",
@@ -443,7 +443,7 @@
       },
       {
         "label": "D",
-        "text": "Modify the gp2 volume to gp3 \u2014 gp3 allows independent IOPS configuration up to 16,000."
+        "text": "Modify the gp2 volume to gp3 — gp3 allows independent IOPS configuration up to 16,000."
       }
     ],
     "correct": "D",
@@ -452,7 +452,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "gp3 volumes decouple IOPS from volume size \u2014 you can configure up to 16,000 IOPS independently of the volume size. Modifying gp2 to gp3 is online (no instance stop or detach required) and typically reduces cost (gp3 is ~20% cheaper at baseline and has independently configurable IOPS). RAID 0 across multiple volumes works but adds complexity and risk (one volume failure loses data). LVM is similarly complex.",
+    "explanation": "gp3 volumes decouple IOPS from volume size — you can configure up to 16,000 IOPS independently of the volume size. Modifying gp2 to gp3 is online (no instance stop or detach required) and typically reduces cost (gp3 is ~20% cheaper at baseline and has independently configurable IOPS). RAID 0 across multiple volumes works but adds complexity and risk (one volume failure loses data). LVM is similarly complex.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "ebs",
@@ -578,7 +578,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Aurora Serverless v2 scales up incrementally. Starting from 0.5 ACUs, scaling to 64 ACUs during a sudden spike involves multiple scale-up steps and can take several seconds, during which requests may timeout. Setting a higher minimum ACU baseline (e.g., 8 ACUs) means the cluster starts each scale-up event from a higher baseline \u2014 fewer steps to reach the needed capacity, reducing scaling latency. Switching to provisioned eliminates serverless economics. Limiting maximum ACUs causes throttling. Multi-AZ adds AZ resilience.",
+    "explanation": "Aurora Serverless v2 scales up incrementally. Starting from 0.5 ACUs, scaling to 64 ACUs during a sudden spike involves multiple scale-up steps and can take several seconds, during which requests may timeout. Setting a higher minimum ACU baseline (e.g., 8 ACUs) means the cluster starts each scale-up event from a higher baseline — fewer steps to reach the needed capacity, reducing scaling latency. Switching to provisioned eliminates serverless economics. Limiting maximum ACUs causes throttling. Multi-AZ adds AZ resilience.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "aurora-serverless",
@@ -620,7 +620,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "OpenSearch (Elasticsearch) is purpose-built for search workloads: full-text search with relevance scoring, faceted filtering, sorting, and aggregations over millions of documents with sub-second latency. It supports complex search queries including match, fuzzy, range, and boolean queries. RDS full-text indexes are limited and don't scale to millions of records at sub-100ms. DynamoDB GSIs support indexed lookups but not full-text search or relevance ranking. Athena scans data \u2014 not optimized for sub-100ms interactive search.",
+    "explanation": "OpenSearch (Elasticsearch) is purpose-built for search workloads: full-text search with relevance scoring, faceted filtering, sorting, and aggregations over millions of documents with sub-second latency. It supports complex search queries including match, fuzzy, range, and boolean queries. RDS full-text indexes are limited and don't scale to millions of records at sub-100ms. DynamoDB GSIs support indexed lookups but not full-text search or relevance ranking. Athena scans data — not optimized for sub-100ms interactive search.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "opensearch",
@@ -704,7 +704,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "DynamoDB with on-demand capacity handles 50,000 writes/second automatically \u2014 it scales to millions of requests per second. Device ID as partition key and timestamp as sort key supports time-range queries by device. No provisioning needed. RDS/Aurora scale writes vertically and have connection limits that would be exhausted by 50,000 simultaneous IoT devices. Redshift is an analytics warehouse, not an OLTP database for real-time IoT ingestion.",
+    "explanation": "DynamoDB with on-demand capacity handles 50,000 writes/second automatically — it scales to millions of requests per second. Device ID as partition key and timestamp as sort key supports time-range queries by device. No provisioning needed. RDS/Aurora scale writes vertically and have connection limits that would be exhausted by 50,000 simultaneous IoT devices. Redshift is an analytics warehouse, not an OLTP database for real-time IoT ingestion.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "dynamodb",
@@ -771,7 +771,7 @@
       },
       {
         "label": "B",
-        "text": "Increase the number of shards \u2014 each shard provides 2 MB/s."
+        "text": "Increase the number of shards — each shard provides 2 MB/s."
       },
       {
         "label": "C",
@@ -788,7 +788,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Kinesis stream throughput scales linearly with shard count: each shard supports 2 MB/s reads and 1 MB/s writes. If the consumer is falling behind, increasing shards increases the number of parallelized partitions \u2014 more consumer threads/processes can read simultaneously. Enhanced Fan-Out (C) gives each registered consumer its own 2 MB/s per shard but requires adding new consumer applications; increasing shards benefits all existing consumers. Extending retention buys time but doesn't solve the underlying throughput gap.",
+    "explanation": "Kinesis stream throughput scales linearly with shard count: each shard supports 2 MB/s reads and 1 MB/s writes. If the consumer is falling behind, increasing shards increases the number of parallelized partitions — more consumer threads/processes can read simultaneously. Enhanced Fan-Out (C) gives each registered consumer its own 2 MB/s per shard but requires adding new consumer applications; increasing shards benefits all existing consumers. Extending retention buys time but doesn't solve the underlying throughput gap.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "kinesis",
@@ -859,7 +859,7 @@
       },
       {
         "label": "C",
-        "text": "Reduce Lambda memory to 256 MB \u2014 since 80% of execution time is."
+        "text": "Reduce Lambda memory to 256 MB — since 80% of execution time is."
       },
       {
         "label": "D",
@@ -872,7 +872,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Lambda pricing is memory \u00d7 duration (GB-seconds). If the function is I/O-bound (waiting on network), reducing memory doesn't increase execution duration \u2014 it stays at ~500ms. Reducing from 1 GB to 256 MB reduces cost by 75%. DAX (option D) would also help by reducing the 400ms DynamoDB latency \u2014 potentially reducing total duration \u2014 but it adds infrastructure cost. Since the question asks about reducing cost with the described workload, right-sizing memory is the most direct answer.",
+    "explanation": "Lambda pricing is memory × duration (GB-seconds). If the function is I/O-bound (waiting on network), reducing memory doesn't increase execution duration — it stays at ~500ms. Reducing from 1 GB to 256 MB reduces cost by 75%. DAX (option D) would also help by reducing the 400ms DynamoDB latency — potentially reducing total duration — but it adds infrastructure cost. Since the question asks about reducing cost with the described workload, right-sizing memory is the most direct answer.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "lambda",
@@ -897,11 +897,11 @@
       },
       {
         "label": "B",
-        "text": "Kinesis Data Streams \u2192 Lambda \u2192 DynamoDB (SQL queries via PartiQL)"
+        "text": "Kinesis Data Streams → Lambda → DynamoDB (SQL queries via PartiQL)"
       },
       {
         "label": "C",
-        "text": "Kinesis Data Streams (raw storage + replay) \u2192 Kinesis Data Firehose (delivery to S3)"
+        "text": "Kinesis Data Streams (raw storage + replay) → Kinesis Data Firehose (delivery to S3)"
       },
       {
         "label": "D",

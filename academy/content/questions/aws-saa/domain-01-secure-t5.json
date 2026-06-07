@@ -11,19 +11,19 @@
     "options": [
       {
         "label": "A",
-        "text": "Deny \u2014 EC2 instance roles cannot use resource-based policies"
+        "text": "Deny — EC2 instance roles cannot use resource-based policies"
       },
       {
         "label": "B",
-        "text": "Allow \u2014 the bucket policy on bucket-B grants access, and for cross-account access this is."
+        "text": "Allow — the bucket policy on bucket-B grants access, and for cross-account access this is."
       },
       {
         "label": "C",
-        "text": "Deny \u2014 the IAM role policy doesn't include bucket-B, so access is denied"
+        "text": "Deny — the IAM role policy doesn't include bucket-B, so access is denied"
       },
       {
         "label": "D",
-        "text": "Allow \u2014 resource policies override IAM policies for S3"
+        "text": "Allow — resource policies override IAM policies for S3"
       }
     ],
     "correct": "B",
@@ -32,7 +32,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "AWS policy evaluation for same-account access: if EITHER the identity policy (IAM) OR the resource policy (bucket policy) allows the action and neither has an explicit Deny, access is granted. RoleA has a resource policy on bucket-B granting s3:GetObject \u2014 this is sufficient for same-account access even without an IAM policy allowing bucket-B. Cross-account access requires BOTH the identity policy AND the resource policy to allow. This same-account vs. cross-account distinction is a critical IAM evaluation nuance tested at above level. Note: for cross-account S3 access, BOTH the IAM identity policy AND the bucket resource policy must grant the access \u2014 the resource policy alone is insufficient. This question is same-account, where either the identity policy OR the resource policy is sufficient.",
+    "explanation": "AWS policy evaluation for same-account access: if EITHER the identity policy (IAM) OR the resource policy (bucket policy) allows the action and neither has an explicit Deny, access is granted. RoleA has a resource policy on bucket-B granting s3:GetObject — this is sufficient for same-account access even without an IAM policy allowing bucket-B. Cross-account access requires BOTH the identity policy AND the resource policy to allow. This same-account vs. cross-account distinction is a critical IAM evaluation nuance tested at above level. Note: for cross-account S3 access, BOTH the IAM identity policy AND the bucket resource policy must grant the access — the resource policy alone is insufficient. This question is same-account, where either the identity policy OR the resource policy is sufficient.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "iam",
@@ -50,7 +50,7 @@
     "difficulty": "above",
     "test_number": 5,
     "active": true,
-    "stem": "A company uses AWS Organizations. They want to implement a 'data perimeter' \u2014 ensuring that only their organizational principals can access their S3 buckets, and their principals can only access S3 resources within their organization. Which combination of policies implements this? (Select TWO)",
+    "stem": "A company uses AWS Organizations. They want to implement a 'data perimeter' — ensuring that only their organizational principals can access their S3 buckets, and their principals can only access S3 resources within their organization. Which combination of policies implements this? (Select TWO)",
     "options": [
       {
         "label": "A",
@@ -62,11 +62,11 @@
       },
       {
         "label": "C",
-        "text": "S3 bucket policy with condition aws:PrincipalOrgID matching the org ID \u2014 denies access from outside the organization"
+        "text": "S3 bucket policy with condition aws:PrincipalOrgID matching the org ID — denies access from outside the organization"
       },
       {
         "label": "D",
-        "text": "SCP with condition aws:ResourceOrgID matching the org ID \u2014 denies access to S3 resources outside the organization"
+        "text": "SCP with condition aws:ResourceOrgID matching the org ID — denies access to S3 resources outside the organization"
       },
       {
         "label": "E",
@@ -104,19 +104,19 @@
     "options": [
       {
         "label": "A",
-        "text": "Deny \u2014 explicit Deny in the managed policy overrides Allow *, regardless of policy type"
+        "text": "Deny — explicit Deny in the managed policy overrides Allow *, regardless of policy type"
       },
       {
         "label": "B",
-        "text": "Allow \u2014 the inline Allow * overrides the managed policy Deny"
+        "text": "Allow — the inline Allow * overrides the managed policy Deny"
       },
       {
         "label": "C",
-        "text": "Error \u2014 conflicting policies cannot coexist on the same role"
+        "text": "Error — conflicting policies cannot coexist on the same role"
       },
       {
         "label": "D",
-        "text": "Allow \u2014 inline policies take precedence over managed policies in IAM evaluation"
+        "text": "Allow — inline policies take precedence over managed policies in IAM evaluation"
       }
     ],
     "correct": "A",
@@ -125,7 +125,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "IAM policy evaluation: explicit Deny ALWAYS wins, regardless of policy type (inline vs. managed, allow-all wildcard vs. specific deny). The managed policy's explicit Deny for ec2:TerminateInstances overrides the inline Allow * (Allow-all). There is no precedence hierarchy between inline and managed policies \u2014 both are evaluated together, and any explicit Deny terminates the evaluation with a Deny. This is the core IAM evaluation rule that above-level questions test in various configurations.",
+    "explanation": "IAM policy evaluation: explicit Deny ALWAYS wins, regardless of policy type (inline vs. managed, allow-all wildcard vs. specific deny). The managed policy's explicit Deny for ec2:TerminateInstances overrides the inline Allow * (Allow-all). There is no precedence hierarchy between inline and managed policies — both are evaluated together, and any explicit Deny terminates the evaluation with a Deny. This is the core IAM evaluation rule that above-level questions test in various configurations.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "iam",
@@ -231,7 +231,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Use client-side encryption with a CMK \u2014 key usage is tracked in the application logs"
+        "text": "Use client-side encryption with a CMK — key usage is tracked in the application logs"
       },
       {
         "label": "B",
@@ -239,11 +239,11 @@
       },
       {
         "label": "C",
-        "text": "Enable SSE-KMS with a customer-managed CMK \u2014 every S3 PutObject and GetObject generates a KMS API call (GenerateDataKey."
+        "text": "Enable SSE-KMS with a customer-managed CMK — every S3 PutObject and GetObject generates a KMS API call (GenerateDataKey."
       },
       {
         "label": "D",
-        "text": "Enable SSE-S3 (AES-256) on the bucket \u2014 AWS manages keys and records encryption in S3 access logs"
+        "text": "Enable SSE-S3 (AES-256) on the bucket — AWS manages keys and records encryption in S3 access logs"
       }
     ],
     "correct": "C",
@@ -252,7 +252,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "SSE-KMS generates a KMS API call for every S3 object operation. CloudTrail records every GenerateDataKey (on PutObject) and Decrypt (on GetObject) with the exact KMS key ARN, the IAM principal, the S3 bucket/key, and timestamp. This creates an audit trail mapping each object operation to the specific CMK used. SSE-S3 uses AWS-managed keys \u2014 no customer visibility into key usage, no CloudTrail entries for key operations. Client-side encryption doesn't produce AWS CloudTrail entries for key usage. S3 Object Lock prevents deletion/modification \u2014 it's an integrity control, not an encryption attribution mechanism.",
+    "explanation": "SSE-KMS generates a KMS API call for every S3 object operation. CloudTrail records every GenerateDataKey (on PutObject) and Decrypt (on GetObject) with the exact KMS key ARN, the IAM principal, the S3 bucket/key, and timestamp. This creates an audit trail mapping each object operation to the specific CMK used. SSE-S3 uses AWS-managed keys — no customer visibility into key usage, no CloudTrail entries for key operations. Client-side encryption doesn't produce AWS CloudTrail entries for key usage. S3 Object Lock prevents deletion/modification — it's an integrity control, not an encryption attribution mechanism.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "s3",
@@ -317,7 +317,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Use Cognito's AdminUserGlobalSignOut API to sign out the user globally \u2014 this revokes all refresh tokens."
+        "text": "Use Cognito's AdminUserGlobalSignOut API to sign out the user globally — this revokes all refresh tokens."
       },
       {
         "label": "B",
@@ -325,7 +325,7 @@
       },
       {
         "label": "C",
-        "text": "Delete the Cognito User Pool user \u2014 this immediately invalidates all tokens"
+        "text": "Delete the Cognito User Pool user — this immediately invalidates all tokens"
       },
       {
         "label": "D",
@@ -338,7 +338,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "This is a critical Cognito security nuance: JWT access tokens are stateless \u2014 once issued, Cognito cannot revoke them before expiry (there is no centralized token blocklist). AdminUserGlobalSignOut revokes the user's refresh tokens (preventing new access tokens from being obtained after expiry) and invalidates the session, but existing access tokens remain valid for their TTL. For immediate invalidation, the application must implement its own token blocklist (check a DynamoDB/ElastiCache blocklist on each API request). Deleting the user also doesn't immediately revoke valid JWTs. Reducing TTL mitigates but doesn't eliminate the window. AWS added Cognito token revocation support (RevokeToken API) to allow immediate invalidation of access and refresh tokens when needed.",
+    "explanation": "This is a critical Cognito security nuance: JWT access tokens are stateless — once issued, Cognito cannot revoke them before expiry because they are validated locally (signature + TTL) without a server round-trip. AdminUserGlobalSignOut and the RevokeToken API both invalidate refresh tokens (preventing new access tokens from being issued after the current one expires), but existing access tokens remain valid until their TTL elapses.\n\nFor immediate invalidation of outstanding access tokens, the application must implement its own token blocklist — store the token JTI (JWT ID) in DynamoDB or ElastiCache, and check it on every API request. This is the authoritative solution for zero-tolerance token revocation.\n\nReducing TTL (option D) limits the damage window but does not immediately invalidate tokens. Deleting the Cognito user (option C) does not revoke already-issued JWTs. The hosted UI logout (option B) clears the Cognito session cookie but does not affect JWT validity at downstream APIs.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "cognito",
@@ -380,7 +380,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "The bucket policy should: grant s3:PutObject to each member account's role ONLY on their specific prefix (arn:aws:s3:::logs-bucket/${aws:PrincipalAccount}/*). The condition `aws:PrincipalAccount` in the resource ARN or as a condition variable ensures each account can only write to their own prefix \u2014 not read, not delete, and not write to other accounts' prefixes. S3 Object Lock prevents deletion but doesn't restrict cross-account prefix access. Granting PutObject on root prefix allows overwriting other accounts' logs. Separate buckets work but are operationally complex for 100+ account organizations.",
+    "explanation": "The bucket policy should: grant s3:PutObject to each member account's role ONLY on their specific prefix (arn:aws:s3:::logs-bucket/${aws:PrincipalAccount}/*). The condition `aws:PrincipalAccount` in the resource ARN or as a condition variable ensures each account can only write to their own prefix — not read, not delete, and not write to other accounts' prefixes. S3 Object Lock prevents deletion but doesn't restrict cross-account prefix access. Granting PutObject on root prefix allows overwriting other accounts' logs. Separate buckets work but are operationally complex for 100+ account organizations.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "s3",
@@ -402,11 +402,11 @@
     "options": [
       {
         "label": "A",
-        "text": "AWS WAF managed rules are updated weekly \u2014 new SQL injection patterns take up to 7 days to be added"
+        "text": "AWS WAF managed rules are updated weekly — new SQL injection patterns take up to 7 days to be added"
       },
       {
         "label": "B",
-        "text": "CloudFront terminates HTTPS before WAF inspection \u2014 encrypted payloads bypass WAF"
+        "text": "CloudFront terminates HTTPS before WAF inspection — encrypted payloads bypass WAF"
       },
       {
         "label": "C",
@@ -414,7 +414,7 @@
       },
       {
         "label": "D",
-        "text": "WAF managed rules only apply to GET requests \u2014 POST requests bypass inspection"
+        "text": "WAF managed rules only apply to GET requests — POST requests bypass inspection"
       }
     ],
     "correct": "C",
@@ -423,7 +423,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "AWS WAF managed rules use pattern matching based on known attack signatures. Advanced attackers use encoding (URL encoding, hex encoding, Unicode), case variations, comment injection, and other obfuscation techniques that may not match the managed rule's regex patterns. WAF inspects decoded content but sophisticated obfuscation can evade signature-based detection. CloudFront decrypts HTTPS before passing to WAF \u2014 payloads are inspected in plaintext. WAF inspects all HTTP methods including POST. The tester's finding is a known limitation of signature-based WAF \u2014 the recommendation is to add custom rules and rate limiting, implement defense-in-depth, and parameterize database queries in the application.",
+    "explanation": "AWS WAF managed rules use pattern matching based on known attack signatures. Advanced attackers use encoding (URL encoding, hex encoding, Unicode), case variations, comment injection, and other obfuscation techniques that may not match the managed rule's regex patterns. WAF inspects decoded content but sophisticated obfuscation can evade signature-based detection. CloudFront decrypts HTTPS before passing to WAF — payloads are inspected in plaintext. WAF inspects all HTTP methods including POST. The tester's finding is a known limitation of signature-based WAF — the recommendation is to add custom rules and rate limiting, implement defense-in-depth, and parameterize database queries in the application.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "waf",
@@ -466,7 +466,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "A bucket policy with aws:CurrentTime condition (date less than 7 days from now) allows the vendor's account to access the bucket during the window and automatically revokes access after 7 days \u2014 no cleanup required. The vendor's IAM principals in their own account can use their own credentials to access the bucket. Option C (pre-signed URLs) works for individual objects but doesn't scale to many objects and requires generating URLs per object. IAM users with shared credentials are an anti-pattern. IAM role maximum session duration sets per-session limits (15 min - 12 hrs), not a 7-day overall expiry for cross-account access.",
+    "explanation": "A bucket policy with aws:CurrentTime condition (date less than 7 days from now) allows the vendor's account to access the bucket during the window and automatically revokes access after 7 days — no cleanup required. The vendor's IAM principals in their own account can use their own credentials to access the bucket. Option C (pre-signed URLs) works for individual objects but doesn't scale to many objects and requires generating URLs per object. IAM users with shared credentials are an anti-pattern. IAM role maximum session duration sets per-session limits (15 min - 12 hrs), not a 7-day overall expiry for cross-account access.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "s3",
@@ -509,7 +509,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "The Secrets Manager caching client caches secret values in Lambda function memory with a configurable TTL (default: 1 hour). Once initialized in a warm execution environment, subsequent invocations use the cache \u2014 dramatically reducing Secrets Manager API calls from 10,000/concurrent to roughly total_warm_environments/TTL. Each Lambda execution environment (not invocation) makes at most one API call per TTL period. SSM Parameter Store has similar throttling limits. Environment variables are static and defeat the purpose of rotation. Option D reduces calls for warm starts but still spikes on cold starts.",
+    "explanation": "The Secrets Manager caching client caches secret values in Lambda function memory with a configurable TTL (default: 1 hour). Once initialized in a warm execution environment, subsequent invocations use the cache — dramatically reducing Secrets Manager API calls from 10,000/concurrent to roughly total_warm_environments/TTL. Each Lambda execution environment (not invocation) makes at most one API call per TTL period. SSM Parameter Store has similar throttling limits. Environment variables are static and defeat the purpose of rotation. Option D reduces calls for warm starts but still spikes on cold starts.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "secrets-manager",
@@ -535,7 +535,7 @@
       },
       {
         "label": "B",
-        "text": "GuardDuty automatically blocks SSH brute force attacks \u2014 no manual intervention needed"
+        "text": "GuardDuty automatically blocks SSH brute force attacks — no manual intervention needed"
       },
       {
         "label": "C",
@@ -552,7 +552,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "GuardDuty is a detective service \u2014 it generates findings but does NOT automatically block anything. The response automation requires: EventBridge rule matching the finding type \u2192 Lambda function that (a) adds the source IP to a WAF IPSet (blocking at CloudFront/ALB/API Gateway level) and/or (b) adds a DENY rule to the VPC NACL (blocks at subnet level). Manual SG updates work but require human intervention. Config evaluates resource compliance (not designed for IP blocklisting responses). This EventBridge \u2192 Lambda response pattern is the standard AWS automated remediation approach.",
+    "explanation": "GuardDuty is a detective service — it generates findings but does NOT automatically block anything. The response automation requires: EventBridge rule matching the finding type → Lambda function that (a) adds the source IP to a WAF IPSet (blocking at CloudFront/ALB/API Gateway level) and/or (b) adds a DENY rule to the VPC NACL (blocks at subnet level). Manual SG updates work but require human intervention. Config evaluates resource compliance (not designed for IP blocklisting responses). This EventBridge → Lambda response pattern is the standard AWS automated remediation approach.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "guardduty",
@@ -574,7 +574,7 @@
     "options": [
       {
         "label": "A",
-        "text": "The ex-employee's Permission Sets are still assigned \u2014 Permission Set removal is required"
+        "text": "The ex-employee's Permission Sets are still assigned — Permission Set removal is required"
       },
       {
         "label": "B",
@@ -582,7 +582,7 @@
       },
       {
         "label": "C",
-        "text": "The ex-employee has valid IAM Identity Center session tokens \u2014 these remain valid for the session duration."
+        "text": "The ex-employee has valid IAM Identity Center session tokens — these remain valid for the session duration."
       },
       {
         "label": "D",
@@ -595,7 +595,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "IAM Identity Center issues session tokens upon authentication. These tokens are valid for the configured session duration (1-8 hours depending on IAM Identity Center settings). Disabling the AD account prevents NEW authentication but doesn't invalidate existing sessions \u2014 the ex-employee's current session token remains valid until expiry. Mitigation: (1) Reduce session duration to minimize the window; (2) Use IAM Identity Center's DeleteAccessToken API to force session termination; (3) Remove Permission Set assignments (prevents new role sessions but doesn't invalidate current console sessions). AD sync is near real-time, not 24 hours.",
+    "explanation": "IAM Identity Center issues session tokens upon authentication. These tokens are valid for the configured session duration (1-8 hours depending on IAM Identity Center settings). Disabling the AD account prevents NEW authentication but doesn't invalidate existing sessions — the ex-employee's current session token remains valid until expiry. Mitigation: (1) Reduce session duration to minimize the window; (2) Use IAM Identity Center's DeleteAccessToken API to force session termination; (3) Remove Permission Set assignments (prevents new role sessions but doesn't invalidate current console sessions). AD sync is near real-time, not 24 hours.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "iam-identity-center",
@@ -671,7 +671,7 @@
       },
       {
         "label": "D",
-        "text": "The application uses the CMK directly to encrypt each data object \u2014 the CMK is the encryption key"
+        "text": "The application uses the CMK directly to encrypt each data object — the CMK is the encryption key"
       }
     ],
     "correct": "B",
@@ -680,7 +680,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Envelope encryption: KMS GenerateDataKey returns a plaintext DEK (used to encrypt the data) and an encrypted DEK (ciphertext blob). The application uses the plaintext DEK to encrypt the object (locally, not in KMS), then discards the plaintext DEK. Only the encrypted DEK and encrypted data are stored in S3. Decryption: retrieve the encrypted DEK \u2192 KMS Decrypt (using the CMK, which never leaves KMS) \u2192 plaintext DEK \u2192 decrypt data. The CMK never encrypts data directly at scale \u2014 it only encrypts the small DEK. This design allows efficient encryption of large objects with a symmetric key while maintaining CMK security.",
+    "explanation": "Envelope encryption: KMS GenerateDataKey returns a plaintext DEK (used to encrypt the data) and an encrypted DEK (ciphertext blob). The application uses the plaintext DEK to encrypt the object (locally, not in KMS), then discards the plaintext DEK. Only the encrypted DEK and encrypted data are stored in S3. Decryption: retrieve the encrypted DEK → KMS Decrypt (using the CMK, which never leaves KMS) → plaintext DEK → decrypt data. The CMK never encrypts data directly at scale — it only encrypts the small DEK. This design allows efficient encryption of large objects with a symmetric key while maintaining CMK security.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "kms",
@@ -697,15 +697,15 @@
     "difficulty": "above",
     "test_number": 5,
     "active": true,
-    "stem": "A company is deploying an application that handles credit card data. The PCI DSS compliance requirement states that cardholder data must be masked in logs \u2014 real PAN numbers must never appear in CloudWatch Logs. Which mechanism prevents PAN data from appearing in Lambda function logs?",
+    "stem": "A company is deploying an application that handles credit card data. The PCI DSS compliance requirement states that cardholder data must be masked in logs — real PAN numbers must never appear in CloudWatch Logs. Which mechanism prevents PAN data from appearing in Lambda function logs?",
     "options": [
       {
         "label": "A",
-        "text": "Implement application-level masking in the Lambda function code \u2014 replace PAN with masked version (e.g."
+        "text": "Implement application-level masking in the Lambda function code — replace PAN with masked version (e.g."
       },
       {
         "label": "B",
-        "text": "Enable CloudWatch Logs encryption with KMS \u2014 encrypted logs cannot contain readable PAN data"
+        "text": "Enable CloudWatch Logs encryption with KMS — encrypted logs cannot contain readable PAN data"
       },
       {
         "label": "C",
@@ -722,7 +722,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "PAN masking must happen at the application layer before data is written to logs \u2014 this is a code-level control. The Lambda function must mask/tokenize PAN values before any log.print() or logger call. CloudWatch Logs encryption protects data at rest but the unmasked PAN is already in the log \u2014 it's just encrypted. Macie scans S3 for sensitive data \u2014 it doesn't redact CloudWatch Logs in real-time. Shield Advanced is a DDoS protection service. The only effective control for preventing PAN in logs is application-level masking before logging.",
+    "explanation": "PAN masking must happen at the application layer before data is written to logs — this is a code-level control. The Lambda function must mask/tokenize PAN values before any log.print() or logger call. CloudWatch Logs encryption protects data at rest but the unmasked PAN is already in the log — it's just encrypted. Macie scans S3 for sensitive data — it doesn't redact CloudWatch Logs in real-time. Shield Advanced is a DDoS protection service. The only effective control for preventing PAN in logs is application-level masking before logging.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "pci-dss",
@@ -752,11 +752,11 @@
       },
       {
         "label": "C",
-        "text": "Enable default encryption on the bucket \u2014 existing objects are automatically re-encrypted"
+        "text": "Enable default encryption on the bucket — existing objects are automatically re-encrypted"
       },
       {
         "label": "D",
-        "text": "Use S3 Batch Operations with an S3 Copy operation \u2014 the copy operation with SSE-KMS specified re-encrypts the."
+        "text": "Use S3 Batch Operations with an S3 Copy operation — the copy operation with SSE-KMS specified re-encrypts the."
       }
     ],
     "correct": "D",
@@ -765,7 +765,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "Enabling default encryption only applies to NEW objects written after the setting is enabled \u2014 existing objects are NOT retroactively encrypted. S3 Batch Operations with a CopyObject operation (source = destination bucket/key) can copy each object in place, applying the SSE-KMS encryption during the copy. Batch Operations can process millions of objects at scale without custom scripting. S3 Versioning + re-upload works but requires application-level scripting. DataSync also works but is more complex and is designed for cross-storage transfer, not in-place re-encryption.",
+    "explanation": "Enabling default encryption only applies to NEW objects written after the setting is enabled — existing objects are NOT retroactively encrypted. S3 Batch Operations with a CopyObject operation (source = destination bucket/key) can copy each object in place, applying the SSE-KMS encryption during the copy. Batch Operations can process millions of objects at scale without custom scripting. S3 Versioning + re-upload works but requires application-level scripting. DataSync also works but is more complex and is designed for cross-storage transfer, not in-place re-encryption.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "s3",
@@ -787,7 +787,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Enable AWS Config managed rule 'iam-policy-no-statements-with-admin-access' \u2014 triggers on existing policies with admin permissions; combined with EventBridge for real-time alerting on Config evaluation changes"
+        "text": "Enable AWS Config managed rule 'iam-policy-no-statements-with-admin-access' — triggers on existing policies with admin permissions; combined with EventBridge for real-time alerting on Config evaluation changes"
       },
       {
         "label": "B",
@@ -799,7 +799,7 @@
       },
       {
         "label": "D",
-        "text": "Create a CloudTrail \u2192 EventBridge rule matching PutUserPolicy, PutRolePolicy, CreatePolicy, CreatePolicyVersion API calls"
+        "text": "Create a CloudTrail → EventBridge rule matching PutUserPolicy, PutRolePolicy, CreatePolicy, CreatePolicyVersion API calls"
       }
     ],
     "correct": "D",
@@ -808,7 +808,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "The requirement is REAL-TIME detection of policy changes that ADD admin permissions. CloudTrail logs IAM policy modification APIs (PutUserPolicy, PutRolePolicy, CreatePolicy, CreatePolicyVersion) with the full policy document in the event. EventBridge matches these events; Lambda evaluates the policy document JSON for Action: * and Resource: * patterns; SNS sends the alert. Config's managed rule (option A) evaluates existing policies for admin permissions \u2014 it detects the STATE after changes but Config evaluation has a delay. IAM Access Analyzer analyzes for external access to resources, not admin permissions. Inspector scans for vulnerabilities, not policy permissions.",
+    "explanation": "The requirement is REAL-TIME detection of policy changes that ADD admin permissions. CloudTrail logs IAM policy modification APIs (PutUserPolicy, PutRolePolicy, CreatePolicy, CreatePolicyVersion) with the full policy document in the event. EventBridge matches these events; Lambda evaluates the policy document JSON for Action: * and Resource: * patterns; SNS sends the alert. Config's managed rule (option A) evaluates existing policies for admin permissions — it detects the STATE after changes but Config evaluation has a delay. IAM Access Analyzer analyzes for external access to resources, not admin permissions. Inspector scans for vulnerabilities, not policy permissions.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "cloudtrail",
@@ -851,7 +851,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Certain actions can ONLY be performed by the root user and cannot be delegated to IAM: closing the account, changing the account's root email/password, enabling certain services (like enabling AWS GovCloud), changing AWS support plan, and viewing certain billing details. IAM cannot close an account (no iam:CloseAccount action exists). IAM can create roles, manage Organizations SCPs (if given the permissions), and create S3 buckets. This root-only limitation is important \u2014 it's why root credentials must be secured even when daily operations use IAM.",
+    "explanation": "Certain actions can ONLY be performed by the root user and cannot be delegated to IAM: closing the account, changing the account's root email/password, enabling certain services (like enabling AWS GovCloud), changing AWS support plan, and viewing certain billing details. IAM cannot close an account (no iam:CloseAccount action exists). IAM can create roles, manage Organizations SCPs (if given the permissions), and create S3 buckets. This root-only limitation is important — it's why root credentials must be secured even when daily operations use IAM.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "root-account",
@@ -872,7 +872,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Config evaluations cannot be manually triggered \u2014 they only run on configuration change events"
+        "text": "Config evaluations cannot be manually triggered — they only run on configuration change events"
       },
       {
         "label": "B",
@@ -893,7 +893,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "AWS Config supports on-demand evaluation via StartConfigRulesEvaluation API (or the 'Re-evaluate' button in the console). This triggers an immediate evaluation of the specified rule against current resource configurations, without waiting for the periodic evaluation cycle or a configuration change event. Periodic rules run every 1, 3, 6, 12, or 24 hours depending on configuration \u2014 not just 24 hours. Change-triggered rules run automatically when the resource changes but may have already run and cached the NON_COMPLIANT state before the bucket policy update.",
+    "explanation": "AWS Config supports on-demand evaluation via StartConfigRulesEvaluation API (or the 'Re-evaluate' button in the console). This triggers an immediate evaluation of the specified rule against current resource configurations, without waiting for the periodic evaluation cycle or a configuration change event. Periodic rules run every 1, 3, 6, 12, or 24 hours depending on configuration — not just 24 hours. Change-triggered rules run automatically when the resource changes but may have already run and cached the NON_COMPLIANT state before the bucket policy update.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "config",
@@ -918,7 +918,7 @@
       },
       {
         "label": "B",
-        "text": "The S3 bucket policy is incorrectly configured \u2014 add a Deny statement for all principals except the OAI"
+        "text": "The S3 bucket policy is incorrectly configured — add a Deny statement for all principals except the OAI"
       },
       {
         "label": "C",
@@ -926,7 +926,7 @@
       },
       {
         "label": "D",
-        "text": "Use Origin Access Control (OAC) instead of OAI \u2014 OAC blocks the website endpoint"
+        "text": "Use Origin Access Control (OAC) instead of OAI — OAC blocks the website endpoint"
       }
     ],
     "correct": "A",
@@ -935,7 +935,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "This is a critical S3+CloudFront security nuance: S3 REST API access (s3.amazonaws.com endpoints) can be restricted via OAI bucket policy conditions. However, S3 static website hosting creates a SEPARATE HTTP endpoint that doesn't authenticate requests via OAI \u2014 it simply serves content publicly if the bucket is configured for website hosting. To prevent bypass via the website endpoint: disable S3 static website hosting entirely (use CloudFront behaviors for HTML routing instead). The bucket policy with OAI restrictions only applies to the REST API endpoint, not the website endpoint.",
+    "explanation": "This is a critical S3+CloudFront security nuance: S3 REST API access (s3.amazonaws.com endpoints) can be restricted via OAI bucket policy conditions. However, S3 static website hosting creates a SEPARATE HTTP endpoint that doesn't authenticate requests via OAI — it simply serves content publicly if the bucket is configured for website hosting. To prevent bypass via the website endpoint: disable S3 static website hosting entirely (use CloudFront behaviors for HTML routing instead). The bucket policy with OAI restrictions only applies to the REST API endpoint, not the website endpoint.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "cloudfront",
@@ -999,7 +999,7 @@
     "options": [
       {
         "label": "A",
-        "text": "SCPs do not support dynamic values from Parameter Store \u2014 the approved AMI IDs must be hardcoded."
+        "text": "SCPs do not support dynamic values from Parameter Store — the approved AMI IDs must be hardcoded."
       },
       {
         "label": "B",
@@ -1020,7 +1020,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "SCPs are static JSON documents \u2014 they do NOT support dynamic references like CloudFormation's {{resolve:ssm:}} syntax. AMI IDs must be hardcoded in the SCP StringEquals condition. When approved AMIs change, the SCP must be manually updated. This is a significant operational overhead for AMI rotation. Better architecture: use AWS Config with a custom Lambda rule that reads the approved AMI list from Parameter Store and evaluates EC2 instances against it (Config + SSM integration allows dynamic AMI lists). The question specifically asks about SCP \u2014 the correct answer is that SCPs cannot reference Parameter Store.",
+    "explanation": "SCPs are static JSON documents — they do NOT support dynamic references like CloudFormation's {{resolve:ssm:}} syntax. AMI IDs must be hardcoded in the SCP StringEquals condition. When approved AMIs change, the SCP must be manually updated. This is a significant operational overhead for AMI rotation. Better architecture: use AWS Config with a custom Lambda rule that reads the approved AMI list from Parameter Store and evaluates EC2 instances against it (Config + SSM integration allows dynamic AMI lists). The question specifically asks about SCP — the correct answer is that SCPs cannot reference Parameter Store.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "scp",
@@ -1050,11 +1050,11 @@
       },
       {
         "label": "C",
-        "text": "Delete the IAM role \u2014 this invalidates the STS credentials"
+        "text": "Delete the IAM role — this invalidates the STS credentials"
       },
       {
         "label": "D",
-        "text": "Detach all policies from the IAM role \u2014 the credentials still exist but grant no permissions"
+        "text": "Detach all policies from the IAM role — the credentials still exist but grant no permissions"
       }
     ],
     "correct": "A",
@@ -1063,7 +1063,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "STS credentials cannot be revoked directly \u2014 they remain valid until TTL expiry. The AWS-documented approach for immediate credential revocation: add an inline policy with `{\"Effect\":\"Deny\",\"Action\":\"*\",\"Resource\":\"*\",\"Condition\":{\"DateLessThan\":{\"aws:TokenIssueTime\":\"2024-01-01T00:00:00Z\"}}}` where the time is the current moment. This denies all actions for ANY token issued before that timestamp \u2014 effectively revoking all outstanding credentials without affecting future legitimate tokens. Deleting the role breaks all services using it. Detaching policies is correct but slower (policy detachment, not a block on existing credentials). IAM roles don't have 'access keys' to rotate.",
+    "explanation": "STS credentials cannot be revoked directly — they remain valid until TTL expiry. The AWS-documented approach for immediate credential revocation: add an inline policy with `{\"Effect\":\"Deny\",\"Action\":\"*\",\"Resource\":\"*\",\"Condition\":{\"DateLessThan\":{\"aws:TokenIssueTime\":\"2024-01-01T00:00:00Z\"}}}` where the time is the current moment. This denies all actions for ANY token issued before that timestamp — effectively revoking all outstanding credentials without affecting future legitimate tokens. Deleting the role breaks all services using it. Detaching policies is correct but slower (policy detachment, not a block on existing credentials). IAM roles don't have 'access keys' to rotate.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "iam",
@@ -1085,7 +1085,7 @@
     "options": [
       {
         "label": "A",
-        "text": "AWS WAF Bot Control managed rule group \u2014 classifies traffic as bots vs. humans using"
+        "text": "AWS WAF Bot Control managed rule group — classifies traffic as bots vs. humans using"
       },
       {
         "label": "B",
@@ -1132,7 +1132,7 @@
       },
       {
         "label": "B",
-        "text": "Use IAM Access Advisor \u2014 for each IAM user, role, or policy, Access Advisor shows the last accessed."
+        "text": "Use IAM Access Advisor — for each IAM user, role, or policy, Access Advisor shows the last accessed."
       },
       {
         "label": "C",

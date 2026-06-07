@@ -22,7 +22,7 @@
       }
     ],
     "answer": "B",
-    "explanation": "Least privilege requires granting only the permissions needed\u2014specific DynamoDB write actions scoped to the exact table ARN. AmazonDynamoDBFullAccess grants far more than write-only, PowerUserAccess still allows broad service access, and separation of duties addresses multi-person controls, not permission scope.",
+    "explanation": "Least privilege requires granting only the permissions needed—specific DynamoDB write actions scoped to the exact table ARN. AmazonDynamoDBFullAccess grants far more than write-only, PowerUserAccess still allows broad service access, and separation of duties addresses multi-person controls, not permission scope.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -61,7 +61,7 @@
       }
     ],
     "answer": "B",
-    "explanation": "SCPs define the maximum permissions available in an account. Even if an IAM policy allows an action, an SCP deny makes that action unavailable. The effective permission is the intersection of what the SCP allows and what IAM allows \u2014 an SCP deny cannot be overridden by any IAM policy.",
+    "explanation": "SCPs define the maximum permissions available in an account. Even if an IAM policy allows an action, an SCP deny makes that action unavailable. The effective permission is the intersection of what the SCP allows and what IAM allows — an SCP deny cannot be overridden by any IAM policy.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -100,7 +100,7 @@
       }
     ],
     "answer": "C",
-    "explanation": "SCPs in AWS Organizations can restrict ec2:RunInstances using a Condition key (ec2:ImageId) to a list of approved AMIs, and account admins cannot override SCPs. Config rules detect non-compliance but are detective controls \u2014 they don't prevent the action. Permission boundaries and Service Catalog require per-account setup and can be removed by account admins.",
+    "explanation": "SCPs in AWS Organizations can restrict ec2:RunInstances using a Condition key (ec2:ImageId) to a list of approved AMIs, and account admins cannot override SCPs. Config rules detect non-compliance but are detective controls — they don't prevent the action. Permission boundaries and Service Catalog require per-account setup and can be removed by account admins.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -197,7 +197,7 @@
   {
     "id": "aws-cp-t4-02-006",
     "type": "single",
-    "stem": "A financial services company must demonstrate to auditors that no one \u2014 including AWS employees \u2014 can access their encryption keys. Which key management approach satisfies this requirement?",
+    "stem": "A financial services company must demonstrate to auditors that no one — including AWS employees — can access their encryption keys. Which key management approach satisfies this requirement?",
     "options": [
       {
         "label": "A",
@@ -217,7 +217,7 @@
       }
     ],
     "answer": "C",
-    "explanation": "CloudHSM provides dedicated hardware security modules where the customer controls and manages all cryptographic operations and keys \u2014 AWS has no access to the key material. With KMS (even CMKs), AWS operates the underlying hardware and key management infrastructure. SSE-S3 uses AWS-managed keys. Only CloudHSM gives full customer control over key material inaccessible to AWS.",
+    "explanation": "CloudHSM provides dedicated hardware security modules where the customer controls and manages all cryptographic operations and keys — AWS has no access to the key material. With KMS (even CMKs), AWS operates the underlying hardware and key management infrastructure. SSE-S3 uses AWS-managed keys. Only CloudHSM gives full customer control over key material inaccessible to AWS.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -411,8 +411,8 @@
         "text": "No, because an explicit deny in any policy always overrides any allow"
       }
     ],
-    "answer": "C",
-    "explanation": "In AWS IAM policy evaluation, an explicit Deny always wins over any Allow, regardless of which policy type contains it. The bucket's resource-based explicit Deny overrides the group's Allow. This is a fundamental rule: Deny > Allow in the evaluation logic.",
+    "answer": "D",
+    "explanation": "In AWS IAM policy evaluation, an explicit Deny always wins over any Allow, regardless of which policy type contains it. The bucket's resource-based explicit Deny overrides the group's Allow. Answer A is wrong — the absence of a deny in the identity policy does not matter when an explicit deny exists in any other policy. Answer B is wrong — the user does have an allow via their group. Answer C is wrong — group policies do not take precedence over resource-based policies. This is a fundamental IAM rule: explicit Deny > any Allow.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -421,11 +421,11 @@
       "explicit-deny",
       "s3"
     ],
-    "correct": "A",
+    "correct": "D",
     "distractors": [
+      "A",
       "B",
-      "C",
-      "D"
+      "C"
     ]
   },
   {
@@ -450,8 +450,8 @@
         "text": "Enable CloudTrail with management events and data events, stored in an S3 bucket with Object Lock in Compliance mode"
       }
     ],
-    "answer": "B",
-    "explanation": "CloudTrail records management events by default. To capture read-only API calls at scale they are included in management events (read and write). S3 Object Lock in Compliance mode prevents anyone \u2014 including the root user \u2014 from deleting or modifying logs during the retention period, making them tamper-proof. Versioning prevents accidental overwrites but allows deletion. Config checks that CloudTrail is enabled but doesn't make the logs tamper-proof.",
+    "answer": "D",
+    "explanation": "CloudTrail management events capture all control-plane API calls including read-only calls like DescribeInstances. Storing them in an S3 bucket with Object Lock in Compliance mode prevents anyone — including the root user — from deleting or modifying log files during the retention period, making them tamper-proof. Option A uses versioning, which prevents accidental overwrites but still allows deletion. Option B (AWS Config) checks that CloudTrail is enabled but does not make logs tamper-proof. Option C stores logs in S3 without Object Lock, which is not tamper-proof.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -460,11 +460,11 @@
       "compliance",
       "audit-logging"
     ],
-    "correct": "C",
+    "correct": "D",
     "distractors": [
       "A",
       "B",
-      "D"
+      "C"
     ]
   },
   {
@@ -482,7 +482,7 @@
       },
       {
         "label": "C",
-        "text": "Change the IAM user's password and enable MFA \u2014 access keys are unaffected by password changes"
+        "text": "Change the IAM user's password and enable MFA — access keys are unaffected by password changes"
       },
       {
         "label": "D",
@@ -802,7 +802,7 @@
       }
     ],
     "answer": "B",
-    "explanation": "CloudTrail logs the root login event. CloudWatch Events (EventBridge) can trigger a rule matching the ConsoleLogin event from root. That rule routes to SNS which sends an immediate notification. Config evaluates configurations, not event-driven logins. GuardDuty detects some unusual root activity but the direct notification path is CloudTrail \u2192 EventBridge \u2192 SNS.",
+    "explanation": "CloudTrail logs the root login event. CloudWatch Events (EventBridge) can trigger a rule matching the ConsoleLogin event from root. That rule routes to SNS which sends an immediate notification. Config evaluates configurations, not event-driven logins. GuardDuty detects some unusual root activity but the direct notification path is CloudTrail → EventBridge → SNS.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -1021,7 +1021,7 @@
   {
     "id": "aws-cp-t4-02-027",
     "type": "single",
-    "stem": "A company uses AWS Organizations and wants to ensure that no member account can create IAM users with console access \u2014 all human access must flow through IAM Identity Center (SSO). How can this be enforced across all accounts?",
+    "stem": "A company uses AWS Organizations and wants to ensure that no member account can create IAM users with console access — all human access must flow through IAM Identity Center (SSO). How can this be enforced across all accounts?",
     "options": [
       {
         "label": "A",

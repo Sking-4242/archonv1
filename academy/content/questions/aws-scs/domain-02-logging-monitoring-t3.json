@@ -227,7 +227,7 @@
       },
       {
         "label": "C",
-        "text": "CloudWatch Logs retains data for 90 days by default; configure a log group retention policy of 7 years (2557 days) and export logs to S3 using a log export job or Kinesis Firehose for durable long-term storage."
+        "text": "CloudWatch Logs retains data indefinitely by default (Never Expire); configure a log group retention policy of 7 years (2557 days) and export logs to S3 using a log export task or Kinesis Data Firehose for durable, cost-efficient long-term storage."
       },
       {
         "label": "D",
@@ -240,7 +240,7 @@
       "B",
       "D"
     ],
-    "explanation": "CloudWatch Logs retains log data indefinitely if no retention policy is set (not 90 days). However, for cost-efficient 7-year retention, set a log group retention policy and export to S3/Glacier. Without an explicit policy, logs are retained forever but at CloudWatch pricing.",
+    "explanation": "CloudWatch Logs retains log data indefinitely by default — there is no automatic expiration unless you explicitly set a retention policy on the log group. For cost-efficient 7-year compliance retention, configure the log group retention policy to 2557 days (7 years) and set up automated export to S3 (via a scheduled export task or Kinesis Data Firehose) so logs move to cheaper S3 storage tiers over time.\n\nOption A is partially correct about indefinite default retention but incorrectly recommends configuring an S3 lifecycle rule on the Lambda deployment package bucket — Lambda logs go to CloudWatch Logs, not the deployment bucket.\nOption B is wrong — the default is not 30 days, and writing directly to S3 adds complexity without the observability benefits of CloudWatch Logs.\nOption D is wrong — the default retention is not 1 year.",
     "module_ref": "scs-m2",
     "tags": [
       "cloudwatch-logs",
@@ -387,7 +387,7 @@
     "options": [
       {
         "label": "A",
-        "text": "No data points have been published to the metric yet \u2014 either CloudTrail has not delivered logs to the CloudWatch Logs log group or the filter has not matched any events."
+        "text": "No data points have been published to the metric yet — either CloudTrail has not delivered logs to the CloudWatch Logs log group or the filter has not matched any events."
       },
       {
         "label": "B",
@@ -408,7 +408,7 @@
       "C",
       "D"
     ],
-    "explanation": "INSUFFICIENT_DATA means CloudWatch has not received enough data points to evaluate the alarm. For CloudTrail-based metric filters, this happens when no matching events have been published to the metric within the evaluation period \u2014 either because no events occurred or logs are not being delivered to CloudWatch.",
+    "explanation": "INSUFFICIENT_DATA means CloudWatch has not received enough data points to evaluate the alarm. For CloudTrail-based metric filters, this happens when no matching events have been published to the metric within the evaluation period — either because no events occurred or logs are not being delivered to CloudWatch.",
     "module_ref": "scs-m2",
     "tags": [
       "cloudwatch",
@@ -603,7 +603,7 @@
       },
       {
         "label": "B",
-        "text": "AWS Config records changes to AWS resource configurations (metadata, settings, relationships) \u2014 not data-plane operations like object contents or database records. CloudTrail data events capture those operations."
+        "text": "AWS Config records changes to AWS resource configurations (metadata, settings, relationships) — not data-plane operations like object contents or database records. CloudTrail data events capture those operations."
       },
       {
         "label": "C",
@@ -620,7 +620,7 @@
       "C",
       "D"
     ],
-    "explanation": "AWS Config is a resource configuration service \u2014 it tracks settings, attributes, and relationships of AWS resources (bucket policies, instance types, security group rules). It does not record the data stored in S3 buckets or DynamoDB tables. CloudTrail data events cover API-level data operations.",
+    "explanation": "AWS Config is a resource configuration service — it tracks settings, attributes, and relationships of AWS resources (bucket policies, instance types, security group rules). It does not record the data stored in S3 buckets or DynamoDB tables. CloudTrail data events cover API-level data operations.",
     "module_ref": "scs-m2",
     "tags": [
       "aws-config",

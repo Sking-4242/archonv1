@@ -151,7 +151,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Increase speed and agility \u2014 deploy ML models in minutes"
+        "text": "Increase speed and agility — deploy ML models in minutes"
       },
       {
         "label": "B",
@@ -224,7 +224,7 @@
       "D": "Elasticity allows you to automatically scale compute resources up or down based on demand, eliminating the need to over-provision capacity.",
       "E": "Economies of scale allow AWS to pass on lower variable costs to customers by aggregating usage across hundreds of thousands of customers."
     },
-    "explanation": "AWS manages the physical infrastructure \u2014 hardware, racking, power, cooling, and OS-level patching \u2014 so customers can redirect engineering effort to differentiated business work rather than undifferentiated infrastructure tasks.",
+    "explanation": "AWS manages the physical infrastructure — hardware, racking, power, cooling, and OS-level patching — so customers can redirect engineering effort to differentiated business work rather than undifferentiated infrastructure tasks.",
     "module_ref": "aws-cp/cloud-concepts",
     "tags": [
       "cloud-advantages",
@@ -397,7 +397,7 @@
       },
       {
         "label": "D",
-        "text": "Stop guessing capacity \u2014 provision exactly what you need on demand, then scale up or down instantly as requirements change."
+        "text": "Stop guessing capacity — provision exactly what you need on demand, then scale up or down instantly as requirements change."
       },
       {
         "label": "E",
@@ -411,7 +411,7 @@
       "C": "Going global in minutes means you can deploy your application in multiple AWS Regions worldwide with just a few clicks.",
       "E": "Stop spending money on data center operations so you can focus resources on projects that differentiate your business, not managing infrastructure."
     },
-    "explanation": "AWS lets you provision capacity on-demand in minutes. There is no need to over-provision for peak demand or wait weeks for hardware \u2014 you scale up when needed and release capacity when you don't need it.",
+    "explanation": "AWS lets you provision capacity on-demand in minutes. There is no need to over-provision for peak demand or wait weeks for hardware — you scale up when needed and release capacity when you don't need it.",
     "module_ref": "aws-cp/cloud-concepts",
     "tags": [
       "capacity-planning",
@@ -682,7 +682,7 @@
       },
       {
         "label": "E",
-        "text": "Automate to make architectural experimentation easier \u2014 automation reduces the cost and risk of experiments so teams can test ideas quickly and roll back safely."
+        "text": "Automate to make architectural experimentation easier — automation reduces the cost and risk of experiments so teams can test ideas quickly and roll back safely."
       }
     ],
     "correct": "A",
@@ -690,7 +690,7 @@
       "B": "Implement loose coupling between components so that failures in one service do not cascade to dependent services, improving overall resilience.",
       "C": "Use managed services to reduce operational complexity by delegating patching, backups, and scaling to AWS so teams can focus on delivering business features.",
       "D": "Design for failure by assuming components will fail and building systems that automatically recover and continue operating without manual intervention.",
-      "E": "Automate to make architectural experimentation easier \u2014 automation reduces the cost and risk of experiments so teams can test ideas quickly and roll back safely."
+      "E": "Automate to make architectural experimentation easier — automation reduces the cost and risk of experiments so teams can test ideas quickly and roll back safely."
     },
     "explanation": "On AWS, you can spin up a prototype, test a new architecture, and tear it down in hours. If it doesn't work, you stop paying. This dramatically reduces the cost and risk of architectural experimentation compared to buying hardware.",
     "module_ref": "aws-cp/cloud-concepts",
@@ -759,7 +759,7 @@
     "options": [
       {
         "label": "A",
-        "text": "AWS Outposts on shared premises delivers AWS infrastructure on-site but still runs workloads on shared physical hardware within your facility."
+        "text": "AWS Outposts deploys dedicated AWS-managed hardware on-premises at the customer's facility, but requires the workload to run in the customer's own data center rather than in an AWS Region."
       },
       {
         "label": "B",
@@ -780,12 +780,12 @@
     ],
     "correct": "B",
     "distractors": {
-      "A": "AWS Outposts on shared premises delivers AWS infrastructure on-site but still runs workloads on shared physical hardware within your facility.",
-      "C": "Default multi-tenant EC2 instances share physical host hardware with other customers, which does not satisfy hardware-level isolation compliance requirements.",
-      "D": "AWS Lambda functions run on shared compute infrastructure with no option for dedicated physical hardware, making them unsuitable for hardware isolation mandates.",
-      "E": "Amazon ECS on shared compute orchestrates containers on shared EC2 hosts, providing no guarantee of physical hardware isolation from other tenants."
+      "A": "AWS Outposts hardware is dedicated to the customer — it is not shared with other AWS customers. However, it requires the customer to host the hardware in their own facility, which is a different requirement than running workloads in an AWS Region on dedicated EC2 hardware.",
+      "C": "",
+      "D": "",
+      "E": ""
     },
-    "explanation": "EC2 Dedicated Hosts and Dedicated Instances run on physical hardware that is not shared with other AWS customers, satisfying compliance requirements for dedicated hardware while still running in the AWS cloud.",
+    "explanation": "EC2 Dedicated Hosts and Dedicated Instances run on physical server hardware that is not shared with other AWS customers, satisfying compliance requirements for hardware-level isolation while running workloads within AWS Regions. AWS Outposts also uses dedicated hardware, but deploys it on-premises at the customer's facility — a different model. Default EC2 instances share physical hosts (multi-tenant). Lambda and ECS on shared compute provide no hardware isolation guarantees.",
     "module_ref": "aws-cp/cloud-concepts",
     "tags": [
       "dedicated-hosts",
@@ -879,7 +879,7 @@
       "D": "",
       "E": ""
     },
-    "explanation": "Amazon DynamoDB is a fully managed NoSQL database \u2014 AWS handles provisioning, replication across multiple AZs, patching, scaling, and high availability with no action required from the customer.",
+    "explanation": "Amazon DynamoDB is a fully managed NoSQL database — AWS handles provisioning, replication across multiple AZs, patching, scaling, and high availability with no action required from the customer.",
     "module_ref": "aws-cp/cloud-concepts",
     "tags": [
       "managed-services",

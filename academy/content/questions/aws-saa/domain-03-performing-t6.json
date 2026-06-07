@@ -23,7 +23,7 @@
       },
       {
         "label": "D",
-        "text": "CloudFront must perform an origin DNS lookup for each new video, adding 200\u2013400ms"
+        "text": "CloudFront must perform an origin DNS lookup for each new video, adding 200–400ms"
       }
     ],
     "correct": "B",
@@ -74,7 +74,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "DynamoDB distributes provisioned capacity across partitions. With 10,000 WCU and 500 partitions, each partition receives ~20 WCU on average. The per-partition hard limit is 1,000 WCU. If writes are not perfectly uniform across partitions\u2014or if the adaptive capacity hasn't redistributed yet\u2014individual partitions can be throttled even when table-level consumed WCU is below total provisioned. The fix is to ensure truly uniform key distribution and enable DynamoDB adaptive capacity (on by default) to reallocate unused capacity to hot partitions.",
+    "explanation": "DynamoDB distributes provisioned capacity across partitions. With 10,000 WCU and 500 partitions, each partition receives ~20 WCU on average. The per-partition hard limit is 1,000 WCU. If writes are not perfectly uniform across partitions—or if the adaptive capacity hasn't redistributed yet—individual partitions can be throttled even when table-level consumed WCU is below total provisioned. The fix is to ensure truly uniform key distribution and enable DynamoDB adaptive capacity (on by default) to reallocate unused capacity to hot partitions.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "dynamodb",
@@ -123,7 +123,7 @@
       "B": "",
       "E": ""
     },
-    "explanation": "The two highest-impact changes are: (A) Converting JSON to columnar format (Parquet/ORC) reduces data scanned by 5-10x due to column pruning and compression\u2014reading 10TB of JSON is inherently slow. (C) Adding executor capacity directly parallelizes the work. Option D (S3 Select) requires restructuring queries and doesn't help for full-table scans. Option E (partition pruning) only helps if queries filter by date\u2014full transformation still reads all data. Option B addresses consistency, not performance.",
+    "explanation": "The two highest-impact changes are: (A) Converting JSON to columnar format (Parquet/ORC) reduces data scanned by 5-10x due to column pruning and compression—reading 10TB of JSON is inherently slow. (C) Adding executor capacity directly parallelizes the work. Option D (S3 Select) requires restructuring queries and doesn't help for full-table scans. Option E (partition pruning) only helps if queries filter by date—full transformation still reads all data. Option B addresses consistency, not performance.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "emr",
@@ -165,7 +165,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "The 429 errors from the third-party API indicate rate limiting. The Lambda function should implement exponential backoff with jitter when receiving 429s. The visibility timeout must be extended (5+ minutes) to give enough time for the backoff retries before SQS makes the message visible again\u2014if visibility timeout (30s) is shorter than total retry time, SQS re-delivers the message to another consumer while the first is still processing, causing duplicate attempts toward the maxReceiveCount. Option A increases concurrency which would worsen rate limiting. Option C doesn't affect rate-limit retry behavior. Option D affects retention, not retry timing.",
+    "explanation": "The 429 errors from the third-party API indicate rate limiting. The Lambda function should implement exponential backoff with jitter when receiving 429s. The visibility timeout must be extended (5+ minutes) to give enough time for the backoff retries before SQS makes the message visible again—if visibility timeout (30s) is shorter than total retry time, SQS re-delivers the message to another consumer while the first is still processing, causing duplicate attempts toward the maxReceiveCount. Option A increases concurrency which would worsen rate limiting. Option C doesn't affect rate-limit retry behavior. Option D affects retention, not retry timing.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "sqs",
@@ -207,7 +207,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "400ms of 800ms P95 is spent on connection establishment\u2014a clear connection overhead problem. RDS Proxy maintains warm connection pools to RDS, allowing application containers to connect to the proxy in milliseconds rather than establishing TCP+TLS+PostgreSQL handshake each time. For 50 databases, 50 RDS Proxy endpoints are needed. Option A trades multi-tenancy isolation for connection efficiency\u2014not acceptable. Option C (Multi-AZ standby) doesn't serve reads or distribute connections in PostgreSQL. Option D: ECS task-level pooling doesn't scale across tasks and max_connections doesn't reduce establishment time.",
+    "explanation": "400ms of 800ms P95 is spent on connection establishment—a clear connection overhead problem. RDS Proxy maintains warm connection pools to RDS, allowing application containers to connect to the proxy in milliseconds rather than establishing TCP+TLS+PostgreSQL handshake each time. For 50 databases, 50 RDS Proxy endpoints are needed. Option A trades multi-tenancy isolation for connection efficiency—not acceptable. Option C (Multi-AZ standby) doesn't serve reads or distribute connections in PostgreSQL. Option D: ECS task-level pooling doesn't scale across tasks and max_connections doesn't reduce establishment time.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "rds",
@@ -225,11 +225,11 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company ingests IoT sensor data at 1 million events/second into Kinesis Data Streams with 100 shards. A Lambda consumer processes each event and writes aggregated metrics to DynamoDB. Lambda invocations per second equals shard count \u00d7 parallelization factor. The team sets parallelization factor to 10. How many concurrent Lambda invocations will Kinesis trigger?",
+    "stem": "A company ingests IoT sensor data at 1 million events/second into Kinesis Data Streams with 100 shards. A Lambda consumer processes each event and writes aggregated metrics to DynamoDB. Lambda invocations per second equals shard count × parallelization factor. The team sets parallelization factor to 10. How many concurrent Lambda invocations will Kinesis trigger?",
     "options": [
       {
         "label": "A",
-        "text": "1,000 (100 shards \u00d7 parallelization factor of 10)"
+        "text": "1,000 (100 shards × parallelization factor of 10)"
       },
       {
         "label": "B",
@@ -250,7 +250,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Kinesis parallelization factor (1\u201310) allows Lambda to process multiple batches from a single shard concurrently. With 100 shards and parallelization factor 10, Lambda can invoke up to 100 \u00d7 10 = 1,000 concurrent functions. Each parallel invocation processes a non-overlapping subset of records within the shard, preserving ordering within each subset. The maximum parallelization factor is 10. Option A is wrong\u2014parallelization factor multiplies concurrent invocations. Option C is incorrect\u2014it's not based on record volume. Option D is incorrect\u201410 is the maximum, not invalid.",
+    "explanation": "Kinesis parallelization factor (1–10) allows Lambda to process multiple batches from a single shard concurrently. With 100 shards and parallelization factor 10, Lambda can invoke up to 100 × 10 = 1,000 concurrent functions. Each parallel invocation processes a non-overlapping subset of records within the shard, preserving ordering within each subset. The maximum parallelization factor is 10. Option A is wrong—parallelization factor multiplies concurrent invocations. Option C is incorrect—it's not based on record volume. Option D is incorrect—10 is the maximum, not invalid.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "kinesis",
@@ -286,13 +286,13 @@
         "text": "Use DynamoDB Global Tables instead of Aurora for sub-10ms global write latency"
       }
     ],
-    "correct": "C",
+    "correct": "A",
     "distractors": {
-      "A": "",
       "B": "",
+      "C": "",
       "D": ""
     },
-    "explanation": "Aurora Global Database write forwarding allows applications to direct write queries to the local secondary cluster; Aurora transparently forwards those writes to the primary region. This eliminates the need for application-level routing logic but does NOT reduce latency\u2014the write still traverses to us-east-1 (180ms). However, it simplifies the architecture. For actually reducing write latency, you would need to either promote eu-west-1 as primary (Option A\u2014but then US users suffer) or use a multi-master architecture (not available in Aurora Global). The question asks about reducing latency\u2014Option A actually reduces EU write latency by moving the primary closer. Option B simplifies routing but doesn't reduce the underlying 180ms network RTT.",
+    "explanation": "The 180ms write latency from eu-west-1 is the network round-trip from EU to us-east-1 (the Aurora Global Database primary). The only way to reduce this latency for EU users is to move the primary writer closer — promoting eu-west-1 to primary. After promotion, EU writes go to the local cluster (sub-5ms) while US reads/writes now traverse the Atlantic instead.\n\nOption C (Aurora write forwarding): allows EU applications to send writes to the eu-west-1 secondary, but Aurora transparently forwards them to us-east-1. The 180ms network round-trip still occurs — write forwarding simplifies application routing but does NOT reduce latency.\nOption B (Aurora read replica with write capability): Aurora read replicas cannot have write capability enabled — they are read-only by design.\nOption D (DynamoDB Global Tables): would require a database migration and application rewrite — not a valid \"architecture change\" for an existing Aurora app.\n\nFor use cases where the primary cannot be moved, the architectural alternative is to design for eventual consistency and accept the 180ms write latency as unavoidable physics.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "aurora",
@@ -334,7 +334,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Depth-4 graph traversals are exponentially expensive (N^4 node visits). The correct approach is query optimization\u2014limiting traversal depth or pre-computing common paths. ElastiCache Redis can cache user-specific graph subsets. Materializing paths in DynamoDB trades write-time computation for fast reads. Option A (API GW cache) helps for repeated identical requests but doesn't fix the underlying 3.5s query. Option B scales the cluster but depth-4 traversals have exponential complexity that scaling alone cannot solve efficiently. Option D: SPARQL vs Gremlin doesn't fundamentally change traversal complexity.",
+    "explanation": "Depth-4 graph traversals are exponentially expensive (N^4 node visits). The correct approach is query optimization—limiting traversal depth or pre-computing common paths. ElastiCache Redis can cache user-specific graph subsets. Materializing paths in DynamoDB trades write-time computation for fast reads. Option A (API GW cache) helps for repeated identical requests but doesn't fix the underlying 3.5s query. Option B scales the cluster but depth-4 traversals have exponential complexity that scaling alone cannot solve efficiently. Option D: SPARQL vs Gremlin doesn't fundamentally change traversal complexity.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "neptune",
@@ -377,7 +377,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Compound sort keys (SORTKEY(trade_date, trader_id)) only prune blocks when filtering on the leading column (trade_date). Queries filtering only on trader_id cannot benefit from the sort key. Interleaved sort keys give equal weight to each sort key column, allowing zone map pruning on any column in the key. This is ideal when queries filter on trader_id independently. Option A (DISTKEY trader_id) concentrates all trades per trader on one node\u2014effective for trader aggregations but creates skew. Option B (compound key with trade_date first) still doesn't help trader_id-only queries. Option C (materialized view) adds freshness lag.",
+    "explanation": "Compound sort keys (SORTKEY(trade_date, trader_id)) only prune blocks when filtering on the leading column (trade_date). Queries filtering only on trader_id cannot benefit from the sort key. Interleaved sort keys give equal weight to each sort key column, allowing zone map pruning on any column in the key. This is ideal when queries filter on trader_id independently. Option A (DISTKEY trader_id) concentrates all trades per trader on one node—effective for trader aggregations but creates skew. Option B (compound key with trade_date first) still doesn't help trader_id-only queries. Option C (materialized view) adds freshness lag.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "redshift",
@@ -395,7 +395,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company runs a real-time fraud detection system using Kinesis Data Streams \u2192 Lambda \u2192 SageMaker endpoint. The SageMaker endpoint processes 500 req/s. Lambda concurrency is hitting the account limit (1,000). Each Lambda invocation makes one synchronous SageMaker call. The team wants to scale to 5,000 req/s. What architectural change achieves this while managing SageMaker endpoint load?",
+    "stem": "A company runs a real-time fraud detection system using Kinesis Data Streams → Lambda → SageMaker endpoint. The SageMaker endpoint processes 500 req/s. Lambda concurrency is hitting the account limit (1,000). Each Lambda invocation makes one synchronous SageMaker call. The team wants to scale to 5,000 req/s. What architectural change achieves this while managing SageMaker endpoint load?",
     "options": [
       {
         "label": "A",
@@ -420,7 +420,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "The bottleneck is synchronous Lambda\u2192SageMaker at scale hitting concurrency limits. Decoupling with SQS provides: (1) backpressure\u2014SQS buffers excess records instead of throttling Lambda, (2) the SageMaker-calling Lambda can be sized with reserved concurrency matching endpoint capacity, (3) burst traffic is smoothed. This is an async decoupling pattern. Option A raises limits but doesn't change the synchronous bottleneck architecture. Option B (Kinesis Analytics) adds complexity without solving the concurrency problem. Option D (Firehose) is for data delivery to destinations, not Lambda invocation.",
+    "explanation": "The bottleneck is synchronous Lambda→SageMaker at scale hitting concurrency limits. Decoupling with SQS provides: (1) backpressure—SQS buffers excess records instead of throttling Lambda, (2) the SageMaker-calling Lambda can be sized with reserved concurrency matching endpoint capacity, (3) burst traffic is smoothed. This is an async decoupling pattern. Option A raises limits but doesn't change the synchronous bottleneck architecture. Option B (Kinesis Analytics) adds complexity without solving the concurrency problem. Option D (Firehose) is for data delivery to destinations, not Lambda invocation.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "kinesis",
@@ -451,7 +451,7 @@
       },
       {
         "label": "C",
-        "text": "Parallelize the 20 Service B calls within Service A using async fan-out (e.g., Promise.all or concurrent futures), reducing serial latency from 20\u00d750ms=1s."
+        "text": "Parallelize the 20 Service B calls within Service A using async fan-out (e.g., Promise.all or concurrent futures), reducing serial latency from 20×50ms=1s."
       },
       {
         "label": "D",
@@ -464,7 +464,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "20 sequential 50ms calls = 1,000ms serial latency. If these calls are independent (no data dependency between them), parallelizing them reduces wall-clock time to ~50ms (one parallel round-trip). This is a classic sequential-to-parallel refactoring that can reduce latency by 20x. Option A adds capacity but doesn't change serial call pattern. Option B caches responses but doesn't fix the 20-call pattern for unique requests. Option D reduces ALB overhead (~1ms) but doesn't address the fundamental 20\u00d750ms = 1,000ms problem.",
+    "explanation": "20 sequential 50ms calls = 1,000ms serial latency. If these calls are independent (no data dependency between them), parallelizing them reduces wall-clock time to ~50ms (one parallel round-trip). This is a classic sequential-to-parallel refactoring that can reduce latency by 20x. Option A adds capacity but doesn't change serial call pattern. Option B caches responses but doesn't fix the 20-call pattern for unique requests. Option D reduces ALB overhead (~1ms) but doesn't address the fundamental 20×50ms = 1,000ms problem.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "ecs",
@@ -514,7 +514,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "(A) Converting to Parquet provides columnar storage\u2014Athena only reads required columns and uses statistics to skip data blocks, dramatically reducing bytes scanned on 500TB. (C) Glue Partition Projection defines partition schema via table properties, letting Athena compute partition locations mathematically without consulting the Glue Data Catalog\u2014eliminating the 6-hour crawler lag and enabling instant partition pruning. Option E (proper partitioning) is already implied by the existing directory structure; the issue is the Glue catalog not reflecting partitions. Option B (result cache) only helps identical repeated queries.",
+    "explanation": "(A) Converting to Parquet provides columnar storage—Athena only reads required columns and uses statistics to skip data blocks, dramatically reducing bytes scanned on 500TB. (C) Glue Partition Projection defines partition schema via table properties, letting Athena compute partition locations mathematically without consulting the Glue Data Catalog—eliminating the 6-hour crawler lag and enabling instant partition pruning. Option E (proper partitioning) is already implied by the existing directory structure; the issue is the Glue catalog not reflecting partitions. Option B (result cache) only helps identical repeated queries.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "athena",
@@ -557,7 +557,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "With cluster mode disabled, all writes go to a single primary regardless of replica count\u2014adding replicas doesn't help write scaling. The primary is at 100% CPU due to write load. Cluster mode with 4 shards creates 4 primaries, distributing write load. Session keys are distributed by hash slot across shards. 20,000 writes/s \u00f7 4 shards = 5,000/shard\u2014manageable. Option A (more replicas) doesn't help writes in disabled-cluster mode. Option C (larger instance) delays the problem\u2014vertical scaling for write-bound workloads. Option D (AOF) adds disk I/O overhead which worsens CPU usage.",
+    "explanation": "With cluster mode disabled, all writes go to a single primary regardless of replica count—adding replicas doesn't help write scaling. The primary is at 100% CPU due to write load. Cluster mode with 4 shards creates 4 primaries, distributing write load. Session keys are distributed by hash slot across shards. 20,000 writes/s ÷ 4 shards = 5,000/shard—manageable. Option A (more replicas) doesn't help writes in disabled-cluster mode. Option C (larger instance) delays the problem—vertical scaling for write-bound workloads. Option D (AOF) adds disk I/O overhead which worsens CPU usage.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "elasticache",
@@ -575,7 +575,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company runs AWS Batch for genomics workloads using Spot Instances. Jobs take 4\u20138 hours. Spot interruption rate for the chosen instance type (c5.18xlarge) is 15%/hour. The team wants to reduce job failures from interruptions. What is the most effective strategy?",
+    "stem": "A company runs AWS Batch for genomics workloads using Spot Instances. Jobs take 4–8 hours. Spot interruption rate for the chosen instance type (c5.18xlarge) is 15%/hour. The team wants to reduce job failures from interruptions. What is the most effective strategy?",
     "options": [
       {
         "label": "A",
@@ -591,7 +591,7 @@
       },
       {
         "label": "D",
-        "text": "Implement job checkpointing\u2014save intermediate results to S3 every 30 minutes\u2014and configure AWS Batch to retry interrupted jobs from the."
+        "text": "Implement job checkpointing—save intermediate results to S3 every 30 minutes—and configure AWS Batch to retry interrupted jobs from the."
       }
     ],
     "correct": "D",
@@ -600,7 +600,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "At 15%/hour interruption rate, an 8-hour job has a high probability of interruption. Checkpointing to S3 every 30 minutes means at most 30 minutes of work is lost on interruption. AWS Batch retry with checkpoint resume reduces effective job failure to near zero. Option A (On-Demand) costs 3-5x more\u2014acceptable for critical work but not cost-optimized. Option C (instance diversification) reduces interruption probability but 4\u20138 hour jobs will still face significant interruption risk. Option D: Spot price cannot be bid below market\u2014AWS sets Spot price dynamically.",
+    "explanation": "At 15%/hour interruption rate, an 8-hour job has a high probability of interruption. Checkpointing to S3 every 30 minutes means at most 30 minutes of work is lost on interruption. AWS Batch retry with checkpoint resume reduces effective job failure to near zero. Option A (On-Demand) costs 3-5x more—acceptable for critical work but not cost-optimized. Option C (instance diversification) reduces interruption probability but 4–8 hour jobs will still face significant interruption risk. Option D: Spot price cannot be bid below market—AWS sets Spot price dynamically.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "aws-batch",
@@ -685,7 +685,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "DocumentDB (and MongoDB) $lookup operations do not benefit from indexes in the same way relational joins do\u2014they perform collection scans on the 'from' collection. For a 50M \u00d7 2M join, this is extremely expensive. Denormalization is the MongoDB/DocumentDB design pattern: embed frequently-accessed customer fields (name, email, segment) directly in order documents. This eliminates the join entirely. Option A (index on foreign key) helps filter but $lookup still scans. Option B scales compute but doesn't change O(n\u00d7m) join complexity. Option D (Redshift) is valid for analytics but adds architectural complexity.",
+    "explanation": "DocumentDB (and MongoDB) $lookup operations do not benefit from indexes in the same way relational joins do—they perform collection scans on the 'from' collection. For a 50M × 2M join, this is extremely expensive. Denormalization is the MongoDB/DocumentDB design pattern: embed frequently-accessed customer fields (name, email, segment) directly in order documents. This eliminates the join entirely. Option A (index on foreign key) helps filter but $lookup still scans. Option B scales compute but doesn't change O(n×m) join complexity. Option D (Redshift) is valid for analytics but adds architectural complexity.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "documentdb",
@@ -727,7 +727,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "When Lambda processing time (35s spike) exceeds visibility timeout (30s), SQS assumes the consumer failed and makes the message visible again. A second Lambda picks it up. Both may complete successfully, but the receiveCount for that message is now 2 (or more over multiple spikes). If maxReceiveCount is set to 3, the message reaches DLQ after 3 delivery attempts even though it was processed successfully each time. Fix: increase visibility timeout to 5-10\u00d7 average processing time (e.g., 5 minutes). Option A: Lambda duration is 25-35 seconds, far from 15-minute limit. Option C: at-least-once is normal behavior\u2014the issue is the visibility timeout mismatch.",
+    "explanation": "When Lambda processing time (35s spike) exceeds visibility timeout (30s), SQS assumes the consumer failed and makes the message visible again. A second Lambda picks it up. Both may complete successfully, but the receiveCount for that message is now 2 (or more over multiple spikes). If maxReceiveCount is set to 3, the message reaches DLQ after 3 delivery attempts even though it was processed successfully each time. Fix: increase visibility timeout to 5-10× average processing time (e.g., 5 minutes). Option A: Lambda duration is 25-35 seconds, far from 15-minute limit. Option C: at-least-once is normal behavior—the issue is the visibility timeout mismatch.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "sqs",
@@ -757,7 +757,7 @@
       },
       {
         "label": "C",
-        "text": "Reduce shard count to 20 shards of ~400GB each; 160GB shards are below the recommended 10\u201350GB range causing excessive shard overhead."
+        "text": "Increase shard count to 160–800 shards targeting 10–50 GB per shard, or use Index Lifecycle Management (ILM) to roll over to time-based indices — 160 GB shards are 3–16× the recommended maximum, causing slow queries and difficult segment merges."
       },
       {
         "label": "D",
@@ -770,7 +770,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "OpenSearch recommends shard sizes of 10\u201350 GB for optimal query performance. With 8 TB of data divided across 50 shards, each shard is 8,000 GB \u00f7 50 = 160 GB \u2014 3 to 16 times the recommended maximum. Oversized shards cause slow queries and difficult recovery. The fix is to increase the shard count to at least 160\u2013800 shards (targeting 10\u201350 GB each), or reduce data volume per index via time-based index rotation (ILM).",
+    "explanation": "OpenSearch recommends shard sizes of 10–50 GB for optimal query performance. With 8 TB across 50 shards, each shard is 160 GB — 3–16× the recommended maximum. Oversized shards cause slow queries because each shard is a full Lucene index: large shards take longer to search, recover after node failure, and merge segments. The fix is to increase shard count (target 10–50 GB per shard → 160–800 shards) or use ILM to create time-based rolling indices so that each index stays small. Option A (reduce to 10 shards → 800 GB each) makes the problem significantly worse. Option B (UltraWarm) helps cost for old cold data but does not fix hot query latency. Option D (more replicas) serves more concurrent reads but does not reduce individual query execution time on oversized shards.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "opensearch",
@@ -819,7 +819,7 @@
       "D": "",
       "E": ""
     },
-    "explanation": "(A) API Gateway caching reduces Lambda invocations for repeated identical requests \u2014 if 30% of requests are cacheable, this directly reduces both cold start frequency and total invocation count. (B) Provisioned Concurrency pre-warms Lambda execution environments, eliminating cold starts for baseline traffic. Both together address latency spikes from two different angles. Increasing memory (C) speeds up CPU-bound initialization but does not eliminate cold starts. Container image packaging (D) typically increases cold start time due to larger image pull. SnapStart (E) is only available for Java runtimes, not Python.",
+    "explanation": "(A) API Gateway caching reduces Lambda invocations for repeated identical requests — if 30% of requests are cacheable, this directly reduces both cold start frequency and total invocation count. (B) Provisioned Concurrency pre-warms Lambda execution environments, eliminating cold starts for baseline traffic. Both together address latency spikes from two different angles. Increasing memory (C) speeds up CPU-bound initialization but does not eliminate cold starts. Container image packaging (D) typically increases cold start time due to larger image pull. SnapStart (E) is only available for Java runtimes, not Python.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "lambda",
@@ -862,7 +862,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "The 8-second latency is caused by how the fraud pattern join is implemented. If using a temporal join with 5-minute reference data refresh, each record waits up to 5 minutes or uses stale patterns. Using Flink's broadcast state pattern: (1) fraud patterns stream is broadcast to all task managers, (2) transaction records are joined against in-memory broadcast state with <1ms lookup time. This achieves real-time sub-second joins. Option A: 15,000 records/s \u00d7 1KB = 15MB/s across 20 shards = 0.75MB/shard\u2014within limits. Option B: Default Flink doesn't use 60-second windows; window configuration is explicit. Option D: Same-region Kinesis\u2192KDA latency is milliseconds.",
+    "explanation": "The 8-second latency is caused by how the fraud pattern join is implemented. If using a temporal join with 5-minute reference data refresh, each record waits up to 5 minutes or uses stale patterns. Using Flink's broadcast state pattern: (1) fraud patterns stream is broadcast to all task managers, (2) transaction records are joined against in-memory broadcast state with <1ms lookup time. This achieves real-time sub-second joins. Option A: 15,000 records/s × 1KB = 15MB/s across 20 shards = 0.75MB/shard—within limits. Option B: Default Flink doesn't use 60-second windows; window configuration is explicit. Option D: Same-region Kinesis→KDA latency is milliseconds.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "kinesis",
@@ -880,7 +880,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company's S3-based data lake has 100TB of data accessed by Athena. Query performance is degraded because S3 LIST operations on the partition structure take 45 seconds before query execution begins. The partition structure is s3://bucket/year={}/month={}/day={}/hour={}/ with 87,600 partitions (365\u00d724\u00d710 years). What is the most effective solution?",
+    "stem": "A company's S3-based data lake has 100TB of data accessed by Athena. Query performance is degraded because S3 LIST operations on the partition structure take 45 seconds before query execution begins. The partition structure is s3://bucket/year={}/month={}/day={}/hour={}/ with 87,600 partitions (365×24×10 years). What is the most effective solution?",
     "options": [
       {
         "label": "A",
@@ -905,7 +905,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "87,600 partitions requiring S3 LIST operations = 45 seconds of overhead. Partition Projection eliminates S3 LIST and Glue catalog lookups entirely\u2014Athena mathematically computes which S3 paths to read based on WHERE clause predicates (year=2024 AND month=01). For time-series data with uniform partition structure, Partition Projection is the exact solution. Option A (Intelligent-Tiering) affects storage cost, not LIST performance. Option C (file consolidation) reduces small file overhead but doesn't fix partition enumeration. Option D (Lake Formation) still uses Glue catalog\u2014doesn't eliminate LIST operations.",
+    "explanation": "87,600 partitions requiring S3 LIST operations = 45 seconds of overhead. Partition Projection eliminates S3 LIST and Glue catalog lookups entirely—Athena mathematically computes which S3 paths to read based on WHERE clause predicates (year=2024 AND month=01). For time-series data with uniform partition structure, Partition Projection is the exact solution. Option A (Intelligent-Tiering) affects storage cost, not LIST performance. Option C (file consolidation) reduces small file overhead but doesn't fix partition enumeration. Option D (Lake Formation) still uses Glue catalog—doesn't eliminate LIST operations.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "athena",
@@ -948,7 +948,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "150ms Envoy overhead across 8 hops = ~18ms/hop. This is consistent with TLS handshake cost (TCP+TLS = 10-20ms) per new connection. TLS session resumption reuses session tickets, reducing handshake from full (2-RTT) to abbreviated (1-RTT, ~50% faster). HTTP/2 multiplexing amortizes connection setup across many requests\u2014multiple concurrent requests share one TCP connection. Together these reduce Envoy overhead from ~18ms to ~2-3ms per hop. Option A eliminates observability, security (mTLS), and traffic management benefits. Option B may provide marginal improvement. Option D (Lambda) is a complete re-architecture, not a targeted fix.",
+    "explanation": "150ms Envoy overhead across 8 hops = ~18ms/hop. This is consistent with TLS handshake cost (TCP+TLS = 10-20ms) per new connection. TLS session resumption reuses session tickets, reducing handshake from full (2-RTT) to abbreviated (1-RTT, ~50% faster). HTTP/2 multiplexing amortizes connection setup across many requests—multiple concurrent requests share one TCP connection. Together these reduce Envoy overhead from ~18ms to ~2-3ms per hop. Option A eliminates observability, security (mTLS), and traffic management benefits. Option B may provide marginal improvement. Option D (Lambda) is a complete re-architecture, not a targeted fix.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "eks",

@@ -73,7 +73,7 @@
       "C",
       "D"
     ],
-    "explanation": "SCPs are evaluated before identity-based or resource-based policies within an account. An SCP Deny is an absolute guardrail \u2014 no Allow in any account-level policy can override it. The termination is denied regardless of IAM or resource policies.",
+    "explanation": "SCPs are evaluated before identity-based or resource-based policies within an account. An SCP Deny is an absolute guardrail — no Allow in any account-level policy can override it. The termination is denied regardless of IAM or resource policies.",
     "module_ref": "scs-m4",
     "tags": [
       "scp",
@@ -366,7 +366,7 @@
       "B",
       "C"
     ],
-    "explanation": "When a cross-account trust policy trusts an account root ARN (arn:aws:iam::ACCOUNT-ID:root), it delegates the access decision entirely to Account A's IAM policies. Any principal in Account A that has an IAM policy allowing sts:AssumeRole for the role ARN can assume it \u2014 not just the root user.",
+    "explanation": "When a cross-account trust policy trusts an account root ARN (arn:aws:iam::ACCOUNT-ID:root), it delegates the access decision entirely to Account A's IAM policies. Any principal in Account A that has an IAM policy allowing sts:AssumeRole for the role ARN can assume it — not just the root user.",
     "module_ref": "scs-m4",
     "tags": [
       "cross-account",
@@ -528,13 +528,13 @@
         "text": "SCPs cannot be applied to root users because root users are not subject to SCP restrictions; use a Lambda function monitoring CloudTrail for root key creation."
       }
     ],
-    "correct": "D",
+    "correct": "A",
     "distractors": [
-      "A",
       "B",
-      "C"
+      "C",
+      "D"
     ],
-    "explanation": "SCPs do NOT apply to the root user of a member account. Root users are explicitly excluded from SCP enforcement. To detect root access key creation, CloudTrail monitoring via EventBridge or CloudWatch metric filters is the correct approach \u2014 SCPs cannot block root actions.",
+    "explanation": "AWS Service Control Policies apply to all IAM principals in attached member accounts, including the root user of those accounts. An SCP at the organization root that denies iam:CreateAccessKey with a condition on aws:PrincipalType = Root prevents member account root users from creating access keys -- this is the scalable, preventive control that enforces the policy across all accounts in the organization simultaneously.\n\nCritical distinction: SCPs do NOT apply to the management (master/payer) account root user, and they do not affect service-linked roles. But member account root users ARE fully subject to SCPs -- this is explicitly documented by AWS: \"SCPs affect all users and roles in member accounts, including the root user.\"\n\nOption B (AWS Config root-account-mfa-enabled rule): detects whether MFA is enabled on the root account -- it does not detect or prevent access key creation. Config rules are detective controls, not preventive ones.\nOption C (GuardDuty root credential monitoring): GuardDuty detects anomalous use of root credentials after the fact. It has no feature that blocks root access key creation in real time.\nOption D is factually incorrect: SCPs do apply to the root user of member accounts. CloudTrail monitoring is a valid detective control but cannot prevent key creation -- only detect it after it has already occurred.",
     "module_ref": "scs-m4",
     "tags": [
       "scp",
@@ -576,7 +576,7 @@
       "B",
       "C"
     ],
-    "explanation": "AWS evaluates IAM policies at request time, not at session creation time. When a role's permission policy is updated to remove s3:PutObject, that change takes effect on the very next API call \u2014 even for sessions already in progress with existing STS temporary credentials. The credentials themselves remain valid until expiry, but authorization is re-checked against the current policy state at each API call. Option A is wrong: policy changes do not terminate active sessions. Option B is wrong: temporary credentials remaining valid does not mean the authorization check passes. Option C is wrong: policy updates propagate immediately to active sessions \u2014 there is no caching delay for permission changes.",
+    "explanation": "AWS evaluates IAM policies at request time, not at session creation time. When a role's permission policy is updated to remove s3:PutObject, that change takes effect on the very next API call — even for sessions already in progress with existing STS temporary credentials. The credentials themselves remain valid until expiry, but authorization is re-checked against the current policy state at each API call. Option A is wrong: policy changes do not terminate active sessions. Option B is wrong: temporary credentials remaining valid does not mean the authorization check passes. Option C is wrong: policy updates propagate immediately to active sessions — there is no caching delay for permission changes.",
     "module_ref": "scs-m4",
     "tags": [
       "iam",

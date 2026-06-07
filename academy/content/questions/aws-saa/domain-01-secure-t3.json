@@ -74,7 +74,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Security group referencing (allowing inbound port 5432 from the app tier SG ID) is the most maintainable approach \u2014 it automatically tracks which instances belong to the app tier regardless of IP changes, requires no CIDR management, and is stateful (return traffic is automatically allowed). NACL rules require CIDR-based management that becomes stale as IPs change, and NACLs are stateless requiring explicit inbound and outbound rules. IAM policies don't control network-layer database connections. VPC Flow Logs are detective, not preventive.",
+    "explanation": "Security group referencing (allowing inbound port 5432 from the app tier SG ID) is the most maintainable approach — it automatically tracks which instances belong to the app tier regardless of IP changes, requires no CIDR management, and is stateful (return traffic is automatically allowed). NACL rules require CIDR-based management that becomes stale as IPs change, and NACLs are stateless requiring explicit inbound and outbound rules. IAM policies don't control network-layer database connections. VPC Flow Logs are detective, not preventive.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "security-groups",
@@ -115,7 +115,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "SCPs attached to an OU apply to all accounts within that OU and their member accounts. A Deny SCP for iam:CreateAccessKey prevents any principal (including account root) in Development OU accounts from creating long-term access keys, while IAM role usage (iam:AssumeRole) is unaffected. Permission boundaries restrict what permissions a role/user can have but don't prevent the creation of access keys. Config is detective and remediation is asynchronous \u2014 keys can exist briefly. Password policies don't control access key creation.",
+    "explanation": "SCPs attached to an OU apply to all accounts within that OU and their member accounts. A Deny SCP for iam:CreateAccessKey prevents any principal (including account root) in Development OU accounts from creating long-term access keys, while IAM role usage (iam:AssumeRole) is unaffected. Permission boundaries restrict what permissions a role/user can have but don't prevent the creation of access keys. Config is detective and remediation is asynchronous — keys can exist briefly. Password policies don't control access key creation.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "organizations",
@@ -157,7 +157,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "IRSA (IAM Roles for Service Accounts) uses OIDC federation between EKS and IAM, allowing Kubernetes service accounts to assume IAM roles. Each pod's service account maps to an IAM role with the exact required permissions \u2014 no long-term credentials are stored. The EC2 instance profile approach grants all pods on a node the same permissions, violating least privilege. Kubernetes Secrets store credentials in etcd (potentially insecure) and are long-term. Retrieving access keys from Secrets Manager at startup still results in long-term credentials in the container environment.",
+    "explanation": "IRSA (IAM Roles for Service Accounts) uses OIDC federation between EKS and IAM, allowing Kubernetes service accounts to assume IAM roles. Each pod's service account maps to an IAM role with the exact required permissions — no long-term credentials are stored. The EC2 instance profile approach grants all pods on a node the same permissions, violating least privilege. Kubernetes Secrets store credentials in etcd (potentially insecure) and are long-term. Retrieving access keys from Secrets Manager at startup still results in long-term credentials in the container environment.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "eks",
@@ -283,7 +283,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Pre-signed URLs embed the requester's credentials and an expiration timestamp into the URL. The auditor can download the object using only the URL \u2014 no AWS account required. The URL becomes invalid after 24 hours. Making the bucket public exposes all objects, not just the one needed. Creating an IAM user requires ongoing credential management and offboarding. S3 Transfer Acceleration is for upload/download performance optimization, not file sharing \u2014 it cannot send files via email.",
+    "explanation": "Pre-signed URLs embed the requester's credentials and an expiration timestamp into the URL. The auditor can download the object using only the URL — no AWS account required. The URL becomes invalid after 24 hours. Making the bucket public exposes all objects, not just the one needed. Creating an IAM user requires ongoing credential management and offboarding. S3 Transfer Acceleration is for upload/download performance optimization, not file sharing — it cannot send files via email.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "s3",
@@ -324,7 +324,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Secrets Manager supports automatic rotation (Lambda-based, built-in for RDS, Redshift, DocumentDB) and resource-based policies that allow cross-account access \u2014 applications in member accounts can retrieve secrets from a central account using IAM roles. The SDK automatically fetches the latest version after rotation, requiring no application code changes. SSM Parameter Store doesn't support native automatic rotation (rotation requires custom Lambda). S3 is not designed for secrets management. Embedding secrets in IAM policies is insecure and requires redeployment on rotation.",
+    "explanation": "Secrets Manager supports automatic rotation with built-in rotation functions for supported AWS services (RDS, Aurora, Redshift, DocumentDB) — no custom Lambda code required for these. For other secret types (API keys, OAuth tokens), rotation uses a Lambda function you provide. The SDK automatically fetches the latest secret version after rotation, requiring no application code changes. Cross-account access is supported via resource-based policies, making central secret management across an Organization straightforward.\n\nSSM Parameter Store SecureString supports encrypted storage but has no built-in automatic rotation — rotation requires a custom Lambda function in all cases. Embedding secrets in IAM policies is insecure and requires redeployment on change. S3 with SSE-KMS provides object encryption but is not designed for secrets management — it lacks rotation, versioning, and audit capabilities.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "secrets-manager",
@@ -457,7 +457,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Enabling EBS encryption by default in account settings ensures all new volumes, snapshots, and copies are automatically encrypted with the default CMK \u2014 no per-volume configuration required. AWS Config's managed rule `encrypted-volumes` continuously evaluates all EBS volumes and flags non-compliant (unencrypted) volumes, enabling detection of existing violations. SCPs can enforce encryption but require careful implementation; the simpler account-level default is preferred. GuardDuty does not detect EBS encryption status. A custom Lambda is unnecessary when Config provides a managed rule.",
+    "explanation": "Enabling EBS encryption by default in account settings ensures all new volumes, snapshots, and copies are automatically encrypted with the default CMK — no per-volume configuration required. AWS Config's managed rule `encrypted-volumes` continuously evaluates all EBS volumes and flags non-compliant (unencrypted) volumes, enabling detection of existing violations. SCPs can enforce encryption but require careful implementation; the simpler account-level default is preferred. GuardDuty does not detect EBS encryption status. A custom Lambda is unnecessary when Config provides a managed rule.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "ebs",
@@ -499,7 +499,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "CloudTrail records all AWS API calls (management plane events). Delivering to a dedicated logging account's S3 bucket (where the workload account has no delete permissions) prevents tampering. Enabling CloudTrail log file integrity validation creates SHA-256 hash digests signed by AWS \u2014 any modification of log files is detectable. CloudWatch Logs record application/service logs, not all AWS API calls. Config records resource configurations, not API calls. VPC Flow Logs capture network traffic metadata, not API-level calls.",
+    "explanation": "CloudTrail records all AWS API calls (management plane events). Delivering to a dedicated logging account's S3 bucket (where the workload account has no delete permissions) prevents tampering. Enabling CloudTrail log file integrity validation creates SHA-256 hash digests signed by AWS — any modification of log files is detectable. CloudWatch Logs record application/service logs, not all AWS API calls. Config records resource configurations, not API calls. VPC Flow Logs capture network traffic metadata, not API-level calls.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "cloudtrail",
@@ -541,7 +541,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "The S3 Block Public Access account-level setting prevents all new and existing buckets from being made public \u2014 it overrides any bucket policy or ACL that grants public access. Enforcing this setting via SCP (deny s3:PutBucketPublicAccessBlock with a condition that allows only enabling it) prevents it from being disabled. This is a two-line preventive control. Config + auto-remediation is reactive (a window exists where a public bucket can receive traffic). CloudFormation StackSets require ongoing maintenance for new accounts. Lambda remediation is also reactive.",
+    "explanation": "The S3 Block Public Access account-level setting prevents all new and existing buckets from being made public — it overrides any bucket policy or ACL that grants public access. Enforcing this setting via SCP (deny s3:PutBucketPublicAccessBlock with a condition that allows only enabling it) prevents it from being disabled. This is a two-line preventive control. Config + auto-remediation is reactive (a window exists where a public bucket can receive traffic). CloudFormation StackSets require ongoing maintenance for new accounts. Lambda remediation is also reactive.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "s3",
@@ -583,7 +583,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "EventBridge (formerly CloudWatch Events) with a CloudTrail rule matches specific API events in near real-time (<1 minute). The rule pattern `{\"detail\":{\"userIdentity\":{\"type\":[\"Root\"]}},\"detail-type\":[\"AWS Console Sign In via CloudTrail\"]}` triggers an SNS notification immediately on root login. Config evaluates compliance periodically, not event-by-event. GuardDuty does detect root logins but alert latency depends on finding generation (5-15 minutes) \u2014 not guaranteed <5 minutes. Daily Athena queries are far too slow for real-time alerting.",
+    "explanation": "EventBridge (formerly CloudWatch Events) with a CloudTrail rule matches specific API events in near real-time (<1 minute). The rule pattern `{\"detail\":{\"userIdentity\":{\"type\":[\"Root\"]}},\"detail-type\":[\"AWS Console Sign In via CloudTrail\"]}` triggers an SNS notification immediately on root login. Config evaluates compliance periodically, not event-by-event. GuardDuty does detect root logins but alert latency depends on finding generation (5-15 minutes) — not guaranteed <5 minutes. Daily Athena queries are far too slow for real-time alerting.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "cloudtrail",
@@ -626,7 +626,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Permission boundaries cap the maximum permissions an IAM role can have. Attaching a permission boundary to all Lambda execution roles (via an IAM policy that excludes iam:* and organizations:*) ensures no Lambda function can call those APIs regardless of what's in the execution role's inline/attached policies. This can be enforced via SCP by requiring all new IAM roles to have the boundary attached (deny iam:CreateRole without the boundary condition). SCPs that target specific role types (option B) are complex \u2014 SCPs apply to all principals in the account, not just Lambda roles. Config is detective. Option D would break account administration.",
+    "explanation": "Permission boundaries cap the maximum permissions an IAM role can have. Attaching a permission boundary to all Lambda execution roles (via an IAM policy that excludes iam:* and organizations:*) ensures no Lambda function can call those APIs regardless of what's in the execution role's inline/attached policies. This can be enforced via SCP by requiring all new IAM roles to have the boundary attached (deny iam:CreateRole without the boundary condition). SCPs that target specific role types (option B) are complex — SCPs apply to all principals in the account, not just Lambda roles. Config is detective. Option D would break account administration.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "iam",
@@ -668,7 +668,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "VPC Gateway Endpoints for S3 and DynamoDB are free \u2014 there is no hourly charge or data processing fee. They route traffic from private subnets directly to S3/DynamoDB over the AWS network by adding an entry to the route table, with no internet traversal. NAT Gateway charges $0.045/hour + $0.045/GB of data processed \u2014 expensive for high-volume S3/DynamoDB access. Interface Endpoints (PrivateLink) charge $0.01/AZ/hour + $0.01/GB \u2014 more expensive than free gateway endpoints for S3 and DynamoDB. The proxy EC2 instance adds cost and a single point of failure.",
+    "explanation": "VPC Gateway Endpoints for S3 and DynamoDB are free — there is no hourly charge or data processing fee. They route traffic from private subnets directly to S3/DynamoDB over the AWS network by adding an entry to the route table, with no internet traversal. NAT Gateway charges $0.045/hour + $0.045/GB of data processed — expensive for high-volume S3/DynamoDB access. Interface Endpoints (PrivateLink) charge $0.01/AZ/hour + $0.01/GB — more expensive than free gateway endpoints for S3 and DynamoDB. The proxy EC2 instance adds cost and a single point of failure.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "vpc",
@@ -686,7 +686,7 @@
     "difficulty": "at",
     "test_number": 3,
     "active": true,
-    "stem": "A SaaS company onboards new enterprise customers who require federated SSO using their own corporate SAML 2.0 identity providers. Users should log in with their corporate credentials and receive appropriate application permissions. Which AWS service enables this? This is a customer-facing application login \u2014 end users are enterprise customers, not internal employees accessing AWS accounts.",
+    "stem": "A SaaS company onboards new enterprise customers who require federated SSO using their own corporate SAML 2.0 identity providers. Users should log in with their corporate credentials and receive appropriate application permissions. Which AWS service enables this? This is a customer-facing application login — end users are enterprise customers, not internal employees accessing AWS accounts.",
     "options": [
       {
         "label": "A",
@@ -711,7 +711,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Cognito User Pools support multiple SAML 2.0 identity providers per user pool \u2014 each enterprise customer can configure their own IdP. Users authenticate against their corporate IdP via the Cognito-managed SAML flow, and Cognito issues JWT tokens that the SaaS application uses for authorization. This scales to many customers without creating separate AWS accounts or IAM configurations. IAM Identity Center is for AWS console/CLI access, not multi-tenant SaaS user authentication. Direct IAM SAML federation requires an IAM role per IdP/customer \u2014 complex at scale. AD Connector is for extending on-premises AD to AWS services, not SaaS federation.",
+    "explanation": "Cognito User Pools support multiple SAML 2.0 identity providers per user pool — each enterprise customer can configure their own IdP. Users authenticate against their corporate IdP via the Cognito-managed SAML flow, and Cognito issues JWT tokens that the SaaS application uses for authorization. This scales to many customers without creating separate AWS accounts or IAM configurations. IAM Identity Center is for AWS console/CLI access, not multi-tenant SaaS user authentication. Direct IAM SAML federation requires an IAM role per IdP/customer — complex at scale. AD Connector is for extending on-premises AD to AWS services, not SaaS federation.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "cognito",
@@ -796,7 +796,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Security Hub's PCI DSS standard provides a pre-built set of automated security checks specifically mapped to PCI DSS requirements, continuously evaluating resource configurations (security groups, S3 policies, encryption, logging) against PCI controls and generating a compliance score. It integrates findings from Config, GuardDuty, and Inspector. Config with individual managed rules works but requires manual mapping to PCI DSS controls \u2014 the Security Hub PCI DSS standard does this mapping automatically. Inspector focuses on CVEs/vulnerability findings. Trusted Advisor checks are not PCI DSS-mapped and run periodically, not continuously.",
+    "explanation": "Security Hub's PCI DSS standard provides a pre-built set of automated security checks specifically mapped to PCI DSS requirements, continuously evaluating resource configurations (security groups, S3 policies, encryption, logging) against PCI controls and generating a compliance score. It integrates findings from Config, GuardDuty, and Inspector. Config with individual managed rules works but requires manual mapping to PCI DSS controls — the Security Hub PCI DSS standard does this mapping automatically. Inspector focuses on CVEs/vulnerability findings. Trusted Advisor checks are not PCI DSS-mapped and run periodically, not continuously.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "security-hub",
@@ -838,7 +838,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "KMS API calls (Encrypt, Decrypt, GenerateDataKey, etc.) are automatically recorded in CloudTrail as management events \u2014 no additional KMS configuration is required. Configuring the CloudTrail trail to deliver to S3 with a lifecycle policy for 7-year retention (via S3 Glacier Deep Archive for cost efficiency) meets the audit requirement. There is no separate 'KMS audit logging' feature in the console beyond what CloudTrail provides. CloudWatch Metrics show API call counts but not the identity, context, or key material details required for compliance audit logs.",
+    "explanation": "KMS API calls (Encrypt, Decrypt, GenerateDataKey, etc.) are automatically recorded in CloudTrail as management events — no additional KMS configuration is required. Configuring the CloudTrail trail to deliver to S3 with a lifecycle policy for 7-year retention (via S3 Glacier Deep Archive for cost efficiency) meets the audit requirement. There is no separate 'KMS audit logging' feature in the console beyond what CloudTrail provides. CloudWatch Metrics show API call counts but not the identity, context, or key material details required for compliance audit logs.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "kms",
@@ -880,7 +880,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "IAM Access Advisor shows the last-accessed timestamp for each AWS service for a user, role, or policy \u2014 identifying exactly which services/permissions have not been used in the past 90 days. Combined with the IAM credential report (which shows last console/API usage), the security team can identify excessive permissions for revocation. IAM Access Analyzer identifies resources accessible by external principals (cross-account, internet), not unused permissions within an account. GuardDuty detects threats, not unused permissions. Custom Lambda duplicates what IAM natively provides.",
+    "explanation": "IAM Access Advisor shows the last-accessed timestamp for each AWS service for a user, role, or policy — identifying exactly which services/permissions have not been used in the past 90 days. Combined with the IAM credential report (which shows last console/API usage), the security team can identify excessive permissions for revocation. IAM Access Analyzer identifies resources accessible by external principals (cross-account, internet), not unused permissions within an account. GuardDuty detects threats, not unused permissions. Custom Lambda duplicates what IAM natively provides.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "iam",
@@ -905,7 +905,7 @@
       },
       {
         "label": "B",
-        "text": "Use AWS PrivateLink \u2014 the SaaS provider creates a VPC Endpoint Service"
+        "text": "Use AWS PrivateLink — the SaaS provider creates a VPC Endpoint Service"
       },
       {
         "label": "C",
@@ -1006,7 +1006,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "AWS Config supports native remediation actions: a managed or custom SSM Automation document can be associated directly with a Config rule. When the rule marks a resource non-compliant, Config can automatically (or manually) trigger the SSM document to remediate \u2014 in this case, removing the 0.0.0.0/0:22 inbound rule. This is the purpose-built, zero-custom-code remediation path. CloudWatch alarms on Config metrics and EventBridge + Lambda both work but require more custom development. Security Hub workflows add another layer of indirection.",
+    "explanation": "AWS Config supports native remediation actions: a managed or custom SSM Automation document can be associated directly with a Config rule. When the rule marks a resource non-compliant, Config can automatically (or manually) trigger the SSM document to remediate — in this case, removing the 0.0.0.0/0:22 inbound rule. This is the purpose-built, zero-custom-code remediation path. CloudWatch alarms on Config metrics and EventBridge + Lambda both work but require more custom development. Security Hub workflows add another layer of indirection.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "config",
@@ -1048,7 +1048,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "AWS provides a standard HIPAA BAA via AWS Artifact (Agreements section) \u2014 no negotiation required. However, not all AWS services are HIPAA-eligible. The company must verify each service they use against the published HIPAA Eligible Services list. Services outside this list (some preview/newer services) cannot be used for PHI workloads even with a BAA in place. AWS Enterprise Support is not required for the BAA. AWS is a Business Associate, not the covered entity \u2014 the customer remains responsible for PHI handling on eligible services.",
+    "explanation": "AWS provides a standard HIPAA BAA via AWS Artifact (Agreements section) — no negotiation required. However, not all AWS services are HIPAA-eligible. The company must verify each service they use against the published HIPAA Eligible Services list. Services outside this list (some preview/newer services) cannot be used for PHI workloads even with a BAA in place. AWS Enterprise Support is not required for the BAA. AWS is a Business Associate, not the covered entity — the customer remains responsible for PHI handling on eligible services.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "hipaa",
@@ -1115,7 +1115,7 @@
       },
       {
         "label": "B",
-        "text": "Create two IAM users per developer \u2014 one for production (read-only) and one for sandbox (full access)"
+        "text": "Create two IAM users per developer — one for production (read-only) and one for sandbox (full access)"
       },
       {
         "label": "C",
@@ -1132,7 +1132,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "IAM Identity Center Permission Sets define the IAM policies applied when a user accesses an account. The developer is assigned to accounts individually: ReadOnly Permission Set for production accounts, AdministratorAccess Permission Set for sandbox accounts. This is the standard IAM Identity Center multi-account access model with no additional complexity. Creating IAM users defeats the purpose of centralized SSO and creates credential management overhead. SCPs restrict what's possible in an account for all principals \u2014 they don't provide per-user granularity. Conditional Permission Sets based on account context are not supported natively.",
+    "explanation": "IAM Identity Center Permission Sets define the IAM policies applied when a user accesses an account. The developer is assigned to accounts individually: ReadOnly Permission Set for production accounts, AdministratorAccess Permission Set for sandbox accounts. This is the standard IAM Identity Center multi-account access model with no additional complexity. Creating IAM users defeats the purpose of centralized SSO and creates credential management overhead. SCPs restrict what's possible in an account for all principals — they don't provide per-user granularity. Conditional Permission Sets based on account context are not supported natively.",
     "module_ref": "aws-saa/secure",
     "tags": [
       "iam-identity-center",

@@ -160,7 +160,7 @@
       "C",
       "D"
     ],
-    "explanation": "VPC Flow Logs record connection metadata \u2014 source/destination IP, port, protocol, bytes, and packets \u2014 but do not capture actual packet payloads. VPC Traffic Mirroring copies the raw network traffic from an ENI and sends it to a monitoring appliance or Network Load Balancer target, enabling full deep-packet inspection. VPC Flow Logs do support TCP (B is false). CloudTrail does not capture network packet data (C). GuardDuty Runtime Monitoring captures process-level activity, not raw packets (D).",
+    "explanation": "VPC Flow Logs record connection metadata — source/destination IP, port, protocol, bytes, and packets — but do not capture actual packet payloads. VPC Traffic Mirroring copies the raw network traffic from an ENI and sends it to a monitoring appliance or Network Load Balancer target, enabling full deep-packet inspection. VPC Flow Logs do support TCP (B is false). CloudTrail does not capture network packet data (C). GuardDuty Runtime Monitoring captures process-level activity, not raw packets (D).",
     "module_ref": "domain-02",
     "tags": [
       "aws-scs",
@@ -246,7 +246,7 @@
       "C",
       "D"
     ],
-    "explanation": "Amazon Detective automatically processes CloudTrail, VPC Flow Logs, and GuardDuty findings to build a behavior graph. The entity timeline view lets investigators drill into an IAM role or EC2 instance to see all resource interactions, API call volumes, and related entities over time \u2014 precisely the lateral movement scoping needed here. AWS Config advanced queries (A) reflect current resource state, not historical interaction graphs. Manual CloudTrail correlation (B) is possible but very labor-intensive and not an interactive graph. Security Hub Insights (D) aggregate findings but do not visualize resource interaction graphs.",
+    "explanation": "Amazon Detective automatically processes CloudTrail, VPC Flow Logs, and GuardDuty findings to build a behavior graph. The entity timeline view lets investigators drill into an IAM role or EC2 instance to see all resource interactions, API call volumes, and related entities over time — precisely the lateral movement scoping needed here. AWS Config advanced queries (A) reflect current resource state, not historical interaction graphs. Manual CloudTrail correlation (B) is possible but very labor-intensive and not an interactive graph. Security Hub Insights (D) aggregate findings but do not visualize resource interaction graphs.",
     "module_ref": "domain-02",
     "tags": [
       "aws-scs",
@@ -264,7 +264,7 @@
     "difficulty": "above",
     "test_number": 5,
     "active": true,
-    "stem": "A company operates in six AWS regions and wants Security Hub findings from all regions consolidated so analysts see a single pane of glass. After enabling cross-region aggregation, the team notices findings from the designated aggregation region appear twice \u2014 once locally and once aggregated. What is the correct behavior, and how should it be interpreted?",
+    "stem": "A company operates in six AWS regions and wants Security Hub findings from all regions consolidated so analysts see a single pane of glass. After enabling cross-region aggregation, the team notices findings from the designated aggregation region appear twice — once locally and once aggregated. What is the correct behavior, and how should it be interpreted?",
     "options": [
       {
         "text": "This is a known bug in Security Hub cross-region aggregation; disable the aggregation region, wait 10 minutes, and re-enable it to clear any duplicate or phantom findings.",
@@ -289,7 +289,7 @@
       "B",
       "C"
     ],
-    "explanation": "In Security Hub cross-region aggregation, the aggregation region serves as both the target for findings replicated from linked regions and as a normal home region for findings generated within it. Findings originating in the aggregation region are not duplicated \u2014 they appear once locally. Analysts viewing the aggregated console see all findings from linked regions alongside local ones, which can look like duplication if the region filter is set to 'All Regions.' This is expected behavior, not a bug. Option C incorrectly suggests raw copying that inflates metrics. Option D incorrectly characterizes bidirectional replication.",
+    "explanation": "In Security Hub cross-region aggregation, the designated aggregation region serves two roles simultaneously: (1) the normal home region for security findings generated within it (from GuardDuty, Inspector, Config, etc. running in that region), and (2) the aggregation target that receives replicated findings from all linked source regions.\n\nFindings originating in the aggregation region are NOT duplicated — they appear exactly once locally. What can look like duplication to analysts is the aggregated console view showing both local findings and replicated findings from other regions side by side. Setting the region filter to a specific region rather than \"All Regions\" isolates local-only findings.\n\nOption A is wrong — this is expected Security Hub behavior, not a bug; disabling and re-enabling aggregation would not resolve the perceived duplication.\nOption B is wrong — Security Hub cross-region aggregation is one-directional (source regions replicate to the aggregation region); it is not bidirectional and EventBridge rules are not the recommended alternative.\nOption C is wrong — findings are not raw-copied in a way that inflates metrics. Findings from source regions appear in the aggregation region view under their original source region attribute and are not double-counted in summary metrics when the region filter is used correctly.",
     "module_ref": "domain-02",
     "tags": [
       "aws-scs",
@@ -418,7 +418,7 @@
       "C",
       "D"
     ],
-    "explanation": "For cross-account event delivery, the destination event bus in Account B must have a resource-based policy (event bus policy) that explicitly grants the source account or principal permission to call events:PutEvents on it. Without this policy, AWS denies the cross-account PutEvents call. Account A also needs an IAM role with PutEvents permission (A is partially true) but the more commonly missing piece \u2014 and the one controlling cross-account authorization \u2014 is the resource policy on the target bus. Schema discovery (C) is for schema inference, not access control. EventBridge rules specify targets, not sources (D is incorrect).",
+    "explanation": "For cross-account event delivery, the destination event bus in Account B must have a resource-based policy (event bus policy) that explicitly grants the source account or principal permission to call events:PutEvents on it. Without this policy, AWS denies the cross-account PutEvents call. Account A also needs an IAM role with PutEvents permission (A is partially true) but the more commonly missing piece — and the one controlling cross-account authorization — is the resource policy on the target bus. Schema discovery (C) is for schema inference, not access control. EventBridge rules specify targets, not sources (D is incorrect).",
     "module_ref": "domain-02",
     "tags": [
       "aws-scs",
@@ -636,7 +636,7 @@
       "C",
       "D"
     ],
-    "explanation": "Kinesis Data Streams retains records for up to 365 days and supports shard-level ordering (records with the same partition key are delivered in order) and consumer replay from any position in the stream. These properties satisfy the forensic pipeline requirements. Kinesis Data Firehose is a fully managed delivery service that buffers and delivers data to destinations such as S3, Redshift, or OpenSearch without replay capability \u2014 ideal for the archival pipeline. Firehose cannot be used for the replay pipeline (A is reversed). SQS FIFO (C) has limited throughput and retention and is not a log streaming service. Option D is incorrect; Firehose does support S3.",
+    "explanation": "Kinesis Data Streams retains records for up to 365 days and supports shard-level ordering (records with the same partition key are delivered in order) and consumer replay from any position in the stream. These properties satisfy the forensic pipeline requirements. Kinesis Data Firehose is a fully managed delivery service that buffers and delivers data to destinations such as S3, Redshift, or OpenSearch without replay capability — ideal for the archival pipeline. Firehose cannot be used for the replay pipeline (A is reversed). SQS FIFO (C) has limited throughput and retention and is not a log streaming service. Option D is incorrect; Firehose does support S3.",
     "module_ref": "domain-02",
     "tags": [
       "aws-scs",

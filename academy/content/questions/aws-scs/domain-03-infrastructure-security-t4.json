@@ -23,7 +23,7 @@
       },
       {
         "label": "D",
-        "text": "Aggregate by HTTP header value such as the Authorization header to rate-limit based on the credential being tested rather than the source IP."
+        "text": "Aggregate by a custom HTTP header value (such as a username field in a login-specific header like X-Username) to rate-limit based on the target account being attacked rather than the source IP."
       }
     ],
     "correct": "D",
@@ -32,7 +32,7 @@
       "B",
       "C"
     ],
-    "explanation": "Credential stuffing attacks distribute requests across many IPs to evade per-IP rate limits. Aggregating by a header value such as a username field or Authorization token allows WAF to detect that the same credential is being attempted repeatedly regardless of the originating IP. IP-based aggregation (A) is ineffective when attackers rotate source IPs. X-Forwarded-For (C) still relies on IP identity. URI path aggregation (D) does not distinguish individual credentials being tested.",
+    "explanation": "Credential stuffing attacks distribute requests across thousands of IPs to evade per-IP rate limits. The defining characteristic is that attackers test a specific set of credentials across many IPs. Aggregating by a custom header that contains the target username (e.g., a login field sent as a header, or a custom X-Username header) allows WAF to detect that the same account is being targeted repeatedly regardless of originating IP. AWS WAF rate-based rules support custom aggregation keys including single header values.\n\nOption B (IP aggregation) is ineffective — each IP makes a low volume of requests that falls below the threshold.\nOption C (X-Forwarded-For) still relies on IP identity, which is easily rotated by attackers using residential proxies.\nOption A (URI path + query string) targets the endpoint but does not distinguish which specific account is being attacked, so the threshold would need to cover all login traffic rather than per-target traffic.\n\nNote: the Authorization header is not a good aggregation key for credential stuffing — it contains a credential hash or bearer token (different for every attempt), not the target username. Use a dedicated username header or implement AWS WAF Bot Control (Targeted) for built-in credential stuffing detection.",
     "module_ref": "domain-03",
     "tags": [
       "aws-scs",

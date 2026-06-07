@@ -15,15 +15,15 @@
       },
       {
         "label": "B",
-        "text": "The ALB health check interval is too high \u2014 increase health check frequency"
+        "text": "The ALB health check interval is too high — increase health check frequency"
       },
       {
         "label": "C",
-        "text": "The application is caching the DNS resolution of the RDS endpoint \u2014 Java/JDBC."
+        "text": "The application is caching the DNS resolution of the RDS endpoint — Java/JDBC."
       },
       {
         "label": "D",
-        "text": "RDS Multi-AZ failover changes the connection string \u2014 the application needs to be restarted with the new endpoint"
+        "text": "RDS Multi-AZ failover changes the connection string — the application needs to be restarted with the new endpoint"
       }
     ],
     "correct": "C",
@@ -32,7 +32,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "RDS Multi-AZ failover updates the CNAME DNS record to point from the failed primary to the new primary. However, many programming languages (especially Java) cache DNS resolutions in the JVM for an indefinitely long time or the default TTL (which can be hours). After failover, the application keeps connecting to the old IP (which is now the failed instance) until the JVM DNS cache expires. Fix: (1) Set JVM networkaddress.cache.ttl=60 seconds; (2) Use RDS Proxy (which abstracts the connection pool and handles failover transparently). The RDS endpoint DNS does NOT change \u2014 it's a CNAME pointing to different IPs.",
+    "explanation": "RDS Multi-AZ failover updates the CNAME DNS record to point from the failed primary to the new primary. However, many programming languages (especially Java) cache DNS resolutions in the JVM for an indefinitely long time or the default TTL (which can be hours). After failover, the application keeps connecting to the old IP (which is now the failed instance) until the JVM DNS cache expires. Fix: (1) Set JVM networkaddress.cache.ttl=60 seconds; (2) Use RDS Proxy (which abstracts the connection pool and handles failover transparently). The RDS endpoint DNS does NOT change — it's a CNAME pointing to different IPs.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "rds",
@@ -54,7 +54,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Increase the queue's visibility timeout \u2014 this affects future receives, not in-flight messages"
+        "text": "Increase the queue's visibility timeout — this affects future receives, not in-flight messages"
       },
       {
         "label": "B",
@@ -75,7 +75,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "ChangeMessageVisibility can be called with VisibilityTimeout=0, which immediately makes a message visible again (moves it from in-flight back to visible). This must be done per-message (using the message receipt handle). For 500K messages, this requires automation (a script calling ChangeMessageVisibility in batches using ChangeMessageVisibilityBatch). PurgeQueue deletes all messages permanently \u2014 fine only if messages can be re-submitted from source. Increasing the queue's visibility timeout setting doesn't affect messages already in-flight. Deleting/recreating the queue also loses all 500K messages.",
+    "explanation": "ChangeMessageVisibility can be called with VisibilityTimeout=0, which immediately makes a message visible again (moves it from in-flight back to visible). This must be done per-message (using the message receipt handle). For 500K messages, this requires automation (a script calling ChangeMessageVisibility in batches using ChangeMessageVisibilityBatch). PurgeQueue deletes all messages permanently — fine only if messages can be re-submitted from source. Increasing the queue's visibility timeout setting doesn't affect messages already in-flight. Deleting/recreating the queue also loses all 500K messages.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "sqs",
@@ -100,7 +100,7 @@
       },
       {
         "label": "B",
-        "text": "Restore the entire Aurora cluster to 14 minutes ago using PITR \u2014 this rolls back all tables"
+        "text": "Restore the entire Aurora cluster to 14 minutes ago using PITR — this rolls back all tables"
       },
       {
         "label": "C",
@@ -117,7 +117,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "The requirement is minimal disruption \u2014 recover one table without affecting the other active tables. The correct approach: PITR restores to a separate NEW cluster at the point before the drop (not affecting production). On the restored cluster, dump only the dropped table (pg_dump -t tablename). Import the dump into the production cluster (pg_restore). This is surgical table-level recovery. Option A (restoring production) would lose 15 minutes of new data in all other tables. Aurora Backtrack rewinds the ENTIRE cluster \u2014 same problem as PITR on production. Aurora PostgreSQL doesn't expose binlogs to users for manual reconstruction.",
+    "explanation": "The requirement is minimal disruption — recover one table without affecting the other active tables. The correct approach: PITR restores to a separate NEW cluster at the point before the drop (not affecting production). On the restored cluster, dump only the dropped table (pg_dump -t tablename). Import the dump into the production cluster (pg_restore). This is surgical table-level recovery. Option A (restoring production) would lose 15 minutes of new data in all other tables. Aurora Backtrack rewinds the ENTIRE cluster — same problem as PITR on production. Aurora PostgreSQL doesn't expose binlogs to users for manual reconstruction.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "aurora",
@@ -160,7 +160,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Lambda Destinations (for asynchronous invocations) send the full event payload, function response, execution context, and failure details to a configured destination (SQS, SNS, EventBridge, or another Lambda) on success or failure. This is superior to DLQ for Lambda because it captures rich context (error type, stack trace, event payload, request ID). Note: S3 event notifications trigger Lambda asynchronously \u2014 Destinations apply. A DLQ on an SQS trigger would apply if Lambda was triggered by SQS (not S3). Increasing retry attempts delays but doesn't prevent ultimate failure. X-Ray captures execution traces but doesn't store the failed event payload for reprocessing.",
+    "explanation": "Lambda Destinations (for asynchronous invocations) send the full event payload, function response, execution context, and failure details to a configured destination (SQS, SNS, EventBridge, or another Lambda) on success or failure. This is superior to DLQ for Lambda because it captures rich context (error type, stack trace, event payload, request ID). Note: S3 event notifications trigger Lambda asynchronously — Destinations apply. A DLQ on an SQS trigger would apply if Lambda was triggered by SQS (not S3). Increasing retry attempts delays but doesn't prevent ultimate failure. X-Ray captures execution traces but doesn't store the failed event payload for reprocessing.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "lambda",
@@ -186,11 +186,11 @@
       },
       {
         "label": "B",
-        "text": "Configure Route 53 health checks to match a string in the response body (string match health check) \u2014 configure to match a known-good string that disappears during failure"
+        "text": "Configure Route 53 health checks to match a string in the response body (string match health check) — configure to match a known-good string that disappears during failure"
       },
       {
         "label": "C",
-        "text": "Switch from HTTP to HTTPS health checks \u2014 HTTPS checks can inspect the response body"
+        "text": "Switch from HTTP to HTTPS health checks — HTTPS checks can inspect the response body"
       },
       {
         "label": "D",
@@ -203,7 +203,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "Route 53 HTTP health checks can check response code and optionally match a response body string. However, for complex application-level health (CloudWatch metrics like error rates, Lambda outcomes), Route 53 supports CloudWatch Alarm health checks \u2014 the health check state mirrors the CloudWatch alarm state. Set up a CloudWatch alarm on the 5xx error rate; associate it with the Route 53 health check. When the alarm fires (error rate exceeds threshold), the Route 53 health check fails, triggering failover. String matching (option B) works for simple cases but requires the failure to change the response body. CloudWatch alarm approach is more flexible and production-grade.",
+    "explanation": "Route 53 HTTP health checks can check response code and optionally match a response body string. However, for complex application-level health (CloudWatch metrics like error rates, Lambda outcomes), Route 53 supports CloudWatch Alarm health checks — the health check state mirrors the CloudWatch alarm state. Set up a CloudWatch alarm on the 5xx error rate; associate it with the Route 53 health check. When the alarm fires (error rate exceeds threshold), the Route 53 health check fails, triggering failover. String matching (option B) works for simple cases but requires the failure to change the response body. CloudWatch alarm approach is more flexible and production-grade.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "route53",
@@ -229,7 +229,7 @@
       },
       {
         "label": "B",
-        "text": "Switch the DynamoDB table to provisioned capacity with 1 WCU provisioned \u2014 on-demand can be switched to provisioned mode, and provisioned capacity throttles writes that exceed the provisioned limit"
+        "text": "Switch the DynamoDB table to provisioned capacity with 1 WCU provisioned — on-demand can be switched to provisioned mode, and provisioned capacity throttles writes that exceed the provisioned limit"
       },
       {
         "label": "C",
@@ -237,7 +237,7 @@
       },
       {
         "label": "D",
-        "text": "Revoke the IAM role used by the buggy application \u2014 removing DynamoDB:PutItem permission stops the writes"
+        "text": "Revoke the IAM role used by the buggy application — removing DynamoDB:PutItem permission stops the writes"
       }
     ],
     "correct": "D",
@@ -246,7 +246,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "The fastest mitigation that doesn't destroy data: revoke the IAM permissions of the role/user making the writes. If the buggy application uses an IAM role, detaching or modifying the role's policy to remove dynamodb:PutItem/BatchWriteItem immediately stops all writes from that role \u2014 DynamoDB returns AccessDenied. This is instantaneous. Switching to provisioned capacity requires waiting for the capacity mode switch (a few minutes) and DynamoDB may still accept bursts. Auto Scaling changes take time. Deleting the table destroys all data. The fastest non-destructive control is IAM permission revocation.",
+    "explanation": "The fastest mitigation that doesn't destroy data: revoke the IAM permissions of the role/user making the writes. If the buggy application uses an IAM role, detaching or modifying the role's policy to remove dynamodb:PutItem/BatchWriteItem immediately stops all writes from that role — DynamoDB returns AccessDenied. This is instantaneous. Switching to provisioned capacity requires waiting for the capacity mode switch (a few minutes) and DynamoDB may still accept bursts. Auto Scaling changes take time. Deleting the table destroys all data. The fastest non-destructive control is IAM permission revocation.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "dynamodb",
@@ -296,7 +296,7 @@
       "D": "",
       "E": ""
     },
-    "explanation": "Two complementary controls: (1) CloudFormation Stack Termination Protection: when enabled on a stack, any delete attempt returns an error \u2014 a two-step process is required (disable protection, then delete). This prevents accidental deletions. (2) DeletionPolicy: Retain or Snapshot on stateful resources ensures that even if the stack IS deleted (intentionally or accidentally), the RDS database is preserved (Retain) or snapshotted before deletion (Snapshot). Option C (IAM Deny) is valid but Option E (SCP) is broader and harder to manage. Config is detective. The best pairing is A (prevent stack deletion) + B (protect data even if deletion succeeds).",
+    "explanation": "Two complementary controls prevent accidental stack and data deletion:\n\n(1) CloudFormation Stack Termination Protection (Option A): when enabled, any delete attempt returns an error. A two-step process is required — first disable protection, then delete — preventing accidental single-command deletions.\n\n(2) DeletionPolicy: Retain or Snapshot on stateful resources (Option C): ensures that even if the stack IS deleted (intentionally or accidentally), the RDS database is preserved (Retain keeps it as-is) or snapshotted before deletion (Snapshot creates a final snapshot). This is defense-in-depth — Termination Protection prevents deletion; DeletionPolicy protects data if deletion somehow succeeds.\n\nOption B (SCP denying DeleteStack): works at the Organizations level but is broad and affects all stacks, not just production. Requires careful scoping. Option D (AWS Config): is detective, not preventive — it records the event after the fact. Option E (IAM deny policy per developer): valid but less operationally convenient than Termination Protection.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "cloudformation",
@@ -318,11 +318,11 @@
     "options": [
       {
         "label": "A",
-        "text": "Deploy the previous code from the CI/CD pipeline \u2014 this takes 10 minutes"
+        "text": "Deploy the previous code from the CI/CD pipeline — this takes 10 minutes"
       },
       {
         "label": "B",
-        "text": "Delete the new Lambda function version \u2014 Lambda automatically reverts to the previous version"
+        "text": "Delete the new Lambda function version — Lambda automatically reverts to the previous version"
       },
       {
         "label": "C",
@@ -339,7 +339,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "Lambda aliases are mutable pointers to specific immutable version numbers. If the production alias points to v5 (new, broken), updating the alias to v4 (previous, working) is a single UpdateAlias API call \u2014 it takes effect within seconds, no deployment pipeline required. Lambda versions are immutable so v4 is guaranteed to be the exact previous code. Deleting a version removes it permanently and doesn't revert the alias. Pointing API Gateway to $LATEST would use the latest unversioned code which could also be the broken version. CI/CD re-deployment takes 10 minutes.",
+    "explanation": "Lambda aliases are mutable pointers to specific immutable version numbers. If the production alias points to v5 (new, broken), updating the alias to v4 (previous, working) is a single UpdateAlias API call — it takes effect within seconds, no deployment pipeline required. Lambda versions are immutable so v4 is guaranteed to be the exact previous code. Deleting a version removes it permanently and doesn't revert the alias. Pointing API Gateway to $LATEST would use the latest unversioned code which could also be the broken version. CI/CD re-deployment takes 10 minutes.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "lambda",
@@ -361,19 +361,19 @@
     "options": [
       {
         "label": "A",
-        "text": "10 tasks \u2014 ECS stops old tasks before starting new ones"
+        "text": "10 tasks — ECS stops old tasks before starting new ones"
       },
       {
         "label": "B",
-        "text": "20 tasks \u2014 maximumPercent=200 means up to 200% of desired (10 \u00d7 2 = 20) tasks can run simultaneously"
+        "text": "20 tasks — maximumPercent=200 means up to 200% of desired (10 × 2 = 20) tasks can run simultaneously"
       },
       {
         "label": "C",
-        "text": "8 tasks \u2014 minimumHealthyPercent=80 means ECS keeps at least 8 running during the update"
+        "text": "8 tasks — minimumHealthyPercent=80 means ECS keeps at least 8 running during the update"
       },
       {
         "label": "D",
-        "text": "12 tasks \u2014 ECS can run up to maximumPercent=200% of desired count during rolling update, meaning up to 20 tasks; however EC2 capacity limits to 10 existing + new tasks starting"
+        "text": "12 tasks — ECS can run up to maximumPercent=200% of desired count during rolling update, meaning up to 20 tasks; however EC2 capacity limits to 10 existing + new tasks starting"
       }
     ],
     "correct": "B",
@@ -382,7 +382,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "With maximumPercent=200 and desired=10: ECS can start up to 200% \u00d7 10 = 20 tasks during the deployment. ECS first starts new version tasks (up to the 200% ceiling), then stops old tasks (maintaining at least 80% = 8 healthy). At peak, all 10 old tasks + 10 new tasks = 20 tasks can be running simultaneously. Note: this requires EC2 capacity for 20 tasks \u2014 with 5 instances \u00d7 2 tasks = 10 capacity. If task density needs to double, ECS may need to wait for new EC2 instances unless the new task resource requirements allow 4 per instance. The mathematical answer is 20, but EC2 capacity must be considered.",
+    "explanation": "With maximumPercent=200 and desired=10: ECS can start up to 200% × 10 = 20 tasks during the deployment. ECS first starts new version tasks (up to the 200% ceiling), then stops old tasks (maintaining at least 80% = 8 healthy). At peak, all 10 old tasks + 10 new tasks = 20 tasks can be running simultaneously. Note: this requires EC2 capacity for 20 tasks — with 5 instances × 2 tasks = 10 capacity. If task density needs to double, ECS may need to wait for new EC2 instances unless the new task resource requirements allow 4 per instance. The mathematical answer is 20, but EC2 capacity must be considered.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "ecs",
@@ -404,7 +404,7 @@
     "options": [
       {
         "label": "A",
-        "text": "DynamoDB Global Tables with Last Writer Wins conflict resolution \u2014 accept that rare conflicts may result in one"
+        "text": "DynamoDB Global Tables with Last Writer Wins conflict resolution — accept that rare conflicts may result in one"
       },
       {
         "label": "B",
@@ -425,7 +425,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "This is a fundamental distributed systems trade-off. DynamoDB Global Tables uses Last Writer Wins with microsecond-precision timestamps. For a truly active-active multi-region architecture with <100ms write latency, Global Tables with LWW is the AWS-native solution \u2014 accepting that conflict probability is extremely low (simultaneous updates to the same item from two regions within milliseconds). The application should: (1) Design to minimize same-item concurrent writes; (2) Use DynamoDB Streams to detect conflicts and implement compensating logic. DynamoDB conditional writes do NOT work across regions (conditions are evaluated locally per replica). DynamoDB Transactions don't span global table regions. Active-passive sacrifices availability goals.",
+    "explanation": "This is a fundamental distributed systems trade-off. DynamoDB Global Tables uses Last Writer Wins with microsecond-precision timestamps. For a truly active-active multi-region architecture with <100ms write latency, Global Tables with LWW is the AWS-native solution — accepting that conflict probability is extremely low (simultaneous updates to the same item from two regions within milliseconds). The application should: (1) Design to minimize same-item concurrent writes; (2) Use DynamoDB Streams to detect conflicts and implement compensating logic. DynamoDB conditional writes do NOT work across regions (conditions are evaluated locally per replica). DynamoDB Transactions don't span global table regions. Active-passive sacrifices availability goals.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "dynamodb",
@@ -447,11 +447,11 @@
     "options": [
       {
         "label": "A",
-        "text": "DRS only replicates data every hour \u2014 it cannot meet 5-minute RPO"
+        "text": "DRS only replicates data every hour — it cannot meet 5-minute RPO"
       },
       {
         "label": "B",
-        "text": "The on-premises network bandwidth to AWS is insufficient \u2014 DRS replication competes with production traffic"
+        "text": "The on-premises network bandwidth to AWS is insufficient — DRS replication competes with production traffic"
       },
       {
         "label": "C",
@@ -486,7 +486,7 @@
     "difficulty": "above",
     "test_number": 5,
     "active": true,
-    "stem": "A company runs an application that processes files uploaded to S3. The workflow is: S3 event \u2192 SQS \u2192 Lambda \u2192 process file \u2192 write to RDS. Occasionally, Lambda fails to connect to RDS during processing. The file processing must not be lost and must be retried. The DLQ maxReceiveCount is set to 3. After 3 failures, messages go to DLQ. How should the solutions architect redesign the retry logic to handle transient RDS connectivity issues without unnecessarily consuming retry attempts?",
+    "stem": "A company runs an application that processes files uploaded to S3. The workflow is: S3 event → SQS → Lambda → process file → write to RDS. Occasionally, Lambda fails to connect to RDS during processing. The file processing must not be lost and must be retried. The DLQ maxReceiveCount is set to 3. After 3 failures, messages go to DLQ. How should the solutions architect redesign the retry logic to handle transient RDS connectivity issues without unnecessarily consuming retry attempts?",
     "options": [
       {
         "label": "A",
@@ -494,11 +494,11 @@
       },
       {
         "label": "B",
-        "text": "Switching to a synchronous S3\u2192Lambda direct trigger eliminates the SQS buffer, removing the retry and DLQ safety net that makes the architecture resilient to transient errors."
+        "text": "Switching to a synchronous S3→Lambda direct trigger eliminates the SQS buffer, removing the retry and DLQ safety net that makes the architecture resilient to transient errors."
       },
       {
         "label": "C",
-        "text": "Use RDS Proxy with automatic retry for Lambda connections \u2014 RDS Proxy pools and reuses connections, preventing Lambda concurrency from exhausting the RDS connection limit."
+        "text": "Use RDS Proxy with automatic retry for Lambda connections — RDS Proxy pools and reuses connections, preventing Lambda concurrency from exhausting the RDS connection limit."
       },
       {
         "label": "D",
@@ -508,8 +508,8 @@
     "correct": "D",
     "distractors": {
       "A": "Increasing maxReceiveCount to 10 causes more retry attempts before DLQ routing but does not address the root cause of Lambda failing to acquire RDS connections under load.",
-      "B": "Switching to a synchronous S3\u2192Lambda direct trigger eliminates the SQS buffer, removing the retry and DLQ safety net that makes the architecture resilient to transient errors.",
-      "C": "Use RDS Proxy with automatic retry for Lambda connections \u2014 RDS Proxy pools and reuses connections, preventing Lambda concurrency from exhausting the RDS connection limit."
+      "B": "Switching to a synchronous S3→Lambda direct trigger eliminates the SQS buffer, removing the retry and DLQ safety net that makes the architecture resilient to transient errors.",
+      "C": "Use RDS Proxy with automatic retry for Lambda connections — RDS Proxy pools and reuses connections, preventing Lambda concurrency from exhausting the RDS connection limit."
     },
     "explanation": "SQS's maxReceiveCount counts how many times a message has been received by a consumer (made invisible then returned to queue). If Lambda throws an exception for a transient 100ms RDS blip, the entire SQS retry count is consumed unnecessarily. Better: implement in-Lambda retry for transient errors (connection errors, RDS busy) with exponential backoff within the Lambda execution timeout. Only surface the error to SQS (causing a visibility timeout expire + retry) if the failure is persistent after in-Lambda retries. This preserves SQS retry budget for genuine persistent failures. RDS Proxy helps with connection pooling but doesn't retry the application logic.",
     "module_ref": "aws-saa/resilient",
@@ -541,7 +541,7 @@
       },
       {
         "label": "C",
-        "text": "ALB listener rule changes are in-place modifications (no replacement required) \u2014 CloudFormation modifies the listener rules directly while"
+        "text": "ALB listener rule changes are in-place modifications (no replacement required) — CloudFormation modifies the listener rules directly while"
       },
       {
         "label": "D",
@@ -554,7 +554,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "ALB listener rules are in-place modifiable resources in CloudFormation \u2014 changing rule conditions, priorities, or actions does NOT require replacement of the listener or ALB itself. CloudFormation makes the API call to ModifyRule or CreateRule/DeleteRule, and the ALB continues handling traffic throughout. This is different from resources that require replacement (new physical ID) such as some launch configuration properties. CloudFormation Change Sets are useful for previewing but don't change the zero-downtime behavior. Stack Policies protect resources from updates. The key knowledge: understanding which CloudFormation updates cause interruption vs. in-place modification.",
+    "explanation": "ALB listener rules are in-place modifiable resources in CloudFormation — changing rule conditions, priorities, or actions does NOT require replacement of the listener or ALB itself. CloudFormation makes the API call to ModifyRule or CreateRule/DeleteRule, and the ALB continues handling traffic throughout. This is different from resources that require replacement (new physical ID) such as some launch configuration properties. CloudFormation Change Sets are useful for previewing but don't change the zero-downtime behavior. Stack Policies protect resources from updates. The key knowledge: understanding which CloudFormation updates cause interruption vs. in-place modification.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "cloudformation",
@@ -576,7 +576,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Configure Service B's Kubernetes Deployment with maxUnavailable=0 and maxSurge=1-2 \u2014 this ensures new pods are Running and passing readiness probes BEFORE."
+        "text": "Configure Service B's Kubernetes Deployment with maxUnavailable=0 and maxSurge=1-2 — this ensures new pods are Running and passing readiness probes BEFORE."
       },
       {
         "label": "B",
@@ -619,19 +619,19 @@
     "options": [
       {
         "label": "A",
-        "text": "Yes \u2014 if the same instance class is used for Aurora, the RI discount applies automatically"
+        "text": "Yes — if the same instance class is used for Aurora, the RI discount applies automatically"
       },
       {
         "label": "B",
-        "text": "Yes \u2014 RDS and Aurora share the same Reserved Instance pool"
+        "text": "Yes — RDS and Aurora share the same Reserved Instance pool"
       },
       {
         "label": "C",
-        "text": "Yes \u2014 Convertible RIs can be exchanged for Aurora Reserved Instances"
+        "text": "Yes — Convertible RIs can be exchanged for Aurora Reserved Instances"
       },
       {
         "label": "D",
-        "text": "No \u2014 RDS Reserved Instances and Aurora Reserved Instances are separate purchases"
+        "text": "No — RDS Reserved Instances and Aurora Reserved Instances are separate purchases"
       }
     ],
     "correct": "D",
@@ -640,7 +640,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "RDS Reserved Instances and Aurora Reserved Instances are completely separate products. An RI purchased for 'RDS for PostgreSQL db.r5.4xlarge Multi-AZ' applies ONLY to RDS PostgreSQL db.r5.4xlarge Multi-AZ instances \u2014 not to Aurora. Aurora has its own separate RI purchase (Aurora PostgreSQL db.r5.4xlarge). This is an important migration cost consideration: migrating from RDS to Aurora doesn't transfer RI benefits. The existing RDS RI may go unused (wasted) unless they also maintain an RDS instance. Convertible RIs can be exchanged for other RDS engine types but still not for Aurora.",
+    "explanation": "RDS Reserved Instances and Aurora Reserved Instances are completely separate products. An RI purchased for 'RDS for PostgreSQL db.r5.4xlarge Multi-AZ' applies ONLY to RDS PostgreSQL db.r5.4xlarge Multi-AZ instances — not to Aurora. Aurora has its own separate RI purchase (Aurora PostgreSQL db.r5.4xlarge). This is an important migration cost consideration: migrating from RDS to Aurora doesn't transfer RI benefits. The existing RDS RI may go unused (wasted) unless they also maintain an RDS instance. Convertible RIs can be exchanged for other RDS engine types but still not for Aurora.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "rds",
@@ -658,11 +658,11 @@
     "difficulty": "above",
     "test_number": 5,
     "active": true,
-    "stem": "A company runs a Lambda function that writes results to DynamoDB. After a deployment, the Lambda function is throwing DynamoDB ConditionalCheckFailedException on 5% of invocations. The Lambda function is not retrying \u2014 it marks these as failures. What is the correct handling?",
+    "stem": "A company runs a Lambda function that writes results to DynamoDB. After a deployment, the Lambda function is throwing DynamoDB ConditionalCheckFailedException on 5% of invocations. The Lambda function is not retrying — it marks these as failures. What is the correct handling?",
     "options": [
       {
         "label": "A",
-        "text": "ConditionalCheckFailedException indicates a business logic conflict (an expected condition failed) \u2014 the application should handle this exception."
+        "text": "ConditionalCheckFailedException indicates a business logic conflict (an expected condition failed) — the application should handle this exception."
       },
       {
         "label": "B",
@@ -683,7 +683,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "ConditionalCheckFailedException is NOT a transient error \u2014 it's a deliberate application response to a failed condition (e.g., 'only update if version = 5' when the actual version is 6). This is DynamoDB's optimistic locking mechanism. The application must: (1) Read the current item to understand why the condition failed; (2) Decide: re-apply the change with the new state, skip (conflict resolved by another writer), or escalate. Blindly retrying the same condition will keep failing. Switching to unconditional PutItem defeats the purpose of conditional writes (race condition protection). Timeout and capacity are irrelevant.",
+    "explanation": "ConditionalCheckFailedException is NOT a transient error — it's a deliberate application response to a failed condition (e.g., 'only update if version = 5' when the actual version is 6). This is DynamoDB's optimistic locking mechanism. The application must: (1) Read the current item to understand why the condition failed; (2) Decide: re-apply the change with the new state, skip (conflict resolved by another writer), or escalate. Blindly retrying the same condition will keep failing. Switching to unconditional PutItem defeats the purpose of conditional writes (race condition protection). Timeout and capacity are irrelevant.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "dynamodb",
@@ -716,7 +716,7 @@
       },
       {
         "label": "D",
-        "text": "Create two CloudFront distributions \u2014 one for API and one for static assets"
+        "text": "Create two CloudFront distributions — one for API and one for static assets"
       }
     ],
     "correct": "C",
@@ -725,7 +725,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "CloudFront cache behaviors allow path-based caching policies. /api/* behavior: configure with TTL min=0, max=0 (or use a Cache-Control: no-store origin response) \u2014 CloudFront always forwards to origin. Default behavior (/*): cache policy with TTL=31,536,000 seconds (1 year) for static assets. This is the standard CloudFront architecture for mixed static/dynamic content. Setting no-cache headers affects browser caching, not CloudFront caching. Two distributions work but are more complex and require managing two CloudFront distributions. Disabling all caching eliminates CloudFront performance benefits for static assets.",
+    "explanation": "CloudFront cache behaviors allow path-based caching policies. /api/* behavior: configure with TTL min=0, max=0 (or use a Cache-Control: no-store origin response) — CloudFront always forwards to origin. Default behavior (/*): cache policy with TTL=31,536,000 seconds (1 year) for static assets. This is the standard CloudFront architecture for mixed static/dynamic content. Setting no-cache headers affects browser caching, not CloudFront caching. Two distributions work but are more complex and require managing two CloudFront distributions. Disabling all caching eliminates CloudFront performance benefits for static assets.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "cloudfront",
@@ -755,7 +755,7 @@
       },
       {
         "label": "C",
-        "text": "Use Lambda instead of Fargate \u2014 Lambda natively scales based on SQS events"
+        "text": "Use Lambda instead of Fargate — Lambda natively scales based on SQS events"
       },
       {
         "label": "D",
@@ -768,7 +768,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "ECS Service Auto Scaling supports custom CloudWatch metrics as scaling targets. A step scaling or target tracking policy on the SQS ApproximateNumberOfMessagesVisible metric drives Fargate task count. Target tracking: 'maintain X messages per task' \u2014 as queue grows, more tasks are added proportionally. Step scaling: 'add 10 tasks when depth > 10,000'. This is the correct ECS+SQS scaling pattern. ECS capacity providers manage EC2 capacity for EC2 launch type (not relevant for Fargate scaling based on custom metrics). Lambda is a valid alternative but the question specifies Fargate. Manual adjustment doesn't meet automation requirements.",
+    "explanation": "ECS Service Auto Scaling supports custom CloudWatch metrics as scaling targets. A step scaling or target tracking policy on the SQS ApproximateNumberOfMessagesVisible metric drives Fargate task count. Target tracking: 'maintain X messages per task' — as queue grows, more tasks are added proportionally. Step scaling: 'add 10 tasks when depth > 10,000'. This is the correct ECS+SQS scaling pattern. ECS capacity providers manage EC2 capacity for EC2 launch type (not relevant for Fargate scaling based on custom metrics). Lambda is a valid alternative but the question specifies Fargate. Manual adjustment doesn't meet automation requirements.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "ecs",
@@ -811,7 +811,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Inter-region VPC peering connects VPCs across AWS regions using the AWS backbone network \u2014 traffic never traverses the public internet. This is explicitly guaranteed for VPC peering. The peering connection routes traffic through AWS's private global network. Site-to-Site VPN typically traverses the public internet (IPsec over internet). PrivateLink works for service access but requires both VPCs to be in the same region or set up across regions with careful architecture. Direct Connect with cross-connect works but requires both companies to have Direct Connect \u2014 expensive and complex for just a partner connection.",
+    "explanation": "Inter-region VPC peering connects VPCs across AWS regions using the AWS backbone network — traffic never traverses the public internet. This is explicitly guaranteed for VPC peering. The peering connection routes traffic through AWS's private global network. Site-to-Site VPN typically traverses the public internet (IPsec over internet). PrivateLink works for service access but requires both VPCs to be in the same region or set up across regions with careful architecture. Direct Connect with cross-connect works but requires both companies to have Direct Connect — expensive and complex for just a partner connection.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "vpc-peering",
@@ -844,7 +844,7 @@
       },
       {
         "label": "D",
-        "text": "Enable RDS Multi-AZ \u2014 failover completes in 1-2 minutes, replacing snapshot restore for hardware failures"
+        "text": "Enable RDS Multi-AZ — failover completes in 1-2 minutes, replacing snapshot restore for hardware failures"
       }
     ],
     "correct": "D",
@@ -853,7 +853,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "45-minute RTO from snapshot restore is a backup-and-restore DR tier. To achieve 10-minute RTO for RDS hardware failures, Multi-AZ is the correct solution: it maintains a synchronous hot standby that fails over automatically in 1-2 minutes \u2014 no snapshot restore required. AWS Backup snapshots are for data protection and disaster recovery (full region/AZ failure) \u2014 not for meeting low-RTO requirements for single-instance failures. Increasing snapshot frequency reduces RPO (data loss window) but doesn't change the 45-minute restore time (the bottleneck is the restore process, not snapshot age). io1 speeds up restore marginally but not from 45\u219210 minutes.",
+    "explanation": "45-minute RTO from snapshot restore is a backup-and-restore DR tier. To achieve 10-minute RTO for RDS hardware failures, Multi-AZ is the correct solution: it maintains a synchronous hot standby that fails over automatically in 1-2 minutes — no snapshot restore required. AWS Backup snapshots are for data protection and disaster recovery (full region/AZ failure) — not for meeting low-RTO requirements for single-instance failures. Increasing snapshot frequency reduces RPO (data loss window) but doesn't change the 45-minute restore time (the bottleneck is the restore process, not snapshot age). io1 speeds up restore marginally but not from 45→10 minutes.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "rds",
@@ -879,7 +879,7 @@
       },
       {
         "label": "B",
-        "text": "Update the ECS service with the previous task definition revision \u2014 ECS performs a rolling update to the old task definition"
+        "text": "Update the ECS service with the previous task definition revision — ECS performs a rolling update to the old task definition"
       },
       {
         "label": "C",
@@ -918,11 +918,11 @@
     "options": [
       {
         "label": "A",
-        "text": "Use DMS full load only \u2014 stop the source, run full load, switch connection string"
+        "text": "Use DMS full load only — stop the source, run full load, switch connection string"
       },
       {
         "label": "B",
-        "text": "Run DMS full load + CDC \u2014 CDC replicates ongoing changes after full load completes"
+        "text": "Run DMS full load + CDC — CDC replicates ongoing changes after full load completes"
       },
       {
         "label": "C",
@@ -939,7 +939,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "DMS full load + CDC is the standard minimal-downtime migration pattern: (1) Full load runs while source is live (6 hours). (2) CDC captures ongoing changes during and after full load. (3) Before cutover, monitor DMS replication lag \u2014 when lag is <1 second (near zero), the databases are almost in sync. (4) During cutover: stop writes to source, let CDC drain the remaining changes to target, verify replication lag = 0, switch connection strings, enable writes to RDS. Total cutover window: 2-10 minutes. Full load only requires 6 hours of downtime \u2014 not 30 minutes. 500 GB cannot be migrated in 30 minutes with full load.",
+    "explanation": "DMS full load + CDC is the standard minimal-downtime migration pattern: (1) Full load runs while source is live (6 hours). (2) CDC captures ongoing changes during and after full load. (3) Before cutover, monitor DMS replication lag — when lag is <1 second (near zero), the databases are almost in sync. (4) During cutover: stop writes to source, let CDC drain the remaining changes to target, verify replication lag = 0, switch connection strings, enable writes to RDS. Total cutover window: 2-10 minutes. Full load only requires 6 hours of downtime — not 30 minutes. 500 GB cannot be migrated in 30 minutes with full load.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "dms",
@@ -965,11 +965,11 @@
       },
       {
         "label": "B",
-        "text": "Configure the target group's slow start duration (slow start mode) \u2014 the ALB gradually increases traffic to new targets over the configured period (30-900 seconds)"
+        "text": "Configure the target group's slow start duration (slow start mode) — the ALB gradually increases traffic to new targets over the configured period (30-900 seconds)"
       },
       {
         "label": "C",
-        "text": "Configure the target group health check with a healthyThresholdCount=3 and interval=30 seconds \u2014 instances only receive traffic after 3 consecutive successful health."
+        "text": "Configure the target group health check with a healthyThresholdCount=3 and interval=30 seconds — instances only receive traffic after 3 consecutive successful health."
       },
       {
         "label": "D",
@@ -982,7 +982,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "The correct fix is to configure health checks to require multiple consecutive successes before declaring an instance healthy. With healthyThresholdCount=3 and interval=30s, an instance must pass 3 health checks (90 seconds) before ALB routes traffic to it \u2014 covering the 45-second initialization window. The ALB ONLY routes to Healthy instances. Slow start mode (option B) gradually ramps traffic but starts routing IMMEDIATELY after the health check passes \u2014 doesn't help if the first health check passes before initialization completes. Lifecycle hooks delay ASG scale-out but don't directly control ALB target registration timing.",
+    "explanation": "The correct fix is to configure health checks to require multiple consecutive successes before declaring an instance healthy. With healthyThresholdCount=3 and interval=30s, an instance must pass 3 health checks (90 seconds) before ALB routes traffic to it — covering the 45-second initialization window. The ALB ONLY routes to Healthy instances. Slow start mode (option B) gradually ramps traffic but starts routing IMMEDIATELY after the health check passes — doesn't help if the first health check passes before initialization completes. Lifecycle hooks delay ASG scale-out but don't directly control ALB target registration timing.",
     "module_ref": "aws-saa/resilient",
     "tags": [
       "alb",

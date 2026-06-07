@@ -206,7 +206,7 @@
       "B",
       "D"
     ],
-    "explanation": "When role chaining occurs \u2014 that is, when temporary security credentials from one assumed role are used to assume another role \u2014 AWS enforces a maximum session duration of 1 hour (3600 seconds) for the resulting session. This applies regardless of the max session duration configured on either role. The 1-hour cap prevents indefinite session extension through chaining. This is a well-known security boundary in AWS IAM. Options A, C, and D all propose durations exceeding the chaining cap.",
+    "explanation": "When role chaining occurs — that is, when temporary security credentials from one assumed role are used to assume another role — AWS enforces a maximum session duration of 1 hour (3600 seconds) for the resulting session. This applies regardless of the max session duration configured on either role. The 1-hour cap prevents indefinite session extension through chaining. This is a well-known security boundary in AWS IAM. Options A, C, and D all propose durations exceeding the chaining cap.",
     "module_ref": "domain-04",
     "tags": [
       "aws-scs",
@@ -426,7 +426,7 @@
       "C",
       "D"
     ],
-    "explanation": "The default maximum session duration for IAM roles is 1 hour (3600 seconds), configurable up to 12 hours. However, the AWS Management Console Switch Role feature issues sessions with a fixed maximum of 12 hours, independent of the role's configured maximum session duration. CLI and SDK AssumeRole calls respect the configured maximum (defaulting to 1 hour if not specified in the API call). So a role with a 1-hour default could still allow a 12-hour console session. Option A incorrectly describes automatic credential refresh. Option C incorrectly states the default maximum session duration is 12 hours (it is 1 hour). Option D incorrectly claims console sessions bypass all limits.",
+    "explanation": "The default maximum session duration for IAM roles is 1 hour (3600 seconds). The AWS Management Console Switch Role feature issues sessions with a ceiling of 12 hours — meaning the console session can last up to the role's configured MaxSessionDuration (up to a maximum ceiling of 12 hours). If the role's MaxSessionDuration is configured at or near 12 hours, the console session will remain active for up to 12 hours. CLI and SDK AssumeRole calls honor the configured MaxSessionDuration independently.\n\nOption A is wrong — the default maximum session duration for IAM roles is 1 hour, not 12 hours.\nOption C is wrong — console sessions do not automatically refresh credentials every hour. The session is issued once and expires at the end of the configured duration.\nOption D is wrong — console federation sessions are subject to STS limits and the role's MaxSessionDuration; they do not bypass these limits.",
     "module_ref": "domain-04",
     "tags": [
       "aws-scs",

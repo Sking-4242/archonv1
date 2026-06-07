@@ -15,15 +15,15 @@
       },
       {
         "label": "B",
-        "text": "No \u2014 the $10,000 commitment now covers EC2 and Fargate only, reducing the total covered amount"
+        "text": "No — the $10,000 commitment now covers EC2 and Fargate only, reducing the total covered amount"
       },
       {
         "label": "C",
-        "text": "Yes \u2014 Compute Savings Plans apply to any combination of EC2, Fargate, and Lambda regardless of how usage shifts across services"
+        "text": "Yes — Compute Savings Plans apply to any combination of EC2, Fargate, and Lambda regardless of how usage shifts across services"
       },
       {
         "label": "D",
-        "text": "No \u2014 Compute Savings Plans only cover the original services used when purchased"
+        "text": "No — Compute Savings Plans only cover the original services used when purchased"
       }
     ],
     "correct": "C",
@@ -32,7 +32,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Compute Savings Plans automatically apply to EC2, Fargate, and Lambda usage in any combination \u2014 the discount applies to the first X $/hour of compute usage regardless of how it's distributed across services. After the migration: EC2 ($8K) + Fargate ($4K) = $12K total. The $10K Savings Plan covers $10K of the $12K at discounted rates; the remaining $2K is On-Demand. The Plan doesn't care that Lambda dropped to $0 \u2014 it applies to whatever qualifying compute services are running. This flexibility is the key benefit of Compute Savings Plans vs. EC2 Instance Savings Plans.",
+    "explanation": "Compute Savings Plans automatically apply to EC2, Fargate, and Lambda usage in any combination — the discount applies to the first X $/hour of compute usage regardless of how it's distributed across services. After the migration: EC2 ($8K) + Fargate ($4K) = $12K total. The $10K Savings Plan covers $10K of the $12K at discounted rates; the remaining $2K is On-Demand. The Plan doesn't care that Lambda dropped to $0 — it applies to whatever qualifying compute services are running. This flexibility is the key benefit of Compute Savings Plans vs. EC2 Instance Savings Plans.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "savings-plans",
@@ -54,15 +54,15 @@
     "options": [
       {
         "label": "A",
-        "text": "Yes \u2014 for predictable, consistent traffic with <10% variance, provisioned capacity with Auto Scaling is."
+        "text": "Yes — for predictable, consistent traffic with <10% variance, provisioned capacity with Auto Scaling is."
       },
       {
         "label": "B",
-        "text": "No \u2014 switching from On-Demand to provisioned requires table downtime"
+        "text": "No — switching from On-Demand to provisioned requires table downtime"
       },
       {
         "label": "C",
-        "text": "No \u2014 On-Demand is always more cost-effective for production workloads"
+        "text": "No — On-Demand is always more cost-effective for production workloads"
       },
       {
         "label": "D",
@@ -75,7 +75,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "DynamoDB On-Demand vs. provisioned cost comparison: On-Demand Read: $0.25/million RRUs; Provisioned Read: $0.00013/RCU-hour. 40M reads/day = 462 RCU/second average. At $0.00013/RCU-hour \u00d7 462 \u00d7 730 hours = $43.9/month for reads. On-Demand for 40M reads/day \u00d7 30 days = 1.2 billion RRUs \u00d7 $0.25/million = $300/month just for reads. For predictable workloads, provisioned capacity is 3-5x cheaper than On-Demand. With Auto Scaling handling the <10% variance, provisioned is the correct choice. Switching doesn't require downtime \u2014 it's an online capacity mode change. There is no DynamoDB Reserved Capacity product.",
+    "explanation": "DynamoDB On-Demand vs. provisioned cost comparison: On-Demand Read: $0.25/million RRUs; Provisioned Read: $0.00013/RCU-hour. 40M reads/day = 462 RCU/second average. At $0.00013/RCU-hour × 462 × 730 hours = $43.9/month for reads. On-Demand for 40M reads/day × 30 days = 1.2 billion RRUs × $0.25/million = $300/month just for reads. For predictable workloads, provisioned capacity is 3-5x cheaper than On-Demand. With Auto Scaling handling the <10% variance, provisioned is the correct choice. Switching doesn't require downtime — it's an online capacity mode change. There is no DynamoDB Reserved Capacity product.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "dynamodb",
@@ -93,7 +93,7 @@
     "difficulty": "above",
     "test_number": 5,
     "active": true,
-    "stem": "A company has a data processing pipeline: S3 \u2192 Glue ETL \u2192 S3 \u2192 Athena query. Monthly costs: Glue ($2,000), Athena ($15,000), S3 ($500). The Athena cost is driven by full-table scans (analysts write SELECT * queries without WHERE clauses on a 50 TB table). What governance and technical controls most reduce Athena costs?",
+    "stem": "A company has a data processing pipeline: S3 → Glue ETL → S3 → Athena query. Monthly costs: Glue ($2,000), Athena ($15,000), S3 ($500). The Athena cost is driven by full-table scans (analysts write SELECT * queries without WHERE clauses on a 50 TB table). What governance and technical controls most reduce Athena costs?",
     "options": [
       {
         "label": "A",
@@ -118,7 +118,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Athena pricing is $5 per TB scanned. 50 TB \u00d7 $5 = $250/scan for a full-table query. Parquet columnar storage + Snappy compression provides: (1) Columnar pruning: SELECT specific_column only scans that column's data (~10-20% of total for 10 columns); (2) Compression: 50 TB \u2192 ~5-10 TB; (3) Partition pruning: WHERE date='2024-01' scans only that partition. Combined effect: $250/scan \u2192 $5-25/scan (90-95% reduction). Athena query timeout doesn't reduce bytes scanned. Redshift Spectrum has similar per-TB pricing. Budget alerts notify but don't prevent wasteful queries.",
+    "explanation": "Athena pricing is $5 per TB scanned. 50 TB × $5 = $250/scan for a full-table query. Parquet columnar storage + Snappy compression provides: (1) Columnar pruning: SELECT specific_column only scans that column's data (~10-20% of total for 10 columns); (2) Compression: 50 TB → ~5-10 TB; (3) Partition pruning: WHERE date='2024-01' scans only that partition. Combined effect: $250/scan → $5-25/scan (90-95% reduction). Athena query timeout doesn't reduce bytes scanned. Redshift Spectrum has similar per-TB pricing. Budget alerts notify but don't prevent wasteful queries.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "athena",
@@ -155,13 +155,13 @@
         "text": "A > C > B"
       }
     ],
-    "correct": "B",
+    "correct": "C",
     "distractors": {
       "A": "",
-      "C": "",
+      "B": "",
       "D": ""
     },
-    "explanation": "Monthly cost analysis: Option A (On-Demand 24/7): 50 \u00d7 $0.34 \u00d7 730 = $12,410/month. Option B (1-year All Upfront RI): 1-year RI for c5.2xlarge \u2248 $0.34 \u00d7 (1-0.40) = $0.20/hr effective rate \u00d7 24/7: 50 \u00d7 $0.20 \u00d7 730 = $7,300/month (pays for all 730 hours including off-hours). Option C (Instance Scheduler, 45hr/week): 50 \u00d7 $0.34 \u00d7 (45 \u00d7 4.33 weeks/month) = 50 \u00d7 $0.34 \u00d7 194.85 = $3,312/month. Ranking: B ($7,300) > A ($12,410) is wrong \u2014 A > B > C. Wait: A = $12,410, B = $7,300, C = $3,312 \u2192 A > B > C. Answer is A.",
+    "explanation": "Monthly cost analysis:\nOption A (On-Demand 24/7): 50 × $0.34 × 730 hrs = $12,410/month.\nOption B (1-year All Upfront RI, ~40% discount): effective rate ≈ $0.20/hr, billed 24/7 regardless of usage: 50 × $0.20 × 730 = $7,300/month.\nOption C (Instance Scheduler, 9-6 M-F only): 45 hrs/week × 4.33 weeks = ~195 hrs/month: 50 × $0.34 × 195 = $3,315/month.\nRanking (most to least expensive): A ($12,410) > B ($7,300) > C ($3,315).\nThe RI is more expensive than scheduling because the RI commits to 730 hrs/month while the scheduler pays for only 195 hrs. Scheduling delivers the lowest cost when instances are idle >50% of the time, which is true here (195/730 = 27% utilization). The RI break-even requires utilization above ~60%.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "ec2",
@@ -187,7 +187,7 @@
       },
       {
         "label": "B",
-        "text": "EC2 Instance Savings Plans are region-specific \u2014 the plan covers m5 in us-east-1 only"
+        "text": "EC2 Instance Savings Plans are region-specific — the plan covers m5 in us-east-1 only"
       },
       {
         "label": "C",
@@ -204,7 +204,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "EC2 Instance Savings Plans are region-specific AND family-specific. A plan for m5 in us-east-1 applies ONLY to m5 instances in us-east-1. eu-west-1 m5 usage is On-Demand. The committed hourly spend continues regardless \u2014 if no us-east-1 m5 instances are running, the commitment is wasted. Savings Plans cannot be modified (region, family, or term changes are not allowed). Compute Savings Plans apply to EC2 across all regions and families \u2014 they would have been the correct choice for this usage pattern. This highlights the importance of choosing Compute vs. EC2 Instance Savings Plans based on geographic/family flexibility needs.",
+    "explanation": "EC2 Instance Savings Plans are region-specific AND family-specific. A plan for m5 in us-east-1 applies ONLY to m5 instances in us-east-1. eu-west-1 m5 usage is On-Demand. The committed hourly spend continues regardless — if no us-east-1 m5 instances are running, the commitment is wasted. Savings Plans cannot be modified (region, family, or term changes are not allowed). Compute Savings Plans apply to EC2 across all regions and families — they would have been the correct choice for this usage pattern. This highlights the importance of choosing Compute vs. EC2 Instance Savings Plans based on geographic/family flexibility needs.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "savings-plans",
@@ -225,7 +225,7 @@
     "options": [
       {
         "label": "A",
-        "text": "CloudFront does not offer volume discounts \u2014 pricing is flat per GB"
+        "text": "CloudFront does not offer volume discounts — pricing is flat per GB"
       },
       {
         "label": "B",
@@ -233,7 +233,7 @@
       },
       {
         "label": "C",
-        "text": "CloudFront offers volume pricing tiers \u2014 monthly data transfer over 10 TB/month in each."
+        "text": "CloudFront offers volume pricing tiers — monthly data transfer over 10 TB/month in each."
       },
       {
         "label": "D",
@@ -246,7 +246,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "CloudFront pricing includes automatic volume-based tiers for data transfer out to internet: the per-GB rate decreases as monthly usage increases within each price class region. For example in US/EU: first 10 TB at $0.085/GB \u2192 next 40 TB at $0.080/GB \u2192 next 100 TB at $0.060/GB \u2192 etc. With 100 TB/month in US and 50 TB/month in SEA, the company automatically benefits from these lower tiers \u2014 no reserved capacity purchase required. This is a transparent, automatic discount that applies based on monthly usage. CloudFront volume tiers are calculated per region class.",
+    "explanation": "CloudFront pricing includes automatic volume-based tiers for data transfer out to internet: the per-GB rate decreases as monthly usage increases within each price class region. For example in US/EU: first 10 TB at $0.085/GB → next 40 TB at $0.080/GB → next 100 TB at $0.060/GB → etc. With 100 TB/month in US and 50 TB/month in SEA, the company automatically benefits from these lower tiers — no reserved capacity purchase required. This is a transparent, automatic discount that applies based on monthly usage. CloudFront volume tiers are calculated per region class.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "cloudfront",
@@ -267,7 +267,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Parallelize within each job using more DPUs \u2014 50 DPUs per job instead of 10"
+        "text": "Parallelize within each job using more DPUs — 50 DPUs per job instead of 10"
       },
       {
         "label": "B",
@@ -275,7 +275,7 @@
       },
       {
         "label": "C",
-        "text": "Run all 50 jobs in parallel \u2014 independent jobs can run concurrently."
+        "text": "Run all 50 jobs in parallel — independent jobs can run concurrently."
       },
       {
         "label": "D",
@@ -288,7 +288,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Glue pricing is based on DPU-hours consumed \u2014 not wall-clock time. Running 50 jobs in parallel uses the same total DPU-hours as running sequentially (cost unchanged). The benefit is time reduction: 50 sequential 1-hour jobs = 50 hours elapsed time; 50 parallel jobs = ~1 hour elapsed time. This may be valuable for time-sensitive pipelines. Option B is incorrect \u2014 parallel execution doesn't reduce DPU-hour consumption. Bookmarks prevent reprocessing of already-processed data \u2014 useful for incremental jobs that run on new data only. Increasing DPUs per job may speed up individual jobs but increases DPU-hours (and cost) per job.",
+    "explanation": "Glue pricing is based on DPU-hours consumed — not wall-clock time. Running 50 jobs in parallel uses the same total DPU-hours as running sequentially (cost unchanged). The benefit is time reduction: 50 sequential 1-hour jobs = 50 hours elapsed time; 50 parallel jobs = ~1 hour elapsed time. This may be valuable for time-sensitive pipelines. Option B is incorrect — parallel execution doesn't reduce DPU-hour consumption. Bookmarks prevent reprocessing of already-processed data — useful for incremental jobs that run on new data only. Increasing DPUs per job may speed up individual jobs but increases DPU-hours (and cost) per job.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "glue",
@@ -330,7 +330,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "EBS snapshot cost analysis: gp3 = $0.08/GB-month; EBS snapshot = $0.05/GB-month (37.5% cheaper). If the volumes contain data that might be needed (legal hold, potential restart), snapshots preserve data at lower cost. 1,200 volumes \u00d7 1,200 GB average \u00d7 $0.08 = $115,200/month EBS cost \u2192 $115,200 \u00d7 (only low util portion) = ~$69,120/month that could be $43,200/month via snapshots. However, sc1 (Cold HDD) at $0.015/GB is even cheaper than snapshots for data kept warm \u2014 but sc1 requires burst I/O and minimum 125 GB. Snapshots are the cleanest solution for truly unused data. Deleting immediately risks data loss.",
+    "explanation": "EBS snapshot cost analysis: gp3 = $0.08/GB-month; EBS snapshot = $0.05/GB-month (37.5% cheaper). If the volumes contain data that might be needed (legal hold, potential restart), snapshots preserve data at lower cost. 1,200 volumes × 1,200 GB average × $0.08 = $115,200/month EBS cost → $115,200 × (only low util portion) = ~$69,120/month that could be $43,200/month via snapshots. However, sc1 (Cold HDD) at $0.015/GB is even cheaper than snapshots for data kept warm — but sc1 requires burst I/O and minimum 125 GB. Snapshots are the cleanest solution for truly unused data. Deleting immediately risks data loss.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "ebs",
@@ -359,7 +359,7 @@
       },
       {
         "label": "C",
-        "text": "CloudWatch alarms on CPU \u2192 Lambda to change instance type"
+        "text": "CloudWatch alarms on CPU → Lambda to change instance type"
       },
       {
         "label": "D",
@@ -372,7 +372,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "AWS Compute Optimizer analyzes 14 days of CloudWatch metrics and provides specific right-sizing recommendations (e.g., 'change from m5.2xlarge to m5.large'). Combined with SSM Automation, the workflow can: (1) Receive Compute Optimizer recommendations via EventBridge; (2) Create a change request in Systems Manager Change Manager for approval; (3) On approval, SSM Automation modifies the instance type (stop, change type, start). This is the fully AWS-native right-sizing automation pipeline. CloudWatch \u2192 Lambda is custom scripting. Trusted Advisor and Cost Explorer identify opportunities but don't automate the remediation.",
+    "explanation": "AWS Compute Optimizer analyzes 14 days of CloudWatch metrics and provides specific right-sizing recommendations (e.g., 'change from m5.2xlarge to m5.large'). Combined with SSM Automation, the workflow can: (1) Receive Compute Optimizer recommendations via EventBridge; (2) Create a change request in Systems Manager Change Manager for approval; (3) On approval, SSM Automation modifies the instance type (stop, change type, start). This is the fully AWS-native right-sizing automation pipeline. CloudWatch → Lambda is custom scripting. Trusted Advisor and Cost Explorer identify opportunities but don't automate the remediation.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "compute-optimizer",
@@ -415,7 +415,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "Standard RIs (1-year or 3-year) can be listed on the AWS Reserved Instance Marketplace for resale to other AWS customers. The seller receives the remaining value (minus a 12% AWS fee). This allows early exit from an RI commitment. The company can then purchase m6g.2xlarge RIs or Compute Savings Plans. Standard RIs CANNOT be converted to Convertible (you can only buy a Convertible RI). AWS doesn't allow Standard RI exchanges for different families. There is no early termination with refund \u2014 but Marketplace resale provides similar economic relief. Note: RDS RIs cannot be sold on Marketplace; only EC2 RIs can.",
+    "explanation": "Standard RIs (1-year or 3-year) can be listed on the AWS Reserved Instance Marketplace for resale to other AWS customers. The seller receives the remaining value (minus a 12% AWS fee). This allows early exit from an RI commitment. The company can then purchase m6g.2xlarge RIs or Compute Savings Plans. Standard RIs CANNOT be converted to Convertible (you can only buy a Convertible RI). AWS doesn't allow Standard RI exchanges for different families. There is no early termination with refund — but Marketplace resale provides similar economic relief. Note: RDS RIs cannot be sold on Marketplace; only EC2 RIs can.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "reserved-instances",
@@ -445,7 +445,7 @@
       },
       {
         "label": "C",
-        "text": "Exclude shared infrastructure from all customer cost reports \u2014 only report directly-attributable costs"
+        "text": "Exclude shared infrastructure from all customer cost reports — only report directly-attributable costs"
       },
       {
         "label": "D",
@@ -458,7 +458,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "The standard SaaS cost allocation approach: (1) Tag all shared resources with CustomerID=Shared (enables Cost Explorer visibility of shared costs). (2) Total shared cost each month. (3) Allocate shared costs to customers proportional to their direct resource usage (e.g., Customer A uses 5% of direct-attributable costs \u2192 allocated 5% of shared costs). This provides full-cost customer profitability analysis. Excluding shared costs understates per-customer cost. Separate infrastructure per customer eliminates allocation but multiplies infrastructure costs 500x. AWS Cost and Usage Report's split cost allocation is a feature for ECS/EKS, not for general shared resource allocation.",
+    "explanation": "The standard SaaS cost allocation approach: (1) Tag all shared resources with CustomerID=Shared (enables Cost Explorer visibility of shared costs). (2) Total shared cost each month. (3) Allocate shared costs to customers proportional to their direct resource usage (e.g., Customer A uses 5% of direct-attributable costs → allocated 5% of shared costs). This provides full-cost customer profitability analysis. Excluding shared costs understates per-customer cost. Separate infrastructure per customer eliminates allocation but multiplies infrastructure costs 500x. AWS Cost and Usage Report's split cost allocation is a feature for ECS/EKS, not for general shared resource allocation.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "cost-allocation",
@@ -488,7 +488,7 @@
       },
       {
         "label": "C",
-        "text": "The comparison requires AWS Pricing Calculator \u2014 no general rule exists"
+        "text": "The comparison requires AWS Pricing Calculator — no general rule exists"
       },
       {
         "label": "D",
@@ -501,7 +501,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "This above-level question requires cost arithmetic: Lambda at 10M invocations/day: (1) Request cost: 10M/day \u00d7 30 = 300M/month \u00d7 $0.20/million = $60/month; (2) Duration: 10M/day \u00d7 200ms \u00d7 0.5 GB \u00d7 30 = 30M \u00d7 0.1 GB-sec = 3M GB-sec/month \u00d7 $0.0000166667 = $50/month. Total Lambda: ~$110/month. c5.large On-Demand: $0.085 \u00d7 730 = $62.05/month. Even at 10M invocations/day, EC2 is cheaper \u2014 the crossover occurs much lower. For low-frequency workloads (<100K invocations/day), Lambda is cheaper (no fixed cost). The insight: at sustained high invocation rates, EC2/RIs are almost always cheaper than Lambda.",
+    "explanation": "This above-level question requires cost arithmetic: Lambda at 10M invocations/day: (1) Request cost: 10M/day × 30 = 300M/month × $0.20/million = $60/month; (2) Duration: 10M/day × 200ms × 0.5 GB × 30 = 30M × 0.1 GB-sec = 3M GB-sec/month × $0.0000166667 = $50/month. Total Lambda: ~$110/month. c5.large On-Demand: $0.085 × 730 = $62.05/month. Even at 10M invocations/day, EC2 is cheaper — the crossover occurs much lower. For low-frequency workloads (<100K invocations/day), Lambda is cheaper (no fixed cost). The insight: at sustained high invocation rates, EC2/RIs are almost always cheaper than Lambda.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "lambda",
@@ -578,7 +578,7 @@
       },
       {
         "label": "D",
-        "text": "The engineer should not have had AdministratorAccess \u2014 remove admin access"
+        "text": "The engineer should not have had AdministratorAccess — remove admin access"
       }
     ],
     "correct": "C",
@@ -587,7 +587,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Defense in depth for runaway cost prevention: (1) SCP denying specific high-cost instance types (p3.16xlarge, p4d, trn1, etc.) in environments where they're not needed \u2014 preventive; (2) SCP requiring tags to launch expensive instances (requires approval tag) \u2014 preventive; (3) Budgets + Lambda action: when forecasted spend exceeds threshold, Lambda calls EC2 TerminateInstances \u2014 automated response; (4) IAM least privilege (option C) reduces blast radius. Budgets alerts alone (option A) notify but don't automatically stop instances by default (Budgets actions can, but require configuration). Cost Anomaly Detection identifies after the fact (24-48 hour delay). The combination of SCP prevention + Budgets automation is the correct answer.",
+    "explanation": "Defense in depth for runaway cost prevention: (1) SCP denying specific high-cost instance types (p3.16xlarge, p4d, trn1, etc.) in environments where they're not needed — preventive; (2) SCP requiring tags to launch expensive instances (requires approval tag) — preventive; (3) Budgets + Lambda action: when forecasted spend exceeds threshold, Lambda calls EC2 TerminateInstances — automated response; (4) IAM least privilege (option C) reduces blast radius. Budgets alerts alone (option A) notify but don't automatically stop instances by default (Budgets actions can, but require configuration). Cost Anomaly Detection identifies after the fact (24-48 hour delay). The combination of SCP prevention + Budgets automation is the correct answer.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "scp",
@@ -630,7 +630,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "S3 storage classes are properties of individual objects, not buckets. Enabling Intelligent-Tiering as a bucket default only affects NEW objects written after the change. Existing objects in S3 Standard remain in S3 Standard until explicitly changed. To transition 200 TB of existing objects: (1) S3 Batch Operations with CopyObject (source = Standard, destination = Intelligent-Tiering) \u2014 most efficient for millions of objects; (2) Lifecycle rule transitioning objects to Intelligent-Tiering (transition happens after a configured age). This is a common confusion: bucket defaults, default encryption, and Intelligent-Tiering settings only apply to new objects.",
+    "explanation": "S3 storage classes are properties of individual objects, not buckets. Enabling Intelligent-Tiering as a bucket default only affects NEW objects written after the change. Existing objects in S3 Standard remain in S3 Standard until explicitly changed. To transition 200 TB of existing objects: (1) S3 Batch Operations with CopyObject (source = Standard, destination = Intelligent-Tiering) — most efficient for millions of objects; (2) Lifecycle rule transitioning objects to Intelligent-Tiering (transition happens after a configured age). This is a common confusion: bucket defaults, default encryption, and Intelligent-Tiering settings only apply to new objects.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "s3",
@@ -652,7 +652,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Use Fargate instead of EC2 \u2014 Fargate eliminates EC2 capacity management"
+        "text": "Use Fargate instead of EC2 — Fargate eliminates EC2 capacity management"
       },
       {
         "label": "B",
@@ -660,7 +660,7 @@
       },
       {
         "label": "C",
-        "text": "ECS Capacity Providers with managed scaling \u2014 when ECS tasks cannot be placed, the capacity provider"
+        "text": "ECS Capacity Providers with managed scaling — when ECS tasks cannot be placed, the capacity provider"
       },
       {
         "label": "D",
@@ -673,7 +673,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "ECS Capacity Providers with managed scaling is the purpose-built solution for ECS-driven EC2 scaling. When ECS cannot place a task due to insufficient cluster capacity, the capacity provider triggers the ASG to launch new EC2 instances. The target: CapacityProviderReservation metric (% of cluster capacity in use). This tightly couples EC2 instance count to ECS task demand \u2014 instances scale when ECS needs them, not based on raw CPU utilization. CPU/memory target tracking on the ASG doesn't know when ECS specifically needs to place tasks. Pre-setting MinSize to peak demand over-provisions. Fargate eliminates the problem but changes the architecture.",
+    "explanation": "ECS Capacity Providers with managed scaling is the purpose-built solution for ECS-driven EC2 scaling. When ECS cannot place a task due to insufficient cluster capacity, the capacity provider triggers the ASG to launch new EC2 instances. The target: CapacityProviderReservation metric (% of cluster capacity in use). This tightly couples EC2 instance count to ECS task demand — instances scale when ECS needs them, not based on raw CPU utilization. CPU/memory target tracking on the ASG doesn't know when ECS specifically needs to place tasks. Pre-setting MinSize to peak demand over-provisions. Fargate eliminates the problem but changes the architecture.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "ecs",
@@ -695,7 +695,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Implement CloudFront in front of the ALB \u2014 CloudFront's data transfer out rates are lower."
+        "text": "Implement CloudFront in front of the ALB — CloudFront's data transfer out rates are lower."
       },
       {
         "label": "B",
@@ -703,7 +703,7 @@
       },
       {
         "label": "C",
-        "text": "Use AWS Direct Connect to serve users \u2014 Direct Connect data transfer is free"
+        "text": "Use AWS Direct Connect to serve users — Direct Connect data transfer is free"
       },
       {
         "label": "D",
@@ -716,7 +716,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "EC2/ALB \u2192 internet data transfer in eu-central-1 costs $0.09/GB. CloudFront data transfer to internet in EU/US: $0.085/GB first 10 TB, then lower tiers. However, CloudFront's real savings come from: (1) CACHING: cache hit ratio of 70-90% means only 10-30% of requests reach the ALB; ALB \u2192 CloudFront (origin) transfer is $0.0078/GB \u2014 far cheaper than ALB \u2192 internet. (2) Volume tiers: CloudFront offers volume discounts not available for EC2/ALB direct. Moving regions doesn't help (still internet egress). Direct Connect provides private connectivity TO your resources, not free distribution to end users on the internet. Compression helps but doesn't address the fundamental egress cost.",
+    "explanation": "EC2/ALB → internet data transfer in eu-central-1 costs $0.09/GB. CloudFront data transfer to internet in EU/US: $0.085/GB first 10 TB, then lower tiers. However, CloudFront's real savings come from: (1) CACHING: cache hit ratio of 70-90% means only 10-30% of requests reach the ALB; ALB → CloudFront (origin) transfer is $0.0078/GB — far cheaper than ALB → internet. (2) Volume tiers: CloudFront offers volume discounts not available for EC2/ALB direct. Moving regions doesn't help (still internet egress). Direct Connect provides private connectivity TO your resources, not free distribution to end users on the internet. Compression helps but doesn't address the fundamental egress cost.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "cloudfront",
@@ -738,7 +738,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Both cost the same \u2014 the architect should choose based on operational preferences only"
+        "text": "Both cost the same — the architect should choose based on operational preferences only"
       },
       {
         "label": "B",
@@ -759,7 +759,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "At 1.16 RPS (extremely low traffic), Lambda's economics are compelling: (1) 3M requests/month \u00d7 $0.20/million = $0.60 in request fees; (2) Duration: 3M \u00d7 200ms \u00d7 512MB = 300K GB-sec \u00d7 $0.0000166667 = $5/month. Total Lambda: ~$5.60/month. Minimum Fargate cost (0.5 vCPU, 1 GB): $0.00001617/sec \u00d7 86,400 sec/day \u00d7 30 days = ~$42/month for 24/7 minimum task. At low traffic, Lambda's pay-per-invocation model vastly outperforms Fargate's 24/7 compute. Lambda's latency overhead is managed with Provisioned Concurrency if needed. The answer correctly identifies Lambda as cheaper for this traffic profile.",
+    "explanation": "At 1.16 RPS (extremely low traffic), Lambda's economics are compelling: (1) 3M requests/month × $0.20/million = $0.60 in request fees; (2) Duration: 3M × 200ms × 512MB = 300K GB-sec × $0.0000166667 = $5/month. Total Lambda: ~$5.60/month. Minimum Fargate cost (0.5 vCPU, 1 GB): $0.00001617/sec × 86,400 sec/day × 30 days = ~$42/month for 24/7 minimum task. At low traffic, Lambda's pay-per-invocation model vastly outperforms Fargate's 24/7 compute. Lambda's latency overhead is managed with Provisioned Concurrency if needed. The answer correctly identifies Lambda as cheaper for this traffic profile.",
     "module_ref": "aws-saa/cost",
     "tags": [
       "lambda",

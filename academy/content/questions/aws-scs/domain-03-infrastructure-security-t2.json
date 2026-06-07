@@ -219,7 +219,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Lambda functions do not have an EC2 metadata endpoint; the attack vector here is stealing the Lambda's execution role credentials via the AWS_LAMBDA_FUNCTION environment variable."
+        "text": "Lambda functions do not expose an EC2-style metadata endpoint at 169.254.169.254 — Lambda credentials are injected as environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN). The actual attack vector is exfiltrating these runtime environment variables, not querying an IMDS endpoint."
       },
       {
         "label": "B",
@@ -234,13 +234,13 @@
         "text": "Assign the Lambda function a resource-based policy that explicitly denies all calls to the 169.254.169.254 IP range."
       }
     ],
-    "correct": "B",
+    "correct": "A",
     "distractors": [
       "A",
       "C",
       "D"
     ],
-    "explanation": "When a Lambda function runs in a VPC, it uses an ENI and can potentially reach 169.254.169.254 in that network context. Adding a security group rule that blocks outbound traffic to 169.254.169.254/32 prevents metadata endpoint access from the Lambda's network.",
+    "explanation": "Lambda functions obtain their execution role credentials through AWS's internal Lambda service credential vending — not through an EC2 instance metadata endpoint at 169.254.169.254. The credentials are injected directly into the runtime environment as environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN). There is no IMDS endpoint for Lambda to call.\n\nThe real attack vector for Lambda credential theft is code execution that exfiltrates these environment variables — for example, a SSRF vulnerability that reads the process environment, or malicious code injected into a dependency. Mitigations include: least-privilege execution roles, Lambda function URLs with auth, restricting outbound network access (VPC + SG), and monitoring for anomalous STS API calls from the execution role ARN in CloudTrail.\n\nOption B (VPC + SG blocking 169.254.169.254) addresses EC2 IMDS access but is not relevant to Lambda's credential mechanism and would not prevent credential environment variable exfiltration.\nOption C (Lambda SnapStart) pre-initializes execution environments for faster starts — it has no credential access control function.\nOption D (resource-based policy denying 169.254.169.254) — Lambda resource policies control which principals can invoke the function, not what network destinations the function can reach.",
     "module_ref": "scs-m3",
     "tags": [
       "lambda",
@@ -615,7 +615,7 @@
       "C",
       "D"
     ],
-    "explanation": "NACLs are stateless \u2014 return traffic for outbound requests must be explicitly allowed by an inbound rule (and vice versa). If the ephemeral port range for return traffic is not properly accounted for in the outbound rules, legitimate return flows can be blocked.",
+    "explanation": "NACLs are stateless — return traffic for outbound requests must be explicitly allowed by an inbound rule (and vice versa). If the ephemeral port range for return traffic is not properly accounted for in the outbound rules, legitimate return flows can be blocked.",
     "module_ref": "scs-m3",
     "tags": [
       "nacl",

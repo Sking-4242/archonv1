@@ -19,7 +19,7 @@
       },
       {
         "label": "C",
-        "text": "Hardware refresh cycle \u2014 on-premises appears cheaper years 1-4 as hardware."
+        "text": "Hardware refresh cycle — on-premises appears cheaper years 1-4 as hardware."
       },
       {
         "label": "D",
@@ -32,7 +32,7 @@
       "B": "AWS data transfer egress fees accumulate over 5 years but are typically a small percentage of compute costs and do not account for the 5-year cost inversion.",
       "D": "EC2 pricing increases by 10% annually is false; AWS pricing has historically remained flat or decreased over time and does not include automatic annual increases."
     },
-    "explanation": "On-premises hardware follows a depreciation curve \u2014 capital costs appear to go to zero as hardware ages. But hardware has a physical lifecycle (typically 3-5 years) requiring full replacement capital expenditure. Cloud eliminates hardware refresh cycles entirely \u2014 no sudden capital reinvestment. A 5-year TCO that doesn't model the refresh cycle dramatically underestimates on-premises costs.",
+    "explanation": "On-premises hardware follows a depreciation curve — capital costs appear to go to zero as hardware ages. But hardware has a physical lifecycle (typically 3-5 years) requiring full replacement capital expenditure. Cloud eliminates hardware refresh cycles entirely — no sudden capital reinvestment. A 5-year TCO that doesn't model the refresh cycle dramatically underestimates on-premises costs.",
     "module_ref": "aws-cp/billing-pricing",
     "tags": [
       "tco",
@@ -53,7 +53,7 @@
     "options": [
       {
         "label": "A",
-        "text": "The charges are incorrect \u2014 CloudFront-to-origin data transfer is always free"
+        "text": "The charges are incorrect — CloudFront-to-origin data transfer is always free"
       },
       {
         "label": "B",
@@ -74,7 +74,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "When CloudFront has a cache miss, it fetches from the ALB origin \u2014 incurring ALB data transfer charges. Improving the CloudFront cache hit rate (via better cache policies, cache TTLs, Cache-Control headers) reduces origin fetches, directly reducing ALB-to-CloudFront data transfer. Additionally, CloudFront data transfer to the internet is charged at lower rates than direct EC2 egress, so CloudFront reduces overall costs compared to direct delivery despite the origin transfer.",
+    "explanation": "When CloudFront has a cache miss, it fetches from the ALB origin — incurring ALB data transfer charges. Improving the CloudFront cache hit rate (via better cache policies, cache TTLs, Cache-Control headers) reduces origin fetches, directly reducing ALB-to-CloudFront data transfer. Additionally, CloudFront data transfer to the internet is charged at lower rates than direct EC2 egress, so CloudFront reduces overall costs compared to direct delivery despite the origin transfer.",
     "module_ref": "aws-cp/billing-pricing",
     "tags": [
       "cloudfront",
@@ -103,7 +103,7 @@
       },
       {
         "label": "C",
-        "text": "Purchase a Compute Savings Plan \u2014 applies to EC2 (any family/size/region)."
+        "text": "Purchase a Compute Savings Plan — applies to EC2 (any family/size/region)."
       },
       {
         "label": "D",
@@ -133,7 +133,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company uses AWS Organizations with 20 accounts. The CFO wants to implement a 'showback' model \u2014 show each business unit their AWS costs without actually charging them back internally. What is the minimum setup required for this?",
+    "stem": "A company uses AWS Organizations with 20 accounts. The CFO wants to implement a 'showback' model — show each business unit their AWS costs without actually charging them back internally. What is the minimum setup required for this?",
     "options": [
       {
         "label": "A",
@@ -149,7 +149,7 @@
       },
       {
         "label": "D",
-        "text": "Activate cost allocation tags for business unit attributes, tag all resources, and use Cost Explorer's"
+        "text": "Activate cost allocation tags for business unit attributes, tag all resources, and use Cost Explorer grouped by tag to show per-business-unit spend"
       }
     ],
     "correct": [
@@ -160,7 +160,7 @@
       "A": "",
       "C": ""
     },
-    "explanation": "Two approaches work: (1) Separate accounts per business unit \u2014 account-level cost visibility comes free through Organizations consolidated billing without any tagging. (2) Cost allocation tags \u2014 tag resources by business unit within shared accounts and use Cost Explorer or CUR to attribute costs. For a showback model specifically, both A and B are minimum viable approaches. Budgets and Anomaly Detection provide alerts, not attribution.",
+    "explanation": "Two minimum-viable approaches for a showback model: (1) Separate AWS accounts per business unit — per-account costs are visible automatically through AWS Organizations consolidated billing with no tagging required. (2) Cost allocation tags — activate tags (e.g., BusinessUnit=Finance), tag all resources, and use Cost Explorer grouped by that tag to attribute costs within shared accounts. AWS Budgets and Cost Anomaly Detection provide alerts and anomaly notifications, not cost attribution — they do not enable showback by themselves.",
     "module_ref": "aws-cp/billing-pricing",
     "tags": [
       "cost-allocation",
@@ -181,7 +181,7 @@
     "options": [
       {
         "label": "A",
-        "text": "$600,000 over 18 months ($50,000 \u00d7 18 \u00d7 40% = $360,000)"
+        "text": "$600,000 over 18 months ($50,000 × 18 × 40% = $360,000)"
       },
       {
         "label": "B",
@@ -193,7 +193,7 @@
       },
       {
         "label": "D",
-        "text": "$240,000 per year ($50,000/month \u00d7 12 months \u00d7"
+        "text": "$240,000 per year ($50,000/month × 12 months ×"
       }
     ],
     "correct": "D",
@@ -202,7 +202,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "At $50,000/month On-Demand, annual spend is $600,000. At 40% RI savings, annual cost would have been $360,000. The missed savings per year = $600,000 - $360,000 = $240,000/year. Over 18 months, total missed savings = $240,000 \u00d7 1.5 = $360,000. The question asks for annual savings, which is $240,000. This calculation demonstrates the significant cost of delaying RI commitments.",
+    "explanation": "At $50,000/month On-Demand, annual spend is $600,000. At 40% RI savings, annual cost would have been $360,000. The missed savings per year = $600,000 - $360,000 = $240,000/year. Over 18 months, total missed savings = $240,000 × 1.5 = $360,000. The question asks for annual savings, which is $240,000. This calculation demonstrates the significant cost of delaying RI commitments.",
     "module_ref": "aws-cp/billing-pricing",
     "tags": [
       "reserved-instances",
@@ -265,7 +265,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Right-size Lambda memory allocation \u2014 Lambda charges for memory allocated \u00d7 duration"
+        "text": "Right-size Lambda memory allocation — Lambda charges for memory allocated × duration"
       },
       {
         "label": "B",
@@ -286,7 +286,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Lambda pricing is GB-seconds: (memory in GB) \u00d7 (duration in seconds). At 3,000 MB for a function that needs 256 MB, the customer pays ~12\u00d7 more in memory costs than necessary. Right-sizing to actual memory requirements dramatically reduces cost. Lambda does charge less for arm64 (Graviton2) but the overprovisioned memory is the larger issue. Provisioned Concurrency adds cost for pre-initialized environments.",
+    "explanation": "Lambda pricing is GB-seconds: (memory in GB) × (duration in seconds). At 3,000 MB for a function that needs 256 MB, the customer pays ~12× more in memory costs than necessary. Right-sizing to actual memory requirements dramatically reduces cost. Lambda does charge less for arm64 (Graviton2) but the overprovisioned memory is the larger issue. Provisioned Concurrency adds cost for pre-initialized environments.",
     "module_ref": "aws-cp/billing-pricing",
     "tags": [
       "lambda",
@@ -328,7 +328,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "The AWS Cost and Usage Report (CUR) is the most detailed billing data available \u2014 hourly line items with resource IDs (EC2 instance IDs, S3 bucket names, etc.), usage types, and costs. Delivered to S3, it can be queried with Athena for custom analysis. Cost Explorer is limited to daily granularity in its UI and doesn't expose individual resource IDs as cost dimensions. CloudWatch billing metrics are account-level aggregates.",
+    "explanation": "The AWS Cost and Usage Report (CUR) is the most detailed billing data available — hourly line items with resource IDs (EC2 instance IDs, S3 bucket names, etc.), usage types, and costs. Delivered to S3, it can be queried with Athena for custom analysis. Cost Explorer is limited to daily granularity in its UI and doesn't expose individual resource IDs as cost dimensions. CloudWatch billing metrics are account-level aggregates.",
     "module_ref": "aws-cp/billing-pricing",
     "tags": [
       "cost-usage-report",
@@ -349,19 +349,19 @@
     "options": [
       {
         "label": "A",
-        "text": "Developer Support \u2014 provides all Trusted Advisor checks"
+        "text": "Developer Support — provides all Trusted Advisor checks"
       },
       {
         "label": "B",
-        "text": "Business Support \u2014 provides full access to all Trusted Advisor checks including"
+        "text": "Business Support — provides full access to all Trusted Advisor checks including"
       },
       {
         "label": "C",
-        "text": "Free tier \u2014 all Trusted Advisor checks are free"
+        "text": "Free tier — all Trusted Advisor checks are free"
       },
       {
         "label": "D",
-        "text": "Enterprise Support \u2014 only plan with Trusted Advisor access"
+        "text": "Enterprise Support — only plan with Trusted Advisor access"
       }
     ],
     "correct": "B",
@@ -370,7 +370,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Business Support (and above) provides full access to all Trusted Advisor checks across all five categories: Cost Optimization, Performance, Security, Fault Tolerance, and Service Limits. Basic and Developer plans provide access to only 7 core checks (6 security + 1 service limit). The question asks for minimum plan with FULL access \u2014 that's Business.",
+    "explanation": "Business Support (and above) provides full access to all Trusted Advisor checks across all five categories: Cost Optimization, Performance, Security, Fault Tolerance, and Service Limits. Basic and Developer plans provide access to only 7 core checks (6 security + 1 service limit). The question asks for minimum plan with FULL access — that's Business.",
     "module_ref": "aws-cp/billing-pricing",
     "tags": [
       "trusted-advisor",
@@ -387,7 +387,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company's AWS bill has a line item for 'NAT Gateway \u2014 Data Processed: $3,200/month.' They're surprised by the cost. After investigation, they find their private EC2 instances download updates from the internet via NAT Gateway, and also communicate with S3 via NAT Gateway. What changes reduce this cost?",
+    "stem": "A company's AWS bill has a line item for 'NAT Gateway — Data Processed: $3,200/month.' They're surprised by the cost. After investigation, they find their private EC2 instances download updates from the internet via NAT Gateway, and also communicate with S3 via NAT Gateway. What changes reduce this cost?",
     "options": [
       {
         "label": "A",
@@ -412,7 +412,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "NAT Gateway charges per GB processed. Two optimizations: (1) VPC Gateway Endpoint for S3 routes S3 traffic directly without going through NAT \u2014 this is free and can eliminate significant NAT costs for S3-heavy workloads. (2) OS update traffic (yum/apt from internet repositories) can be reduced via AWS-provided RHEL/Amazon Linux mirrors or an internal Nexus/Artifactory cache. Moving to public subnets exposes instances directly to the internet \u2014 a security anti-pattern.",
+    "explanation": "NAT Gateway charges per GB processed. Two optimizations: (1) VPC Gateway Endpoint for S3 routes S3 traffic directly without going through NAT — this is free and can eliminate significant NAT costs for S3-heavy workloads. (2) OS update traffic (yum/apt from internet repositories) can be reduced via AWS-provided RHEL/Amazon Linux mirrors or an internal Nexus/Artifactory cache. Moving to public subnets exposes instances directly to the internet — a security anti-pattern.",
     "module_ref": "aws-cp/billing-pricing",
     "tags": [
       "nat-gateway",

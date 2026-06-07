@@ -22,7 +22,7 @@
       }
     ],
     "answer": "B",
-    "explanation": "On-premises TCO calculations often exclude facility costs (power, cooling, real estate), hardware depreciation and refresh every 3-5 years, software licensing (OS, hypervisor), and IT labor for hardware maintenance. When these hidden costs are included, cloud often becomes cost-competitive or cheaper. A and D are AWS-specific costs that would make cloud look more expensive. C is also an AWS cost.",
+    "explanation": "On-premises TCO calculations frequently omit: facility costs (power, cooling, physical floor space), hardware depreciation and refresh cycles every 3-5 years, software licensing (OS, hypervisors, monitoring tools), and IT staff labor for hardware maintenance and capacity planning. When these hidden costs are fully included, cloud is often cost-competitive or cheaper than it first appears. Options A, B, and C are all AWS-specific costs — they apply to cloud deployments, not on-premises infrastructure, so they do not affect an on-premises TCO calculation.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -61,7 +61,7 @@
       }
     ],
     "answer": "B",
-    "explanation": "For steady-state 24/7 workloads, Reserved Instances or Compute Savings Plans provide 40-72% savings over On-Demand with a 1 or 3 year commitment. Spot Instances can be interrupted at any time \u2014 unsuitable for a continuous production workload. Auto Scaling down off-peak doesn't help if the workload truly runs 24/7. Downsizing may impact performance and may not provide as much savings as commitment-based pricing.",
+    "explanation": "For steady-state 24/7 workloads, Reserved Instances or Compute Savings Plans provide 40-72% savings over On-Demand with a 1 or 3 year commitment. Spot Instances can be interrupted at any time — unsuitable for a continuous production workload. Auto Scaling down off-peak doesn't help if the workload truly runs 24/7. Downsizing may impact performance and may not provide as much savings as commitment-based pricing.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -100,7 +100,7 @@
       }
     ],
     "answer": "B",
-    "explanation": "Cost Explorer provides retroactive cost analysis with the ability to filter and group by service, linked account, usage type, tags, and more \u2014 at daily granularity. This is the right tool for diagnosing a past cost spike. Budgets alert on future thresholds but don't provide drill-down analysis. Pricing Calculator is for pre-deployment estimates, not historical analysis. Trusted Advisor identifies waste (e.g., idle resources) but doesn't break down historical spend.",
+    "explanation": "Cost Explorer provides retroactive cost analysis with the ability to filter and group by service, linked account, usage type, tags, and more — at daily granularity. This is the right tool for diagnosing a past cost spike. Budgets alert on future thresholds but don't provide drill-down analysis. Pricing Calculator is for pre-deployment estimates, not historical analysis. Trusted Advisor identifies waste (e.g., idle resources) but doesn't break down historical spend.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -256,7 +256,7 @@
       }
     ],
     "answer": "C",
-    "explanation": "Data transfer between EC2 and S3 within the same Region is free when using a VPC Gateway Endpoint (and even without it in many cases for intra-region S3 traffic). Cross-region data transfer (A) incurs charges. Internet egress (B) incurs charges. Direct Connect data transfer (D) has reduced rates but is not free.",
+    "explanation": "EC2-to-S3 data transfer within the same AWS Region is free regardless of routing method. The additional benefit of a VPC Gateway Endpoint for S3 is that it routes traffic through the AWS private network, eliminating NAT Gateway data processing charges ($0.045/GB) that would otherwise apply if private subnet traffic routed through a NAT Gateway to reach S3. Cross-region data transfer (A) incurs per-GB charges. Internet egress (B) incurs per-GB charges. Direct Connect (D) has reduced data transfer rates but is not free.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -295,7 +295,7 @@
       }
     ],
     "answer": "B",
-    "explanation": "Business Support provides 24/7 access to Cloud Support Engineers via phone, chat, and email, with a response time of <1 hour for production system down cases. Developer Support offers only business-hours access with no phone support and no <1 hour SLA. Enterprise On-Ramp and Enterprise offer the same SLAs for production but at higher cost \u2014 Business is the minimum plan that satisfies the stated requirements.",
+    "explanation": "Business Support provides 24/7 access to Cloud Support Engineers via phone, chat, and email, with a response time of <1 hour for production system down cases. Developer Support offers only business-hours access with no phone support and no <1 hour SLA. Enterprise On-Ramp and Enterprise offer the same SLAs for production but at higher cost — Business is the minimum plan that satisfies the stated requirements.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -334,7 +334,7 @@
       }
     ],
     "answer": "B",
-    "explanation": "AWS Budgets supports both actual spend and forecasted/projected spend alerts. You can configure a budget to notify when projected spend for the month is expected to exceed the threshold \u2014 before the month ends. CloudWatch Billing Alarms trigger on actual accrued charges, not projections. Cost Explorer anomaly detection identifies unusual cost patterns. Trusted Advisor checks for underutilized resources.",
+    "explanation": "AWS Budgets supports both actual spend and forecasted/projected spend alerts. You can configure a budget to notify when projected spend for the month is expected to exceed the threshold — before the month ends. CloudWatch Billing Alarms trigger on actual accrued charges, not projections. Cost Explorer anomaly detection identifies unusual cost patterns. Trusted Advisor checks for underutilized resources.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [
@@ -412,7 +412,7 @@
       }
     ],
     "answer": "C",
-    "explanation": "The AWS Pricing Calculator is designed for exactly this pre-deployment scenario \u2014 model any combination of AWS services by entering specs (instance type, storage size, data transfer volumes) and get a monthly cost estimate without needing an AWS account or spending any money. Cost Explorer requires existing account spend. Running a live test environment costs money. Trusted Advisor analyzes running resources.",
+    "explanation": "The AWS Pricing Calculator is designed for exactly this pre-deployment scenario — model any combination of AWS services by entering specs (instance type, storage size, data transfer volumes) and get a monthly cost estimate without needing an AWS account or spending any money. Cost Explorer requires existing account spend. Running a live test environment costs money. Trusted Advisor analyzes running resources.",
     "difficulty": "above",
     "test_number": 4,
     "tags": [

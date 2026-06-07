@@ -101,7 +101,7 @@
     "difficulty": "at",
     "test_number": 2,
     "active": true,
-    "stem": "A company receives an unexpected AWS bill for resources they did not create. Investigation shows the root account credentials were used to launch resources in multiple Regions. Which two actions would have prevented this? (This is a single-answer question \u2014 choose the BEST single answer.)",
+    "stem": "A company receives an unexpected AWS bill for resources they did not create. Investigation shows the root account credentials were used to launch resources in multiple Regions. Which combination of security practices would have BEST prevented this?",
     "options": [
       {
         "label": "A",
@@ -109,7 +109,7 @@
       },
       {
         "label": "B",
-        "text": "Both A and B \u2014 enable MFA on root AND stop using root for daily."
+        "text": "Enable MFA on the root account AND use IAM users or roles for all daily tasks instead of using root credentials"
       },
       {
         "label": "C",
@@ -160,15 +160,15 @@
       },
       {
         "label": "C",
-        "text": "Allow \u2014 customer-managed policies take precedence over AWS-managed policies"
+        "text": "Allow — customer-managed policies take precedence over AWS-managed policies"
       },
       {
         "label": "D",
-        "text": "Deny \u2014 an explicit Deny always overrides an Allow"
+        "text": "Deny — an explicit Deny always overrides an Allow"
       },
       {
         "label": "E",
-        "text": "Allow \u2014 the Allow overrides the Deny"
+        "text": "Allow — the Allow overrides the Deny"
       }
     ],
     "correct": "D",
@@ -199,23 +199,23 @@
     "options": [
       {
         "label": "A",
-        "text": "IAM roles \u2014 users assume a role to get temporary credentials for specific tasks"
+        "text": "IAM roles — users assume a role to get temporary credentials for specific tasks"
       },
       {
         "label": "B",
-        "text": "IAM groups \u2014 assign users to multiple groups with different permissions"
+        "text": "IAM groups — assign users to multiple groups with different permissions"
       },
       {
         "label": "C",
-        "text": "IAM policies \u2014 attach multiple policies to a single user"
+        "text": "IAM policies — attach multiple policies to a single user"
       },
       {
         "label": "D",
-        "text": "IAM permission boundaries \u2014 set the maximum permissions for a user"
+        "text": "IAM permission boundaries — set the maximum permissions for a user"
       },
       {
         "label": "E",
-        "text": "IAM access keys \u2014 generate different keys for different tasks"
+        "text": "IAM access keys — generate different keys for different tasks"
       }
     ],
     "correct": "A",
@@ -366,7 +366,7 @@
       "D": "",
       "E": ""
     },
-    "explanation": "AWS CloudTrail records every API call made in an account \u2014 the action taken, the user identity, the source IP, and the timestamp. It is the primary tool for governance, compliance, and security auditing.",
+    "explanation": "AWS CloudTrail records every API call made in an account — the action taken, the user identity, the source IP, and the timestamp. It is the primary tool for governance, compliance, and security auditing.",
     "module_ref": "aws-cp/security-compliance",
     "tags": [
       "cloudtrail",
@@ -776,7 +776,7 @@
       },
       {
         "label": "D",
-        "text": "Security groups and NACLs are identical \u2014 you only need one"
+        "text": "Security groups and NACLs are identical — you only need one"
       },
       {
         "label": "E",
@@ -827,7 +827,7 @@
       },
       {
         "label": "E",
-        "text": "From AWS Artifact \u2014 a self-service portal for on-demand access"
+        "text": "From AWS Artifact — a self-service portal for on-demand access"
       }
     ],
     "correct": "E",
@@ -910,19 +910,19 @@
       },
       {
         "label": "B",
-        "text": "AWS IAM \u2014 create policies in each account"
+        "text": "AWS IAM — create policies in each account"
       },
       {
         "label": "C",
-        "text": "AWS Control Tower \u2014 manually configure each account"
+        "text": "AWS Control Tower — manually configure each account"
       },
       {
         "label": "D",
-        "text": "AWS Trusted Advisor \u2014 enable organization-wide checks"
+        "text": "AWS Trusted Advisor — enable organization-wide checks"
       },
       {
         "label": "E",
-        "text": "AWS Config \u2014 deploy rules in each account"
+        "text": "AWS Config — deploy rules in each account"
       }
     ],
     "correct": "A",
@@ -1192,23 +1192,23 @@
     "options": [
       {
         "label": "A",
-        "text": "AWS Config \u2014 tracks resource configuration changes"
+        "text": "AWS Config — tracks resource configuration changes"
       },
       {
         "label": "B",
-        "text": "AWS KMS \u2014 creates and manages encryption keys for data protection"
+        "text": "AWS KMS — creates and manages encryption keys for data protection"
       },
       {
         "label": "C",
-        "text": "Amazon Macie \u2014 discovers and classifies sensitive data in S3"
+        "text": "Amazon Macie — discovers and classifies sensitive data in S3"
       },
       {
         "label": "D",
-        "text": "Amazon CloudWatch \u2014 monitors application performance metrics"
+        "text": "Amazon CloudWatch — monitors application performance metrics"
       },
       {
         "label": "E",
-        "text": "AWS CloudTrail \u2014 records all API calls in the account"
+        "text": "AWS CloudTrail — records all API calls in the account"
       }
     ],
     "correct": [
@@ -1242,23 +1242,23 @@
     "options": [
       {
         "label": "A",
-        "text": "AWS WAF \u2014 blocks web application exploits"
+        "text": "AWS WAF — blocks web application exploits"
       },
       {
         "label": "B",
-        "text": "AWS Config \u2014 evaluates resources against compliance rules and detects configuration drift"
+        "text": "AWS Config — evaluates resources against compliance rules and detects configuration drift"
       },
       {
         "label": "C",
-        "text": "S3 Block Public Access \u2014 prevents public bucket exposure"
+        "text": "S3 Block Public Access — prevents public bucket exposure"
       },
       {
         "label": "D",
-        "text": "Amazon GuardDuty \u2014 uses ML to detect threats from CloudTrail, VPC"
+        "text": "Amazon GuardDuty — uses ML to detect threats from CloudTrail, VPC"
       },
       {
         "label": "E",
-        "text": "Security groups \u2014 control inbound and outbound traffic"
+        "text": "Security groups — control inbound and outbound traffic"
       }
     ],
     "correct": [
@@ -1270,7 +1270,7 @@
       "C": "",
       "E": ""
     },
-    "explanation": "Detective controls identify security events after or as they occur. GuardDuty detects active threats through behavioral analysis. AWS Config detects when resources drift from compliant configurations. Both are detective \u2014 they identify problems that have occurred rather than preventing them.",
+    "explanation": "Detective controls identify security events after or as they occur. GuardDuty detects active threats through behavioral analysis. AWS Config detects when resources drift from compliant configurations. Both are detective — they identify problems that have occurred rather than preventing them.",
     "module_ref": "aws-cp/security-compliance",
     "tags": [
       "guardduty",

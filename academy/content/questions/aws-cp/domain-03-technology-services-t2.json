@@ -131,7 +131,7 @@
       "C": "",
       "E": ""
     },
-    "explanation": "DynamoDB is a serverless NoSQL database that delivers single-digit millisecond performance at any scale. There are no servers to provision \u2014 it scales capacity automatically.",
+    "explanation": "DynamoDB is a serverless NoSQL database that delivers single-digit millisecond performance at any scale. There are no servers to provision — it scales capacity automatically.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "dynamodb",
@@ -179,7 +179,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "SQS is a managed message queue that stores messages until they are processed. If the fulfillment service goes down, orders accumulate in the queue and are processed when the service recovers \u2014 no orders are lost.",
+    "explanation": "SQS is a managed message queue that stores messages until they are processed. If the fulfillment service goes down, orders accumulate in the queue and are processed when the service recovers — no orders are lost.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "sqs",
@@ -606,7 +606,7 @@
       "C": "",
       "E": ""
     },
-    "explanation": "RDS Multi-AZ maintains a synchronous standby replica in another AZ. On primary failure, RDS automatically fails over to the standby and updates the DNS endpoint \u2014 the application reconnects without a connection string change.",
+    "explanation": "RDS Multi-AZ maintains a synchronous standby replica in another AZ. On primary failure, RDS automatically fails over to the standby and updates the DNS endpoint — the application reconnects without a connection string change.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "rds",
@@ -701,7 +701,7 @@
       "C": "",
       "E": ""
     },
-    "explanation": "S3 Lifecycle policies automate transitioning objects between storage classes based on age or last access. For example, objects can transition from Standard \u2192 Standard-IA after 30 days \u2192 Glacier after 90 days \u2192 deleted after 365 days.",
+    "explanation": "S3 Lifecycle policies automate transitioning objects between storage classes based on age or last access. For example, objects can transition from Standard → Standard-IA after 30 days → Glacier after 90 days → deleted after 365 days.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "s3",
@@ -722,19 +722,19 @@
     "options": [
       {
         "label": "A",
-        "text": "AWS IAM \u2014 create matching IAM users for each AD user"
+        "text": "AWS IAM — create matching IAM users for each AD user"
       },
       {
         "label": "B",
-        "text": "AWS CloudTrail \u2014 sync AD users to CloudTrail"
+        "text": "AWS CloudTrail — sync AD users to CloudTrail"
       },
       {
         "label": "C",
-        "text": "Amazon Inspector \u2014 scan AD for compliance"
+        "text": "Amazon Inspector — scan AD for compliance"
       },
       {
         "label": "D",
-        "text": "Amazon Cognito \u2014 use the on-premises AD as an identity provider"
+        "text": "Amazon Cognito — use the on-premises AD as an identity provider"
       },
       {
         "label": "E",
@@ -842,7 +842,7 @@
       "D": "",
       "E": ""
     },
-    "explanation": "AWS Fargate is a serverless compute engine for containers. When used with ECS or EKS, it eliminates the need to provision or manage servers \u2014 you define your container requirements and Fargate runs them.",
+    "explanation": "AWS Fargate is a serverless compute engine for containers. When used with ECS or EKS, it eliminates the need to provision or manage servers — you define your container requirements and Fargate runs them.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "fargate",
@@ -890,7 +890,7 @@
       "D": "",
       "E": ""
     },
-    "explanation": "DAX (DynamoDB Accelerator) is an in-memory cache purpose-built for DynamoDB. It is API-compatible, requiring minimal code changes, and reduces read latency from milliseconds to microseconds \u2014 ideal for leaderboards and similar high-read workloads.",
+    "explanation": "DAX (DynamoDB Accelerator) is an in-memory cache purpose-built for DynamoDB. It is API-compatible, requiring minimal code changes, and reduces read latency from milliseconds to microseconds — ideal for leaderboards and similar high-read workloads.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "dax",
@@ -1006,23 +1006,23 @@
     "options": [
       {
         "label": "A",
-        "text": "EBS \u2014 it provides higher throughput for HTTP serving"
+        "text": "EBS — it provides higher throughput for HTTP serving"
       },
       {
         "label": "B",
-        "text": "S3 \u2014 it stores objects accessible via HTTP/HTTPS URLs, scales to any volume,"
+        "text": "S3 — it stores objects accessible via HTTP/HTTPS URLs, scales to any volume,"
       },
       {
         "label": "C",
-        "text": "EBS \u2014 it replicates data across multiple AZs automatically"
+        "text": "EBS — it replicates data across multiple AZs automatically"
       },
       {
         "label": "D",
-        "text": "EFS \u2014 it is the only service that can serve files via URLs"
+        "text": "EFS — it is the only service that can serve files via URLs"
       },
       {
         "label": "E",
-        "text": "S3 Glacier \u2014 it provides the lowest cost for profile photos"
+        "text": "S3 Glacier — it provides the lowest cost for profile photos"
       }
     ],
     "correct": "B",
@@ -1032,7 +1032,7 @@
       "D": "",
       "E": ""
     },
-    "explanation": "Amazon S3 stores objects that can be accessed via HTTPS URLs, serves as the backbone for static content hosting, scales to any amount of data, and is designed for this exact use case. EBS is block storage for compute \u2014 not for HTTP-served content.",
+    "explanation": "Amazon S3 stores objects that can be accessed via HTTPS URLs, serves as the backbone for static content hosting, scales to any amount of data, and is designed for this exact use case. EBS is block storage for compute — not for HTTP-served content.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "s3",
@@ -1080,7 +1080,7 @@
       "D": "Amazon Aurora is a MySQL and PostgreSQL-compatible relational database built for the cloud that combines the performance of commercial databases with open-source simplicity.",
       "E": "Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability."
     },
-    "explanation": "Amazon RDS for Oracle runs Oracle Database on managed infrastructure. AWS handles patching, backups, and HA \u2014 reducing operational overhead. License Included or BYOL options are available depending on their existing Oracle agreement.",
+    "explanation": "Amazon RDS for Oracle runs Oracle Database on managed infrastructure. AWS handles patching, backups, and HA — reducing operational overhead. License Included or BYOL options are available depending on their existing Oracle agreement.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "rds",
@@ -1101,23 +1101,23 @@
     "options": [
       {
         "label": "A",
-        "text": "Amazon Rekognition \u2014 pre-built image and video analysis with face detection"
+        "text": "Amazon Rekognition — pre-built image and video analysis with face detection"
       },
       {
         "label": "B",
-        "text": "Amazon SageMaker \u2014 train a custom facial recognition model"
+        "text": "Amazon SageMaker — train a custom facial recognition model"
       },
       {
         "label": "C",
-        "text": "Amazon Comprehend \u2014 analyze text for names and faces"
+        "text": "Amazon Comprehend — analyze text for names and faces"
       },
       {
         "label": "D",
-        "text": "AWS DeepLens \u2014 deploy a custom model on a camera device"
+        "text": "AWS DeepLens — deploy a custom model on a camera device"
       },
       {
         "label": "E",
-        "text": "Amazon Textract \u2014 extract faces from images"
+        "text": "Amazon Textract — extract faces from images"
       }
     ],
     "correct": "A",
@@ -1127,7 +1127,7 @@
       "D": "",
       "E": ""
     },
-    "explanation": "Amazon Rekognition is a pre-built AI service for image and video analysis. It provides facial detection, recognition, sentiment analysis, and object detection via a simple API \u2014 no ML expertise required.",
+    "explanation": "Amazon Rekognition is a pre-built AI service for image and video analysis. It provides facial detection, recognition, sentiment analysis, and object detection via a simple API — no ML expertise required.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "rekognition",
@@ -1148,33 +1148,33 @@
     "options": [
       {
         "label": "A",
-        "text": "On-Demand retrieval \u2014 real-time, no delay"
+        "text": "Priority retrieval — same millisecond latency as S3 Standard (not a Glacier tier)"
       },
       {
         "label": "B",
-        "text": "Standard retrieval \u2014 3-5 hours"
+        "text": "Standard retrieval — 3-5 hours"
       },
       {
         "label": "C",
-        "text": "Expedited retrieval \u2014 1-5 minutes"
+        "text": "Expedited retrieval — 1-5 minutes"
       },
       {
         "label": "D",
-        "text": "Instant retrieval \u2014 milliseconds (S3 Glacier Instant Retrieval)"
+        "text": "Instant retrieval — milliseconds (S3 Glacier Instant Retrieval)"
       },
       {
         "label": "E",
-        "text": "Bulk retrieval \u2014 lowest cost, 5-12 hours"
+        "text": "Bulk retrieval — lowest cost, 5-12 hours"
       }
     ],
     "correct": "C",
     "distractors": {
-      "A": "",
+      "A": "There is no \"Priority\" or \"On-Demand\" retrieval tier in S3 Glacier Flexible Retrieval. The three tiers are Expedited (1-5 min), Standard (3-5 hours), and Bulk (5-12 hours).",
       "B": "",
       "D": "",
       "E": ""
     },
-    "explanation": "S3 Glacier Flexible Retrieval Expedited retrievals complete in 1-5 minutes, making them suitable for occasional urgent access. They cost more than Standard or Bulk but meet the 5-minute requirement.",
+    "explanation": "S3 Glacier Flexible Retrieval offers three retrieval tiers: Expedited (1-5 minutes, higher cost), Standard (3-5 hours), and Bulk (5-12 hours, lowest cost). For a requirement of 'within 5 minutes,' Expedited retrieval is the correct choice. Note: S3 Glacier Instant Retrieval is a separate storage class that provides millisecond access but at a higher storage cost than Glacier Flexible Retrieval.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "glacier",
@@ -1199,7 +1199,7 @@
       },
       {
         "label": "B",
-        "text": "Separation of concerns \u2014 each tier has a single responsibility."
+        "text": "Separation of concerns — each tier has a single responsibility."
       },
       {
         "label": "C",
@@ -1221,7 +1221,7 @@
       "D": "Defense in depth places multiple security controls across all tiers so that a breach of one layer does not automatically compromise the entire application.",
       "E": "Immutable infrastructure means servers are replaced rather than modified in place, ensuring all environments are built from a known-good baseline."
     },
-    "explanation": "A 3-tier architecture separates presentation (web), logic (application), and data (database) tiers. Each can be scaled, secured, and updated independently \u2014 a direct application of the separation of concerns design principle.",
+    "explanation": "A 3-tier architecture separates presentation (web), logic (application), and data (database) tiers. Each can be scaled, secured, and updated independently — a direct application of the separation of concerns design principle.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "three-tier",
@@ -1268,7 +1268,7 @@
       "C": "",
       "E": ""
     },
-    "explanation": "AWS best practice is to use separate accounts for prod, staging, and dev. Account-level isolation provides the strongest boundary \u2014 IAM policies in one account cannot affect resources in another. AWS Organizations manages these accounts centrally.",
+    "explanation": "AWS best practice is to use separate accounts for prod, staging, and dev. Account-level isolation provides the strongest boundary — IAM policies in one account cannot affect resources in another. AWS Organizations manages these accounts centrally.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "multi-account",
@@ -1315,7 +1315,7 @@
       "D": "",
       "E": ""
     },
-    "explanation": "Amazon Comprehend is a pre-built NLP service that detects sentiment (positive, negative, neutral, mixed), key phrases, entities, and language from text \u2014 no ML expertise required.",
+    "explanation": "Amazon Comprehend is a pre-built NLP service that detects sentiment (positive, negative, neutral, mixed), key phrases, entities, and language from text — no ML expertise required.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "comprehend",
@@ -1414,7 +1414,7 @@
       "C": "",
       "E": ""
     },
-    "explanation": "S3 is object storage with a flat namespace accessible globally via HTTPS \u2014 data is replicated across \u22653 AZs within a Region. EBS is block storage that behaves like a hard drive, attached to one EC2 instance at a time, and replicated within a single AZ.",
+    "explanation": "S3 is object storage with a flat namespace accessible globally via HTTPS — data is replicated across ≥3 AZs within a Region. EBS is block storage that behaves like a hard drive, attached to one EC2 instance at a time, and replicated within a single AZ.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "s3",

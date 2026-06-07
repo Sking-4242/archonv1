@@ -7,7 +7,7 @@
     "difficulty": "above",
     "test_number": 4,
     "active": true,
-    "stem": "A company's DynamoDB table has a partition key of UserID and sort key of Timestamp. A query pattern retrieves all items for a specific UserID with Timestamp in the last 30 minutes. This query is fast. A new requirement needs to find all users who purchased a specific ProductID in the last 24 hours \u2014 across all UserIDs. The primary key design does not support this efficiently. What is the correct DynamoDB design change?",
+    "stem": "A company's DynamoDB table has a partition key of UserID and sort key of Timestamp. A query pattern retrieves all items for a specific UserID with Timestamp in the last 30 minutes. This query is fast. A new requirement needs to find all users who purchased a specific ProductID in the last 24 hours — across all UserIDs. The primary key design does not support this efficiently. What is the correct DynamoDB design change?",
     "options": [
       {
         "label": "A",
@@ -15,7 +15,7 @@
       },
       {
         "label": "B",
-        "text": "Scan the entire table and filter by ProductID \u2014 DynamoDB Scan is fast for large tables"
+        "text": "Scan the entire table and filter by ProductID — DynamoDB Scan is fast for large tables"
       },
       {
         "label": "C",
@@ -23,16 +23,16 @@
       },
       {
         "label": "D",
-        "text": "Store ProductID in the primary table and use DynamoDB DAX to accelerate product queries \u2014 DAX caches results but still cannot efficiently query by non-key attributes."
+        "text": "Store ProductID in the primary table and use DynamoDB DAX to accelerate product queries — DAX caches results but still cannot efficiently query by non-key attributes."
       }
     ],
     "correct": "A",
     "distractors": {
       "B": "",
       "C": "",
-      "D": "Store ProductID in the primary table and use DynamoDB DAX to accelerate product queries \u2014 DAX caches results but still cannot efficiently query by non-key attributes."
+      "D": "Store ProductID in the primary table and use DynamoDB DAX to accelerate product queries — DAX caches results but still cannot efficiently query by non-key attributes."
     },
-    "explanation": "A GSI with ProductID as partition key and Timestamp as sort key inverts the access pattern: you can query all purchases of a specific ProductID in the last 24 hours efficiently (partition key = ProductID, sort key between now-24h and now). A Scan reads every item regardless of filter \u2014 O(n) cost proportional to table size, expensive at scale. A Local Secondary Index must use the same partition key (UserID) \u2014 it can't efficiently query across all users for a product. DAX caches query results but doesn't fix the fundamental access pattern mismatch.",
+    "explanation": "A GSI with ProductID as partition key and Timestamp as sort key inverts the access pattern: you can query all purchases of a specific ProductID in the last 24 hours efficiently (partition key = ProductID, sort key between now-24h and now). A Scan reads every item regardless of filter — O(n) cost proportional to table size, expensive at scale. A Local Secondary Index must use the same partition key (UserID) — it can't efficiently query across all users for a product. DAX caches query results but doesn't fix the fundamental access pattern mismatch.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "dynamodb",
@@ -53,7 +53,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Use content-based asset fingerprinting \u2014 include a hash of the file content in the asset filename (e.g."
+        "text": "Use content-based asset fingerprinting — include a hash of the file content in the asset filename (e.g."
       },
       {
         "label": "B",
@@ -74,7 +74,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Asset fingerprinting (content hashing) is the industry-standard solution: build tools (Webpack, Vite) generate filenames like main.abc123.css where the hash changes when content changes. CloudFront caches these files indefinitely (long TTL). At deploy time, new files have new hashes \u2192 new URLs \u2192 automatic cache miss \u2192 fresh content served. No invalidations needed. The HTML (which references the hashed assets) has a short TTL or no-cache. Setting TTL=0 eliminates caching entirely, sacrificing all CloudFront performance benefits. S3 versioning IDs are not designed for URL-based cache busting. Separate distributions per deployment version is operationally complex.",
+    "explanation": "Asset fingerprinting (content hashing) is the industry-standard solution: build tools (Webpack, Vite) generate filenames like main.abc123.css where the hash changes when content changes. CloudFront caches these files indefinitely (long TTL). At deploy time, new files have new hashes → new URLs → automatic cache miss → fresh content served. No invalidations needed. The HTML (which references the hashed assets) has a short TTL or no-cache. Setting TTL=0 eliminates caching entirely, sacrificing all CloudFront performance benefits. S3 versioning IDs are not designed for URL-based cache busting. Separate distributions per deployment version is operationally complex.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "cloudfront",
@@ -99,11 +99,11 @@
       },
       {
         "label": "B",
-        "text": "The Lambda functions are using an older runtime (e.g., Python 3.7) that predates the Hyperplane ENI improvements"
+        "text": "The Lambda functions have large deployment packages (heavy dependencies imported at module level) causing long initialization time — move heavy imports outside the handler or use Lambda Layers with pre-warmed environments."
       },
       {
         "label": "C",
-        "text": "The Lambda functions have too much memory allocated \u2014 reduce memory to 128 MB"
+        "text": "The Lambda functions have too much memory allocated — reduce memory to 128 MB"
       },
       {
         "label": "D",
@@ -116,7 +116,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "VPC Lambda cold starts were significantly reduced by the Hyperplane ENI infrastructure improvement AWS deployed in 2019-2020 \u2014 this applies to ALL Lambda runtimes, not specific Python versions. The primary remaining cold start cause is initialization time (package imports, SDK clients). For latency-sensitive workloads, Provisioned Concurrency eliminates cold starts by pre-initializing execution environments regardless of runtime version.",
+    "explanation": "The AWS Hyperplane ENI improvement (2019–2020) eliminated the ENI provisioning cold start for ALL Lambda runtimes — Python version has no bearing on this. After Hyperplane, VPC Lambda cold starts are comparable to non-VPC Lambda. The remaining cause of 3–4 second cold starts is initialization time: large dependency packages, SDK client creation, configuration loading, or establishing database connections at module level (outside the handler).\n\nFixes: (1) Use Lambda Layers to separate dependencies from function code; (2) Move only essential initialization outside the handler; (3) Enable Provisioned Concurrency to pre-initialize execution environments and eliminate cold starts entirely for latency-sensitive workloads.\n\nOption A (IAM lookups): IAM policy evaluation adds negligible latency (<10ms). Option C (reducing memory): CPU scales with memory — less memory means slower initialization, making cold starts worse. Option D (security group rules): had a minor impact pre-Hyperplane but is not the primary remaining cold start cause.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "lambda",
@@ -138,19 +138,19 @@
     "options": [
       {
         "label": "A",
-        "text": "SQS FIFO guarantees exactly-once delivery \u2014 duplicates after switching to FIFO indicate a Lambda bug"
+        "text": "SQS FIFO guarantees exactly-once delivery — duplicates after switching to FIFO indicate a Lambda bug"
       },
       {
         "label": "B",
-        "text": "SQS FIFO exactly-once only applies to the producer side \u2014 consumer duplicates are the application's responsibility to handle with idempotency keys"
+        "text": "SQS FIFO exactly-once only applies to the producer side — consumer duplicates are the application's responsibility to handle with idempotency keys"
       },
       {
         "label": "C",
-        "text": "Lambda does not support SQS FIFO event source mappings \u2014 only SQS Standard is supported"
+        "text": "Lambda does not support SQS FIFO event source mappings — only SQS Standard is supported"
       },
       {
         "label": "D",
-        "text": "SQS FIFO provides exactly-once processing only with content-based deduplication enabled and within the 5-minute deduplication window \u2014 Lambda retries after a timeout or failure can re-process messages outside this window"
+        "text": "SQS FIFO provides exactly-once processing only with content-based deduplication enabled and within the 5-minute deduplication window — Lambda retries after a timeout or failure can re-process messages outside this window"
       }
     ],
     "correct": "B",
@@ -159,7 +159,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "SQS FIFO's 'exactly-once processing' guarantee is specifically about the producer side \u2014 using MessageDeduplicationId prevents duplicate messages from being inserted into the queue within a 5-minute window. On the consumer side, the visibility timeout mechanism still applies: if Lambda fails or times out without deleting the message, the message becomes visible again and can be redelivered. This is a 'at least once' delivery characteristic that FIFO shares with Standard queues at the consumer side. True end-to-end exactly-once semantics requires idempotent processing logic using a deduplication key stored in a database (e.g., DynamoDB conditional writes).",
+    "explanation": "SQS FIFO's 'exactly-once processing' guarantee is specifically about the producer side — using MessageDeduplicationId prevents duplicate messages from being inserted into the queue within a 5-minute window. On the consumer side, the visibility timeout mechanism still applies: if Lambda fails or times out without deleting the message, the message becomes visible again and can be redelivered. This is a 'at least once' delivery characteristic that FIFO shares with Standard queues at the consumer side. True end-to-end exactly-once semantics requires idempotent processing logic using a deduplication key stored in a database (e.g., DynamoDB conditional writes).",
     "module_ref": "aws-saa/performing",
     "tags": [
       "sqs",
@@ -185,11 +185,11 @@
       },
       {
         "label": "B",
-        "text": "Lambda event source mapping for Kinesis automatically uses one concurrent invocation per shard"
+        "text": "Lambda event source mapping does automatically scale to one concurrent execution per shard — after the split to 40 shards, Lambda should reach 40 concurrent executions. If it stays at 20, a reserved concurrency limit of 20 is capping scale-out. Remove or increase the reserved concurrency setting."
       },
       {
         "label": "C",
-        "text": "Lambda event source mapping polls once per second across all shards \u2014 increasing shards does not increase Lambda concurrency"
+        "text": "Lambda event source mapping polls once per second across all shards — increasing shards does not increase Lambda concurrency"
       },
       {
         "label": "D",
@@ -202,7 +202,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Lambda event source mapping for Kinesis creates one concurrent execution per shard (with default parallelization factor of 1). After reshard from 20\u219240 shards, Lambda should automatically scale to 40 concurrent executions. If concurrency stays at 20, the most likely cause is a Lambda reserved concurrency cap of 20 limiting scale-out. The solution is to increase or remove the reserved concurrency limit. Lambda's default event source mapping does scale with shard count \u2014 the binding is 1 concurrent execution per shard (or up to 10 with parallelization factor). Option A's '20 consumer limit' doesn't exist.",
+    "explanation": "Lambda event source mapping for Kinesis creates one concurrent execution per shard (with default parallelization factor of 1, up to 10 with enhanced fan-out). After resharding from 20 → 40 shards, Lambda should automatically scale to 40 concurrent executions. If concurrency stays at 20, a reserved concurrency cap is the most likely cause — reserved concurrency limits both the maximum AND the guaranteed minimum for that function. Solution: increase or remove the reserved concurrency limit on the function.\n\nOption A is wrong — shard splits are automatically detected by the event source mapping; no new trigger is required.\nOption C is wrong — Lambda polls each shard independently; shard count directly controls concurrency with a 1:1 mapping.\nOption D is wrong — there is no \"20 consumer limit\" on Kinesis event source mappings; the limit is the account-level concurrency quota.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "kinesis",
@@ -245,7 +245,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Redshift query performance for joins depends heavily on data distribution. EVEN distribution spreads rows across all nodes \u2014 joins between two large EVEN-distributed tables require a broadcast or redistribution of one table's data across nodes (expensive). Using DISTKEY on the join column (e.g., customer_id) for both the fact table and related dimension tables colocates matching rows on the same compute slice, eliminating the redistribution step. SORTKEY on the filter/range column accelerates range scans. ALL distribution is for small dimension tables (replicate to every node). Adding nodes helps throughput but doesn't fix the redistribution problem.",
+    "explanation": "Redshift query performance for joins depends heavily on data distribution. EVEN distribution spreads rows across all nodes — joins between two large EVEN-distributed tables require a broadcast or redistribution of one table's data across nodes (expensive). Using DISTKEY on the join column (e.g., customer_id) for both the fact table and related dimension tables colocates matching rows on the same compute slice, eliminating the redistribution step. SORTKEY on the filter/range column accelerates range scans. ALL distribution is for small dimension tables (replicate to every node). Adding nodes helps throughput but doesn't fix the redistribution problem.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "redshift",
@@ -271,11 +271,11 @@
       },
       {
         "label": "B",
-        "text": "Enable ElastiCache Redis Cluster Mode \u2014 this enables sharding across multiple nodes, distributing the keyspace and CPU load"
+        "text": "Enable ElastiCache Redis Cluster Mode — this enables sharding across multiple nodes, distributing the keyspace and CPU load"
       },
       {
         "label": "C",
-        "text": "Add more ElastiCache Redis nodes to the cluster \u2014 Redis Standard mode supports horizontal scaling"
+        "text": "Add more ElastiCache Redis nodes to the cluster — Redis Standard mode supports horizontal scaling"
       },
       {
         "label": "D",
@@ -288,7 +288,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Redis Cluster Mode (as opposed to non-cluster mode) enables sharding: the keyspace is split across multiple shard primary nodes. This distributes both CPU and memory load. Non-cluster mode Redis can only scale vertically or add read replicas (which don't help for write-heavy session management). Cluster Mode allows up to 500 nodes (shards \u00d7 replicas). Memcached supports multi-threading but lacks Redis features (persistence, pub/sub, complex data types) and the switch would require re-architecting the session layer. DAX is purpose-built for DynamoDB acceleration, not general-purpose session caching.",
+    "explanation": "Redis Cluster Mode (as opposed to non-cluster mode) enables sharding: the keyspace is split across multiple shard primary nodes. This distributes both CPU and memory load. Non-cluster mode Redis can only scale vertically or add read replicas (which don't help for write-heavy session management). Cluster Mode allows up to 500 nodes (shards × replicas). Memcached supports multi-threading but lacks Redis features (persistence, pub/sub, complex data types) and the switch would require re-architecting the session layer. DAX is purpose-built for DynamoDB acceleration, not general-purpose session caching.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "elasticache",
@@ -310,19 +310,19 @@
     "options": [
       {
         "label": "A",
-        "text": "Lambda maximum execution time is 15 minutes \u2014 step 3 would time out"
+        "text": "Lambda maximum execution time is 15 minutes — step 3 would time out"
       },
       {
         "label": "B",
-        "text": "Lambda chains are not supported \u2014 each step must be triggered by S3 events independently"
+        "text": "Lambda chains are not supported — each step must be triggered by S3 events independently"
       },
       {
         "label": "C",
-        "text": "No problem \u2014 Lambda chains support up to 6 hours of total execution"
+        "text": "No problem — Lambda chains support up to 6 hours of total execution"
       },
       {
         "label": "D",
-        "text": "The Lambda chain will work but will be expensive \u2014 use a single Lambda with a 25-minute timeout instead"
+        "text": "The Lambda chain will work but will be expensive — use a single Lambda with a 25-minute timeout instead"
       }
     ],
     "correct": "A",
@@ -331,7 +331,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Lambda has a hard 15-minute maximum execution timeout. A 25-minute transcode job cannot run in Lambda. The correct pattern: Step Functions orchestrates the workflow (validate \u2192 thumbnails \u2192 transcode \u2192 database update); for the transcoding step that exceeds Lambda's limit, use an ECS Fargate task (or AWS Elemental MediaConvert for video specifically). Step Functions supports .sync:2 integration pattern for ECS tasks \u2014 the workflow waits for the Fargate task to complete. Synchronous Lambda chains all have the 15-minute limit. A single 25-minute Lambda would also time out.",
+    "explanation": "Lambda has a hard 15-minute maximum execution timeout. A 25-minute transcode job cannot run in Lambda. The correct pattern: Step Functions orchestrates the workflow (validate → thumbnails → transcode → database update); for the transcoding step that exceeds Lambda's limit, use an ECS Fargate task (or AWS Elemental MediaConvert for video specifically). Step Functions supports .sync:2 integration pattern for ECS tasks — the workflow waits for the Fargate task to complete. Synchronous Lambda chains all have the 15-minute limit. A single 25-minute Lambda would also time out.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "lambda",
@@ -361,7 +361,7 @@
       },
       {
         "label": "C",
-        "text": "Migrate the API to Lambda \u2014 Lambda scales from 0 to thousands of concurrent executions in seconds."
+        "text": "Migrate the API to Lambda — Lambda scales from 0 to thousands of concurrent executions in seconds."
       },
       {
         "label": "D",
@@ -374,7 +374,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Lambda's serverless scaling is instantaneous from the platform's perspective \u2014 each invocation is independent and can scale to burst limits (3,000 concurrency/minute burst) within seconds. This is fundamentally different from EC2 Auto Scaling (which requires AMI boot, health check registration, etc.). For flash sale spikes that happen in under 1 minute, Lambda is the only AWS compute option that can respond at this timescale without pre-warming. CloudFront with caching only helps for static/cacheable content. Predictive scaling helps with predictable patterns but a flash sale with 1-minute ramp is too fast for EC2. Pre-warming 50x capacity wastes money 24/7.",
+    "explanation": "Lambda's serverless scaling is instantaneous from the platform's perspective — each invocation is independent and can scale to burst limits (3,000 concurrency/minute burst) within seconds. This is fundamentally different from EC2 Auto Scaling (which requires AMI boot, health check registration, etc.). For flash sale spikes that happen in under 1 minute, Lambda is the only AWS compute option that can respond at this timescale without pre-warming. CloudFront with caching only helps for static/cacheable content. Predictive scaling helps with predictable patterns but a flash sale with 1-minute ramp is too fast for EC2. Pre-warming 50x capacity wastes money 24/7.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "lambda",
@@ -400,15 +400,15 @@
       },
       {
         "label": "B",
-        "text": "Replica lag of 50-100ms is causing queries to be rejected \u2014 increase replica instance size"
+        "text": "Replica lag of 50-100ms is causing queries to be rejected — increase replica instance size"
       },
       {
         "label": "C",
-        "text": "Aurora reader endpoint uses round-robin by connection, not by query \u2014 PgBouncer reuses persistent connections, so all"
+        "text": "Aurora reader endpoint uses round-robin by connection, not by query — PgBouncer reuses persistent connections, so all"
       },
       {
         "label": "D",
-        "text": "Aurora reader endpoint requires sticky sessions \u2014 configure ALB sticky sessions for read traffic"
+        "text": "Aurora reader endpoint requires sticky sessions — configure ALB sticky sessions for read traffic"
       }
     ],
     "correct": "C",
@@ -417,7 +417,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Aurora's reader endpoint performs DNS-based round-robin at the CONNECTION level \u2014 when a new connection is established, DNS resolves to one replica. PgBouncer maintains long-lived connection pools, so once PgBouncer establishes connections to specific replicas, those connections are reused for all queries. If PgBouncer's pool has established most connections to one or two replicas, those replicas receive the bulk of queries. The fix: configure PgBouncer to distribute connections evenly at pool creation, or reduce PgBouncer server_lifetime to periodically recycle connections and redistribute across replicas. Replica lag of 50-100ms is normal and doesn't cause query rejection.",
+    "explanation": "Aurora's reader endpoint performs DNS-based round-robin at the CONNECTION level — when a new connection is established, DNS resolves to one replica. PgBouncer maintains long-lived connection pools, so once PgBouncer establishes connections to specific replicas, those connections are reused for all queries. If PgBouncer's pool has established most connections to one or two replicas, those replicas receive the bulk of queries. The fix: configure PgBouncer to distribute connections evenly at pool creation, or reduce PgBouncer server_lifetime to periodically recycle connections and redistribute across replicas. Replica lag of 50-100ms is normal and doesn't cause query rejection.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "aurora",
@@ -482,7 +482,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Use S3 Multipart Upload with parallel parts \u2014 split each 5 GB file into"
+        "text": "Use S3 Multipart Upload with parallel parts — split each 5 GB file into"
       },
       {
         "label": "B",
@@ -503,7 +503,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "S3 Multipart Upload is the primary optimization for large objects: splitting a 5 GB file into 50 \u00d7 100 MB parts and uploading in parallel (8-16 threads) maximizes available bandwidth \u2014 the aggregate throughput is the sum of all parallel part uploads. AWS recommends multipart upload for objects >100 MB and requires it for objects >5 GB. Transfer Acceleration helps with geographic routing but still benefits from multipart (both can be combined). Compression helps reduce data volume but doesn't improve per-byte throughput. S3 Batch Operations processes objects already in S3, not during upload.",
+    "explanation": "S3 Multipart Upload is the primary optimization for large objects: splitting a 5 GB file into 50 × 100 MB parts and uploading in parallel (8-16 threads) maximizes available bandwidth — the aggregate throughput is the sum of all parallel part uploads. AWS recommends multipart upload for objects >100 MB and requires it for objects >5 GB. Transfer Acceleration helps with geographic routing but still benefits from multipart (both can be combined). Compression helps reduce data volume but doesn't improve per-byte throughput. S3 Batch Operations processes objects already in S3, not during upload.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "s3",
@@ -536,7 +536,7 @@
       },
       {
         "label": "D",
-        "text": "Amazon DynamoDB with DAX \u2014 DAX provides sub-millisecond reads for frequently accessed items"
+        "text": "Amazon DynamoDB with DAX — DAX provides sub-millisecond reads for frequently accessed items"
       }
     ],
     "correct": "B",
@@ -545,7 +545,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "500K RPS with sub-millisecond (ideally sub-100 microsecond) latency for simple key-value lookups (advertiser budget by ID) requires an in-memory data store. ElastiCache Redis with cluster mode handles millions of RPS with sub-millisecond (typically 0.1-0.5ms) latency. Budget data updated every 5 minutes is refreshed by the batch process writing to Redis. Aurora with read replicas has 1-10ms query latency \u2014 insufficient for sub-millisecond at 500K RPS. DynamoDB DAX provides microsecond reads for cached items but adds complexity vs. direct Redis. S3 has 10-100ms first-byte latency \u2014 completely unsuitable.",
+    "explanation": "500K RPS with sub-millisecond (ideally sub-100 microsecond) latency for simple key-value lookups (advertiser budget by ID) requires an in-memory data store. ElastiCache Redis with cluster mode handles millions of RPS with sub-millisecond (typically 0.1-0.5ms) latency. Budget data updated every 5 minutes is refreshed by the batch process writing to Redis. Aurora with read replicas has 1-10ms query latency — insufficient for sub-millisecond at 500K RPS. DynamoDB DAX provides microsecond reads for cached items but adds complexity vs. direct Redis. S3 has 10-100ms first-byte latency — completely unsuitable.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "elasticache",
@@ -579,7 +579,7 @@
       },
       {
         "label": "D",
-        "text": "Implement a circuit breaker on Service A's calls to Service B \u2014 after N consecutive failures/timeouts."
+        "text": "Implement a circuit breaker on Service A's calls to Service B — after N consecutive failures/timeouts."
       }
     ],
     "correct": "D",
@@ -588,7 +588,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "A circuit breaker pattern detects when a downstream service is degraded (high latency, errors) and 'opens the circuit' \u2014 subsequent calls immediately return a fallback (cached response, graceful degradation) without calling Service B. This protects Service A's SLA even when Service B is unhealthy. After a configured delay, the circuit tries a probe request ('half-open') and closes if Service B recovers. Increasing timeout accommodates slowness but still ties up Service A threads/connections for 2000ms. SQS makes Service A asynchronous \u2014 incompatible with a synchronous 200ms SLA. Horizontal scaling of Service B helps but doesn't protect Service A from B's degradation during scale-out delay.",
+    "explanation": "A circuit breaker pattern detects when a downstream service is degraded (high latency, errors) and 'opens the circuit' — subsequent calls immediately return a fallback (cached response, graceful degradation) without calling Service B. This protects Service A's SLA even when Service B is unhealthy. After a configured delay, the circuit tries a probe request ('half-open') and closes if Service B recovers. Increasing timeout accommodates slowness but still ties up Service A threads/connections for 2000ms. SQS makes Service A asynchronous — incompatible with a synchronous 200ms SLA. Horizontal scaling of Service B helps but doesn't protect Service A from B's degradation during scale-out delay.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "circuit-breaker",
@@ -614,7 +614,7 @@
       },
       {
         "label": "B",
-        "text": "Increase DPU count from 10 to 100 G.2X workers \u2014 Spark distributes the work across more parallel executors"
+        "text": "Increase DPU count from 10 to 100 G.2X workers — Spark distributes the work across more parallel executors"
       },
       {
         "label": "C",
@@ -631,7 +631,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Glue ETL jobs use Apache Spark under the hood. Spark's parallel processing scales (roughly) linearly with executor count for data-parallel operations. With 10 DPUs processing 1 TB in 3 hours, increasing to ~80-100 DPUs should proportionally reduce processing time to ~18-36 minutes (accounting for Spark overhead). This is the most direct lever. G.1X DPUs have half the memory of G.2X \u2014 switching could cause out-of-memory errors for complex transformations. Auto Scaling adjusts to actual usage but doesn't guarantee a target runtime. Parquet conversion would speed up future runs but requires a separate conversion job and doesn't solve the current 3-hour runtime.",
+    "explanation": "Glue ETL jobs use Apache Spark under the hood. Spark's parallel processing scales (roughly) linearly with executor count for data-parallel operations. With 10 DPUs processing 1 TB in 3 hours, increasing to ~80-100 DPUs should proportionally reduce processing time to ~18-36 minutes (accounting for Spark overhead). This is the most direct lever. G.1X DPUs have half the memory of G.2X — switching could cause out-of-memory errors for complex transformations. Auto Scaling adjusts to actual usage but doesn't guarantee a target runtime. Parquet conversion would speed up future runs but requires a separate conversion job and doesn't solve the current 3-hour runtime.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "glue",
@@ -674,7 +674,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "Oversized shards (80 GB vs. 10-50 GB recommended) cause slow queries because each shard must be searched fully by a single thread \u2014 larger shards = longer search time. ISM rollover policies: when the index reaches a size/age threshold, ISM creates a new index with the correct number of shards for the expected data volume, and the alias transparently redirects writes/reads. After rollover, old indices can be shrunk or moved to warm storage. Adding replicas increases read parallelism but doesn't fix oversized shards (each replica also grows to 80 GB). Larger instances handle bigger shards but the fundamental problem persists. UltraWarm helps with cold data cost, not hot shard query performance.",
+    "explanation": "Oversized shards (80 GB vs. 10-50 GB recommended) cause slow queries because each shard must be searched fully by a single thread — larger shards = longer search time. ISM rollover policies: when the index reaches a size/age threshold, ISM creates a new index with the correct number of shards for the expected data volume, and the alias transparently redirects writes/reads. After rollover, old indices can be shrunk or moved to warm storage. Adding replicas increases read parallelism but doesn't fix oversized shards (each replica also grows to 80 GB). Larger instances handle bigger shards but the fundamental problem persists. UltraWarm helps with cold data cost, not hot shard query performance.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "opensearch",
@@ -700,7 +700,7 @@
       },
       {
         "label": "B",
-        "text": "Use Lambda Provisioned Concurrency to pre-warm 1,000 execution environments \u2014 this addresses cold starts but does not decouple Lambda from the synchronous request flow."
+        "text": "Use Lambda Provisioned Concurrency to pre-warm 1,000 execution environments — this addresses cold starts but does not decouple Lambda from the synchronous request flow."
       },
       {
         "label": "C",
@@ -708,16 +708,16 @@
       },
       {
         "label": "D",
-        "text": "Use API Gateway with SQS integration \u2014 clients get immediate 202 responses, and Lambda processes from the queue asynchronously, decoupling submission from processing."
+        "text": "Use API Gateway with SQS integration — clients get immediate 202 responses, and Lambda processes from the queue asynchronously, decoupling submission from processing."
       }
     ],
     "correct": "D",
     "distractors": {
       "A": "",
-      "B": "Use Lambda Provisioned Concurrency to pre-warm 1,000 execution environments \u2014 this addresses cold starts but does not decouple Lambda from the synchronous request flow.",
+      "B": "Use Lambda Provisioned Concurrency to pre-warm 1,000 execution environments — this addresses cold starts but does not decouple Lambda from the synchronous request flow.",
       "C": ""
     },
-    "explanation": "The API Gateway \u2192 SQS \u2192 Lambda pattern decouples the ingestion layer from processing: API Gateway accepts the request, immediately enqueues it in SQS, and returns 202 Accepted to the client. Lambda processes from the queue at the rate it can handle (respecting concurrency limits). The queue absorbs the burst \u2014 no 429s are returned. This is the standard pattern for absorbing traffic spikes with asynchronous workloads. Caching only helps for cacheable GET requests. Usage plans with lower limits pre-emptively throttle users \u2014 still returns 429s. Provisioned Concurrency eliminates cold starts but doesn't increase the concurrency limit.",
+    "explanation": "The API Gateway → SQS → Lambda pattern decouples the ingestion layer from processing: API Gateway accepts the request, immediately enqueues it in SQS, and returns 202 Accepted to the client. Lambda processes from the queue at the rate it can handle (respecting concurrency limits). The queue absorbs the burst — no 429s are returned. This is the standard pattern for absorbing traffic spikes with asynchronous workloads. Caching only helps for cacheable GET requests. Usage plans with lower limits pre-emptively throttle users — still returns 429s. Provisioned Concurrency eliminates cold starts but doesn't increase the concurrency limit.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "api-gateway",
@@ -739,7 +739,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Athena always scans the full table \u2014 use Redshift for partitioned queries"
+        "text": "Athena always scans the full table — use Redshift for partitioned queries"
       },
       {
         "label": "B",
@@ -751,7 +751,7 @@
       },
       {
         "label": "D",
-        "text": "Parquet format does not support partitioning \u2014 convert to ORC"
+        "text": "Parquet format does not support partitioning — convert to ORC"
       }
     ],
     "correct": "C",
@@ -760,7 +760,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Athena partition pruning requires that partitions are registered in the Glue Data Catalog (either via MSCK REPAIR TABLE, Glue Crawler, or partition projection). Without registered partitions, Athena doesn't know which S3 prefixes correspond to which date/chromosome values and scans all data. Fix: enable partition projection on the table (define the partition schema in table properties) \u2014 this avoids needing MSCK REPAIR TABLE and automatically prunes based on query predicates. Alternatively, run Glue Crawler after each daily data load. Athena absolutely supports partition pruning with Parquet. ORC also supports partitioning. Requester-pays is irrelevant to scan behavior.",
+    "explanation": "Athena partition pruning requires that partitions are registered in the Glue Data Catalog (either via MSCK REPAIR TABLE, Glue Crawler, or partition projection). Without registered partitions, Athena doesn't know which S3 prefixes correspond to which date/chromosome values and scans all data. Fix: enable partition projection on the table (define the partition schema in table properties) — this avoids needing MSCK REPAIR TABLE and automatically prunes based on query predicates. Alternatively, run Glue Crawler after each daily data load. Athena absolutely supports partition pruning with Parquet. ORC also supports partitioning. Requester-pays is irrelevant to scan behavior.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "athena",
@@ -803,7 +803,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "DynamoDB has a per-partition throughput limit of 1,000 WCU/second (and 3,000 RCU/second). All 10,000 writes hitting 'total_transactions' saturate the single partition regardless of total table capacity. Write sharding distributes writes across multiple partition keys (shard suffix 1-N), each receiving 10,000/N writes. Dashboard reads aggregate all N shards. Increasing total WCU doesn't help if all traffic is on one partition. DynamoDB Transactions add coordination overhead and don't solve hot partition issues. On-Demand mode has the same per-partition limit \u2014 the hot partition limit is physical, not a provisioning artifact.",
+    "explanation": "DynamoDB has a per-partition throughput limit of 1,000 WCU/second (and 3,000 RCU/second). All 10,000 writes hitting 'total_transactions' saturate the single partition regardless of total table capacity. Write sharding distributes writes across multiple partition keys (shard suffix 1-N), each receiving 10,000/N writes. Dashboard reads aggregate all N shards. Increasing total WCU doesn't help if all traffic is on one partition. DynamoDB Transactions add coordination overhead and don't solve hot partition issues. On-Demand mode has the same per-partition limit — the hot partition limit is physical, not a provisioning artifact.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "dynamodb",
@@ -845,7 +845,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "AWS Batch is purpose-built for batch computing: it manages a compute environment (EC2/Spot fleets), queues jobs, scales to the required number of instances, runs the job, and terminates instances when complete. Custom scripts run in Docker containers \u2014 no application code changes required. Spot Instances minimize cost. For a weekly 2-hour batch job, AWS Batch eliminates all infrastructure management (no ASG setup, orchestration scripts, etc.). Lambda has a 15-minute limit and 10 GB memory cap \u2014 not suitable for 10 TB processing without complex sharding. EMR requires cluster setup and is optimized for Hadoop/Spark workloads, not arbitrary Python scripts.",
+    "explanation": "AWS Batch is purpose-built for batch computing: it manages a compute environment (EC2/Spot fleets), queues jobs, scales to the required number of instances, runs the job, and terminates instances when complete. Custom scripts run in Docker containers — no application code changes required. Spot Instances minimize cost. For a weekly 2-hour batch job, AWS Batch eliminates all infrastructure management (no ASG setup, orchestration scripts, etc.). Lambda has a 15-minute limit and 10 GB memory cap — not suitable for 10 TB processing without complex sharding. EMR requires cluster setup and is optimized for Hadoop/Spark workloads, not arbitrary Python scripts.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "aws-batch",
@@ -870,7 +870,7 @@
       },
       {
         "label": "B",
-        "text": "Use OpenSearch UltraWarm storage \u2014 migrate hot indices to UltraWarm after 90 days"
+        "text": "Use OpenSearch UltraWarm storage — migrate hot indices to UltraWarm after 90 days"
       },
       {
         "label": "C",
@@ -887,7 +887,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "OpenSearch UltraWarm provides a warm storage tier backed by S3 with local SSD caching. Data on UltraWarm is fully queryable (slightly higher latency for infrequently accessed data) at approximately 90% lower cost than hot EBS-backed storage. Index State Management (ISM) automates the hot\u2192warm transition after a time-based policy (e.g., 90 days). OpenSearch also supports Cold Tier (even lower cost, higher latency). Deleting indices loses the data. Exporting to S3/Athena requires separate tooling and loses the OpenSearch query interface. Removing replicas (0 replicas) risks data loss on node failure.",
+    "explanation": "OpenSearch UltraWarm provides a warm storage tier backed by S3 with local SSD caching. Data on UltraWarm is fully queryable (slightly higher latency for infrequently accessed data) at approximately 90% lower cost than hot EBS-backed storage. Index State Management (ISM) automates the hot→warm transition after a time-based policy (e.g., 90 days). OpenSearch also supports Cold Tier (even lower cost, higher latency). Deleting indices loses the data. Exporting to S3/Athena requires separate tooling and loses the OpenSearch query interface. Removing replicas (0 replicas) risks data loss on node failure.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "opensearch",
@@ -913,11 +913,11 @@
       },
       {
         "label": "B",
-        "text": "Enable CloudFront caching with no special configuration \u2014 CloudFront automatically varies cache by user"
+        "text": "Enable CloudFront caching with no special configuration — CloudFront automatically varies cache by user"
       },
       {
         "label": "C",
-        "text": "Configure CloudFront to cache based on the Authorization header or a user-specific cache key (e.g., Viewer-User-ID header) \u2014 this creates separate cache entries per user"
+        "text": "Configure CloudFront to cache based on the Authorization header or a user-specific cache key (e.g., Viewer-User-ID header) — this creates separate cache entries per user"
       },
       {
         "label": "D",
@@ -930,7 +930,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "For truly personalized content (unique per user), CloudFront cache hit rates approach zero (one cache entry per user = no sharing benefit, just latency added). The effective solution is application-layer caching: ElastiCache Redis caches the generated response by user ID in the backend, so the compute (Lambda/EC2) serves from Redis cache on repeat requests \u2014 sub-millisecond response. CloudFront is most effective for shared content. CloudFront with Authorization header caching (option C) technically works but CloudFront edge caches are shared infrastructure \u2014 caching sensitive personalized data at edge nodes raises security concerns and provides little benefit for unique-per-user content.",
+    "explanation": "For truly personalized content (unique per user), CloudFront cache hit rates approach zero (one cache entry per user = no sharing benefit, just latency added). The effective solution is application-layer caching: ElastiCache Redis caches the generated response by user ID in the backend, so the compute (Lambda/EC2) serves from Redis cache on repeat requests — sub-millisecond response. CloudFront is most effective for shared content. CloudFront with Authorization header caching (option C) technically works but CloudFront edge caches are shared infrastructure — caching sensitive personalized data at edge nodes raises security concerns and provides little benefit for unique-per-user content.",
     "module_ref": "aws-saa/performing",
     "tags": [
       "elasticache",

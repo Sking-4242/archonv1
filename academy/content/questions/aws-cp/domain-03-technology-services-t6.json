@@ -53,7 +53,7 @@
     "options": [
       {
         "label": "A",
-        "text": "S3 versioning protects against this \u2014 previous versions can be restored"
+        "text": "S3 versioning protects against this — previous versions can be restored"
       },
       {
         "label": "B",
@@ -74,7 +74,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "S3 versioning prevents accidental overwrite but permanent deletion (s3:DeleteObjectVersion) removes version history. If an attacker or misconfigured script deletes all versions, data is gone. S3 Object Lock in Compliance mode prevents permanent deletion of any object version during the retention period \u2014 even by the root user. Cross-Region Replication also replicates deletions by default. The correct preventive control is Object Lock.",
+    "explanation": "S3 versioning prevents accidental overwrite but permanent deletion (s3:DeleteObjectVersion) removes version history. If an attacker or misconfigured script deletes all versions, data is gone. S3 Object Lock in Compliance mode prevents permanent deletion of any object version during the retention period — even by the root user. Cross-Region Replication also replicates deletions by default. The correct preventive control is Object Lock.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "s3",
@@ -158,7 +158,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "If the 4 downstream calls are independent, parallel execution reduces total time from 4\u00d7200ms=800ms to ~200ms (limited by the slowest call). Lambda supports async parallel invocation within the function using native language concurrency primitives. SQS decouples the calls but adds latency and complexity. More memory reduces CPU-bound time but doesn't help IO-bound network calls. EC2 avoids timeout limits but adds unnecessary infrastructure.",
+    "explanation": "If the 4 downstream calls are independent, parallel execution reduces total time from 4×200ms=800ms to ~200ms (limited by the slowest call). Lambda supports async parallel invocation within the function using native language concurrency primitives. SQS decouples the calls but adds latency and complexity. More memory reduces CPU-bound time but doesn't help IO-bound network calls. EC2 avoids timeout limits but adds unnecessary infrastructure.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "lambda",
@@ -175,7 +175,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company is migrating a MySQL database to AWS. They need a managed database that is MySQL-compatible, provides better performance than standard RDS MySQL, and supports read replicas in up to 5 Availability Zones. Which service should they choose?",
+    "stem": "A company is migrating a MySQL database to AWS. They need a managed database that is MySQL-compatible, provides better performance than standard RDS MySQL, and supports up to 15 low-latency read replicas across multiple Availability Zones. Which service should they choose?",
     "options": [
       {
         "label": "A",
@@ -200,7 +200,7 @@
       "B": "Amazon DynamoDB is a fully managed NoSQL database service that provides fast and predictable performance with seamless scalability.",
       "C": ""
     },
-    "explanation": "Amazon Aurora MySQL-Compatible delivers up to 5x the throughput of standard MySQL at the same price point, due to its distributed storage architecture. Aurora supports up to 15 low-latency read replicas across multiple AZs, shared storage architecture for fast replication, and is fully MySQL compatible \u2014 minimal application changes required. RDS MySQL is standard. DynamoDB is NoSQL. Redshift is a data warehouse.",
+    "explanation": "Amazon Aurora MySQL-Compatible delivers up to 5x the throughput of standard MySQL at the same price point, due to its distributed storage architecture. Aurora supports up to 15 low-latency read replicas across multiple AZs, shared storage architecture for fast replication, and is fully MySQL compatible — minimal application changes required. RDS MySQL is standard. DynamoDB is NoSQL. Redshift is a data warehouse.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "aurora",
@@ -221,7 +221,7 @@
     "options": [
       {
         "label": "A",
-        "text": "ELB anomaly mitigation with outlier detection or routing configuration identifies instances receiving disproportionate traffic and adjusts distribution to balance load evenly."
+        "text": "ELB health checks — ELB continuously monitors target health; when instances in the degraded AZ fail health checks, ELB automatically stops routing to them and redistributes traffic to healthy targets in other AZs."
       },
       {
         "label": "B",
@@ -242,7 +242,7 @@
       "C": "ELB connection draining allows in-flight requests to complete before deregistering an instance but does not prevent uneven traffic distribution to slow instances.",
       "D": "Auto Scaling termination policies control which instances are removed during scale-in events but do not address uneven request distribution to existing instances."
     },
-    "explanation": "ELB health checks continuously monitor target health. When instances in a degraded AZ fail health checks, the ELB stops routing to them and distributes traffic to healthy targets in other AZs. With cross-zone load balancing enabled, traffic distributes evenly across all healthy instances regardless of AZ. Connection draining is for graceful removal of targets being deregistered. Auto Scaling terminates unhealthy instances but ELB handles the traffic routing.",
+    "explanation": "ELB health checks continuously send probes (HTTP, HTTPS, or TCP) to each registered target. When an instance in the degraded AZ begins failing health checks, the ELB marks it unhealthy and stops sending requests to it. Combined with cross-zone load balancing, remaining healthy traffic is distributed evenly across healthy instances in other AZs. This is the core mechanism that prevents a partially degraded AZ from receiving full traffic share. Cross-zone load balancing alone redistributes evenly but cannot detect or respond to individual instance performance issues. Connection draining handles graceful deregistration. Auto Scaling termination policies handle scale-in events, not routing decisions.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "elb",
@@ -284,7 +284,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Athena charges per TB scanned. Parquet is a columnar format \u2014 queries selecting a subset of columns only scan those columns, dramatically reducing data scanned. Partitioning by date means queries with date filters only scan relevant partitions. Combined, these optimizations can reduce scanned data by 90%+, cutting both cost and query time. CSV requires scanning entire rows. Moving to RDS adds cost and migration complexity.",
+    "explanation": "Athena charges per TB scanned. Parquet is a columnar format — queries selecting a subset of columns only scan those columns, dramatically reducing data scanned. Partitioning by date means queries with date filters only scan relevant partitions. Combined, these optimizations can reduce scanned data by 90%+, cutting both cost and query time. CSV requires scanning entire rows. Moving to RDS adds cost and migration complexity.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "athena",
@@ -326,7 +326,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "AWS Outposts are physically installed in the customer's data center \u2014 AWS racks containing AWS hardware running AWS services (EC2, EBS, RDS, ECS, etc.). Data stays on-premises. Customers use the same AWS APIs, SDKs, and tools. Local Zones are AWS-operated facilities near population centers (not on customer premises). Wavelength is for 5G/telecom edge. Direct Connect is a network connection, not compute/storage deployment.",
+    "explanation": "AWS Outposts are physically installed in the customer's data center — AWS racks containing AWS hardware running AWS services (EC2, EBS, RDS, ECS, etc.). Data stays on-premises. Customers use the same AWS APIs, SDKs, and tools. Local Zones are AWS-operated facilities near population centers (not on customer premises). Wavelength is for 5G/telecom edge. Direct Connect is a network connection, not compute/storage deployment.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "outposts",
@@ -385,7 +385,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company's application needs to send transactional emails (order confirmations, password resets) at high volume \u2014 up to 1 million per day. Which AWS service is purpose-built for this?",
+    "stem": "A company's application needs to send transactional emails (order confirmations, password resets) at high volume — up to 1 million per day. Which AWS service is purpose-built for this?",
     "options": [
       {
         "label": "A",
@@ -485,7 +485,7 @@
       },
       {
         "label": "D",
-        "text": "IAM Roles for Service Accounts (IRSA) \u2014 each Kubernetes service account maps"
+        "text": "IAM Roles for Service Accounts (IRSA) — each Kubernetes service account maps"
       }
     ],
     "correct": "D",
@@ -494,7 +494,7 @@
       "B": "",
       "C": ""
     },
-    "explanation": "IAM Roles for Service Accounts (IRSA) uses OIDC federation to allow individual Kubernetes service accounts to assume specific IAM roles. Pod A uses service account A (\u2192 IAM role A with S3 read); Pod B uses service account B (\u2192 IAM role B with DynamoDB write). This is fine-grained, follows least privilege, and uses temporary credentials injected by the pod identity webhook. Node-level instance profiles give ALL pods the same permissions. Injecting access keys in env vars is an anti-pattern.",
+    "explanation": "IAM Roles for Service Accounts (IRSA) uses OIDC federation to allow individual Kubernetes service accounts to assume specific IAM roles. Pod A uses service account A (→ IAM role A with S3 read); Pod B uses service account B (→ IAM role B with DynamoDB write). This is fine-grained, follows least privilege, and uses temporary credentials injected by the pod identity webhook. Node-level instance profiles give ALL pods the same permissions. Injecting access keys in env vars is an anti-pattern.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "eks",
@@ -578,7 +578,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Lambda functions can be configured to run inside a VPC \u2014 you specify the VPC, subnets, and security group. Lambda then runs in the VPC's network, enabling private connectivity to RDS. The Lambda's security group must allow outbound on port 3306 (MySQL) or 5432 (PostgreSQL), and the RDS security group must allow inbound from the Lambda security group. Making RDS public is a security anti-pattern.",
+    "explanation": "Lambda functions can be configured to run inside a VPC — you specify the VPC, subnets, and security group. Lambda then runs in the VPC's network, enabling private connectivity to RDS. The Lambda's security group must allow outbound on port 3306 (MySQL) or 5432 (PostgreSQL), and the RDS security group must allow inbound from the Lambda security group. Making RDS public is a security anti-pattern.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "lambda",
@@ -595,7 +595,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company processes financial transactions using a queue-based architecture. The CFO requires that each transaction be processed exactly once \u2014 no duplicates, no missed messages. Which SQS configuration satisfies this requirement?",
+    "stem": "A company processes financial transactions using a queue-based architecture. The CFO requires that each transaction be processed exactly once — no duplicates, no missed messages. Which SQS configuration satisfies this requirement?",
     "options": [
       {
         "label": "A",
@@ -603,7 +603,7 @@
       },
       {
         "label": "B",
-        "text": "SQS FIFO queue with content-based deduplication enabled \u2014 provides exactly-once message delivery"
+        "text": "SQS FIFO queue with content-based deduplication enabled — provides exactly-once message delivery"
       },
       {
         "label": "C",
@@ -620,7 +620,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "SQS FIFO queues with content-based deduplication (or message deduplication IDs) provide exactly-once processing within a 5-minute deduplication interval. Messages with duplicate IDs are rejected. Standard queues provide at-least-once delivery \u2014 duplicates are possible and must be handled by the consumer. Setting visibility timeout to 0 would allow multiple consumers to see the same message simultaneously. DLQ captures failed processing, not duplicates.",
+    "explanation": "SQS FIFO queues with content-based deduplication (or message deduplication IDs) provide exactly-once processing within a 5-minute deduplication interval. Messages with duplicate IDs are rejected. Standard queues provide at-least-once delivery — duplicates are possible and must be handled by the consumer. Setting visibility timeout to 0 would allow multiple consumers to see the same message simultaneously. DLQ captures failed processing, not duplicates.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "sqs",
@@ -637,7 +637,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company uses Amazon CloudFront with S3 as origin. They want to prevent direct public access to the S3 bucket \u2014 only CloudFront should be able to read from S3. What CloudFront feature achieves this?",
+    "stem": "A company uses Amazon CloudFront with S3 as origin. They want to prevent direct public access to the S3 bucket — only CloudFront should be able to read from S3. What CloudFront feature achieves this?",
     "options": [
       {
         "label": "A",
@@ -662,7 +662,7 @@
       "C": "S3 Block Public Access prevents public ACL and policy grants but does not prevent authenticated AWS users or roles from accessing objects via S3 URLs directly.",
       "D": "S3 server-side encryption protects data at rest but does not control who can access the data via S3 URLs; encryption and access control are separate concerns."
     },
-    "explanation": "CloudFront Origin Access Control (OAC, the modern replacement for OAI) creates an identity for the CloudFront distribution. The S3 bucket policy grants s3:GetObject only to the CloudFront distribution's OAC \u2014 direct S3 URL access is denied. Block Public Access prevents public bucket policies but doesn't restrict to CloudFront specifically. SSE encrypts data. Signed URLs restrict user access, not origin access.",
+    "explanation": "CloudFront Origin Access Control (OAC, the modern replacement for OAI) creates an identity for the CloudFront distribution. The S3 bucket policy grants s3:GetObject only to the CloudFront distribution's OAC — direct S3 URL access is denied. Block Public Access prevents public bucket policies but doesn't restrict to CloudFront specifically. SSE encrypts data. Signed URLs restrict user access, not origin access.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "cloudfront",
@@ -683,7 +683,7 @@
     "options": [
       {
         "label": "A",
-        "text": "Amazon Athena \u2014 SQL query over S3"
+        "text": "Amazon Athena — SQL query over S3"
       },
       {
         "label": "B",
@@ -704,7 +704,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "Amazon OpenSearch Service is a managed search and analytics engine that supports full-text indexing and sub-second search across billions of documents. S3 documents can be indexed into OpenSearch. Athena can query structured data with SQL but is not designed for sub-second full-text search. S3 Select filters data within individual objects. Kendra is an intelligent enterprise search with ML relevance ranking \u2014 also valid, but OpenSearch is the classic full-text search answer.",
+    "explanation": "Amazon OpenSearch Service is a managed search and analytics engine that supports full-text indexing and sub-second search across billions of documents. S3 documents can be indexed into OpenSearch. Athena can query structured data with SQL but is not designed for sub-second full-text search. S3 Select filters data within individual objects. Kendra is an intelligent enterprise search with ML relevance ranking — also valid, but OpenSearch is the classic full-text search answer.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "opensearch",
@@ -721,7 +721,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company uses Amazon Aurora Serverless v2 for their variable-load database. They notice the database pauses (scales to zero) during periods of inactivity and the first query after a pause takes 20-30 seconds. What is the cause and how can it be mitigated?",
+    "stem": "A company uses Amazon Aurora Serverless for their variable-load database. They notice the database pauses (scales to zero) during periods of inactivity and the first query after a pause takes 20-30 seconds. What is the cause and how can it be mitigated?",
     "options": [
       {
         "label": "A",
@@ -737,7 +737,7 @@
       },
       {
         "label": "D",
-        "text": "Aurora Serverless v2 doesn't support pausing \u2014 this is a different service"
+        "text": "Aurora Serverless v2 doesn't support pausing — this is a different service"
       }
     ],
     "correct": "C",
@@ -746,7 +746,7 @@
       "B": "",
       "D": ""
     },
-    "explanation": "Aurora Serverless (v1) has an auto-pause feature that scales to zero ACUs after a period of inactivity to reduce costs. The 'cold start' when a paused cluster receives a request is the resume latency (20-30 seconds to scale from 0 to minimum ACUs). This can be disabled in the cluster configuration. Aurora Serverless v2 does not pause to zero \u2014 minimum is 0.5 ACUs. Switching to provisioned eliminates cold starts but loses serverless economics.",
+    "explanation": "Aurora Serverless (v1) has an auto-pause feature that scales to zero ACUs after a configurable period of inactivity to reduce costs. The cold start when a paused cluster receives a request is the resume latency (typically 20-30 seconds to scale from 0 to the minimum ACU configuration). Disabling auto-pause in the cluster configuration eliminates this latency at the cost of a small idle compute charge. Note: Aurora Serverless v2 does NOT support pausing to zero — its minimum is 0.5 ACUs. If pause-to-zero behavior is observed, the cluster is running Aurora Serverless v1. Switching to provisioned Aurora eliminates cold starts entirely but loses the serverless cost model.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "aurora-serverless",
@@ -809,19 +809,19 @@
     "options": [
       {
         "label": "A",
-        "text": "Amazon EFS \u2014 mount as a shared volume across all containers using a CSI"
+        "text": "Amazon EFS — mount as a shared volume across all containers using a CSI"
       },
       {
         "label": "B",
-        "text": "Amazon S3 \u2014 mount as a file system using S3 FUSE"
+        "text": "Amazon S3 — mount as a file system using S3 FUSE"
       },
       {
         "label": "C",
-        "text": "Amazon EBS \u2014 mount the same volume to multiple containers"
+        "text": "Amazon EBS — mount the same volume to multiple containers"
       },
       {
         "label": "D",
-        "text": "Instance store \u2014 provide fast local storage for containers"
+        "text": "Instance store — provide fast local storage for containers"
       }
     ],
     "correct": "A",
@@ -847,7 +847,7 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company uses Amazon Kinesis Data Streams. They notice their consumers are falling behind \u2014 the stream has 100 shards but processing latency is growing. Adding more consumer applications doesn't help because all consumers share the same read throughput per shard. What Kinesis feature enables multiple consumers to read from the same shard independently without sharing throughput?",
+    "stem": "A company uses Amazon Kinesis Data Streams. They notice their consumers are falling behind — the stream has 100 shards but processing latency is growing. Adding more consumer applications doesn't help because all consumers share the same read throughput per shard. What Kinesis feature enables multiple consumers to read from the same shard independently without sharing throughput?",
     "options": [
       {
         "label": "A",
@@ -863,7 +863,7 @@
       },
       {
         "label": "D",
-        "text": "Kinesis Enhanced Fan-Out \u2014 provides dedicated 2 MB/sec per"
+        "text": "Kinesis Enhanced Fan-Out — provides dedicated 2 MB/sec per"
       }
     ],
     "correct": "D",
@@ -893,7 +893,7 @@
     "options": [
       {
         "label": "A",
-        "text": "AWS IoT Core ingests device data \u2192 Kinesis Data Streams \u2192 Lambda for processing."
+        "text": "AWS IoT Core ingests device data → Kinesis Data Streams → Lambda for processing."
       },
       {
         "label": "B",
@@ -931,19 +931,19 @@
     "difficulty": "above",
     "test_number": 6,
     "active": true,
-    "stem": "A company uses AWS CodeDeploy for EC2 deployments. They want to deploy new code to 25% of instances, verify, then deploy to the remaining 75% \u2014 with automatic rollback if error rates increase. Which deployment strategy achieves this?",
+    "stem": "A company uses AWS CodeDeploy for EC2 deployments. They want to deploy new code to 25% of instances, verify, then deploy to the remaining 75% — with automatic rollback if error rates increase. Which deployment strategy achieves this?",
     "options": [
       {
         "label": "A",
-        "text": "Blue/green deployment with a canary step \u2014 route 25% traffic to."
+        "text": "Blue/green deployment with a canary step — route 25% traffic to."
       },
       {
         "label": "B",
-        "text": "In-place deployment \u2014 all instances updated simultaneously"
+        "text": "In-place deployment — all instances updated simultaneously"
       },
       {
         "label": "C",
-        "text": "Immutable deployment \u2014 launch entirely new instances"
+        "text": "Immutable deployment — launch entirely new instances"
       },
       {
         "label": "D",
@@ -998,7 +998,7 @@
       "C": "S3 Cross-Region Replication stores additional copies in a destination bucket, which would increase storage costs but would be visible as a separate bucket's usage.",
       "D": "S3 multipart uploads leave incomplete parts stored in the bucket if not completed, accumulating billable storage that is not visible in the final object listing."
     },
-    "explanation": "S3 versioning stores every version of every object. Each hourly write creates a new version; the old version is retained (not deleted), resulting in 8,760 versions after a year \u2014 all billed as storage. To control costs with versioning enabled, you must add S3 Lifecycle policies to expire non-current versions after a defined number of days/versions. Incomplete multipart uploads also accumulate cost but wouldn't create 8,760 copies of 1 GB.",
+    "explanation": "S3 versioning stores every version of every object. Each hourly write creates a new version; the old version is retained (not deleted), resulting in 8,760 versions after a year — all billed as storage. To control costs with versioning enabled, you must add S3 Lifecycle policies to expire non-current versions after a defined number of days/versions. Incomplete multipart uploads also accumulate cost but wouldn't create 8,760 copies of 1 GB.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "s3",
@@ -1107,15 +1107,15 @@
       },
       {
         "label": "B",
-        "text": "SQS message delay \u2014 delay failed messages for 24 hours"
+        "text": "SQS message delay — delay failed messages for 24 hours"
       },
       {
         "label": "C",
-        "text": "SQS long polling \u2014 reduces failed message frequency"
+        "text": "SQS long polling — reduces failed message frequency"
       },
       {
         "label": "D",
-        "text": "SQS FIFO queue \u2014 prevents message failures"
+        "text": "SQS FIFO queue — prevents message failures"
       }
     ],
     "correct": "A",
@@ -1145,19 +1145,19 @@
     "options": [
       {
         "label": "A",
-        "text": "CloudWatch Logs Insights query \u2014 run on-demand"
+        "text": "CloudWatch Logs Insights query — run on-demand"
       },
       {
         "label": "B",
-        "text": "CloudWatch Metric Filter \u2014 extracts a metric from log data."
+        "text": "CloudWatch Metric Filter — extracts a metric from log data."
       },
       {
         "label": "C",
-        "text": "CloudWatch Contributor Insights \u2014 identifies top contributors"
+        "text": "CloudWatch Contributor Insights — identifies top contributors"
       },
       {
         "label": "D",
-        "text": "AWS X-Ray \u2014 traces application errors"
+        "text": "AWS X-Ray — traces application errors"
       }
     ],
     "correct": "B",
@@ -1166,7 +1166,7 @@
       "C": "",
       "D": ""
     },
-    "explanation": "CloudWatch Metric Filters extract custom metrics from log data in real time \u2014 you define a filter pattern (e.g., 'ERROR') and each matching log event increments the custom metric. A CloudWatch Alarm can then trigger on this metric exceeding a threshold (100) in a time window (5 minutes). Logs Insights is ad-hoc, not real-time alerting. Contributor Insights analyzes patterns in log data. X-Ray traces request paths, not log-based alerting.",
+    "explanation": "CloudWatch Metric Filters extract custom metrics from log data in real time — you define a filter pattern (e.g., 'ERROR') and each matching log event increments the custom metric. A CloudWatch Alarm can then trigger on this metric exceeding a threshold (100) in a time window (5 minutes). Logs Insights is ad-hoc, not real-time alerting. Contributor Insights analyzes patterns in log data. X-Ray traces request paths, not log-based alerting.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "cloudwatch",
@@ -1187,19 +1187,19 @@
     "options": [
       {
         "label": "A",
-        "text": "VPC Peering \u2014 connect tiers through separate VPCs"
+        "text": "VPC Peering — connect tiers through separate VPCs"
       },
       {
         "label": "B",
-        "text": "Security Groups \u2014 control which source security groups can communicate with each tier's instances at the instance level"
+        "text": "Security Groups — control which source security groups can communicate with each tier's instances at the instance level"
       },
       {
         "label": "C",
-        "text": "Subnets \u2014 each tier in a separate subnet (public subnet for web, private subnets for app and DB)"
+        "text": "Subnets — each tier in a separate subnet (public subnet for web, private subnets for app and DB)"
       },
       {
         "label": "D",
-        "text": "Elastic IPs \u2014 assign unique IPs per tier"
+        "text": "Elastic IPs — assign unique IPs per tier"
       }
     ],
     "correct": [
@@ -1210,7 +1210,7 @@
       "A": "",
       "D": ""
     },
-    "explanation": "Multi-tier network isolation in a VPC uses two complementary controls: (1) Subnets provide coarse network segmentation (public vs. private subnets) and associate with route tables that control internet access. (2) Security Groups provide fine-grained, stateful instance-level controls \u2014 the application tier SG allows inbound only from the web tier SG; the DB tier SG allows inbound only from the app tier SG. Together they enforce tier isolation. VPC Peering connects separate VPCs. Elastic IPs are addressing, not isolation.",
+    "explanation": "Multi-tier network isolation in a VPC uses two complementary controls: (1) Subnets provide coarse network segmentation (public vs. private subnets) and associate with route tables that control internet access. (2) Security Groups provide fine-grained, stateful instance-level controls — the application tier SG allows inbound only from the web tier SG; the DB tier SG allows inbound only from the app tier SG. Together they enforce tier isolation. VPC Peering connects separate VPCs. Elastic IPs are addressing, not isolation.",
     "module_ref": "aws-cp/technology-services",
     "tags": [
       "vpc",
@@ -1239,7 +1239,7 @@
       },
       {
         "label": "C",
-        "text": "A manual approval action in the pipeline \u2014 CodePipeline pauses at this action and sends an SNS notification"
+        "text": "A manual approval action in the pipeline — CodePipeline pauses at this action and sends an SNS notification"
       },
       {
         "label": "D",
