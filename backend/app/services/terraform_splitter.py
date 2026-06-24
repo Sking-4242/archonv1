@@ -23,7 +23,43 @@ _DEFAULT_FILE = "main.tf"
 _BLOCK_START = re.compile(r"^([a-zA-Z_]\w*)")
 
 
+def _brace_depth_delta(line: str) -> int:
+    """
+    Return the net change in brace depth contributed by *line*, ignoring braces
+    that appear inside double-quoted strings.
+
+    This handles common HCL patterns like jsonencode({ key = "value" })
+    without mis-counting their braces.
+    """
+    depth = 0
+    in_string = False
+    escape_next = False
+    for ch in line:
+        if escape_next:
+            escape_next = False
+            continue
+        if ch == "\\" and in_string:
+            escape_next = True
+            continue
+        if ch == '"':
+            in_string = not in_string
+            continue
+        if not in_string:
+            if ch == "{":
+                depth += 1
+            elif ch == "}":
+                depth -= 1
+    return depth
+
+
 def _extract_blocks(hcl: str) -> list[tuple[str, str]]:
+    """
+    Parse top-level HCL blocks from *hcl* and return a list of
+    (block_type, block_text) tuples.
+
+    Uses quote-aware brace depth tracking so that inline JSON / jsonencode(...)
+    expressions don't confuse the block boundary detection.
+    """
     blocks: list[tuple[str, str]] = []
     lines = hcl.split("\n")
     i = 0
@@ -36,12 +72,12 @@ def _extract_blocks(hcl: str) -> list[tuple[str, str]]:
         m = _BLOCK_START.match(stripped)
         if m and "{" in line:
             block_type = m.group(1)
-            depth = line.count("{") - line.count("}")
+            depth = _brace_depth_delta(line)
             block_lines = [line]
             i += 1
             while i < len(lines) and depth > 0:
                 ln = lines[i]
-                depth += ln.count("{") - ln.count("}")
+                depth += _brace_depth_delta(ln)
                 block_lines.append(ln)
                 i += 1
             blocks.append((block_type, "\n".join(block_lines)))

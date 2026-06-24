@@ -1,514 +1,514 @@
 [
-  {
-    "id": "aws-soa-t2-05-001",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "An EC2 instance in a private subnet attempts to reach an S3 bucket, but the request fails with a connection timeout. VPC Flow Logs show the traffic is being rejected. The security group allows all outbound traffic. What is the most likely cause?",
-    "options": [
-      {
-        "label": "A",
-        "text": "The EC2 instance's IAM role does not have s3:GetObject permission, and the permission denial manifests as a connection timeout rather than a 403 error."
-      },
-      {
-        "label": "B",
-        "text": "A NACL on the private subnet has an explicit DENY rule for traffic to the S3 endpoint IP range, or there is no return traffic rule allowing inbound responses since NACLs are stateless."
-      },
-      {
-        "label": "C",
-        "text": "The S3 bucket policy denies access from the instance's private IP address range, causing the connection to be rejected before it reaches the bucket."
-      },
-      {
-        "label": "D",
-        "text": "The NAT Gateway in the public subnet has run out of NAT table entries and is dropping new connections to S3."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "C": "An S3 bucket policy denial returns an HTTP 403 Forbidden error, not a connection timeout; and bucket policies typically match based on IAM principals, not IP addresses from a private subnet.",
-      "D": "NAT Gateway port exhaustion is possible under extreme load but is rare; a NACL misconfiguration is a far more common cause of connection timeouts visible in Flow Logs.",
-      "A": "IAM permission denials return HTTP 403 errors from the S3 service after the connection is established; they do not cause TCP-level connection timeouts."
-    },
-    "explanation": "Network ACLs are stateless, meaning both inbound and outbound rules must explicitly allow traffic. For an EC2 instance in a private subnet making an outbound request to S3: the outbound rule must allow HTTPS (443) to the S3 endpoint, and the inbound rule must allow the return traffic (ephemeral ports 1024-65535) back to the instance. A missing return traffic rule causes the response packets to be dropped, appearing as a connection timeout.",
-    "module_ref": "soa/networking/nacl-stateless-troubleshooting",
-    "tags": [
-      "nacl",
-      "stateless",
-      "s3",
-      "vpc-flow-logs",
-      "troubleshooting"
-    ]
+ {
+  "id": "aws-soa-t2-05-001",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "An EC2 instance in a private subnet attempts to reach an S3 bucket, but the request fails with a connection timeout. VPC Flow Logs show the traffic is being rejected. The security group allows all outbound traffic. What is the most likely cause?",
+  "options": [
+   {
+    "label": "A",
+    "text": "The EC2 instance's IAM role does not have s3:GetObject permission, and the permission denial manifests as a connection timeout rather than a 403 error."
+   },
+   {
+    "label": "B",
+    "text": "A NACL on the private subnet has an explicit DENY rule for traffic to the S3 endpoint IP range, or there is no return traffic rule allowing inbound responses since NACLs are stateless."
+   },
+   {
+    "label": "C",
+    "text": "The S3 bucket policy denies access from the instance's private IP address range, causing the connection to be rejected before it reaches the bucket."
+   },
+   {
+    "label": "D",
+    "text": "The NAT Gateway in the public subnet has run out of NAT table entries and is dropping new connections to S3."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "C": "An S3 bucket policy denial returns an HTTP 403 Forbidden error, not a connection timeout; and bucket policies typically match based on IAM principals, not IP addresses from a private subnet.",
+   "D": "NAT Gateway port exhaustion is possible under extreme load but is rare; a NACL misconfiguration is a far more common cause of connection timeouts visible in Flow Logs.",
+   "A": "IAM permission denials return HTTP 403 errors from the S3 service after the connection is established; they do not cause TCP-level connection timeouts."
   },
-  {
-    "id": "aws-soa-t2-05-002",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A company has VPCs in three regions that all need to communicate with each other and with an on-premises data center through a single Direct Connect connection. What architecture achieves this with minimal complexity?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Deploy a Transit Gateway in each region, attach the regional VPCs, and interconnect the Transit Gateways using Transit Gateway peering; connect the on-premises network via Direct Connect to one Transit Gateway using a Transit Virtual Interface."
-      },
-      {
-        "label": "B",
-        "text": "Create full-mesh VPC peering between all VPCs across the three regions and configure Site-to-Site VPN connections from each regional VPC to the on-premises router."
-      },
-      {
-        "label": "C",
-        "text": "Use AWS Direct Connect Gateway attached to all three regions' VPCs directly; Direct Connect Gateway handles all VPC-to-VPC and on-premises routing through a shared gateway."
-      },
-      {
-        "label": "D",
-        "text": "Deploy a transit VPC in one region with EC2-based VPN appliances that route traffic between all other VPCs and the on-premises network through IPSec tunnels."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "Full-mesh peering does not support transitive routing; VPCs in different peering connections cannot route through each other. Site-to-Site VPN per-VPC multiplies the on-premises connectivity complexity.",
-      "C": "Direct Connect Gateway connects an on-premises network to multiple VPCs via Private VIF, but it does not enable VPC-to-VPC routing; Transit Gateway is required for that.",
-      "D": "A transit VPC with EC2 VPN appliances is a legacy pattern that requires managing EC2 instances, routing software, and high availability; Transit Gateway is the managed replacement."
-    },
-    "explanation": "AWS Transit Gateway serves as a regional cloud router. Attaching all VPCs in a region to a Transit Gateway and interconnecting regional Transit Gateways via peering creates a scalable multi-region network. A Transit Virtual Interface (Transit VIF) on Direct Connect connects to a Direct Connect Gateway, which attaches to each regional Transit Gateway, providing on-premises access to all VPCs through a single Direct Connect connection.",
-    "module_ref": "soa/networking/transit-gateway-multi-region",
-    "tags": [
-      "transit-gateway",
-      "direct-connect",
-      "multi-region",
-      "hybrid-cloud"
-    ]
+  "explanation": "Network ACLs are stateless, meaning both inbound and outbound rules must explicitly allow traffic. For an EC2 instance in a private subnet making an outbound request to S3: the outbound rule must allow HTTPS (443) to the S3 endpoint, and the inbound rule must allow the return traffic (ephemeral ports 1024-65535) back to the instance. A missing return traffic rule causes the response packets to be dropped, appearing as a connection timeout.",
+  "module_ref": "soa/networking/nacl-stateless-troubleshooting",
+  "tags": [
+   "nacl",
+   "stateless",
+   "s3",
+   "vpc-flow-logs",
+   "troubleshooting"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-05-002",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A company has VPCs in three regions that all need to communicate with each other and with an on-premises data center through a single Direct Connect connection. What architecture achieves this with minimal complexity?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Deploy a Transit Gateway in each region, attach the regional VPCs, and interconnect the Transit Gateways using Transit Gateway peering; connect the on-premises network via Direct Connect to one Transit Gateway using a Transit Virtual Interface."
+   },
+   {
+    "label": "B",
+    "text": "Create full-mesh VPC peering between all VPCs across the three regions and configure Site-to-Site VPN connections from each regional VPC to the on-premises router."
+   },
+   {
+    "label": "C",
+    "text": "Use AWS Direct Connect Gateway attached to all three regions' VPCs directly; Direct Connect Gateway handles all VPC-to-VPC and on-premises routing through a shared gateway."
+   },
+   {
+    "label": "D",
+    "text": "Deploy a transit VPC in one region with EC2-based VPN appliances that route traffic between all other VPCs and the on-premises network through IPSec tunnels."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "Full-mesh peering does not support transitive routing; VPCs in different peering connections cannot route through each other. Site-to-Site VPN per-VPC multiplies the on-premises connectivity complexity.",
+   "C": "Direct Connect Gateway connects an on-premises network to multiple VPCs via Private VIF, but it does not enable VPC-to-VPC routing; Transit Gateway is required for that.",
+   "D": "A transit VPC with EC2 VPN appliances is a legacy pattern that requires managing EC2 instances, routing software, and high availability; Transit Gateway is the managed replacement."
   },
-  {
-    "id": "aws-soa-t2-05-003",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A CloudFront distribution is caching stale content after a recent application update. Users are seeing the old version of static assets. What is the fastest way to invalidate the cached objects?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Create a CloudFront invalidation request specifying the paths of the updated files (e.g., /images/* or /index.html); CloudFront removes the specified objects from all edge caches within minutes."
-      },
-      {
-        "label": "B",
-        "text": "Delete and recreate the CloudFront distribution; the new distribution starts with an empty cache and all users receive fresh content from the origin immediately."
-      },
-      {
-        "label": "C",
-        "text": "Update the CloudFront distribution's TTL (Time-to-Live) settings to 0 seconds; this forces CloudFront to fetch fresh content from the origin for every subsequent request."
-      },
-      {
-        "label": "D",
-        "text": "Wait for the existing objects to expire based on the Cache-Control max-age header set on the origin response; CloudFront will automatically serve fresh content after expiry."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "C": "Setting TTL to 0 causes cache misses for every future request (poor performance), but does not immediately remove already-cached content; an invalidation is needed to purge existing cached objects.",
-      "B": "Deleting and recreating a distribution changes the distribution domain name and requires updating DNS records; it is destructive and far more disruptive than an invalidation.",
-      "D": "Waiting for TTL expiry is passive; for an urgent update, an invalidation is the immediate solution."
-    },
-    "explanation": "CloudFront invalidations remove specified objects from all edge caches proactively, before the TTL expires. You can specify individual paths (/index.html) or use wildcards (/images/*). The first 1,000 invalidation paths per month are free. Invalidations propagate to all edge locations typically within a few minutes.",
-    "module_ref": "soa/networking/cloudfront-invalidation",
-    "tags": [
-      "cloudfront",
-      "cache-invalidation",
-      "cdn",
-      "stale-content"
-    ]
+  "explanation": "AWS Transit Gateway serves as a regional cloud router. Attaching all VPCs in a region to a Transit Gateway and interconnecting regional Transit Gateways via peering creates a scalable multi-region network. A Transit Virtual Interface (Transit VIF) on Direct Connect connects to a Direct Connect Gateway, which attaches to each regional Transit Gateway, providing on-premises access to all VPCs through a single Direct Connect connection.",
+  "module_ref": "soa/networking/transit-gateway-multi-region",
+  "tags": [
+   "transit-gateway",
+   "direct-connect",
+   "multi-region",
+   "hybrid-cloud"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-05-003",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A CloudFront distribution is caching stale content after a recent application update. Users are seeing the old version of static assets. What is the fastest way to invalidate the cached objects?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Create a CloudFront invalidation request specifying the paths of the updated files (e.g., /images/* or /index.html); CloudFront removes the specified objects from all edge caches within minutes."
+   },
+   {
+    "label": "B",
+    "text": "Delete and recreate the CloudFront distribution; the new distribution starts with an empty cache and all users receive fresh content from the origin immediately."
+   },
+   {
+    "label": "C",
+    "text": "Update the CloudFront distribution's TTL (Time-to-Live) settings to 0 seconds; this forces CloudFront to fetch fresh content from the origin for every subsequent request."
+   },
+   {
+    "label": "D",
+    "text": "Wait for the existing objects to expire based on the Cache-Control max-age header set on the origin response; CloudFront will automatically serve fresh content after expiry."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "C": "Setting TTL to 0 causes cache misses for every future request (poor performance), but does not immediately remove already-cached content; an invalidation is needed to purge existing cached objects.",
+   "B": "Deleting and recreating a distribution changes the distribution domain name and requires updating DNS records; it is destructive and far more disruptive than an invalidation.",
+   "D": "Waiting for TTL expiry is passive; for an urgent update, an invalidation is the immediate solution."
   },
-  {
-    "id": "aws-soa-t2-05-004",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A Route 53 Alias record is configured for an Application Load Balancer. After creating the record, users in some regions report DNS resolution failures. What is the most likely cause?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Route 53 DNS changes may take time to propagate globally; negative DNS caching (NXDOMAIN TTL) at resolvers in those regions may be serving cached failures before the record is visible."
-      },
-      {
-        "label": "B",
-        "text": "Route 53 Alias records require the ALB to have an Elastic IP address; without an EIP, the ALB's DNS name changes periodically, invalidating the Alias record."
-      },
-      {
-        "label": "C",
-        "text": "The ALB must be in a public subnet to be resolvable via Route 53; if it is in a private subnet, Route 53 cannot resolve the Alias record for external users."
-      },
-      {
-        "label": "D",
-        "text": "Alias records for ALBs are only supported in the same region as the hosted zone; users in other regions cannot resolve cross-region Alias records."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "D": "Route 53 Alias records for ALBs support cross-region use cases (e.g., latency routing to ALBs in multiple regions); there is no same-region restriction.",
-      "C": "ALB DNS names are publicly resolvable regardless of whether the ALB is internet-facing or internal; DNS resolution and network accessibility are separate concerns.",
-      "B": "ALBs do not use Elastic IPs; they use DNS names. Alias records point to the ALB's DNS name and Route 53 resolves it to the current IPs automatically."
-    },
-    "explanation": "DNS changes propagate globally via DNS replication and resolver TTLs. If a DNS resolver cached a negative response (NXDOMAIN) before the record was created, it will continue serving the cached failure until the negative TTL expires. Users experiencing failures shortly after record creation are likely hitting cached negative responses at their local resolvers.",
-    "module_ref": "soa/networking/route53-dns-propagation",
-    "tags": [
-      "route53",
-      "dns-propagation",
-      "alias-record",
-      "alb",
-      "ttl"
-    ]
+  "explanation": "CloudFront invalidations remove specified objects from all edge caches proactively, before the TTL expires. You can specify individual paths (/index.html) or use wildcards (/images/*). The first 1,000 invalidation paths per month are free. Invalidations propagate to all edge locations typically within a few minutes.",
+  "module_ref": "soa/networking/cloudfront-invalidation",
+  "tags": [
+   "cloudfront",
+   "cache-invalidation",
+   "cdn",
+   "stale-content"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-05-004",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A Route 53 Alias record is configured for an Application Load Balancer. After creating the record, users in some regions report DNS resolution failures. What is the most likely cause?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Route 53 DNS changes may take time to propagate globally; negative DNS caching (NXDOMAIN TTL) at resolvers in those regions may be serving cached failures before the record is visible."
+   },
+   {
+    "label": "B",
+    "text": "Route 53 Alias records require the ALB to have an Elastic IP address; without an EIP, the ALB's DNS name changes periodically, invalidating the Alias record."
+   },
+   {
+    "label": "C",
+    "text": "The ALB must be in a public subnet to be resolvable via Route 53; if it is in a private subnet, Route 53 cannot resolve the Alias record for external users."
+   },
+   {
+    "label": "D",
+    "text": "Alias records for ALBs are only supported in the same region as the hosted zone; users in other regions cannot resolve cross-region Alias records."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "D": "Route 53 Alias records for ALBs support cross-region use cases (e.g., latency routing to ALBs in multiple regions); there is no same-region restriction.",
+   "C": "ALB DNS names are publicly resolvable regardless of whether the ALB is internet-facing or internal; DNS resolution and network accessibility are separate concerns.",
+   "B": "ALBs do not use Elastic IPs; they use DNS names. Alias records point to the ALB's DNS name and Route 53 resolves it to the current IPs automatically."
   },
-  {
-    "id": "aws-soa-t2-05-005",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A company needs to restrict access to an internal web application so that only users connecting from its corporate IP range (203.0.113.0/24) can access it. The application is behind an Application Load Balancer. What is the most direct configuration?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Configure a NACL on the ALB's public subnet to allow inbound traffic from 203.0.113.0/24 and explicitly deny all other source IP ranges."
-      },
-      {
-        "label": "B",
-        "text": "Configure an ALB listener rule with a source IP condition that allows requests from 203.0.113.0/24 and returns a 403 Fixed Response for all other source IPs."
-      },
-      {
-        "label": "C",
-        "text": "Create an AWS WAF IP set for 203.0.113.0/24 and attach a WAF web ACL to the ALB that allows requests from the IP set and blocks all others."
-      },
-      {
-        "label": "D",
-        "text": "Update the security group on the Application Load Balancer to allow inbound HTTPS (443) only from 203.0.113.0/24; all other source IPs are implicitly denied."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "B": "ALB listener rules can match source IPs and return fixed responses; however, the simplest and most network-efficient approach is to restrict access at the security group level, blocking traffic before it reaches the listener.",
-      "C": "AWS WAF IP-based restrictions are also valid and provide more flexibility (e.g., rate limiting, additional conditions); however, a security group rule is simpler and sufficient for a static IP restriction.",
-      "A": "NACL rules apply to all traffic in/out of the subnet, which may affect other resources in the same subnet; security group rules are scoped to the specific ALB."
-    },
-    "explanation": "An ALB security group controls which traffic is allowed to reach the load balancer. By restricting inbound HTTPS to 203.0.113.0/24, all requests from outside the corporate IP range are dropped at the security group layer before they reach the ALB. This is the simplest and most direct approach for static IP-based access restriction.",
-    "module_ref": "soa/networking/alb-security-group-restriction",
-    "tags": [
-      "alb",
-      "security-group",
-      "ip-restriction",
-      "access-control"
-    ]
+  "explanation": "DNS changes propagate globally via DNS replication and resolver TTLs. If a DNS resolver cached a negative response (NXDOMAIN) before the record was created, it will continue serving the cached failure until the negative TTL expires. Users experiencing failures shortly after record creation are likely hitting cached negative responses at their local resolvers.",
+  "module_ref": "soa/networking/route53-dns-propagation",
+  "tags": [
+   "route53",
+   "dns-propagation",
+   "alias-record",
+   "alb",
+   "ttl"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-05-005",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A company needs to restrict access to an internal web application so that only users connecting from its corporate IP range (203.0.113.0/24) can access it. The application is behind an Application Load Balancer. What is the most direct configuration?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Configure a NACL on the ALB's public subnet to allow inbound traffic from 203.0.113.0/24 and explicitly deny all other source IP ranges."
+   },
+   {
+    "label": "B",
+    "text": "Configure an ALB listener rule with a source IP condition that allows requests from 203.0.113.0/24 and returns a 403 Fixed Response for all other source IPs."
+   },
+   {
+    "label": "C",
+    "text": "Create an AWS WAF IP set for 203.0.113.0/24 and attach a WAF web ACL to the ALB that allows requests from the IP set and blocks all others."
+   },
+   {
+    "label": "D",
+    "text": "Update the security group on the Application Load Balancer to allow inbound HTTPS (443) only from 203.0.113.0/24; all other source IPs are implicitly denied."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "B": "ALB listener rules can match source IPs and return fixed responses; however, the simplest and most network-efficient approach is to restrict access at the security group level, blocking traffic before it reaches the listener.",
+   "C": "AWS WAF IP-based restrictions are also valid and provide more flexibility (e.g., rate limiting, additional conditions); however, a security group rule is simpler and sufficient for a static IP restriction.",
+   "A": "NACL rules apply to all traffic in/out of the subnet, which may affect other resources in the same subnet; security group rules are scoped to the specific ALB."
   },
-  {
-    "id": "aws-soa-t2-05-006",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator needs to troubleshoot intermittent connection resets between two EC2 instances in different subnets of the same VPC. VPC Flow Logs show some packets are rejected. What should be checked first?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Check the NACL rules on both subnets for explicit DENY rules and verify that ephemeral port return traffic is allowed inbound; NACLs are stateless and must have matching inbound and outbound rules."
-      },
-      {
-        "label": "B",
-        "text": "Check the security groups on both instances for rules that block the specific port being used; security groups are stateful, so only the direction initiating the connection needs an allow rule."
-      },
-      {
-        "label": "C",
-        "text": "Check if enhanced networking is enabled on both instances; without enhanced networking, packet drops occur at high throughput between instances in the same VPC."
-      },
-      {
-        "label": "D",
-        "text": "Check VPC route tables for both subnets to ensure they have a route for the other subnet's CIDR; missing routes would cause packets to be forwarded to the wrong gateway."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "Security groups are stateful: return traffic for an established connection is automatically allowed. If the security group allows the initial connection, connection resets are more likely from NACL denies.",
-      "D": "Within a VPC, traffic between subnets is locally routed; route table misconfigurations would cause complete connectivity loss, not intermittent resets.",
-      "C": "Enhanced networking improves throughput and latency; its absence does not cause packet rejections (REJECT in Flow Logs)."
-    },
-    "explanation": "VPC Flow Logs entries showing REJECT status for traffic between instances in the same VPC almost always indicate a NACL deny rule. Security groups are stateful and do not produce REJECT flow log entries for return traffic. NACLs must have both outbound and inbound rules permitting the traffic, including ephemeral port return traffic. The NACL on the responder's subnet must allow outbound ephemeral ports, and the NACL on the initiator's subnet must allow inbound ephemeral ports.",
-    "module_ref": "soa/networking/nacl-flow-log-troubleshooting",
-    "tags": [
-      "nacl",
-      "vpc-flow-logs",
-      "reject",
-      "stateless",
-      "troubleshooting"
-    ]
+  "explanation": "An ALB security group controls which traffic is allowed to reach the load balancer. By restricting inbound HTTPS to 203.0.113.0/24, all requests from outside the corporate IP range are dropped at the security group layer before they reach the ALB. This is the simplest and most direct approach for static IP-based access restriction.",
+  "module_ref": "soa/networking/alb-security-group-restriction",
+  "tags": [
+   "alb",
+   "security-group",
+   "ip-restriction",
+   "access-control"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-05-006",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A SysOps administrator needs to troubleshoot intermittent connection resets between two EC2 instances in different subnets of the same VPC. VPC Flow Logs show some packets are rejected. What should be checked first?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Check the NACL rules on both subnets for explicit DENY rules and verify that ephemeral port return traffic is allowed inbound; NACLs are stateless and must have matching inbound and outbound rules."
+   },
+   {
+    "label": "B",
+    "text": "Check the security groups on both instances for rules that block the specific port being used; security groups are stateful, so only the direction initiating the connection needs an allow rule."
+   },
+   {
+    "label": "C",
+    "text": "Check if enhanced networking is enabled on both instances; without enhanced networking, packet drops occur at high throughput between instances in the same VPC."
+   },
+   {
+    "label": "D",
+    "text": "Check VPC route tables for both subnets to ensure they have a route for the other subnet's CIDR; missing routes would cause packets to be forwarded to the wrong gateway."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "Security groups are stateful: return traffic for an established connection is automatically allowed. If the security group allows the initial connection, connection resets are more likely from NACL denies.",
+   "D": "Within a VPC, traffic between subnets is locally routed; route table misconfigurations would cause complete connectivity loss, not intermittent resets.",
+   "C": "Enhanced networking improves throughput and latency; its absence does not cause packet rejections (REJECT in Flow Logs)."
   },
-  {
-    "id": "aws-soa-t2-05-007",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A company runs an application in a VPC and wants to use Amazon SQS without traffic traversing the public internet. The instances do not have internet access via NAT. What should be configured?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Add a route in the subnet's route table that directs SQS API traffic (52.94.0.0/16) to the VPC's internet gateway; this keeps traffic within the AWS backbone network."
-      },
-      {
-        "label": "B",
-        "text": "Create a VPC Gateway Endpoint for Amazon SQS; Gateway Endpoints support SQS and allow traffic to remain within the AWS network without internet traversal."
-      },
-      {
-        "label": "C",
-        "text": "Deploy a NAT Gateway in a public subnet; SQS traffic from the private subnet routes through the NAT Gateway which keeps it within the AWS network without using the public internet."
-      },
-      {
-        "label": "D",
-        "text": "Create a VPC Interface Endpoint for Amazon SQS (com.amazonaws.region.sqs); this creates an ENI in the private subnet and allows instances to reach SQS using private IP addresses."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "B": "Gateway Endpoints only support Amazon S3 and DynamoDB; SQS requires an Interface Endpoint (powered by AWS PrivateLink).",
-      "A": "Routing to SQS IP ranges via an internet gateway sends traffic over the public internet; using a VPC endpoint keeps it private.",
-      "C": "Traffic through a NAT Gateway still traverses the public internet (via the internet gateway); a VPC endpoint is required for truly private connectivity."
-    },
-    "explanation": "AWS PrivateLink-powered Interface Endpoints create elastic network interfaces (ENIs) with private IP addresses in your VPC. For SQS, creating a VPC Interface Endpoint provisions an ENI in your subnet. The instance's SDK routes SQS API calls to the endpoint's private IP, keeping all traffic within the AWS network without requiring internet access.",
-    "module_ref": "soa/networking/vpc-interface-endpoint-sqs",
-    "tags": [
-      "vpc-endpoint",
-      "interface-endpoint",
-      "sqs",
-      "privatelink",
-      "private-connectivity"
-    ]
+  "explanation": "VPC Flow Logs entries showing REJECT status for traffic between instances in the same VPC almost always indicate a NACL deny rule. Security groups are stateful and do not produce REJECT flow log entries for return traffic. NACLs must have both outbound and inbound rules permitting the traffic, including ephemeral port return traffic. The NACL on the responder's subnet must allow outbound ephemeral ports, and the NACL on the initiator's subnet must allow inbound ephemeral ports.",
+  "module_ref": "soa/networking/nacl-flow-log-troubleshooting",
+  "tags": [
+   "nacl",
+   "vpc-flow-logs",
+   "reject",
+   "stateless",
+   "troubleshooting"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-05-007",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A company runs an application in a VPC and wants to use Amazon SQS without traffic traversing the public internet. The instances do not have internet access via NAT. What should be configured?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Add a route in the subnet's route table that directs SQS API traffic (52.94.0.0/16) to the VPC's internet gateway; this keeps traffic within the AWS backbone network."
+   },
+   {
+    "label": "B",
+    "text": "Create a VPC Gateway Endpoint for Amazon SQS; Gateway Endpoints support SQS and allow traffic to remain within the AWS network without internet traversal."
+   },
+   {
+    "label": "C",
+    "text": "Deploy a NAT Gateway in a public subnet; SQS traffic from the private subnet routes through the NAT Gateway which keeps it within the AWS network without using the public internet."
+   },
+   {
+    "label": "D",
+    "text": "Create a VPC Interface Endpoint for Amazon SQS (com.amazonaws.region.sqs); this creates an ENI in the private subnet and allows instances to reach SQS using private IP addresses."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "B": "Gateway Endpoints only support Amazon S3 and DynamoDB; SQS requires an Interface Endpoint (powered by AWS PrivateLink).",
+   "A": "Routing to SQS IP ranges via an internet gateway sends traffic over the public internet; using a VPC endpoint keeps it private.",
+   "C": "Traffic through a NAT Gateway still traverses the public internet (via the internet gateway); a VPC endpoint is required for truly private connectivity."
   },
-  {
-    "id": "aws-soa-t2-05-008",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A company uses AWS Direct Connect with a 1 Gbps connection to its on-premises data center. The application team reports that inter-region traffic between the on-premises network and a VPC in a second AWS region is slow. How should traffic be routed optimally?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Purchase a second Direct Connect connection at a location physically closest to the second AWS region to reduce latency for the inter-region traffic."
-      },
-      {
-        "label": "B",
-        "text": "Deploy a Transit Virtual Interface from Direct Connect to the second region's VPC directly; Direct Connect can establish region-to-region private virtual interfaces without a gateway."
-      },
-      {
-        "label": "C",
-        "text": "Use a Direct Connect Gateway attached to Transit Gateways in both regions; on-premises traffic enters the AWS network at the Direct Connect location and is routed to the second region over AWS's private backbone."
-      },
-      {
-        "label": "D",
-        "text": "Add a Site-to-Site VPN connection from the on-premises router to a Virtual Private Gateway in the second region; VPN traffic to the second region bypasses the Direct Connect connection."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "D": "Adding a VPN for inter-region traffic uses the public internet (VPN tunnels run over the internet); this is slower and less reliable than routing over AWS's private backbone via Direct Connect Gateway.",
-      "B": "Direct Connect Private Virtual Interfaces connect to a single VPC in one region; to access multiple regions or use Transit Gateway, you need a Transit VIF and Direct Connect Gateway.",
-      "A": "A second physical Direct Connect connection is expensive and unnecessary when Direct Connect Gateway already enables access to multiple regions over the existing connection."
-    },
-    "explanation": "A Direct Connect Gateway enables a single Direct Connect connection to provide access to VPCs in multiple AWS regions. Traffic from on-premises enters the AWS network at the Direct Connect location and traverses AWS's private, high-bandwidth backbone to reach the second region's Transit Gateway, providing lower latency and higher throughput than internet-based alternatives.",
-    "module_ref": "soa/networking/direct-connect-gateway",
-    "tags": [
-      "direct-connect",
-      "direct-connect-gateway",
-      "transit-gateway",
-      "multi-region"
-    ]
+  "explanation": "AWS PrivateLink-powered Interface Endpoints create elastic network interfaces (ENIs) with private IP addresses in your VPC. For SQS, creating a VPC Interface Endpoint provisions an ENI in your subnet. The instance's SDK routes SQS API calls to the endpoint's private IP, keeping all traffic within the AWS network without requiring internet access.",
+  "module_ref": "soa/networking/vpc-interface-endpoint-sqs",
+  "tags": [
+   "vpc-endpoint",
+   "interface-endpoint",
+   "sqs",
+   "privatelink",
+   "private-connectivity"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-05-008",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A company uses AWS Direct Connect with a 1 Gbps connection to its on-premises data center. The application team reports that inter-region traffic between the on-premises network and a VPC in a second AWS region is slow. How should traffic be routed optimally?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Purchase a second Direct Connect connection at a location physically closest to the second AWS region to reduce latency for the inter-region traffic."
+   },
+   {
+    "label": "B",
+    "text": "Deploy a Transit Virtual Interface from Direct Connect to the second region's VPC directly; Direct Connect can establish region-to-region private virtual interfaces without a gateway."
+   },
+   {
+    "label": "C",
+    "text": "Use a Direct Connect Gateway attached to Transit Gateways in both regions; on-premises traffic enters the AWS network at the Direct Connect location and is routed to the second region over AWS's private backbone."
+   },
+   {
+    "label": "D",
+    "text": "Add a Site-to-Site VPN connection from the on-premises router to a Virtual Private Gateway in the second region; VPN traffic to the second region bypasses the Direct Connect connection."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "D": "Adding a VPN for inter-region traffic uses the public internet (VPN tunnels run over the internet); this is slower and less reliable than routing over AWS's private backbone via Direct Connect Gateway.",
+   "B": "Direct Connect Private Virtual Interfaces connect to a single VPC in one region; to access multiple regions or use Transit Gateway, you need a Transit VIF and Direct Connect Gateway.",
+   "A": "A second physical Direct Connect connection is expensive and unnecessary when Direct Connect Gateway already enables access to multiple regions over the existing connection."
   },
-  {
-    "id": "aws-soa-t2-05-009",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator needs to configure Route 53 so that 10% of traffic goes to a new application version for canary testing while 90% continues to the stable version. Which routing policy achieves this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Configure Latency routing with two records; Route 53 automatically distributes traffic based on measured latency, which approximates a 90/10 split for most users."
-      },
-      {
-        "label": "B",
-        "text": "Configure Geolocation routing with the stable version as the default and the canary version for a region containing approximately 10% of the user base."
-      },
-      {
-        "label": "C",
-        "text": "Configure Failover routing with the canary as primary and the stable version as secondary; Route 53 sends 10% to primary and 90% to secondary by default."
-      },
-      {
-        "label": "D",
-        "text": "Configure Weighted routing with two records for the same name: assign weight 90 to the stable version record and weight 10 to the canary version record."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "A": "Latency routing sends all traffic to the endpoint with the lowest latency for each user; it does not distribute traffic in a configurable percentage split.",
-      "B": "Geolocation routing routes based on user location; it does not provide a precise percentage split and depends on which region contains 10% of users.",
-      "C": "Failover routing is binary: all traffic goes to primary when healthy; secondary only receives traffic when primary fails. It does not support percentage splits."
-    },
-    "explanation": "Route 53 Weighted routing assigns a relative weight to each record with the same name. Traffic is distributed proportionally to the weights. With weight 90 on the stable version and weight 10 on the canary, approximately 10% of DNS queries resolve to the canary endpoint. This is the standard mechanism for canary deployments and A/B testing at the DNS layer.",
-    "module_ref": "soa/networking/route53-weighted-routing",
-    "tags": [
-      "route53",
-      "weighted-routing",
-      "canary",
-      "ab-testing",
-      "traffic-splitting"
-    ]
+  "explanation": "A Direct Connect Gateway enables a single Direct Connect connection to provide access to VPCs in multiple AWS regions. Traffic from on-premises enters the AWS network at the Direct Connect location and traverses AWS's private, high-bandwidth backbone to reach the second region's Transit Gateway, providing lower latency and higher throughput than internet-based alternatives.",
+  "module_ref": "soa/networking/direct-connect-gateway",
+  "tags": [
+   "direct-connect",
+   "direct-connect-gateway",
+   "transit-gateway",
+   "multi-region"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-05-009",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A SysOps administrator needs to configure Route 53 so that 10% of traffic goes to a new application version for canary testing while 90% continues to the stable version. Which routing policy achieves this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Configure Latency routing with two records; Route 53 automatically distributes traffic based on measured latency, which approximates a 90/10 split for most users."
+   },
+   {
+    "label": "B",
+    "text": "Configure Geolocation routing with the stable version as the default and the canary version for a region containing approximately 10% of the user base."
+   },
+   {
+    "label": "C",
+    "text": "Configure Failover routing with the canary as primary and the stable version as secondary; Route 53 sends 10% to primary and 90% to secondary by default."
+   },
+   {
+    "label": "D",
+    "text": "Configure Weighted routing with two records for the same name: assign weight 90 to the stable version record and weight 10 to the canary version record."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "A": "Latency routing sends all traffic to the endpoint with the lowest latency for each user; it does not distribute traffic in a configurable percentage split.",
+   "B": "Geolocation routing routes based on user location; it does not provide a precise percentage split and depends on which region contains 10% of users.",
+   "C": "Failover routing is binary: all traffic goes to primary when healthy; secondary only receives traffic when primary fails. It does not support percentage splits."
   },
-  {
-    "id": "aws-soa-t2-05-010",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A Network Load Balancer is receiving traffic from multiple clients, but one client's connections are consistently rejected. The NLB has no security group. What is the most likely cause?",
-    "options": [
-      {
-        "label": "A",
-        "text": "The NLB's target group health check is failing for the instances that would serve the client; the client is being rejected because no healthy targets are available for its connection."
-      },
-      {
-        "label": "B",
-        "text": "The NACL on the NLB's subnet has an explicit DENY rule for the client's source IP, or the security group on the backend EC2 instances does not allow traffic from the NLB's private IPs."
-      },
-      {
-        "label": "C",
-        "text": "The client is attempting to use a protocol not supported by the NLB listener; NLBs only support TCP and TLS connections and reject UDP or HTTP connections."
-      },
-      {
-        "label": "D",
-        "text": "The client's IP address is not in the NLB's allowed CIDR list; NLBs have a built-in IP whitelist that must include all permitted client IPs."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "A": "If health check failures were the cause, all clients would be affected when there are no healthy targets, not just a single client.",
-      "C": "NLBs support TCP, TLS, and UDP; a protocol mismatch would affect all clients using the unsupported protocol, not a single client.",
-      "D": "NLBs do not have a built-in IP whitelist; access control at the NLB level is handled by NACLs and security groups on the targets."
-    },
-    "explanation": "Network Load Balancers do not have security groups themselves; access control is enforced by NACLs on the NLB's subnet and security groups on the backend target instances. Since NLBs preserve the client source IP, the target instance's security group must allow traffic from the client's IP (or from 0.0.0.0/0 with port restriction). A NACL rule explicitly denying a specific client IP would also cause connection rejection.",
-    "module_ref": "soa/networking/nlb-access-control",
-    "tags": [
-      "nlb",
-      "nacl",
-      "security-group",
-      "source-ip-preservation",
-      "troubleshooting"
-    ]
+  "explanation": "Route 53 Weighted routing assigns a relative weight to each record with the same name. Traffic is distributed proportionally to the weights. With weight 90 on the stable version and weight 10 on the canary, approximately 10% of DNS queries resolve to the canary endpoint. This is the standard mechanism for canary deployments and A/B testing at the DNS layer.",
+  "module_ref": "soa/networking/route53-weighted-routing",
+  "tags": [
+   "route53",
+   "weighted-routing",
+   "canary",
+   "ab-testing",
+   "traffic-splitting"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-05-010",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A Network Load Balancer is receiving traffic from multiple clients, but one client's connections are consistently rejected. The NLB has no security group. What is the most likely cause?",
+  "options": [
+   {
+    "label": "A",
+    "text": "The NLB's target group health check is failing for the instances that would serve the client; the client is being rejected because no healthy targets are available for its connection."
+   },
+   {
+    "label": "B",
+    "text": "The NACL on the NLB's subnet has an explicit DENY rule for the client's source IP, or the security group on the backend EC2 instances does not allow traffic from the NLB's private IPs."
+   },
+   {
+    "label": "C",
+    "text": "The client is attempting to use a protocol not supported by the NLB listener; NLBs only support TCP and TLS connections and reject UDP or HTTP connections."
+   },
+   {
+    "label": "D",
+    "text": "The client's IP address is not in the NLB's allowed CIDR list; NLBs have a built-in IP whitelist that must include all permitted client IPs."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "A": "If health check failures were the cause, all clients would be affected when there are no healthy targets, not just a single client.",
+   "C": "NLBs support TCP, TLS, and UDP; a protocol mismatch would affect all clients using the unsupported protocol, not a single client.",
+   "D": "NLBs do not have a built-in IP whitelist; access control at the NLB level is handled by NACLs and security groups on the targets."
   },
-  {
-    "id": "aws-soa-t2-05-011",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator creates a VPC with CIDR 10.0.0.0/16 and a subnet with CIDR 10.0.1.0/24. How many IP addresses are available for EC2 instances in this subnet?",
-    "options": [
-      {
-        "label": "A",
-        "text": "256 addresses are available; all addresses in a /24 subnet are usable in AWS VPCs because AWS does not reserve addresses within a subnet."
-      },
-      {
-        "label": "B",
-        "text": "251 addresses are available; AWS reserves 5 IP addresses in every subnet (network address, VPC router, DNS server, future use, and broadcast address), leaving 251 from the 256 total."
-      },
-      {
-        "label": "C",
-        "text": "254 addresses are available; AWS reserves only the first and last IP address in each subnet (network and broadcast), leaving 254 usable host addresses."
-      },
-      {
-        "label": "D",
-        "text": "248 addresses are available; AWS reserves 8 IP addresses per subnet for internal routing, DNS, NTP, and metadata services."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "C": "AWS reserves 5 addresses, not 2; the standard IP networking practice of reserving network and broadcast addresses applies, plus AWS reserves 3 additional addresses for its infrastructure.",
-      "A": "AWS always reserves 5 IP addresses per subnet; no subnet in a VPC has all addresses available for EC2 instances.",
-      "D": "AWS reserves exactly 5 IP addresses, not 8; the specific reserved addresses are documented in the VPC subnet documentation."
-    },
-    "explanation": "In every AWS VPC subnet, 5 IP addresses are reserved: .0 (network address), .1 (VPC router), .2 (Amazon DNS), .3 (reserved for future use), and .255 (broadcast). For a /24 subnet with 256 total addresses, 256 - 5 = 251 addresses are available for EC2 instances and other resources.",
-    "module_ref": "soa/networking/vpc-subnet-reserved-ips",
-    "tags": [
-      "vpc",
-      "subnet",
-      "reserved-ips",
-      "cidr",
-      "ip-addressing"
-    ]
+  "explanation": "Network Load Balancers do not have security groups themselves; access control is enforced by NACLs on the NLB's subnet and security groups on the backend target instances. Since NLBs preserve the client source IP, the target instance's security group must allow traffic from the client's IP (or from 0.0.0.0/0 with port restriction). A NACL rule explicitly denying a specific client IP would also cause connection rejection.",
+  "module_ref": "soa/networking/nlb-access-control",
+  "tags": [
+   "nlb",
+   "nacl",
+   "security-group",
+   "source-ip-preservation",
+   "troubleshooting"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-05-011",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A SysOps administrator creates a VPC with CIDR 10.0.0.0/16 and a subnet with CIDR 10.0.1.0/24. How many IP addresses are available for EC2 instances in this subnet?",
+  "options": [
+   {
+    "label": "A",
+    "text": "256 addresses are available; all addresses in a /24 subnet are usable in AWS VPCs because AWS does not reserve addresses within a subnet."
+   },
+   {
+    "label": "B",
+    "text": "251 addresses are available; AWS reserves 5 IP addresses in every subnet (network address, VPC router, DNS server, future use, and broadcast address), leaving 251 from the 256 total."
+   },
+   {
+    "label": "C",
+    "text": "254 addresses are available; AWS reserves only the first and last IP address in each subnet (network and broadcast), leaving 254 usable host addresses."
+   },
+   {
+    "label": "D",
+    "text": "248 addresses are available; AWS reserves 8 IP addresses per subnet for internal routing, DNS, NTP, and metadata services."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "C": "AWS reserves 5 addresses, not 2; the standard IP networking practice of reserving network and broadcast addresses applies, plus AWS reserves 3 additional addresses for its infrastructure.",
+   "A": "AWS always reserves 5 IP addresses per subnet; no subnet in a VPC has all addresses available for EC2 instances.",
+   "D": "AWS reserves exactly 5 IP addresses, not 8; the specific reserved addresses are documented in the VPC subnet documentation."
   },
-  {
-    "id": "aws-soa-t2-05-012",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "An application load balancer serves traffic for three different domain names. Each domain requires its own SSL certificate. How should this be configured on a single ALB?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Use Server Name Indication (SNI) on the ALB HTTPS listener; add multiple SSL certificates to the listener and ALB uses SNI to present the correct certificate based on the client's requested domain."
-      },
-      {
-        "label": "B",
-        "text": "Create a wildcard SSL certificate that covers all three domain names and attach it to the ALB HTTPS listener; the single certificate applies to all domains."
-      },
-      {
-        "label": "C",
-        "text": "Create three separate HTTPS listeners on the ALB, each on a different port, and attach one SSL certificate to each listener; clients connect to the appropriate port for their domain."
-      },
-      {
-        "label": "D",
-        "text": "Configure the ALB to use the default AWS-managed certificate that automatically includes all domains registered in the account via Route 53."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "C": "Using different ports for each domain is non-standard (clients expect HTTPS on port 443) and requires clients to know which port to use for each domain.",
-      "B": "A wildcard certificate only covers subdomains of a single domain (e.g., *.example.com); it cannot cover multiple unrelated domain names.",
-      "D": "AWS does not provide an auto-managed certificate that covers all account domains; certificates are provisioned explicitly via ACM."
-    },
-    "explanation": "Application Load Balancers support Server Name Indication (SNI), which allows multiple SSL/TLS certificates to be associated with a single HTTPS listener. When a client connects, it sends the target hostname in the TLS ClientHello message. The ALB selects the matching certificate from its list. You can add up to 25 certificates per listener (plus a default).",
-    "module_ref": "soa/networking/alb-sni-multi-certificate",
-    "tags": [
-      "alb",
-      "sni",
-      "ssl-certificate",
-      "https",
-      "multi-domain"
-    ]
-  }
+  "explanation": "In every AWS VPC subnet, 5 IP addresses are reserved: .0 (network address), .1 (VPC router), .2 (Amazon DNS), .3 (reserved for future use), and .255 (broadcast). For a /24 subnet with 256 total addresses, 256 - 5 = 251 addresses are available for EC2 instances and other resources.",
+  "module_ref": "soa/networking/vpc-subnet-reserved-ips",
+  "tags": [
+   "vpc",
+   "subnet",
+   "reserved-ips",
+   "cidr",
+   "ip-addressing"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-05-012",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "An application load balancer serves traffic for three different domain names. Each domain requires its own SSL certificate. How should this be configured on a single ALB?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Use Server Name Indication (SNI) on the ALB HTTPS listener; add multiple SSL certificates to the listener and ALB uses SNI to present the correct certificate based on the client's requested domain."
+   },
+   {
+    "label": "B",
+    "text": "Create a wildcard SSL certificate that covers all three domain names and attach it to the ALB HTTPS listener; the single certificate applies to all domains."
+   },
+   {
+    "label": "C",
+    "text": "Create three separate HTTPS listeners on the ALB, each on a different port, and attach one SSL certificate to each listener; clients connect to the appropriate port for their domain."
+   },
+   {
+    "label": "D",
+    "text": "Configure the ALB to use the default AWS-managed certificate that automatically includes all domains registered in the account via Route 53."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "C": "Using different ports for each domain is non-standard (clients expect HTTPS on port 443) and requires clients to know which port to use for each domain.",
+   "B": "A wildcard certificate only covers subdomains of a single domain (e.g., *.example.com); it cannot cover multiple unrelated domain names.",
+   "D": "AWS does not provide an auto-managed certificate that covers all account domains; certificates are provisioned explicitly via ACM."
+  },
+  "explanation": "Application Load Balancers support Server Name Indication (SNI), which allows multiple SSL/TLS certificates to be associated with a single HTTPS listener. When a client connects, it sends the target hostname in the TLS ClientHello message. The ALB selects the matching certificate from its list. You can add up to 25 certificates per listener (plus a default).",
+  "module_ref": "soa/networking/alb-sni-multi-certificate",
+  "tags": [
+   "alb",
+   "sni",
+   "ssl-certificate",
+   "https",
+   "multi-domain"
+  ]
+ }
 ]

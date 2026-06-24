@@ -2,7 +2,7 @@
 title: "Canvas Lab: Bedrock RAG Architecture"
 type: canvas
 estimated_minutes: 25
-cert_tags: ["SAA-C03", "MLS-C01"]
+cert_tags: ["SAA-C03", "AIF-C01"]
 canvas_type: open
 ---
 

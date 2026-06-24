@@ -14,6 +14,7 @@ import StudentModuleDetail from "./components/student/StudentModuleDetail";
 import StudentLessons from "./components/student/StudentLessons";
 import StudentLibrary from "./components/student/StudentLibrary";
 import StudentLibraryBrowser from "./components/student/StudentLibraryBrowser";
+import StudentServices from "./components/student/StudentServices";
 import StudentSandbox from "./components/student/StudentSandbox";
 import StudentGrades from "./components/student/StudentGrades";
 import StudentTools from "./components/student/StudentTools";
@@ -124,6 +125,7 @@ export default function App() {
         <Route path="/lessons"        element={<StudentShell><StudentLessons /></StudentShell>} />
         <Route path="/library"         element={<StudentShell><StudentLibrary /></StudentShell>} />
         <Route path="/course-library"  element={<StudentShell><StudentLibraryBrowser /></StudentShell>} />
+        <Route path="/services"        element={<StudentShell><StudentServices /></StudentShell>} />
         <Route path="/sandbox"        element={<StudentShell><StudentSandbox /></StudentShell>} />
         <Route path="/grades"         element={<StudentShell><StudentGrades /></StudentShell>} />
         <Route path="/tools"          element={<StudentShell><StudentTools /></StudentShell>} />

@@ -15,7 +15,7 @@ import useDiscoveryStore from "../../store/discoveryStore";
 import useGraphStore from "../../store/graphStore";
 import useAccessStore from "../../store/accessStore";
 import UpgradePrompt from "../ui/UpgradePrompt";
-import { AWS_ICONS } from "../../assets/icons/awsIcons";
+import { getServiceIconUrl } from "../../assets/icons/serviceIcons";
 
 // ─── State badge ──────────────────────────────────────────────────────────────
 
@@ -44,7 +44,7 @@ function StateBadge({ state }) {
 
 function ResourceRow({ node, onAdd, added }) {
   const { label, awsType, discoveredState } = node.data;
-  const icon = AWS_ICONS[node.type];
+  const icon = getServiceIconUrl(node.type);
 
   return (
     <div className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 group">
@@ -134,36 +134,62 @@ function ServiceGroup({ service, nodes, addedIds, onAdd, onAddAll, defaultCollap
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
-function EmptyState({ onOpenImport }) {
+function EmptyState({ onOpenImport, onOpenWizard }) {
   return (
-    <div className="flex flex-col items-center justify-center h-full px-4 py-8 text-center gap-4">
-      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+    <div className="flex flex-col items-center justify-center h-full px-4 py-8 text-center gap-5">
+      <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+      </div>
+
       <div>
         <p className="text-sm font-semibold text-gray-700 mb-1">No discovery report loaded</p>
-        <p className="text-xs text-gray-500 mb-4">
-          Run the CLI tool to discover your live AWS resources, then import the report.
+        <p className="text-xs text-gray-500">
+          Scan your live AWS account or import an existing CLI report.
         </p>
       </div>
 
-      <div className="bg-gray-900 rounded-lg p-3 text-left w-full text-xs font-mono text-gray-300 leading-relaxed">
-        <div className="text-gray-500 mb-1"># Install (one time)</div>
-        <div className="text-green-400 mb-2">pip install archon-cli</div>
-        <div className="text-gray-500 mb-1"># Discover your infrastructure</div>
-        <div>archon-cli discover \</div>
-        <div className="pl-4">--region us-east-1 \</div>
-        <div className="pl-4">--format archon \</div>
-        <div className="pl-4 text-cyan-300">&gt; report.json</div>
-      </div>
-
+      {/* Primary CTA */}
       <button
-        onClick={onOpenImport}
-        className="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium transition-colors"
+        onClick={onOpenWizard}
+        className="w-full px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition-colors flex items-center justify-center gap-2"
       >
-        Import Report…
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        Run Discovery Wizard…
       </button>
 
+      {/* Divider */}
+      <div className="flex items-center gap-3 w-full">
+        <div className="flex-1 h-px bg-gray-200" />
+        <span className="text-xs text-gray-400">or</span>
+        <div className="flex-1 h-px bg-gray-200" />
+      </div>
+
+      {/* Secondary: CLI import */}
+      <div className="w-full text-left">
+        <p className="text-xs text-gray-500 mb-2">Import a report from the CLI:</p>
+        <div className="bg-gray-900 rounded-lg p-3 text-left w-full text-xs font-mono text-gray-300 leading-relaxed mb-3">
+          <div className="text-gray-500 mb-1"># Install (one time)</div>
+          <div className="text-green-400 mb-2">pip install archon-cli</div>
+          <div className="text-gray-500 mb-1"># Discover your infrastructure</div>
+          <div>archon-cli discover \</div>
+          <div className="pl-4">--region us-east-1 \</div>
+          <div className="pl-4">--format archon \</div>
+          <div className="pl-4 text-cyan-300">&gt; report.json</div>
+        </div>
+        <button
+          onClick={onOpenImport}
+          className="w-full px-4 py-2 rounded-lg border border-gray-200 hover:bg-gray-50 text-gray-700 text-sm font-medium transition-colors"
+        >
+          Import CLI Report…
+        </button>
+      </div>
+
       <p className="text-xs text-gray-400">
-        Credentials are resolved locally via boto3 and never leave your machine.
+        Credentials stay on your machine — never sent to any server.
       </p>
     </div>
   );
@@ -171,7 +197,7 @@ function EmptyState({ onOpenImport }) {
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function DiscoverTab({ onOpenImport }) {
+export default function DiscoverTab({ onOpenImport, onOpenWizard }) {
   const canDiscover = useAccessStore((s) => s.canUse("discovery"));
   const report = useDiscoveryStore((s) => s.report);
   const clearReport = useDiscoveryStore((s) => s.clearReport);
@@ -189,7 +215,7 @@ export default function DiscoverTab({ onOpenImport }) {
   }
 
   if (!report) {
-    return <EmptyState onOpenImport={onOpenImport} />;
+    return <EmptyState onOpenImport={onOpenImport} onOpenWizard={onOpenWizard} />;
   }
 
   const allNodes = report.nodes ?? [];

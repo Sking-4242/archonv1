@@ -99,7 +99,124 @@ def seed_course(course: str, db: Session) -> int:
                 ))
             upserted += 1
 
+    upserted += _seed_cert_lessons(course, course_dir, db)
+    upserted += _seed_service_lessons(course, course_dir, db)
+
     db.commit()
+    return upserted
+
+
+def _seed_service_lessons(course: str, course_dir: str, db: Session) -> int:
+    """Seed shared service-reference lessons under <course>/services/*.md.
+
+    These are deep, reusable per-service lessons (e.g. GuardDuty, KMS) referenced
+    by multiple cert manifests via "services/<name>.md". They are seeded with slug
+    "<course>/services/<name>" so those refs resolve, grouped under a single
+    "Service Reference" module, and tagged from each file's frontmatter cert_tags
+    so they surface for every certification that uses the service."""
+    services_dir = os.path.join(course_dir, "services")
+    if not os.path.isdir(services_dir):
+        return 0
+
+    upserted = 0
+    for idx, fname in enumerate(sorted(os.listdir(services_dir))):
+        if not fname.endswith(".md"):
+            continue
+        fpath = os.path.join(services_dir, fname)
+        raw = open(fpath, encoding="utf-8").read()
+        fm, content = parse_frontmatter(raw)
+
+        name = os.path.splitext(fname)[0]
+        slug = f"{course}/services/{name}"
+
+        # cert_tags in frontmatter is a JSON-ish list on one line; parse leniently.
+        raw_tags = fm.get("cert_tags", "")
+        tags = re.findall(r"[A-Z]{2,4}-C?\d{2,3}", raw_tags)
+
+        fields = dict(
+            course=course,
+            module_slug="services",
+            module_title="AWS Service Reference",
+            module_order=950,
+            title=fm.get("title", name),
+            content=content,
+            lesson_type=fm.get("type", "content"),
+            estimated_minutes=int(fm.get("estimated_minutes", 15) or 15),
+            order_index=idx,
+            difficulty_level="intermediate",
+            certification_tags=tags,
+        )
+
+        existing = db.query(_models.LibraryLesson).filter_by(slug=slug).first()
+        if existing:
+            for k, v in fields.items():
+                setattr(existing, k, v)
+        else:
+            db.add(_models.LibraryLesson(slug=slug, **fields))
+        upserted += 1
+
+    return upserted
+
+
+def _seed_cert_lessons(course: str, course_dir: str, db: Session) -> int:
+    """Seed published cert-specific lessons referenced by certs/<CODE>.json manifests.
+
+    These lessons live under certs/<CODE>/lessons/ and are NOT part of curriculum.json.
+    They are seeded with slug "<course>/certs/<CODE>/lessons/<name>" so manifest refs
+    ("certs/<CODE>/lessons/<file>") resolve in the cert track view. They are kept out of
+    the general Full Learning Path by the frontend (which filters the "<course>/certs/"
+    slug prefix)."""
+    certs_dir = os.path.join(course_dir, "certs")
+    if not os.path.isdir(certs_dir):
+        return 0
+
+    upserted = 0
+    for fname in sorted(os.listdir(certs_dir)):
+        if not fname.endswith(".json") or fname.endswith(".schema.json"):
+            continue
+        try:
+            manifest = json.load(open(os.path.join(certs_dir, fname), encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        code = manifest.get("cert", {}).get("code")
+        if not code:
+            continue
+
+        for idx, cl in enumerate(manifest.get("cert_specific_lessons", [])):
+            if cl.get("status") != "published":
+                continue
+            rel = cl["file"]  # e.g. "certs/SAA-C03/lessons/cross-account-access-patterns.md"
+            fpath = os.path.join(course_dir, rel)
+            if not os.path.exists(fpath):
+                print(f"  WARNING: cert lesson file not found: {fpath}")
+                continue
+
+            raw = open(fpath, encoding="utf-8").read()
+            fm, content = parse_frontmatter(raw)
+            slug = f"{course}/{os.path.splitext(rel)[0]}"
+
+            fields = dict(
+                course=course,
+                module_slug=f"certs/{code}",
+                module_title=f"{code} — Cert-Specific Lessons",
+                module_order=900,
+                title=fm.get("title", cl.get("title", rel)),
+                content=content,
+                lesson_type=fm.get("type", "content"),
+                estimated_minutes=int(fm.get("estimated_minutes", cl.get("minutes", 12) or 12)),
+                order_index=idx,
+                difficulty_level="intermediate",
+                certification_tags=[code],
+            )
+
+            existing = db.query(_models.LibraryLesson).filter_by(slug=slug).first()
+            if existing:
+                for k, v in fields.items():
+                    setattr(existing, k, v)
+            else:
+                db.add(_models.LibraryLesson(slug=slug, **fields))
+            upserted += 1
+
     return upserted
 
 

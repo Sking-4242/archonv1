@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import LessonContent from "../lesson/LessonContent";
 import {
   listLibrary,
@@ -9,6 +9,8 @@ import {
   createNote,
   updateNote,
   deleteNote,
+  listCerts,
+  getCert,
 } from "../../api/library";
 
 const CANVAS_URL = import.meta.env.VITE_CANVAS_URL ?? "http://localhost:3000";
@@ -46,6 +48,26 @@ const PROVIDERS = [
     emptyLabel: "10 modules",
   },
 ];
+
+const LEVEL_LABELS = {
+  foundational: "Foundational",
+  associate:    "Associate",
+  professional: "Professional",
+  specialty:    "Specialty",
+};
+const LEVEL_ORDER = ["foundational", "associate", "professional", "specialty"];
+
+const EMPHASIS = {
+  core:       { label: "Core",       cls: "bg-blue-100 text-blue-700" },
+  supporting: { label: "Supporting", cls: "bg-slate-100 text-slate-600" },
+  skim:       { label: "Skim",       cls: "bg-gray-100 text-gray-400" },
+};
+
+// Resolve a manifest lesson ref ("module-04-iam/03-policies.md") to a loaded
+// library lesson via its slug ("<course>/module-04-iam/03-policies").
+function lessonSlugForRef(course, ref) {
+  return `${course}/${ref.replace(/\.md$/, "")}`;
+}
 
 // ── Notes panel ───────────────────────────────────────────────────────────────
 
@@ -168,7 +190,14 @@ function NotesPanel({ libraryLessonId, currentUserRole }) {
 
 // ── Lesson reader ─────────────────────────────────────────────────────────────
 
-function LibraryLessonReader({ lesson: summary, onComplete, onClose, currentUserRole }) {
+export function LibraryLessonReader({
+  lesson: summary,
+  onComplete,
+  onClose,
+  currentUserRole,
+  relatedLessons = [],
+  onSelectRelated,
+}) {
   const [lesson, setLesson] = useState(null);
   const [loading, setLoading] = useState(true);
   const [completing, setCompleting] = useState(false);
@@ -292,6 +321,29 @@ function LibraryLessonReader({ lesson: summary, onComplete, onClose, currentUser
           />
         )}
 
+        {relatedLessons.length > 0 && onSelectRelated && (
+          <div className="border-t border-gray-100 mt-6 pt-5">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+              Related service lessons
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {relatedLessons.map((s) => (
+                <button
+                  key={s.id}
+                  onClick={() => onSelectRelated(s)}
+                  className="inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg border border-gray-200 text-gray-700 hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 transition-colors"
+                >
+                  <span>🧩</span>
+                  <span>{s.title}</span>
+                </button>
+              ))}
+            </div>
+            <p className="text-[11px] text-gray-400 mt-2">
+              Deep-dive references for the AWS services covered in this lesson.
+            </p>
+          </div>
+        )}
+
         <NotesPanel libraryLessonId={lesson.id} currentUserRole={currentUserRole} />
       </div>
 
@@ -313,16 +365,267 @@ function LibraryLessonReader({ lesson: summary, onComplete, onClose, currentUser
   );
 }
 
+// ── Cert track sidebar ────────────────────────────────────────────────────────
+
+/**
+ * Renders a certification as a domain-weighted study plan: domains ordered by
+ * the official blueprint, each showing its exam weight and per-domain progress,
+ * lessons tagged with core/supporting/skim emphasis, plus a gaps section for
+ * cert-specific content that isn't authored yet.
+ */
+function CertTrackView({ manifest, course, lessonsBySlug, selected, onSelect }) {
+  const { cert, exam, domains = [], cert_specific_lessons = [], coverage } = manifest;
+
+  // Resolve every domain's lesson refs to loaded lessons (skipping unresolved,
+  // e.g. cert-specific refs that aren't seeded yet), and compute progress.
+  const resolvedDomains = useMemo(() => {
+    return domains.map((d) => {
+      const tasks = (d.tasks || []).map((t) => {
+        const lessons = (t.lessons || [])
+          .map((ref) => {
+            const lesson = lessonsBySlug.get(lessonSlugForRef(course, ref.ref));
+            return lesson ? { ...lesson, emphasis: ref.emphasis, note: ref.note } : null;
+          })
+          .filter(Boolean);
+        return { ...t, lessons };
+      });
+      const all = tasks.flatMap((t) => t.lessons);
+      const total = all.length;
+      const done = all.filter((l) => l.completed).length;
+      return { ...d, tasks, total, done };
+    });
+  }, [domains, lessonsBySlug, course]);
+
+  const totals = resolvedDomains.reduce(
+    (acc, d) => ({ total: acc.total + d.total, done: acc.done + d.done }),
+    { total: 0, done: 0 }
+  );
+  const pct = totals.total === 0 ? 0 : Math.round((totals.done / totals.total) * 100);
+  const gaps = cert_specific_lessons.filter((g) => g.status !== "published");
+
+  // Published cert-specific lessons that aren't placed under a specific domain
+  // (cross-domain capstones, e.g. scenario drills, exam strategy).
+  const capstone = useMemo(() => {
+    const referenced = new Set();
+    for (const d of domains)
+      for (const t of d.tasks || [])
+        for (const ls of t.lessons || []) referenced.add(ls.ref);
+    return cert_specific_lessons
+      .filter((g) => g.status === "published" && !referenced.has(g.file))
+      .map((g) => lessonsBySlug.get(lessonSlugForRef(course, g.file)))
+      .filter(Boolean);
+  }, [domains, cert_specific_lessons, lessonsBySlug, course]);
+
+  // Placeholder certs have no authored blueprint yet.
+  if (!resolvedDomains.length) {
+    return (
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-4 pt-3 pb-4 border-b border-gray-100">
+          <div className="flex items-baseline justify-between mb-1">
+            <h2 className="font-bold text-gray-900 text-sm leading-tight">
+              {cert.short_name || cert.name}
+            </h2>
+            <span className="text-[11px] font-mono text-gray-400">{cert.code}</span>
+          </div>
+          {exam && (
+            <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-400 mt-1">
+              {exam.duration_minutes != null && <span>{exam.duration_minutes} min</span>}
+              {exam.passing_score != null && <span>pass ≥ {exam.passing_score}</span>}
+              {exam.cost_usd != null && <span>${exam.cost_usd}</span>}
+            </div>
+          )}
+        </div>
+        <div className="px-4 py-10 text-center">
+          <div className="text-3xl mb-2">🚧</div>
+          <div className="text-sm font-medium text-gray-600">Curriculum coming soon</div>
+          <div className="text-xs text-gray-400 mt-1 max-w-[15rem] mx-auto">
+            This certification track is mapped to the {cert.level} blueprint next.
+            Meanwhile, the Full Learning Path covers the foundational material.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 overflow-y-auto">
+      {/* Exam header */}
+      <div className="px-4 pt-3 pb-4 border-b border-gray-100">
+        <div className="flex items-baseline justify-between mb-1">
+          <h2 className="font-bold text-gray-900 text-sm leading-tight">
+            {cert.short_name || cert.name}
+          </h2>
+          <span className="text-[11px] font-mono text-gray-400">{cert.code}</span>
+        </div>
+
+        {/* Exam-readiness bar */}
+        <div className="flex items-center justify-between text-xs text-gray-500 mb-1">
+          <span>Exam readiness</span>
+          <span>{totals.done}/{totals.total} lessons · {pct}%</span>
+        </div>
+        <div className="h-1.5 bg-gray-100 rounded-full mb-3">
+          <div
+            className={`h-full rounded-full transition-all ${pct >= 80 ? "bg-green-500" : "bg-blue-500"}`}
+            style={{ width: `${pct}%` }}
+          />
+        </div>
+
+        {/* Exam facts */}
+        {exam && (
+          <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-gray-400">
+            {exam.scored_questions != null && <span>{exam.scored_questions} scored Qs</span>}
+            {exam.duration_minutes != null && <span>{exam.duration_minutes} min</span>}
+            {exam.passing_score != null && <span>pass ≥ {exam.passing_score}</span>}
+          </div>
+        )}
+        {cert.status === "retiring" && cert.retires_on && (
+          <div className="mt-2 text-[11px] text-amber-700 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+            Retiring — last test day {cert.retires_on}
+          </div>
+        )}
+      </div>
+
+      {/* Domains */}
+      {resolvedDomains.map((d) => {
+        const dpct = d.total === 0 ? 0 : Math.round((d.done / d.total) * 100);
+        return (
+          <div key={d.id} className="border-b border-gray-50">
+            <div className="px-4 pt-3 pb-2">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-semibold text-gray-700">{d.title}</span>
+                <span className="text-[11px] font-semibold text-indigo-600 bg-indigo-50 rounded px-1.5 py-0.5">
+                  {d.weight}%
+                </span>
+              </div>
+              <div className="h-1 bg-gray-100 rounded-full">
+                <div
+                  className="h-full bg-indigo-400 rounded-full transition-all"
+                  style={{ width: `${dpct}%` }}
+                />
+              </div>
+            </div>
+
+            {d.tasks.map((t) => (
+              <div key={t.id} className="pb-1">
+                <div className="px-4 py-1 text-[11px] text-gray-400">
+                  {t.id} · {t.title}
+                </div>
+                {t.lessons.map((l) => {
+                  const emp = EMPHASIS[l.emphasis] || EMPHASIS.supporting;
+                  return (
+                    <button
+                      key={`${t.id}-${l.id}`}
+                      onClick={() => onSelect(l)}
+                      title={l.note || ""}
+                      className={`w-full flex items-start gap-2.5 pl-5 pr-4 py-2 text-left transition-colors ${
+                        selected?.id === l.id
+                          ? "bg-blue-50 border-l-2 border-blue-500"
+                          : "hover:bg-gray-50 border-l-2 border-transparent"
+                      }`}
+                    >
+                      <span className="text-sm flex-shrink-0 mt-0.5">
+                        {l.completed ? "✅" : l.lesson_type === "canvas" ? "🖼" : "📖"}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className={`text-sm truncate ${selected?.id === l.id ? "font-medium text-blue-700" : "text-gray-800"}`}>
+                          {l.title}
+                        </div>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${emp.cls}`}>
+                            {emp.label}
+                          </span>
+                          <span className="text-[11px] text-gray-400">
+                            {l.lesson_type === "canvas" ? "Lab" : `${l.estimated_minutes}m`}
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        );
+      })}
+
+      {/* Capstone / cross-domain lessons */}
+      {capstone.length > 0 && (
+        <div className="border-b border-gray-50">
+          <div className="px-4 pt-3 pb-2 text-xs font-semibold text-gray-700">
+            Capstone & Exam Prep
+          </div>
+          {capstone.map((l) => (
+            <button
+              key={l.id}
+              onClick={() => onSelect(l)}
+              className={`w-full flex items-start gap-2.5 pl-5 pr-4 py-2 text-left transition-colors ${
+                selected?.id === l.id
+                  ? "bg-blue-50 border-l-2 border-blue-500"
+                  : "hover:bg-gray-50 border-l-2 border-transparent"
+              }`}
+            >
+              <span className="text-sm flex-shrink-0 mt-0.5">
+                {l.completed ? "✅" : "🎯"}
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className={`text-sm truncate ${selected?.id === l.id ? "font-medium text-blue-700" : "text-gray-800"}`}>
+                  {l.title}
+                </div>
+                <div className="text-[11px] text-gray-400 mt-0.5">
+                  {l.lesson_type === "canvas" ? "Lab" : `${l.estimated_minutes}m`}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Gaps / coming-soon cert-specific content */}
+      {gaps.length > 0 && (
+        <div className="px-4 py-3">
+          <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide mb-2">
+            Cert-specific content (coming soon)
+          </div>
+          {gaps.map((g) => (
+            <div key={g.file} className="mb-2 rounded-lg border border-dashed border-gray-200 px-3 py-2">
+              <div className="text-sm text-gray-500">{g.title}</div>
+              <div className="text-[11px] text-gray-400 mt-0.5">
+                covers {g.covers_tasks?.join(", ")} · {g.status}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {coverage?.gaps?.length > 0 && (
+        <div className="px-4 pb-5 text-[11px] text-gray-400">
+          {coverage.gaps.length} known coverage gap{coverage.gaps.length === 1 ? "" : "s"} tracked for this exam.
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main ──────────────────────────────────────────────────────────────────────
 
 export default function StudentLibraryBrowser() {
-  const [provider, setProvider] = useState("aws");
+  // Optional deep-link: /course-library?provider=aws&cert=SAA-C03
+  const initialParams =
+    typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const firstProviderRun = useRef(true);
+
+  const [provider, setProvider] = useState(initialParams?.get("provider") || "aws");
   const [lessons, setLessons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState(null);
   const [search, setSearch] = useState("");
   const [filterDifficulty, setFilterDifficulty] = useState("all");
-  const [filterCert, setFilterCert] = useState("all");
+
+  // Track = "general" (full learning path) or a cert code (e.g. "SAA-C03").
+  const [track, setTrack] = useState(initialParams?.get("cert") || "general");
+  const [certs, setCerts] = useState([]);
+  const [manifest, setManifest] = useState(null);
+  const [loadingManifest, setLoadingManifest] = useState(false);
 
   const [currentUserRole, setCurrentUserRole] = useState("student");
   useEffect(() => {
@@ -333,18 +636,41 @@ export default function StudentLibraryBrowser() {
     } catch {}
   }, []);
 
-  // Reload lessons whenever provider changes
+  // Reload lessons + available cert tracks whenever provider changes.
   useEffect(() => {
     setLoading(true);
     setSelected(null);
     setSearch("");
     setFilterDifficulty("all");
-    setFilterCert("all");
+    // Preserve a deep-linked cert on first mount; reset to general on later provider switches.
+    if (firstProviderRun.current) {
+      firstProviderRun.current = false;
+    } else {
+      setTrack("general");
+    }
+    setManifest(null);
     listLibrary(provider)
       .then(setLessons)
       .catch(() => setLessons([]))
       .finally(() => setLoading(false));
+    listCerts(provider)
+      .then(setCerts)
+      .catch(() => setCerts([]));
   }, [provider]);
+
+  // Load the manifest when a cert track is selected.
+  useEffect(() => {
+    if (track === "general") {
+      setManifest(null);
+      return;
+    }
+    setLoadingManifest(true);
+    setSelected(null);
+    getCert(provider, track)
+      .then(setManifest)
+      .catch(() => setManifest(null))
+      .finally(() => setLoadingManifest(false));
+  }, [track, provider]);
 
   function handleComplete(lessonId, completed) {
     setLessons((prev) =>
@@ -352,17 +678,53 @@ export default function StudentLibraryBrowser() {
     );
   }
 
-  const allCerts = [...new Set(lessons.flatMap((l) => l.certification_tags))].sort();
+  // Slug -> lesson map for resolving manifest refs (cert track view).
+  const lessonsBySlug = useMemo(() => {
+    const m = new Map();
+    for (const l of lessons) m.set(l.slug, l);
+    return m;
+  }, [lessons]);
+
+  const certsByLevel = useMemo(() => {
+    const groups = {};
+    for (const c of certs) (groups[c.level] ||= []).push(c);
+    return groups;
+  }, [certs]);
+
   const difficulties = ["beginner", "intermediate", "advanced", "expert"];
 
-  const filtered = lessons.filter((l) => {
+  // Cert-specific lessons (slug "<course>/certs/...") and shared service-reference
+  // lessons (slug "<course>/services/...") belong to cert tracks / the Services
+  // view, not the general Full Learning Path.
+  const certPrefix = `${provider}/certs/`;
+  const servicePrefix = `${provider}/services/`;
+  const generalLessons = lessons.filter(
+    (l) => !l.slug.startsWith(certPrefix) && !l.slug.startsWith(servicePrefix)
+  );
+
+  // Map a selected cert lesson (by slug) to its resolved related service lessons,
+  // from the manifest's related_service_lessons. Drives the reader's panel.
+  const relatedBySlug = useMemo(() => {
+    const m = new Map();
+    const rel = manifest?.related_service_lessons || {};
+    for (const [certRef, svcRefs] of Object.entries(rel)) {
+      const certSlug = lessonSlugForRef(provider, certRef);
+      const svc = (svcRefs || [])
+        .map((r) => lessonsBySlug.get(lessonSlugForRef(provider, r)))
+        .filter(Boolean);
+      if (svc.length) m.set(certSlug, svc);
+    }
+    return m;
+  }, [manifest, lessonsBySlug, provider]);
+  const relatedForSelected = selected ? relatedBySlug.get(selected.slug) || [] : [];
+
+  const filtered = generalLessons.filter((l) => {
     const matchSearch =
       !search ||
       l.title.toLowerCase().includes(search.toLowerCase()) ||
       l.module_title.toLowerCase().includes(search.toLowerCase());
     const matchDiff = filterDifficulty === "all" || l.difficulty_level === filterDifficulty;
-    const matchCert = filterCert === "all" || l.certification_tags.includes(filterCert);
-    return matchSearch && matchDiff && matchCert;
+    return matchSearch && matchDiff;
   });
 
   // Group by module
@@ -374,7 +736,8 @@ export default function StudentLibraryBrowser() {
   }, {});
   const groups = Object.values(grouped).sort((a, b) => a.order - b.order);
 
-  const completedCount = lessons.filter((l) => l.completed).length;
+  const completedCount = generalLessons.filter((l) => l.completed).length;
+  const generalCount = generalLessons.length;
   const activeProvider = PROVIDERS.find((p) => p.id === provider);
 
   return (
@@ -401,97 +764,131 @@ export default function StudentLibraryBrowser() {
           </div>
         </div>
 
-        {/* Progress header */}
+        {/* Track selector: Full Path vs. a certification */}
         <div className="px-4 pt-3 pb-3 border-b border-gray-100">
-          <div className="flex items-baseline justify-between mb-1">
-            <h2 className="font-bold text-gray-900 text-base">
-              {activeProvider?.label} Library
-            </h2>
-            <span className="text-xs text-gray-400">{completedCount}/{lessons.length} done</span>
-          </div>
-          <div className="h-1 bg-gray-100 rounded-full mb-3">
-            <div
-              className="h-full bg-blue-500 rounded-full transition-all"
-              style={{ width: `${lessons.length === 0 ? 0 : Math.round((completedCount / lessons.length) * 100)}%` }}
-            />
-          </div>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search lessons…"
-            className="w-full text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-400"
-          />
-        </div>
-
-        {/* Filters */}
-        <div className="px-4 py-2 border-b border-gray-100 flex gap-2 overflow-x-auto">
+          <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Track</div>
           <select
-            value={filterDifficulty}
-            onChange={(e) => setFilterDifficulty(e.target.value)}
-            className="text-xs border border-gray-200 rounded px-2 py-1 focus:outline-none flex-shrink-0"
+            value={track}
+            onChange={(e) => setTrack(e.target.value)}
+            className="w-full text-sm border border-gray-200 rounded-lg px-2.5 py-1.5 bg-white focus:outline-none focus:border-blue-400"
           >
-            <option value="all">All levels</option>
-            {difficulties.map((d) => (
-              <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
-            ))}
-          </select>
-          <select
-            value={filterCert}
-            onChange={(e) => setFilterCert(e.target.value)}
-            className="text-xs border border-gray-200 rounded px-2 py-1 focus:outline-none flex-shrink-0"
-          >
-            <option value="all">All certs</option>
-            {allCerts.map((c) => (
-              <option key={c} value={c}>{c.toUpperCase().replace("_", " ")}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* Lesson list */}
-        <div className="flex-1 overflow-y-auto py-2">
-          {loading ? (
-            <div className="text-xs text-gray-400 text-center py-8">Loading…</div>
-          ) : groups.length === 0 ? (
-            <div className="text-xs text-gray-400 text-center py-8">No lessons match your filters.</div>
-          ) : (
-            groups.map((group) => (
-              <div key={group.title} className="mb-1">
-                <div className="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide sticky top-0 bg-white">
-                  {group.title}
-                </div>
-                {group.lessons.map((l) => (
-                  <button
-                    key={l.id}
-                    onClick={() => setSelected(l)}
-                    className={`w-full flex items-start gap-2.5 px-4 py-2.5 text-left transition-colors ${
-                      selected?.id === l.id
-                        ? "bg-blue-50 border-l-2 border-blue-500"
-                        : "hover:bg-gray-50 border-l-2 border-transparent"
-                    }`}
-                  >
-                    <span className="text-sm flex-shrink-0 mt-0.5">
-                      {l.completed ? "✅" : l.lesson_type === "canvas" ? "🖼" : "📖"}
-                    </span>
-                    <div className="flex-1 min-w-0">
-                      <div className={`text-sm truncate ${selected?.id === l.id ? "font-medium text-blue-700" : "text-gray-800"}`}>
-                        {l.title}
-                      </div>
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${DIFFICULTY_COLORS[l.difficulty_level] ?? "bg-gray-100 text-gray-500"}`}>
-                          {l.difficulty_level}
-                        </span>
-                        <span className="text-xs text-gray-400">
-                          {l.lesson_type === "canvas" ? "Lab" : `${l.estimated_minutes}m`}
-                        </span>
-                      </div>
-                    </div>
-                  </button>
+            <option value="general">📚 Full Learning Path</option>
+            {LEVEL_ORDER.filter((lvl) => certsByLevel[lvl]?.length).map((lvl) => (
+              <optgroup key={lvl} label={LEVEL_LABELS[lvl]}>
+                {certsByLevel[lvl].map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.short_name || c.name} ({c.code})
+                  </option>
                 ))}
-              </div>
-            ))
+              </optgroup>
+            ))}
+          </select>
+          {track === "general" && certs.length === 0 && (
+            <div className="mt-2 text-[11px] text-gray-400">
+              Certification tracks coming soon for {activeProvider?.label}.
+            </div>
           )}
         </div>
+
+        {track === "general" ? (
+          <>
+            {/* Progress header */}
+            <div className="px-4 pt-3 pb-3 border-b border-gray-100">
+              <div className="flex items-baseline justify-between mb-1">
+                <h2 className="font-bold text-gray-900 text-base">
+                  {activeProvider?.label} Library
+                </h2>
+                <span className="text-xs text-gray-400">{completedCount}/{generalCount} done</span>
+              </div>
+              <div className="h-1 bg-gray-100 rounded-full mb-3">
+                <div
+                  className="h-full bg-blue-500 rounded-full transition-all"
+                  style={{ width: `${generalCount === 0 ? 0 : Math.round((completedCount / generalCount) * 100)}%` }}
+                />
+              </div>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search lessons…"
+                className="w-full text-sm border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-blue-400"
+              />
+            </div>
+
+            {/* Filters */}
+            <div className="px-4 py-2 border-b border-gray-100 flex gap-2 overflow-x-auto">
+              <select
+                value={filterDifficulty}
+                onChange={(e) => setFilterDifficulty(e.target.value)}
+                className="text-xs border border-gray-200 rounded px-2 py-1 focus:outline-none flex-shrink-0"
+              >
+                <option value="all">All levels</option>
+                {difficulties.map((d) => (
+                  <option key={d} value={d}>{d.charAt(0).toUpperCase() + d.slice(1)}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Lesson list (module-grouped) */}
+            <div className="flex-1 overflow-y-auto py-2">
+              {loading ? (
+                <div className="text-xs text-gray-400 text-center py-8">Loading…</div>
+              ) : groups.length === 0 ? (
+                <div className="text-xs text-gray-400 text-center py-8">No lessons match your filters.</div>
+              ) : (
+                groups.map((group) => (
+                  <div key={group.title} className="mb-1">
+                    <div className="px-4 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wide sticky top-0 bg-white">
+                      {group.title}
+                    </div>
+                    {group.lessons.map((l) => (
+                      <button
+                        key={l.id}
+                        onClick={() => setSelected(l)}
+                        className={`w-full flex items-start gap-2.5 px-4 py-2.5 text-left transition-colors ${
+                          selected?.id === l.id
+                            ? "bg-blue-50 border-l-2 border-blue-500"
+                            : "hover:bg-gray-50 border-l-2 border-transparent"
+                        }`}
+                      >
+                        <span className="text-sm flex-shrink-0 mt-0.5">
+                          {l.completed ? "✅" : l.lesson_type === "canvas" ? "🖼" : "📖"}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className={`text-sm truncate ${selected?.id === l.id ? "font-medium text-blue-700" : "text-gray-800"}`}>
+                            {l.title}
+                          </div>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${DIFFICULTY_COLORS[l.difficulty_level] ?? "bg-gray-100 text-gray-500"}`}>
+                              {l.difficulty_level}
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              {l.lesson_type === "canvas" ? "Lab" : `${l.estimated_minutes}m`}
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                ))
+              )}
+            </div>
+          </>
+        ) : loadingManifest ? (
+          <div className="flex-1 text-xs text-gray-400 text-center py-8">Loading exam plan…</div>
+        ) : manifest ? (
+          <CertTrackView
+            manifest={manifest}
+            course={provider}
+            lessonsBySlug={lessonsBySlug}
+            selected={selected}
+            onSelect={setSelected}
+          />
+        ) : (
+          <div className="flex-1 text-xs text-gray-400 text-center py-8">
+            Couldn’t load this exam plan.
+          </div>
+        )}
       </div>
 
       {/* Reader pane */}
@@ -502,13 +899,15 @@ export default function StudentLibraryBrowser() {
             onComplete={handleComplete}
             onClose={() => setSelected(null)}
             currentUserRole={currentUserRole}
+            relatedLessons={relatedForSelected}
+            onSelectRelated={setSelected}
           />
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center px-8">
             <div className="text-4xl">{activeProvider?.icon ?? "📚"}</div>
             <div className="font-semibold text-gray-900">{activeProvider?.label} Library</div>
             <div className="text-sm text-gray-500 max-w-sm">
-              {lessons.length} lessons across {activeProvider?.emptyLabel}.
+              {generalCount} lessons across {activeProvider?.emptyLabel}.
               Select a lesson from the sidebar to start reading.
             </div>
           </div>

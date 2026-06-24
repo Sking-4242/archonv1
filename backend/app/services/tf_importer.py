@@ -28,6 +28,22 @@ from typing import Any
 
 import hcl2
 
+from app.services.tf_import_catalog import (
+    ImportReport,
+    KNOWN_REGISTRY_MODULES,
+    METADATA_DATA_SOURCE_TYPES,
+    SELECTION_DATA_SOURCE_TYPES,
+    find_module_file_indices,
+    get_archon_type_display,
+    is_companion_type,
+    merge_companion_config,
+    merge_data_source_config,
+    normalize_module_path,
+    normalize_registry_source,
+    resolve_companion_parent,
+    resource_references_data,
+)
+
 # ─── Resource type → (archon_type, category, icon, display_name) ─────────────
 
 _TYPE_MAP: dict[str, tuple[str, str, str, str]] = {
@@ -126,8 +142,8 @@ _TYPE_MAP: dict[str, tuple[str, str, str, str]] = {
     "aws_iam_instance_profile":          ("iam_role",          "security",      "👤", "IAM Instance Profile"),
     "aws_iam_user":                      ("iam_role",          "security",      "👤", "IAM User"),
     "aws_iam_group":                     ("iam_role",          "security",      "👤", "IAM Group"),
-    "aws_kms_key":                       ("kms",               "security",      "🔑", "KMS Key"),
-    "aws_kms_alias":                     ("kms",               "security",      "🔑", "KMS Alias"),
+    "aws_kms_key":                       ("kms_key",           "security",      "🔑", "KMS Key"),
+    "aws_kms_alias":                     ("kms_key",           "security",      "🔑", "KMS Alias"),
     "aws_acm_certificate":               ("acm",               "security",      "📜", "ACM Certificate"),
     "aws_cognito_user_pool":             ("cognito",           "security",      "👥", "Cognito User Pool"),
     "aws_cognito_identity_pool":         ("cognito",           "security",      "👥", "Cognito Identity"),
@@ -142,8 +158,10 @@ _TYPE_MAP: dict[str, tuple[str, str, str, str]] = {
     # Integration
     "aws_sns_topic":                     ("sns",               "integration",   "📢", "SNS"),
     "aws_sns_topic_subscription":        ("sns",               "integration",   "📢", "SNS Subscription"),
+    "aws_ses_domain_identity":           ("ses",               "integration",   "📧", "SES"),
     "aws_sqs_queue":                     ("sqs",               "integration",   "📬", "SQS"),
     "aws_sqs_queue_policy":              ("sqs",               "integration",   "📬", "SQS Policy"),
+    "aws_cloudwatch_event_bus":          ("eventbridge",       "integration",   "⚡", "EventBridge Bus"),
     "aws_cloudwatch_event_rule":         ("eventbridge",       "integration",   "⚡", "EventBridge"),
     "aws_cloudwatch_event_target":       ("eventbridge",       "integration",   "⚡", "Event Target"),
     "aws_scheduler_schedule":            ("eventbridge",       "integration",   "⚡", "Scheduler"),
@@ -183,7 +201,70 @@ _TYPE_MAP: dict[str, tuple[str, str, str, str]] = {
     "aws_codecommit_repository":         ("codecommit",        "devops",        "📂", "CodeCommit"),
     "aws_cloudformation_stack":          ("cloudformation",    "devops",        "☁️", "CloudFormation"),
     "aws_cloudformation_stack_set":      ("cloudformation",    "devops",        "☁️", "CFN StackSet"),
+    # Extended coverage for real-world Terraform imports
+    "aws_rds_cluster":                   ("aurora",            "database",      "🗄️", "Aurora Cluster"),
+    "aws_rds_global_cluster":            ("aurora",            "database",      "🗄️", "Aurora Global"),
+    "aws_redshiftserverless_namespace":  ("redshift",          "database",      "📊", "Redshift Serverless"),
+    "aws_redshiftserverless_workgroup":  ("redshift",          "database",      "📊", "Redshift Serverless WG"),
+    "aws_ec2_transit_gateway_route_table": ("transit_gateway",   "networking",    "🔗", "TGW Route Table"),
+    "aws_ec2_transit_gateway_direct_connect_gateway_attachment": ("direct_connect", "networking", "🔌", "TGW DX Attach"),
+    "aws_eks_addon":                     ("eks",               "compute",       "☸️", "EKS Addon"),
+    "aws_msk_configuration":           ("msk",               "analytics",     "📨", "MSK Config"),
+    "aws_elasticache_global_replication_group": ("elasticache", "database",      "⚡", "ElastiCache Global"),
+    "aws_securityhub_account":           ("security_hub",      "security",      "🛡️", "Security Hub"),
+    "aws_macie2_classification_job":     ("macie",             "security",      "🔍", "Macie Job"),
+    "aws_inspector2_enabler":            ("inspector",         "security",      "🔍", "Inspector"),
+    "aws_config_delivery_channel":       ("config",            "security",      "⚙️", "Config Delivery"),
+    "aws_kinesis_firehose_delivery_stream": ("kinesis_firehose", "analytics",     "🌊", "Firehose"),
+    "aws_athena_database":               ("athena",            "analytics",     "🔍", "Athena Database"),
+    "aws_glue_catalog_database":         ("glue",              "analytics",     "🔧", "Glue Database"),
+    "aws_ecr_lifecycle_policy":          ("ecr",               "compute",       "🗂️", "ECR Lifecycle"),
+    "aws_apigatewayv2_integration":      ("api_gateway",       "load_balancing","🚪", "API GW Integration"),
+    "aws_apigatewayv2_stage":            ("api_gateway",       "load_balancing","🚪", "API GW Stage"),
+    "aws_backup_selection":              ("backup",            "storage",       "🔄", "Backup Selection"),
+    "aws_dx_gateway_association":        ("direct_connect",    "networking",    "🔌", "DX GW Association"),
+    "aws_globalaccelerator_listener":    ("global_accelerator","networking",    "⚡", "GA Listener"),
+    "aws_globalaccelerator_endpoint_group": ("global_accelerator", "networking", "⚡", "GA Endpoint Group"),
+    "aws_neptune_cluster":               ("neptune",           "database",      "🔮", "Neptune Cluster"),
+    "aws_neptune_cluster_instance":      ("neptune",           "database",      "🔮", "Neptune Instance"),
+    "aws_docdb_subnet_group":            ("documentdb",        "database",      "🍃", "DocDB Subnet Group"),
+    "aws_redshift_subnet_group":         ("redshift",          "database",      "📊", "Redshift Subnet Group"),
+    "aws_memorydb_subnet_group":         ("memorydb",          "database",      "🧠", "MemoryDB Subnet Group"),
+    "aws_cognito_user_pool_client":      ("cognito",           "security",      "👥", "Cognito Client"),
+    "aws_cognito_user_pool_domain":      ("cognito",           "security",      "👥", "Cognito Domain"),
+    "aws_xray_sampling_rule":            ("xray",              "monitoring",    "🔭", "X-Ray Sampling"),
+    "aws_scheduler_schedule":            ("eventbridge",       "integration",   "⚡", "EventBridge Scheduler"),
+    "aws_cloudwatch_composite_alarm":    ("cloudwatch",        "monitoring",    "📊", "Composite Alarm"),
+    "aws_sagemaker_endpoint_configuration": ("sagemaker",      "ai_ml",         "🤖", "SageMaker Endpoint Config"),
+    "aws_bedrock_model_invocation_logging_configuration": ("bedrock", "ai_ml", "🧠", "Bedrock Logging"),
+    "aws_elasticache_cluster":           ("elasticache",       "database",      "⚡", "ElastiCache Cluster"),
+    "aws_timestreamwrite_database":      ("timestream",        "database",      "⏱️", "Timestream DB"),
+    "aws_timestreamwrite_table":         ("timestream",        "database",      "⏱️", "Timestream Table"),
+    "aws_opensearch_domain_policy":      ("opensearch",        "database",      "🔍", "OpenSearch Policy"),
+    "aws_lakeformation_resource":        ("lakeformation",     "analytics",     "🏞️", "Lake Formation"),
+    "aws_apprunner_auto_scaling_configuration_version": ("app_runner", "compute", "🏃", "App Runner Autoscaling"),
+    "aws_apprunner_vpc_connector":       ("app_runner",        "compute",       "🏃", "App Runner VPC Connector"),
+    "aws_apprunner_connection":          ("app_runner",        "compute",       "🏃", "App Runner Connection"),
+    "aws_apprunner_observability_configuration": ("app_runner", "compute",       "🏃", "App Runner Observability"),
+    "aws_cloudwatch_log_destination":    ("cloudwatch",        "monitoring",    "📊", "CW Logs Destination"),
+    "aws_cloudwatch_query_definition":   ("cloudwatch",        "monitoring",    "📊", "Logs Insights Query"),
+    "aws_route53_resolver_endpoint":     ("route53",           "networking",    "🌏", "Route 53 Resolver"),
+    "aws_route53_resolver_rule":         ("route53",           "networking",    "🌏", "Route 53 Resolver Rule"),
+    "aws_networkfirewall_firewall":      ("network_firewall",  "networking",    "🔥", "Network Firewall"),
+    "aws_networkfirewall_firewall_policy": ("network_firewall","networking",    "🔥", "Network Firewall Policy"),
+    "aws_networkfirewall_rule_group":    ("network_firewall",  "networking",    "🔥", "Network Firewall Rules"),
 }
+
+_TYPE_MAP_KEYS = frozenset(_TYPE_MAP.keys())
+
+
+def _skip_canvas_node(res_type: str) -> bool:
+    """Return True when a resource should not receive its own canvas node."""
+    if res_type in _TYPE_MAP_KEYS:
+        return False
+    if res_type in _SKIP_RESOURCE_TYPES:
+        return True
+    return is_companion_type(res_type, mapped_types=_TYPE_MAP_KEYS)
 
 # Category display order for layout
 _CATEGORY_ORDER = [
@@ -216,6 +297,11 @@ _BARE_REF_RE = re.compile(
     r'^([A-Za-z][A-Za-z0-9_]*)\.([A-Za-z0-9][A-Za-z0-9_-]*)$'
 )
 
+# Matches ${module.module_name.output} — module output references.
+_MODULE_REF_RE = re.compile(
+    r'\$\{module\.([A-Za-z][A-Za-z0-9_-]*)[\.\[]'
+)
+
 
 def _collect_refs(value: Any, out: set[tuple[str, str]]) -> None:
     """
@@ -245,6 +331,24 @@ def _collect_refs(value: Any, out: set[tuple[str, str]]) -> None:
             _collect_refs(v, out)
 
 
+def _collect_module_refs(value: Any, out: set[str]) -> None:
+    """Collect module block names referenced in HCL values."""
+    if isinstance(value, str):
+        for m in _MODULE_REF_RE.finditer(value):
+            out.add(m.group(1))
+        stripped = value.strip()
+        if stripped.startswith("module."):
+            parts = stripped.split(".")
+            if len(parts) >= 2:
+                out.add(parts[1])
+    elif isinstance(value, list):
+        for item in value:
+            _collect_module_refs(item, out)
+    elif isinstance(value, dict):
+        for v in value.values():
+            _collect_module_refs(v, out)
+
+
 def _get_attr(attrs: dict, *keys: str, default=None):
     """Return the first key found in attrs, or default."""
     for k in keys:
@@ -253,9 +357,38 @@ def _get_attr(attrs: dict, *keys: str, default=None):
     return default
 
 
+def _unquote_hcl(value: str) -> str:
+    """
+    Strip spurious surrounding double-quotes from python-hcl2 strings.
+
+    Some parser versions (notably on Python 3.14) emit identifiers and
+    literals with embedded quote characters, e.g. '"aws_vpc"' instead of
+    'aws_vpc'.  A single strip is sufficient for all observed cases.
+    """
+    if len(value) >= 2 and value[0] == '"' and value[-1] == '"':
+        return value[1:-1]
+    return value
+
+
+def _normalize_parsed_value(value: Any) -> Any:
+    """Recursively normalise parsed HCL values for Archon graph storage."""
+    if isinstance(value, str):
+        return _unquote_hcl(value)
+    if isinstance(value, list):
+        return [_normalize_parsed_value(item) for item in value]
+    if isinstance(value, dict):
+        return {
+            _unquote_hcl(k) if isinstance(k, str) else k: _normalize_parsed_value(v)
+            for k, v in value.items()
+            if k != "__is_block__"
+        }
+    return value
+
+
 def _str_val(v: Any) -> str:
     """Coerce a parsed HCL attribute to a readable string."""
     if isinstance(v, str):
+        v = _unquote_hcl(v)
         # strip ${...} wrapper for display
         return re.sub(r'^\$\{(.+)\}$', r'\1', v)
     if isinstance(v, list) and v:
@@ -380,13 +513,17 @@ def _parse_files(
             if not isinstance(resource_list, dict):
                 continue
             for res_type, instances in resource_list.items():
+                res_type = _unquote_hcl(res_type) if isinstance(res_type, str) else res_type
                 if not isinstance(instances, dict):
                     continue
                 for res_name, attrs in instances.items():
+                    res_name = _unquote_hcl(res_name) if isinstance(res_name, str) else res_name
                     key = res_name
                     if key in merged[res_type]:
                         key = f"{res_name}_{uuid.uuid4().hex[:4]}"
-                    merged[res_type][key] = attrs if isinstance(attrs, dict) else {}
+                    merged[res_type][key] = (
+                        _normalize_parsed_value(attrs) if isinstance(attrs, dict) else {}
+                    )
 
         # ── Data source blocks ────────────────────────────────────────────
         # data "aws_ami" "ubuntu" { ... }
@@ -395,19 +532,25 @@ def _parse_files(
             if not isinstance(data_list, dict):
                 continue
             for data_type, instances in data_list.items():
+                data_type = _unquote_hcl(data_type) if isinstance(data_type, str) else data_type
                 if not isinstance(instances, dict):
                     continue
                 prefixed = "data." + data_type
                 for data_name, attrs in instances.items():
+                    data_name = _unquote_hcl(data_name) if isinstance(data_name, str) else data_name
                     key = data_name
                     if key in merged[prefixed]:
                         key = f"{data_name}_{uuid.uuid4().hex[:4]}"
-                    merged[prefixed][key] = attrs if isinstance(attrs, dict) else {}
+                    merged[prefixed][key] = (
+                        _normalize_parsed_value(attrs) if isinstance(attrs, dict) else {}
+                    )
 
         # ── Locals blocks ─────────────────────────────────────────────────
         for locals_block in parsed.get("locals", []):
             if isinstance(locals_block, dict):
-                locals_map.update(locals_block)
+                for local_key, local_val in locals_block.items():
+                    key = _unquote_hcl(local_key) if isinstance(local_key, str) else local_key
+                    locals_map[key] = _normalize_parsed_value(local_val)
 
         # ── Module blocks ─────────────────────────────────────────────────
         # module "vpc" { source = "./modules/vpc" ... }
@@ -416,10 +559,13 @@ def _parse_files(
             if not isinstance(module_list, dict):
                 continue
             for mod_name, attrs in module_list.items():
+                mod_name = _unquote_hcl(mod_name) if isinstance(mod_name, str) else mod_name
                 key = mod_name
                 if key in merged["_module"]:
                     key = f"{mod_name}_{uuid.uuid4().hex[:4]}"
-                merged["_module"][key] = attrs if isinstance(attrs, dict) else {}
+                merged["_module"][key] = (
+                    _normalize_parsed_value(attrs) if isinstance(attrs, dict) else {}
+                )
 
     return dict(merged), locals_map
 
@@ -561,22 +707,72 @@ _SKIP_RESOURCE_TYPES = frozenset({
     "aws_iam_user", "aws_iam_group",
     # Pure helper/linking resources — no visual value as standalone nodes
     "aws_route_table_association",
+    # S3 bucket sub-resources (config lives on the bucket node)
     "aws_s3_bucket_policy", "aws_s3_bucket_versioning",
+    "aws_s3_bucket_server_side_encryption_configuration",
+    "aws_s3_bucket_public_access_block",
+    "aws_s3_bucket_cors_configuration",
+    "aws_s3_bucket_lifecycle_configuration",
+    "aws_s3_bucket_notification",
+    "aws_s3_bucket_acl",
+    "aws_s3_bucket_ownership_controls",
+    "aws_s3_bucket_replication_configuration",
+    "aws_s3_bucket_logging",
+    "aws_s3_bucket_website_configuration",
+    "aws_s3_bucket_intelligent_tiering_configuration",
+    # Load balancer sub-resources
     "aws_lb_listener", "aws_alb_listener", "aws_lb_target_group",
+    "aws_lb_listener_rule", "aws_lb_listener_certificate",
+    # ACM / CloudFront companions
+    "aws_acm_certificate_validation",
+    "aws_cloudfront_origin_access_control",
+    "aws_cloudfront_cache_policy",
+    "aws_cloudfront_origin_request_policy",
+    "aws_cloudfront_response_headers_policy",
+    # ECS / autoscaling companions
+    "aws_ecs_cluster_capacity_providers",
+    "aws_appautoscaling_target", "aws_appautoscaling_policy",
+    "aws_autoscaling_policy",
+    # Database companions
     "aws_db_subnet_group", "aws_db_parameter_group",
     "aws_elasticache_subnet_group",
+    "aws_redshift_subnet_group", "aws_docdb_subnet_group",
+    "aws_neptune_subnet_group", "aws_neptune_parameter_group",
+    "aws_memorydb_subnet_group",
+    # Secrets / SES companions
+    "aws_secretsmanager_secret_version",
+    "aws_ses_domain_dkim", "aws_ses_configuration_set",
+    "aws_ses_event_destination", "aws_ses_identity_policy",
+    # Other linking / policy attachments
     "aws_api_gateway_stage", "aws_efs_mount_target",
     "aws_sns_topic_subscription", "aws_sqs_queue_policy",
-    "aws_cloudwatch_event_target", "aws_autoscaling_policy",
+    "aws_cloudwatch_event_target",
     "aws_volume_attachment", "aws_kms_alias",
     "aws_rds_cluster_instance", "aws_docdb_cluster_instance",
+    "aws_lambda_permission",
+    "aws_cognito_user_pool_client", "aws_cognito_user_pool_domain",
+    "aws_opensearch_domain_policy",
+    "aws_wafv2_web_acl_association",
 })
+
+# Metadata data sources — used in expressions, not architectural components.
+_SKIP_DATA_SOURCE_TYPES = frozenset({
+    "aws_caller_identity",
+    "aws_region",
+    "aws_partition",
+    "aws_availability_zones",
+    "aws_canonical_user_id",
+    "aws_default_tags",
+}) | METADATA_DATA_SOURCE_TYPES
+
+_MERGE_DATA_SOURCE_TYPES = METADATA_DATA_SOURCE_TYPES | SELECTION_DATA_SOURCE_TYPES
 
 
 def _build_components(
     resources: dict[str, dict[str, dict]],
     sg_id_map: dict[tuple[str, str], str],
     iam_id_map: dict[tuple[str, str], str],
+    report: ImportReport | None = None,
 ) -> tuple[list[dict], dict[tuple[str, str], str], list[str]]:
     """
     Build the components list from the merged resource map.
@@ -598,21 +794,31 @@ def _build_components(
                 node_id = str(uuid.uuid4())
                 resource_node_id_map[("_module", mod_name)] = node_id
                 source   = _str_val(attrs.get("source", ""))
+                registry_hint = attrs.get("_registry_hint") or {}
                 aws_type = f"module ({source})" if source else "Terraform Module"
-                label    = mod_name.replace("_", " ").title()
+                label    = registry_hint.get("label") or mod_name.replace("_", " ").title()
+                mod_config: dict[str, Any] = {
+                    k: v for k, v in attrs.items()
+                    if k not in _CONFIG_SKIP_KEYS and not k.startswith("_")
+                }
+                mod_config["_tf_resource_type"] = "_module"
+                mod_config["_tf_resource_name"] = mod_name
+                mod_config["_tf_description"] = (
+                    f"Terraform module: {mod_name}" + (f" (source: {source})" if source else "")
+                )
+                if registry_hint:
+                    mod_config["_registry_module"] = attrs.get("_registry_module")
+                    mod_config["_expected_resources"] = registry_hint.get("expected_resources", [])
+                    mod_config["_expected_archon_types"] = registry_hint.get("archon_types", [])
                 components.append({
                     "id":                node_id,
-                    "type":              "generic_tf",
+                    "type":              "terraform_module",
                     "label":             label,
                     "awsType":           aws_type,
                     "cloudType":         None,
                     "icon":              "📦",
-                    "category":          "unknown",
-                    "config": {
-                        "_tf_resource_type": "_module",
-                        "_tf_resource_name": mod_name,
-                        "_tf_description":   f"Terraform module: {mod_name}" + (f" (source: {source})" if source else ""),
-                    },
+                    "category":          "devops",
+                    "config": mod_config,
                     "security_group_ids": [],
                     "iam_role_id":       None,
                     "subnet_id":         None,
@@ -626,6 +832,20 @@ def _build_components(
         # ── Data source nodes ─────────────────────────────────────────────
         if res_type.startswith("data."):
             actual_type = res_type[5:]  # strip "data." prefix
+            if actual_type in _SKIP_DATA_SOURCE_TYPES or actual_type in SELECTION_DATA_SOURCE_TYPES:
+                if report:
+                    tier = "metadata" if actual_type in METADATA_DATA_SOURCE_TYPES else "selection"
+                    for data_name in instances:
+                        report.add(
+                            "data_pending_merge",
+                            resource_type=f"data.{actual_type}",
+                            resource_name=data_name,
+                            reason=(
+                                f"{tier.title()} data source — will merge into referencing "
+                                "resources (no standalone canvas node)."
+                            ),
+                        )
+                continue
             mapped      = _TYPE_MAP.get(actual_type)
             for data_name, attrs in instances.items():
                 node_id = str(uuid.uuid4())
@@ -680,7 +900,15 @@ def _build_components(
             continue
 
         # ── Skip helper/managed resource types ────────────────────────────
-        if res_type in _SKIP_RESOURCE_TYPES:
+        if _skip_canvas_node(res_type):
+            if report and is_companion_type(res_type, mapped_types=_TYPE_MAP_KEYS):
+                for res_name in instances:
+                    report.add(
+                        "companion_pending_merge",
+                        resource_type=res_type,
+                        resource_name=res_name,
+                        reason="Companion resource — will merge onto parent config.",
+                    )
             continue
 
         # ── Regular resources ─────────────────────────────────────────────
@@ -762,8 +990,16 @@ def _build_components(
                     "position":          {"x": 0, "y": 0},
                     **_res_key,
                 })
+                if report:
+                    report.add(
+                        "mapped",
+                        resource_type=res_type,
+                        resource_name=res_name,
+                        archon_type=archon_type,
+                        reason=f"Mapped to Archon type '{archon_type}' ({display_name}).",
+                    )
             else:
-                # Unknown resource type — render as generic_tf node
+                # Unknown resource type — render as generic_tf node with full config
                 warnings.append(f"Unknown resource type '{res_type}' rendered as generic node")
                 tags = attrs.get("tags", {})
                 if isinstance(tags, list):
@@ -782,6 +1018,14 @@ def _build_components(
                 elif for_each_val is not None:
                     label = f"{label} [for_each]"
 
+                full_config = {
+                    k: v for k, v in attrs.items()
+                    if k not in _CONFIG_SKIP_KEYS and not k.startswith("_")
+                }
+                full_config["_tf_resource_type"] = res_type
+                full_config["_tf_resource_name"] = res_name
+                full_config["_tf_description"] = f"Terraform resource: {res_type}"
+
                 components.append({
                     "id":                node_id,
                     "type":              "generic_tf",
@@ -790,11 +1034,7 @@ def _build_components(
                     "cloudType":         None,
                     "icon":              "📦",
                     "category":          "unknown",
-                    "config": {
-                        "_tf_resource_type": res_type,
-                        "_tf_resource_name": res_name,
-                        "_tf_description":   f"Terraform resource: {res_type}",
-                    },
+                    "config":            full_config,
                     "security_group_ids": [],
                     "iam_role_id":       None,
                     "subnet_id":         None,
@@ -802,6 +1042,17 @@ def _build_components(
                     "position":          {"x": 0, "y": 0},
                     **_res_key,
                 })
+                if report:
+                    report.add(
+                        "generic",
+                        resource_type=res_type,
+                        resource_name=res_name,
+                        archon_type="generic_tf",
+                        reason=(
+                            "Resource type not in Archon catalog — rendered as generic node "
+                            "with full Terraform config preserved."
+                        ),
+                    )
 
     return components, resource_node_id_map, warnings
 
@@ -872,6 +1123,12 @@ def _build_edges(
                     if ref_type in _SKIP_EDGE_TARGETS:
                         continue
                     tgt_id = resource_node_id_map.get((ref_type, ref_name))
+                    _add_edge(src_id, tgt_id)
+
+                mod_refs: set[str] = set()
+                _collect_module_refs(attr_val, mod_refs)
+                for mod_name in mod_refs:
+                    tgt_id = resource_node_id_map.get(("_module", mod_name))
                     _add_edge(src_id, tgt_id)
 
             # ── depends_on edge pass ──────────────────────────────────────
@@ -1229,6 +1486,347 @@ def _compute_layout(components: list[dict]) -> list[dict]:
     return components
 
 
+# ─── Module expansion ────────────────────────────────────────────────────────
+
+def _expand_modules(
+    resources: dict[str, dict[str, dict]],
+    file_contents: list[str],
+    filenames: list[str] | None,
+    report: ImportReport,
+) -> dict[str, dict[str, dict]]:
+    """Expand local module sources; annotate registry modules; keep placeholders."""
+    modules = dict(resources.get("_module", {}))
+    if not modules:
+        return resources
+
+    filenames = filenames or []
+    remaining_modules: dict[str, dict] = {}
+
+    for mod_name, mod_attrs in modules.items():
+        source_raw = _str_val(mod_attrs.get("source", ""))
+        registry_key = normalize_registry_source(source_raw)
+        local_path = normalize_module_path(source_raw)
+
+        if local_path and filenames:
+            indices = find_module_file_indices(local_path, filenames)
+            if indices:
+                sub_warnings: list[str] = []
+                sub_resources, _ = _parse_files(
+                    [file_contents[i] for i in indices],
+                    sub_warnings,
+                )
+                for warn in sub_warnings:
+                    report.add(
+                        "parse_error",
+                        resource_type="_module",
+                        resource_name=mod_name,
+                        reason=warn,
+                    )
+                merged_count = 0
+                for res_type, instances in sub_resources.items():
+                    if res_type == "_module":
+                        continue
+                    for res_name, attrs in instances.items():
+                        key = res_name
+                        if key in resources.get(res_type, {}):
+                            key = f"{mod_name}_{res_name}"
+                        resources.setdefault(res_type, {})[key] = attrs
+                        merged_count += 1
+                report.add(
+                    "module_expanded",
+                    resource_type="_module",
+                    resource_name=mod_name,
+                    reason=(
+                        f"Expanded local module from '{local_path}' — "
+                        f"{merged_count} inner resource(s) added to canvas."
+                    ),
+                    detail=source_raw,
+                )
+                continue
+
+        if registry_key and registry_key in KNOWN_REGISTRY_MODULES:
+            meta = KNOWN_REGISTRY_MODULES[registry_key]
+            remaining_modules[mod_name] = {
+                **mod_attrs,
+                "_registry_module": registry_key,
+                "_registry_hint": meta,
+            }
+            report.add(
+                "module_registry",
+                resource_type="_module",
+                resource_name=mod_name,
+                archon_type="terraform_module",
+                reason=(
+                    f"Registry module '{registry_key}' not expanded — source not in upload. "
+                    f"{meta.get('note', '')}"
+                ),
+                detail=source_raw,
+            )
+            continue
+
+        remaining_modules[mod_name] = mod_attrs
+        report.add(
+            "module_placeholder",
+            resource_type="_module",
+            resource_name=mod_name,
+            archon_type="terraform_module",
+            reason=(
+                "Module source not included in upload — placeholder node created. "
+                "Upload the module directory (e.g. modules/vpc/*.tf) for full expansion."
+            ),
+            detail=source_raw,
+        )
+
+    if remaining_modules:
+        resources["_module"] = remaining_modules
+    else:
+        resources.pop("_module", None)
+    return resources
+
+
+# ─── Companion + data-source merging ─────────────────────────────────────────
+
+def _component_index(components: list[dict]) -> dict[tuple[str, str], dict]:
+    return {
+        (comp["_res_type"], comp["_res_name"]): comp
+        for comp in components
+        if comp.get("_res_type") and comp.get("_res_name")
+    }
+
+
+def _merge_companion_resources(
+    components: list[dict],
+    resources: dict[str, dict[str, dict]],
+    resource_node_id_map: dict[tuple[str, str], str],
+    report: ImportReport,
+) -> None:
+    """Merge companion/sub-resource blocks onto parent component configs."""
+    index = _component_index(components)
+    orphans: list[tuple[str, str, dict]] = []
+
+    for res_type, instances in resources.items():
+        if res_type.startswith("data.") or res_type == "_module":
+            continue
+        if res_type in {
+            "aws_security_group", "aws_iam_role", "aws_iam_policy",
+            "aws_iam_role_policy", "aws_iam_role_policy_attachment",
+            "aws_iam_instance_profile", "aws_iam_user", "aws_iam_group",
+        }:
+            continue
+        if not _skip_canvas_node(res_type):
+            continue
+
+        for res_name, attrs in instances.items():
+            if not isinstance(attrs, dict):
+                continue
+            parent = resolve_companion_parent(res_type, res_name, attrs, resources, _collect_refs)
+            if parent:
+                parent_comp = index.get(parent)
+                if parent_comp:
+                    merge_companion_config(
+                        parent_comp["config"],
+                        res_type,
+                        res_name,
+                        attrs,
+                        config_skip_keys=_CONFIG_SKIP_KEYS,
+                    )
+                    report.add(
+                        "companion_merged",
+                        resource_type=res_type,
+                        resource_name=res_name,
+                        parent_type=parent[0],
+                        parent_name=parent[1],
+                        archon_type=parent_comp.get("type"),
+                        reason=(
+                            f"Companion merged onto parent {parent[0]}.{parent[1]} "
+                            f"(Archon type: {parent_comp.get('type')})."
+                        ),
+                    )
+                    continue
+            orphans.append((res_type, res_name, attrs))
+
+    for res_type, res_name, attrs in orphans:
+        if _skip_canvas_node(res_type):
+            node_id = str(uuid.uuid4())
+            resource_node_id_map[(res_type, res_name)] = node_id
+            tags = attrs.get("tags", {})
+            if isinstance(tags, list):
+                tags = tags[0] if tags else {}
+            if not isinstance(tags, dict):
+                tags = {}
+            label = _str_val(tags.get("Name", "")) or res_name.replace("_", " ").title()
+            components.append({
+                "id":                node_id,
+                "type":              "generic_tf",
+                "label":             label,
+                "awsType":           res_type,
+                "cloudType":         None,
+                "icon":              "📦",
+                "category":          "unknown",
+                "config": {
+                    k: v for k, v in attrs.items()
+                    if k not in _CONFIG_SKIP_KEYS and not k.startswith("_")
+                },
+                "security_group_ids": [],
+                "iam_role_id":       None,
+                "subnet_id":         None,
+                "vpc_id":            None,
+                "position":          {"x": 0, "y": 0},
+                "_res_type":         res_type,
+                "_res_name":         res_name,
+            })
+            report.add(
+                "companion_orphan",
+                resource_type=res_type,
+                resource_name=res_name,
+                archon_type="generic_tf",
+                reason=(
+                    "Companion resource could not be linked to a parent — "
+                    "rendered as generic node with full config."
+                ),
+            )
+
+
+def _merge_data_sources(
+    components: list[dict],
+    resources: dict[str, dict[str, dict]],
+    report: ImportReport,
+) -> None:
+    """Merge metadata/selection data sources into referencing component configs."""
+    index = _component_index(components)
+
+    for res_type, instances in resources.items():
+        if not res_type.startswith("data."):
+            continue
+        data_type = res_type[5:]
+        if data_type not in _MERGE_DATA_SOURCE_TYPES:
+            continue
+        for data_name, attrs in instances.items():
+            if not isinstance(attrs, dict):
+                continue
+            merged_into: list[str] = []
+            for (comp_type, comp_name), comp in index.items():
+                comp_attrs = resources.get(comp_type, {}).get(comp_name, {})
+                if resource_references_data(comp_attrs, data_type, data_name):
+                    merge_data_source_config(
+                        comp["config"],
+                        data_type,
+                        data_name,
+                        attrs,
+                        config_skip_keys=_CONFIG_SKIP_KEYS,
+                    )
+                    merged_into.append(f"{comp_type}.{comp_name}")
+
+            if merged_into:
+                tier = "metadata" if data_type in METADATA_DATA_SOURCE_TYPES else "selection"
+                report.add(
+                    "data_merged",
+                    resource_type=f"data.{data_type}",
+                    resource_name=data_name,
+                    reason=(
+                        f"{tier.title()} data source merged into "
+                        f"{len(merged_into)} referencing resource(s): "
+                        + ", ".join(merged_into[:5])
+                        + ("…" if len(merged_into) > 5 else "")
+                    ),
+                )
+            else:
+                report.add(
+                    "data_skipped",
+                    resource_type=f"data.{data_type}",
+                    resource_name=data_name,
+                    reason=(
+                        "Metadata/selection data source — no canvas node "
+                        "(not referenced by any mapped resource)."
+                    ),
+                )
+
+
+def _synthesize_registry_modules(
+    components: list[dict],
+    resources: dict[str, dict[str, dict]],
+    resource_node_id_map: dict[tuple[str, str], str],
+    report: ImportReport,
+) -> list[tuple[str, str]]:
+    """
+    Create typed skeleton nodes for known registry modules when source is not uploaded.
+
+    Returns list of (module_node_id, synthesized_node_id) pairs for edge wiring.
+    """
+    modules = resources.get("_module", {})
+    if not modules:
+        return []
+
+    module_edges: list[tuple[str, str]] = []
+    seen_archon: dict[str, set[str]] = defaultdict(set)
+
+    for mod_name, attrs in modules.items():
+        if not attrs.get("_registry_module") or not attrs.get("_registry_hint"):
+            continue
+
+        mod_node_id = resource_node_id_map.get(("_module", mod_name))
+        if not mod_node_id:
+            continue
+
+        registry_key = attrs["_registry_module"]
+        hint = attrs["_registry_hint"]
+        archon_types = hint.get("archon_types") or []
+
+        for archon_type in archon_types:
+            if archon_type in seen_archon[mod_name]:
+                continue
+            seen_archon[mod_name].add(archon_type)
+
+            display = get_archon_type_display(archon_type)
+            if not display:
+                continue
+
+            _, category, icon, display_name = display
+            synth_name = f"{mod_name}_{archon_type}"
+            node_id = str(uuid.uuid4())
+            synth_key = (f"_synth.{registry_key}", synth_name)
+            resource_node_id_map[synth_key] = node_id
+
+            components.append({
+                "id":                node_id,
+                "type":              archon_type,
+                "label":             f"{mod_name} {display_name}",
+                "awsType":           f"{display_name} (via {mod_name})",
+                "cloudType":         None,
+                "icon":              icon,
+                "category":          category,
+                "config": {
+                    "_synthesized": True,
+                    "_module": mod_name,
+                    "_registry_module": registry_key,
+                    "_tf_description": (
+                        f"Synthesized from registry module '{registry_key}' — "
+                        "upload module source for exact resources."
+                    ),
+                },
+                "security_group_ids": [],
+                "iam_role_id":       None,
+                "subnet_id":         None,
+                "vpc_id":            None,
+                "position":          {"x": 0, "y": 0},
+                "_res_type":         f"_synth.{registry_key}",
+                "_res_name":         synth_name,
+            })
+            module_edges.append((mod_node_id, node_id))
+            report.add(
+                "module_synthesized",
+                resource_type="_module",
+                resource_name=mod_name,
+                archon_type=archon_type,
+                reason=(
+                    f"Synthesized {display_name} skeleton from registry module "
+                    f"'{registry_key}'."
+                ),
+            )
+
+    return module_edges
+
+
 # ─── Public entry point ──────────────────────────────────────────────────
 
 def import_terraform(
@@ -1239,10 +1837,17 @@ def import_terraform(
     Parse one or more Terraform file contents and return a dict with:
       - "graph": Graph-compatible dict (components, edges, security_groups,
                  iam_roles, name, region)
-      - "warnings": list of human-readable warning strings
+      - "report": structured import report (summary + per-resource entries)
+      - "warnings": flat warning strings (backward compatible)
     """
+    report = ImportReport()
     parse_warnings: list[str] = []
     resources, _locals_map = _parse_files(file_contents, parse_warnings)
+
+    for warn in parse_warnings:
+        report.add("parse_error", resource_type="file", reason=warn)
+
+    resources = _expand_modules(resources, file_contents, filenames or [], report)
 
     # Security groups & IAM (extracted before components so IDs are ready)
     sg_id_map: dict[tuple[str, str], str]  = {}
@@ -1251,10 +1856,33 @@ def import_terraform(
     security_groups = _extract_security_groups(resources, sg_id_map)
     iam_roles       = _extract_iam_roles(resources, iam_id_map)
 
+    for sg_name in resources.get("aws_security_group", {}):
+        report.add(
+            "tab_managed",
+            resource_type="aws_security_group",
+            resource_name=sg_name,
+            reason="Extracted to Security Groups tab — not shown as a canvas node.",
+        )
+    for role_name in resources.get("aws_iam_role", {}):
+        report.add(
+            "tab_managed",
+            resource_type="aws_iam_role",
+            resource_name=role_name,
+            reason="Extracted to IAM tab — not shown as a canvas node.",
+        )
+
     # Components
     components, resource_node_id_map, comp_warnings = _build_components(
-        resources, sg_id_map, iam_id_map
+        resources, sg_id_map, iam_id_map, report
     )
+
+    module_synth_edges = _synthesize_registry_modules(
+        components, resources, resource_node_id_map, report
+    )
+
+    # Merge companions + data sources onto parent configs
+    _merge_companion_resources(components, resources, resource_node_id_map, report)
+    _merge_data_sources(components, resources, report)
 
     # Parent assignment (VPC / subnet nesting)
     components = _assign_parents(components, resources, resource_node_id_map)
@@ -1262,9 +1890,24 @@ def import_terraform(
     # Edges
     edges = _build_edges(resources, resource_node_id_map)
 
-    existing_pairs: set[frozenset] = {
+    seen_pairs: set[frozenset] = {
         frozenset([e["source"], e["target"]]) for e in edges
     }
+    for src_id, tgt_id in module_synth_edges:
+        pair = frozenset([src_id, tgt_id])
+        if pair in seen_pairs:
+            continue
+        seen_pairs.add(pair)
+        edges.append({
+            "id":              f"e-{uuid.uuid4().hex[:8]}",
+            "source":          src_id,
+            "target":          tgt_id,
+            "type":            "network",
+            "bidirectional":   False,
+            "suggested_rules": [],
+        })
+
+    existing_pairs: set[frozenset] = seen_pairs
     edges += _infer_sg_edges(components, resources, existing_pairs)
 
     # Layout
@@ -1282,16 +1925,19 @@ def import_terraform(
         if stem:
             arch_name = stem.title()
 
-    warnings = parse_warnings + comp_warnings
-
     graph = {
         "id":              str(uuid.uuid4()),
         "name":            arch_name,
         "region":          "us-east-1",
+        "provider":        "aws",
         "components":      components,
         "edges":           edges,
         "security_groups": security_groups,
         "iam_roles":       iam_roles,
     }
 
-    return {"graph": graph, "warnings": warnings}
+    return {
+        "graph":    graph,
+        "report":   report.to_dict(),
+        "warnings": report.warnings() + comp_warnings,
+    }

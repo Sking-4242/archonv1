@@ -2,7 +2,7 @@
 title: "AWS Machine Learning Services Overview"
 type: content
 estimated_minutes: 11
-cert_tags: ["SAA-C03", "MLS-C01", "CLF-C02"]
+cert_tags: ["CLF-C02", "SAA-C03", "AIF-C01", "MLA-C01"]
 ---
 
 # AWS Machine Learning Services Overview

@@ -1,508 +1,508 @@
 [
-  {
-    "id": "aws-soa-t1-05-001",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "An EC2 instance in a private subnet needs to download software updates from the internet without being directly reachable from the internet. What should a SysOps administrator configure?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Assign an Elastic IP address to the EC2 instance and add a route to the internet gateway from the private subnet's route table."
-      },
-      {
-        "label": "B",
-        "text": "Deploy a NAT Gateway in a public subnet and add a route in the private subnet's route table pointing 0.0.0.0/0 to the NAT Gateway."
-      },
-      {
-        "label": "C",
-        "text": "Create a VPC endpoint for the software repository service so the instance can download updates without traversing the internet."
-      },
-      {
-        "label": "D",
-        "text": "Configure a security group rule that allows inbound traffic from the internet on port 80 so the instance can pull packages through the load balancer."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "A": "Assigning an Elastic IP to an instance in a private subnet does not make it reachable if the subnet's route table does not have a route to an internet gateway; and adding that route makes it a public subnet, not private.",
-      "C": "VPC endpoints are used for specific AWS services (like S3 or DynamoDB), not for general internet software repositories.",
-      "D": "Allowing inbound traffic from the internet makes the instance directly reachable and defeats the purpose of private subnet isolation."
-    },
-    "explanation": "A NAT Gateway deployed in a public subnet enables instances in private subnets to initiate outbound internet connections while preventing inbound connections from the internet. The private subnet's route table routes 0.0.0.0/0 to the NAT Gateway, which translates the private IP to the NAT Gateway's Elastic IP for the outbound request.",
-    "module_ref": "soa/networking/nat-gateway",
-    "tags": [
-      "nat-gateway",
-      "private-subnet",
-      "vpc",
-      "outbound-internet"
-    ]
+ {
+  "id": "aws-soa-t1-05-001",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "An EC2 instance in a private subnet needs to download software updates from the internet without being directly reachable from the internet. What should a SysOps administrator configure?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Assign an Elastic IP address to the EC2 instance and add a route to the internet gateway from the private subnet's route table."
+   },
+   {
+    "label": "B",
+    "text": "Deploy a NAT Gateway in a public subnet and add a route in the private subnet's route table pointing 0.0.0.0/0 to the NAT Gateway."
+   },
+   {
+    "label": "C",
+    "text": "Create a VPC endpoint for the software repository service so the instance can download updates without traversing the internet."
+   },
+   {
+    "label": "D",
+    "text": "Configure a security group rule that allows inbound traffic from the internet on port 80 so the instance can pull packages through the load balancer."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "A": "Assigning an Elastic IP to an instance in a private subnet does not make it reachable if the subnet's route table does not have a route to an internet gateway; and adding that route makes it a public subnet, not private.",
+   "C": "VPC endpoints are used for specific AWS services (like S3 or DynamoDB), not for general internet software repositories.",
+   "D": "Allowing inbound traffic from the internet makes the instance directly reachable and defeats the purpose of private subnet isolation."
   },
-  {
-    "id": "aws-soa-t1-05-002",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "An EC2 instance can reach the internet but cannot connect to an S3 bucket endpoint using the private AWS network. After checking IAM permissions (which are correct), what should the SysOps administrator verify?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Verify that the S3 bucket has a bucket policy allowing traffic from the VPC's CIDR range and that the NAT Gateway is routing S3 requests correctly."
-      },
-      {
-        "label": "B",
-        "text": "Check whether a VPC Gateway Endpoint for S3 has been created and whether the route table associated with the instance's subnet has a route to the endpoint."
-      },
-      {
-        "label": "C",
-        "text": "Confirm that the EC2 instance's security group has an outbound rule allowing HTTPS (port 443) traffic to the S3 service endpoint IP range."
-      },
-      {
-        "label": "D",
-        "text": "Check that the EC2 instance has an Elastic IP address, which is required for private connectivity to S3 endpoints within the same region."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "A": "S3 bucket policies can restrict access by VPC endpoint condition, but a missing endpoint route is the more fundamental networking issue if the instance cannot reach S3 privately.",
-      "C": "Security groups are stateful and allow outbound HTTPS by default; and the question specifies the instance can reach the internet, so outbound HTTPS is not the issue.",
-      "D": "Elastic IPs are for internet connectivity, not for private S3 endpoint access; a VPC endpoint does not require an Elastic IP."
-    },
-    "explanation": "A VPC Gateway Endpoint for S3 provides private connectivity from a VPC to S3 without traffic leaving the AWS network. The endpoint must be associated with the route tables of the subnets that need private S3 access. Without the correct route table entry pointing to the endpoint, S3 traffic is routed through the internet gateway or NAT Gateway instead of the private path.",
-    "module_ref": "soa/networking/vpc-endpoint-s3",
-    "tags": [
-      "vpc-endpoint",
-      "s3",
-      "gateway-endpoint",
-      "private-connectivity"
-    ]
+  "explanation": "A NAT Gateway deployed in a public subnet enables instances in private subnets to initiate outbound internet connections while preventing inbound connections from the internet. The private subnet's route table routes 0.0.0.0/0 to the NAT Gateway, which translates the private IP to the NAT Gateway's Elastic IP for the outbound request.",
+  "module_ref": "soa/networking/nat-gateway",
+  "tags": [
+   "nat-gateway",
+   "private-subnet",
+   "vpc",
+   "outbound-internet"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-05-002",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "An EC2 instance can reach the internet but cannot connect to an S3 bucket endpoint using the private AWS network. After checking IAM permissions (which are correct), what should the SysOps administrator verify?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Verify that the S3 bucket has a bucket policy allowing traffic from the VPC's CIDR range and that the NAT Gateway is routing S3 requests correctly."
+   },
+   {
+    "label": "B",
+    "text": "Check whether a VPC Gateway Endpoint for S3 has been created and whether the route table associated with the instance's subnet has a route to the endpoint."
+   },
+   {
+    "label": "C",
+    "text": "Confirm that the EC2 instance's security group has an outbound rule allowing HTTPS (port 443) traffic to the S3 service endpoint IP range."
+   },
+   {
+    "label": "D",
+    "text": "Check that the EC2 instance has an Elastic IP address, which is required for private connectivity to S3 endpoints within the same region."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "A": "S3 bucket policies can restrict access by VPC endpoint condition, but a missing endpoint route is the more fundamental networking issue if the instance cannot reach S3 privately.",
+   "C": "Security groups are stateful and allow outbound HTTPS by default; and the question specifies the instance can reach the internet, so outbound HTTPS is not the issue.",
+   "D": "Elastic IPs are for internet connectivity, not for private S3 endpoint access; a VPC endpoint does not require an Elastic IP."
   },
-  {
-    "id": "aws-soa-t1-05-003",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "Two VCs in the same AWS region need to communicate privately using private IP addresses. Neither VPC should route to the internet. What should be configured?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Create a Site-to-Site VPN connection between the two VPCs using Virtual Private Gateways on each side to establish an encrypted tunnel."
-      },
-      {
-        "label": "B",
-        "text": "Attach both VPCs to a shared Transit Gateway and configure Transit Gateway route tables to enable routing between the two VPCs."
-      },
-      {
-        "label": "C",
-        "text": "Create a VPC Peering connection between the two VPCs and add routes in each VPC's route table pointing the other VPC's CIDR to the peering connection."
-      },
-      {
-        "label": "D",
-        "text": "Deploy a NAT Gateway in each VPC and configure cross-VPC routes through the NAT Gateways to translate addresses between the two networks."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "B": "Transit Gateway is the right solution for connecting many VPCs (hub-and-spoke), but for just two VPCs, VPC Peering is simpler and less expensive.",
-      "D": "NAT Gateways are for outbound internet access; they cannot be used for VPC-to-VPC routing.",
-      "A": "Site-to-Site VPN is for connecting on-premises networks to AWS; VPC Peering is the native AWS solution for VPC-to-VPC connectivity within the same region."
-    },
-    "explanation": "VPC Peering creates a direct network route between two VPCs using private IP addresses. Traffic stays within the AWS network. After creating the peering connection, you must add routes to each VPC's route tables: the CIDR of Peer VPC A points to the peering connection in VPC B's route table, and vice versa.",
-    "module_ref": "soa/networking/vpc-peering",
-    "tags": [
-      "vpc-peering",
-      "private-routing",
-      "vpc",
-      "networking"
-    ]
+  "explanation": "A VPC Gateway Endpoint for S3 provides private connectivity from a VPC to S3 without traffic leaving the AWS network. The endpoint must be associated with the route tables of the subnets that need private S3 access. Without the correct route table entry pointing to the endpoint, S3 traffic is routed through the internet gateway or NAT Gateway instead of the private path.",
+  "module_ref": "soa/networking/vpc-endpoint-s3",
+  "tags": [
+   "vpc-endpoint",
+   "s3",
+   "gateway-endpoint",
+   "private-connectivity"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-05-003",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "Two VCs in the same AWS region need to communicate privately using private IP addresses. Neither VPC should route to the internet. What should be configured?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Create a Site-to-Site VPN connection between the two VPCs using Virtual Private Gateways on each side to establish an encrypted tunnel."
+   },
+   {
+    "label": "B",
+    "text": "Attach both VPCs to a shared Transit Gateway and configure Transit Gateway route tables to enable routing between the two VPCs."
+   },
+   {
+    "label": "C",
+    "text": "Create a VPC Peering connection between the two VPCs and add routes in each VPC's route table pointing the other VPC's CIDR to the peering connection."
+   },
+   {
+    "label": "D",
+    "text": "Deploy a NAT Gateway in each VPC and configure cross-VPC routes through the NAT Gateways to translate addresses between the two networks."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "B": "Transit Gateway is the right solution for connecting many VPCs (hub-and-spoke), but for just two VPCs, VPC Peering is simpler and less expensive.",
+   "D": "NAT Gateways are for outbound internet access; they cannot be used for VPC-to-VPC routing.",
+   "A": "Site-to-Site VPN is for connecting on-premises networks to AWS; VPC Peering is the native AWS solution for VPC-to-VPC connectivity within the same region."
   },
-  {
-    "id": "aws-soa-t1-05-004",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator is troubleshooting why an EC2 instance is not receiving traffic even though the security group allows it. What is another layer of network access control that could be blocking traffic?",
-    "options": [
-      {
-        "label": "A",
-        "text": "VPC Flow Logs are applied at the subnet level and can block traffic that does not match the defined flow log capture filter, even if the security group allows it."
-      },
-      {
-        "label": "B",
-        "text": "Route table entries are evaluated before security groups; if the route table does not have a specific route for the source IP, traffic is blocked before reaching the instance."
-      },
-      {
-        "label": "C",
-        "text": "IAM resource policies on the EC2 instance can override security group rules and block incoming connections if the principal is not authorized."
-      },
-      {
-        "label": "D",
-        "text": "Network Access Control Lists (NACLs) are subnet-level, stateless firewalls that evaluate both inbound and outbound rules; an explicit DENY rule in the NACL could block traffic that the security group allows."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "A": "VPC Flow Logs are a monitoring and logging service; they capture traffic metadata but do not block or filter traffic.",
-      "C": "IAM resource policies are for controlling AWS API access, not for filtering network traffic to EC2 instances.",
-      "B": "Route tables determine where traffic is forwarded, not whether it is allowed; traffic that reaches an instance's subnet has already been routed; blocking happens at NACLs and security groups."
-    },
-    "explanation": "Network ACLs operate at the subnet level and are stateless, meaning both inbound and outbound rules must explicitly allow return traffic. Unlike security groups, NACLs support explicit DENY rules. If an inbound DENY rule in the NACL matches traffic before an ALLOW rule (rules are evaluated in ascending order by rule number), the traffic is dropped even if the instance's security group allows it.",
-    "module_ref": "soa/networking/nacls",
-    "tags": [
-      "nacl",
-      "security-group",
-      "network-acl",
-      "stateless",
-      "troubleshooting"
-    ]
+  "explanation": "VPC Peering creates a direct network route between two VPCs using private IP addresses. Traffic stays within the AWS network. After creating the peering connection, you must add routes to each VPC's route tables: the CIDR of Peer VPC A points to the peering connection in VPC B's route table, and vice versa.",
+  "module_ref": "soa/networking/vpc-peering",
+  "tags": [
+   "vpc-peering",
+   "private-routing",
+   "vpc",
+   "networking"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-05-004",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator is troubleshooting why an EC2 instance is not receiving traffic even though the security group allows it. What is another layer of network access control that could be blocking traffic?",
+  "options": [
+   {
+    "label": "A",
+    "text": "VPC Flow Logs are applied at the subnet level and can block traffic that does not match the defined flow log capture filter, even if the security group allows it."
+   },
+   {
+    "label": "B",
+    "text": "Route table entries are evaluated before security groups; if the route table does not have a specific route for the source IP, traffic is blocked before reaching the instance."
+   },
+   {
+    "label": "C",
+    "text": "IAM resource policies on the EC2 instance can override security group rules and block incoming connections if the principal is not authorized."
+   },
+   {
+    "label": "D",
+    "text": "Network Access Control Lists (NACLs) are subnet-level, stateless firewalls that evaluate both inbound and outbound rules; an explicit DENY rule in the NACL could block traffic that the security group allows."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "A": "VPC Flow Logs are a monitoring and logging service; they capture traffic metadata but do not block or filter traffic.",
+   "C": "IAM resource policies are for controlling AWS API access, not for filtering network traffic to EC2 instances.",
+   "B": "Route tables determine where traffic is forwarded, not whether it is allowed; traffic that reaches an instance's subnet has already been routed; blocking happens at NACLs and security groups."
   },
-  {
-    "id": "aws-soa-t1-05-005",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A company hosts a static website on Amazon S3 and wants to serve it globally with low latency and HTTPS. Which service should be placed in front of the S3 bucket?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Amazon Route 53 with latency-based routing directs users to the S3 static website endpoint in the region with the lowest latency, providing global distribution."
-      },
-      {
-        "label": "B",
-        "text": "Amazon CloudFront distributes content from S3 through a global edge network, providing low-latency delivery worldwide and supporting custom SSL/TLS certificates via ACM."
-      },
-      {
-        "label": "C",
-        "text": "An Application Load Balancer with cross-zone load balancing distributes requests to the S3 bucket across multiple Availability Zones, reducing latency for global users."
-      },
-      {
-        "label": "D",
-        "text": "AWS Global Accelerator routes users to the nearest AWS Region where the S3 bucket is hosted, accelerating static content delivery with its anycast IP addresses."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "C": "An ALB cannot use S3 as a backend target; ALBs route traffic to EC2 instances, containers, or Lambda functions.",
-      "D": "Global Accelerator optimizes routing to application endpoints (ALB, NLB, EC2); it does not provide edge caching for static content the way CloudFront does.",
-      "A": "Route 53 latency routing directs DNS queries to the nearest region's S3 endpoint, but it does not cache content at the edge or add HTTPS termination."
-    },
-    "explanation": "Amazon CloudFront is a content delivery network (CDN) with hundreds of edge locations globally. It caches S3 content at the edge closest to the user, reducing latency. CloudFront supports HTTPS with certificates from AWS Certificate Manager (ACM) at no extra cost. The origin access control (OAC) feature restricts direct S3 access so all traffic flows through CloudFront.",
-    "module_ref": "soa/networking/cloudfront-s3",
-    "tags": [
-      "cloudfront",
-      "s3",
-      "cdn",
-      "https",
-      "static-website"
-    ]
+  "explanation": "Network ACLs operate at the subnet level and are stateless, meaning both inbound and outbound rules must explicitly allow return traffic. Unlike security groups, NACLs support explicit DENY rules. If an inbound DENY rule in the NACL matches traffic before an ALLOW rule (rules are evaluated in ascending order by rule number), the traffic is dropped even if the instance's security group allows it.",
+  "module_ref": "soa/networking/nacls",
+  "tags": [
+   "nacl",
+   "security-group",
+   "network-acl",
+   "stateless",
+   "troubleshooting"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-05-005",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A company hosts a static website on Amazon S3 and wants to serve it globally with low latency and HTTPS. Which service should be placed in front of the S3 bucket?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Amazon Route 53 with latency-based routing directs users to the S3 static website endpoint in the region with the lowest latency, providing global distribution."
+   },
+   {
+    "label": "B",
+    "text": "Amazon CloudFront distributes content from S3 through a global edge network, providing low-latency delivery worldwide and supporting custom SSL/TLS certificates via ACM."
+   },
+   {
+    "label": "C",
+    "text": "An Application Load Balancer with cross-zone load balancing distributes requests to the S3 bucket across multiple Availability Zones, reducing latency for global users."
+   },
+   {
+    "label": "D",
+    "text": "AWS Global Accelerator routes users to the nearest AWS Region where the S3 bucket is hosted, accelerating static content delivery with its anycast IP addresses."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "C": "An ALB cannot use S3 as a backend target; ALBs route traffic to EC2 instances, containers, or Lambda functions.",
+   "D": "Global Accelerator optimizes routing to application endpoints (ALB, NLB, EC2); it does not provide edge caching for static content the way CloudFront does.",
+   "A": "Route 53 latency routing directs DNS queries to the nearest region's S3 endpoint, but it does not cache content at the edge or add HTTPS termination."
   },
-  {
-    "id": "aws-soa-t1-05-006",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to capture network traffic metadata (source IP, destination IP, ports, protocol, accept/reject) from a specific EC2 instance for security analysis. Which feature provides this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable VPC Flow Logs on the network interface (ENI) of the EC2 instance, which captures traffic metadata and stores it in CloudWatch Logs or S3."
-      },
-      {
-        "label": "B",
-        "text": "Install a network monitoring agent on the EC2 instance that captures full packet data and streams it to an S3 bucket for analysis."
-      },
-      {
-        "label": "C",
-        "text": "Configure Amazon GuardDuty to capture packet-level data from the instance's network interface and store it in a dedicated S3 bucket."
-      },
-      {
-        "label": "D",
-        "text": "Enable CloudTrail data events for the EC2 instance, which logs all inbound and outbound network connections at the packet level."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "A network monitoring agent is a valid approach for packet capture, but VPC Flow Logs are the native AWS managed solution for network metadata without requiring agent installation.",
-      "D": "CloudTrail logs AWS API calls, not network traffic; it does not capture connection-level metadata for EC2 instances.",
-      "C": "GuardDuty analyzes VPC Flow Logs and DNS logs to detect threats; it does not capture full packet data and does not write to a dedicated instance-level S3 bucket."
-    },
-    "explanation": "VPC Flow Logs capture metadata about IP traffic going to and from network interfaces in a VPC. You can enable them at the VPC, subnet, or ENI level. Each log record includes source/destination IP and port, protocol, packet count, byte count, and whether the traffic was accepted or rejected by security group and NACL rules.",
-    "module_ref": "soa/networking/vpc-flow-logs",
-    "tags": [
-      "vpc-flow-logs",
-      "network-monitoring",
-      "security-analysis",
-      "eni"
-    ]
+  "explanation": "Amazon CloudFront is a content delivery network (CDN) with hundreds of edge locations globally. It caches S3 content at the edge closest to the user, reducing latency. CloudFront supports HTTPS with certificates from AWS Certificate Manager (ACM) at no extra cost. The origin access control (OAC) feature restricts direct S3 access so all traffic flows through CloudFront.",
+  "module_ref": "soa/networking/cloudfront-s3",
+  "tags": [
+   "cloudfront",
+   "s3",
+   "cdn",
+   "https",
+   "static-website"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-05-006",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to capture network traffic metadata (source IP, destination IP, ports, protocol, accept/reject) from a specific EC2 instance for security analysis. Which feature provides this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable VPC Flow Logs on the network interface (ENI) of the EC2 instance, which captures traffic metadata and stores it in CloudWatch Logs or S3."
+   },
+   {
+    "label": "B",
+    "text": "Install a network monitoring agent on the EC2 instance that captures full packet data and streams it to an S3 bucket for analysis."
+   },
+   {
+    "label": "C",
+    "text": "Configure Amazon GuardDuty to capture packet-level data from the instance's network interface and store it in a dedicated S3 bucket."
+   },
+   {
+    "label": "D",
+    "text": "Enable CloudTrail data events for the EC2 instance, which logs all inbound and outbound network connections at the packet level."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "A network monitoring agent is a valid approach for packet capture, but VPC Flow Logs are the native AWS managed solution for network metadata without requiring agent installation.",
+   "D": "CloudTrail logs AWS API calls, not network traffic; it does not capture connection-level metadata for EC2 instances.",
+   "C": "GuardDuty analyzes VPC Flow Logs and DNS logs to detect threats; it does not capture full packet data and does not write to a dedicated instance-level S3 bucket."
   },
-  {
-    "id": "aws-soa-t1-05-007",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A company has 15 VPCs and needs them all to communicate with each other and share internet access through a single NAT gateway. What is the most scalable networking solution?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Use AWS Direct Connect to connect all 15 VPCs to an on-premises router that provides shared internet access through a NAT device on premises."
-      },
-      {
-        "label": "B",
-        "text": "Create VPC Peering connections between every pair of VPCs (full mesh of 105 connections) and route internet traffic through a designated VPC with a NAT Gateway."
-      },
-      {
-        "label": "C",
-        "text": "Deploy a separate NAT Gateway in each VPC's public subnet so each VPC manages its own internet access independently."
-      },
-      {
-        "label": "D",
-        "text": "Deploy a Transit Gateway as a hub, attach all 15 VPCs as spokes, and place the NAT Gateway in a shared services VPC attached to the Transit Gateway."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "B": "Full-mesh VPC peering does not scale: 15 VPCs require 105 peering connections, and VPC peering does not support transitive routing, making shared internet access complex.",
-      "C": "A separate NAT Gateway per VPC provides internet access but does not allow VPCs to communicate with each other and is not a shared solution.",
-      "A": "Routing all 15 VPCs' internet traffic through an on-premises router introduces latency, on-premises bandwidth costs, and a complex configuration."
-    },
-    "explanation": "AWS Transit Gateway acts as a cloud router connecting multiple VPCs and on-premises networks in a hub-and-spoke model. By attaching all 15 VPCs to the Transit Gateway, they can route traffic to each other through the hub. A shared services VPC with a NAT Gateway attached to the Transit Gateway provides centralized internet access for all spoke VPCs.",
-    "module_ref": "soa/networking/transit-gateway",
-    "tags": [
-      "transit-gateway",
-      "hub-and-spoke",
-      "nat-gateway",
-      "multi-vpc"
-    ]
+  "explanation": "VPC Flow Logs capture metadata about IP traffic going to and from network interfaces in a VPC. You can enable them at the VPC, subnet, or ENI level. Each log record includes source/destination IP and port, protocol, packet count, byte count, and whether the traffic was accepted or rejected by security group and NACL rules.",
+  "module_ref": "soa/networking/vpc-flow-logs",
+  "tags": [
+   "vpc-flow-logs",
+   "network-monitoring",
+   "security-analysis",
+   "eni"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-05-007",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A company has 15 VPCs and needs them all to communicate with each other and share internet access through a single NAT gateway. What is the most scalable networking solution?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Use AWS Direct Connect to connect all 15 VPCs to an on-premises router that provides shared internet access through a NAT device on premises."
+   },
+   {
+    "label": "B",
+    "text": "Create VPC Peering connections between every pair of VPCs (full mesh of 105 connections) and route internet traffic through a designated VPC with a NAT Gateway."
+   },
+   {
+    "label": "C",
+    "text": "Deploy a separate NAT Gateway in each VPC's public subnet so each VPC manages its own internet access independently."
+   },
+   {
+    "label": "D",
+    "text": "Deploy a Transit Gateway as a hub, attach all 15 VPCs as spokes, and place the NAT Gateway in a shared services VPC attached to the Transit Gateway."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "B": "Full-mesh VPC peering does not scale: 15 VPCs require 105 peering connections, and VPC peering does not support transitive routing, making shared internet access complex.",
+   "C": "A separate NAT Gateway per VPC provides internet access but does not allow VPCs to communicate with each other and is not a shared solution.",
+   "A": "Routing all 15 VPCs' internet traffic through an on-premises router introduces latency, on-premises bandwidth costs, and a complex configuration."
   },
-  {
-    "id": "aws-soa-t1-05-008",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to ensure that a domain name resolves to different IP addresses depending on which AWS region the DNS query originates from, to route users to the nearest application endpoint. Which Route 53 routing policy achieves this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Latency-based routing measures the latency between the requester and each configured AWS region and returns the record for the region with the lowest latency."
-      },
-      {
-        "label": "B",
-        "text": "Geolocation routing returns the record based on the geographic location of the DNS requester, routing users to a region configured for their continent or country."
-      },
-      {
-        "label": "C",
-        "text": "Failover routing returns the primary record under normal conditions and the secondary record when the primary health check fails, but does not consider user location."
-      },
-      {
-        "label": "D",
-        "text": "Weighted routing distributes DNS responses across multiple regions based on assigned weights, spreading traffic proportionally regardless of user location."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "Geolocation routing routes based on the user's mapped geographic location (country or continent), which may not correlate with the lowest-latency endpoint.",
-      "D": "Weighted routing proportionally distributes traffic based on weights, not user location or latency.",
-      "C": "Failover routing is for active-passive high availability, not for geographic or latency-based traffic distribution."
-    },
-    "explanation": "Route 53 Latency-based routing evaluates the measured network latency from the user's DNS resolver to each configured AWS region and returns the DNS record for the region with the lowest latency. This provides a best-effort optimization for routing users to the nearest and fastest endpoint regardless of their geographic location.",
-    "module_ref": "soa/networking/route53-latency",
-    "tags": [
-      "route53",
-      "latency-routing",
-      "dns",
-      "global-routing"
-    ]
+  "explanation": "AWS Transit Gateway acts as a cloud router connecting multiple VPCs and on-premises networks in a hub-and-spoke model. By attaching all 15 VPCs to the Transit Gateway, they can route traffic to each other through the hub. A shared services VPC with a NAT Gateway attached to the Transit Gateway provides centralized internet access for all spoke VPCs.",
+  "module_ref": "soa/networking/transit-gateway",
+  "tags": [
+   "transit-gateway",
+   "hub-and-spoke",
+   "nat-gateway",
+   "multi-vpc"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-05-008",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to ensure that a domain name resolves to different IP addresses depending on which AWS region the DNS query originates from, to route users to the nearest application endpoint. Which Route 53 routing policy achieves this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Latency-based routing measures the latency between the requester and each configured AWS region and returns the record for the region with the lowest latency."
+   },
+   {
+    "label": "B",
+    "text": "Geolocation routing returns the record based on the geographic location of the DNS requester, routing users to a region configured for their continent or country."
+   },
+   {
+    "label": "C",
+    "text": "Failover routing returns the primary record under normal conditions and the secondary record when the primary health check fails, but does not consider user location."
+   },
+   {
+    "label": "D",
+    "text": "Weighted routing distributes DNS responses across multiple regions based on assigned weights, spreading traffic proportionally regardless of user location."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "Geolocation routing routes based on the user's mapped geographic location (country or continent), which may not correlate with the lowest-latency endpoint.",
+   "D": "Weighted routing proportionally distributes traffic based on weights, not user location or latency.",
+   "C": "Failover routing is for active-passive high availability, not for geographic or latency-based traffic distribution."
   },
-  {
-    "id": "aws-soa-t1-05-009",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A company needs a dedicated, private network connection from its on-premises data center to AWS with consistent bandwidth and lower latency than an internet-based VPN. Which service provides this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "AWS Direct Connect establishes a dedicated physical network connection from the on-premises facility to an AWS Direct Connect location, bypassing the public internet."
-      },
-      {
-        "label": "B",
-        "text": "Amazon CloudFront with origin shield provides a dedicated private path from the on-premises origin to the CloudFront distribution with guaranteed bandwidth."
-      },
-      {
-        "label": "C",
-        "text": "AWS Site-to-Site VPN creates an encrypted IPSec tunnel over the public internet between the on-premises router and an AWS Virtual Private Gateway."
-      },
-      {
-        "label": "D",
-        "text": "AWS PrivateLink creates a private endpoint within the VPC that allows on-premises systems to connect to AWS services without internet exposure."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "C": "Site-to-Site VPN uses the public internet and is subject to internet latency and bandwidth variability; it does not provide dedicated bandwidth.",
-      "D": "PrivateLink provides private connectivity to AWS services or customer-hosted services within the AWS network; it does not provide connectivity from on-premises networks.",
-      "B": "CloudFront Origin Shield reduces load on origins by adding an extra caching layer; it is not a dedicated on-premises-to-AWS connectivity solution."
-    },
-    "explanation": "AWS Direct Connect provides a dedicated physical connection from a customer's network to AWS through a Direct Connect location (colocation facility). It offers 1 Gbps, 10 Gbps, and 100 Gbps port speeds with consistent network performance, lower latency than internet-based connections, and reduced data transfer costs compared to transferring over the internet.",
-    "module_ref": "soa/networking/direct-connect",
-    "tags": [
-      "direct-connect",
-      "dedicated-connection",
-      "on-premises",
-      "hybrid-cloud"
-    ]
+  "explanation": "Route 53 Latency-based routing evaluates the measured network latency from the user's DNS resolver to each configured AWS region and returns the DNS record for the region with the lowest latency. This provides a best-effort optimization for routing users to the nearest and fastest endpoint regardless of their geographic location.",
+  "module_ref": "soa/networking/route53-latency",
+  "tags": [
+   "route53",
+   "latency-routing",
+   "dns",
+   "global-routing"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-05-009",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A company needs a dedicated, private network connection from its on-premises data center to AWS with consistent bandwidth and lower latency than an internet-based VPN. Which service provides this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "AWS Direct Connect establishes a dedicated physical network connection from the on-premises facility to an AWS Direct Connect location, bypassing the public internet."
+   },
+   {
+    "label": "B",
+    "text": "Amazon CloudFront with origin shield provides a dedicated private path from the on-premises origin to the CloudFront distribution with guaranteed bandwidth."
+   },
+   {
+    "label": "C",
+    "text": "AWS Site-to-Site VPN creates an encrypted IPSec tunnel over the public internet between the on-premises router and an AWS Virtual Private Gateway."
+   },
+   {
+    "label": "D",
+    "text": "AWS PrivateLink creates a private endpoint within the VPC that allows on-premises systems to connect to AWS services without internet exposure."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "C": "Site-to-Site VPN uses the public internet and is subject to internet latency and bandwidth variability; it does not provide dedicated bandwidth.",
+   "D": "PrivateLink provides private connectivity to AWS services or customer-hosted services within the AWS network; it does not provide connectivity from on-premises networks.",
+   "B": "CloudFront Origin Shield reduces load on origins by adding an extra caching layer; it is not a dedicated on-premises-to-AWS connectivity solution."
   },
-  {
-    "id": "aws-soa-t1-05-010",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to assign a static public IP address to an EC2 instance that persists across instance stops and starts. What should be used?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable enhanced networking on the EC2 instance, which preserves the assigned public IP address across stops and starts for supported instance types."
-      },
-      {
-        "label": "B",
-        "text": "Configure a Route 53 A record pointing to the instance's auto-assigned public IP; Route 53 automatically updates the record when the instance restarts with a new IP."
-      },
-      {
-        "label": "C",
-        "text": "Allocate an Elastic IP address and associate it with the EC2 instance; the Elastic IP remains assigned to the instance across stops, starts, and reboots until explicitly disassociated."
-      },
-      {
-        "label": "D",
-        "text": "Assign a static public IP address in the EC2 instance's network interface settings; the address is reserved and does not change unless the instance is terminated."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "D": "EC2 instances do not have a 'static public IP' setting in the NIC configuration; auto-assigned public IPs are released when an instance is stopped.",
-      "A": "Enhanced networking improves network performance (higher PPS, lower latency) but has no effect on whether a public IP is preserved across stops.",
-      "B": "Route 53 does not automatically update A records when an instance restarts with a new IP; this would require a custom Lambda function or a Dynamic DNS solution."
-    },
-    "explanation": "An Elastic IP (EIP) is a static public IPv4 address that you allocate from AWS's pool. Once allocated, it belongs to your account and you can associate it with any EC2 instance. Unlike auto-assigned public IPs (which are released on stop), an EIP stays in your account until you release it and remains associated with the instance across stop/start cycles.",
-    "module_ref": "soa/networking/elastic-ip",
-    "tags": [
-      "elastic-ip",
-      "static-ip",
-      "ec2",
-      "networking"
-    ]
+  "explanation": "AWS Direct Connect provides a dedicated physical connection from a customer's network to AWS through a Direct Connect location (colocation facility). It offers 1 Gbps, 10 Gbps, and 100 Gbps port speeds with consistent network performance, lower latency than internet-based connections, and reduced data transfer costs compared to transferring over the internet.",
+  "module_ref": "soa/networking/direct-connect",
+  "tags": [
+   "direct-connect",
+   "dedicated-connection",
+   "on-premises",
+   "hybrid-cloud"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-05-010",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to assign a static public IP address to an EC2 instance that persists across instance stops and starts. What should be used?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable enhanced networking on the EC2 instance, which preserves the assigned public IP address across stops and starts for supported instance types."
+   },
+   {
+    "label": "B",
+    "text": "Configure a Route 53 A record pointing to the instance's auto-assigned public IP; Route 53 automatically updates the record when the instance restarts with a new IP."
+   },
+   {
+    "label": "C",
+    "text": "Allocate an Elastic IP address and associate it with the EC2 instance; the Elastic IP remains assigned to the instance across stops, starts, and reboots until explicitly disassociated."
+   },
+   {
+    "label": "D",
+    "text": "Assign a static public IP address in the EC2 instance's network interface settings; the address is reserved and does not change unless the instance is terminated."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "D": "EC2 instances do not have a 'static public IP' setting in the NIC configuration; auto-assigned public IPs are released when an instance is stopped.",
+   "A": "Enhanced networking improves network performance (higher PPS, lower latency) but has no effect on whether a public IP is preserved across stops.",
+   "B": "Route 53 does not automatically update A records when an instance restarts with a new IP; this would require a custom Lambda function or a Dynamic DNS solution."
   },
-  {
-    "id": "aws-soa-t1-05-011",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to block a specific IP address from accessing an Application Load Balancer. What is the recommended approach?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Add an inbound DENY rule to the security group associated with the Application Load Balancer specifying the IP address to block."
-      },
-      {
-        "label": "B",
-        "text": "Create an AWS WAF web ACL with an IP set rule that blocks the specific IP address, and associate the web ACL with the Application Load Balancer."
-      },
-      {
-        "label": "C",
-        "text": "Add an explicit DENY rule for the IP address in the Network ACL of the public subnet containing the Application Load Balancer."
-      },
-      {
-        "label": "D",
-        "text": "Configure an ALB listener rule that matches the client IP address in the X-Forwarded-For header and returns a 403 response for the blocked IP."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "A": "Security groups only support ALLOW rules; they do not support explicit DENY rules for specific IP addresses.",
-      "C": "NACLs can block IP addresses at the subnet level, but WAF is the purpose-built, more granular solution specifically designed for blocking IP addresses at the load balancer level.",
-      "D": "ALB listener rules can match HTTP headers, but the X-Forwarded-For header can be spoofed; WAF inspects the actual source IP and is the recommended solution."
-    },
-    "explanation": "AWS WAF (Web Application Firewall) can be associated with Application Load Balancers to inspect incoming requests. You create an IP set containing the blocked IP addresses and a rule in a web ACL that matches the IP set and takes a BLOCK action. WAF evaluates the actual source IP from the TCP layer, making it reliable for IP-based blocking.",
-    "module_ref": "soa/networking/waf-ip-blocking",
-    "tags": [
-      "waf",
-      "alb",
-      "ip-blocking",
-      "security"
-    ]
+  "explanation": "An Elastic IP (EIP) is a static public IPv4 address that you allocate from AWS's pool. Once allocated, it belongs to your account and you can associate it with any EC2 instance. Unlike auto-assigned public IPs (which are released on stop), an EIP stays in your account until you release it and remains associated with the instance across stop/start cycles.",
+  "module_ref": "soa/networking/elastic-ip",
+  "tags": [
+   "elastic-ip",
+   "static-ip",
+   "ec2",
+   "networking"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-05-011",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to block a specific IP address from accessing an Application Load Balancer. What is the recommended approach?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Add an inbound DENY rule to the security group associated with the Application Load Balancer specifying the IP address to block."
+   },
+   {
+    "label": "B",
+    "text": "Create an AWS WAF web ACL with an IP set rule that blocks the specific IP address, and associate the web ACL with the Application Load Balancer."
+   },
+   {
+    "label": "C",
+    "text": "Add an explicit DENY rule for the IP address in the Network ACL of the public subnet containing the Application Load Balancer."
+   },
+   {
+    "label": "D",
+    "text": "Configure an ALB listener rule that matches the client IP address in the X-Forwarded-For header and returns a 403 response for the blocked IP."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "A": "Security groups only support ALLOW rules; they do not support explicit DENY rules for specific IP addresses.",
+   "C": "NACLs can block IP addresses at the subnet level, but WAF is the purpose-built, more granular solution specifically designed for blocking IP addresses at the load balancer level.",
+   "D": "ALB listener rules can match HTTP headers, but the X-Forwarded-For header can be spoofed; WAF inspects the actual source IP and is the recommended solution."
   },
-  {
-    "id": "aws-soa-t1-05-012",
-    "domain": 5,
-    "domain_name": "Networking and Content Delivery",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A company wants to register a new domain name and use it with AWS services. Which AWS service handles domain registration?",
-    "options": [
-      {
-        "label": "A",
-        "text": "AWS Identity and Access Management registers domain names by creating IAM service-linked roles that claim ownership of the domain namespace."
-      },
-      {
-        "label": "B",
-        "text": "Amazon Route 53 provides domain name registration services in addition to DNS hosting; you can register a domain and automatically create a hosted zone for it."
-      },
-      {
-        "label": "C",
-        "text": "AWS Certificate Manager registers domain names and provisions SSL/TLS certificates for the domain simultaneously during the registration process."
-      },
-      {
-        "label": "D",
-        "text": "Amazon CloudFront handles domain registration for custom domains attached to CloudFront distributions, including automatic DNS zone creation."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "C": "ACM provisions and manages SSL/TLS certificates; it does not register domain names.",
-      "D": "CloudFront supports custom domain names (CNAMEs) but requires the domain to already be registered elsewhere; it does not perform domain registration.",
-      "A": "IAM manages AWS identities and access control; it has no role in domain name registration."
-    },
-    "explanation": "Amazon Route 53 is both a DNS service and a domain registrar. You can register new domain names, transfer existing domains, and automatically create a hosted zone for your domain in Route 53. Route 53 supports hundreds of top-level domains (TLDs) and provides WHOIS privacy protection.",
-    "module_ref": "soa/networking/route53-registration",
-    "tags": [
-      "route53",
-      "domain-registration",
-      "dns",
-      "hosted-zone"
-    ]
-  }
+  "explanation": "AWS WAF (Web Application Firewall) can be associated with Application Load Balancers to inspect incoming requests. You create an IP set containing the blocked IP addresses and a rule in a web ACL that matches the IP set and takes a BLOCK action. WAF evaluates the actual source IP from the TCP layer, making it reliable for IP-based blocking.",
+  "module_ref": "soa/networking/waf-ip-blocking",
+  "tags": [
+   "waf",
+   "alb",
+   "ip-blocking",
+   "security"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-05-012",
+  "domain": 5,
+  "domain_name": "Networking and Content Delivery",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A company wants to register a new domain name and use it with AWS services. Which AWS service handles domain registration?",
+  "options": [
+   {
+    "label": "A",
+    "text": "AWS Identity and Access Management registers domain names by creating IAM service-linked roles that claim ownership of the domain namespace."
+   },
+   {
+    "label": "B",
+    "text": "Amazon Route 53 provides domain name registration services in addition to DNS hosting; you can register a domain and automatically create a hosted zone for it."
+   },
+   {
+    "label": "C",
+    "text": "AWS Certificate Manager registers domain names and provisions SSL/TLS certificates for the domain simultaneously during the registration process."
+   },
+   {
+    "label": "D",
+    "text": "Amazon CloudFront handles domain registration for custom domains attached to CloudFront distributions, including automatic DNS zone creation."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "C": "ACM provisions and manages SSL/TLS certificates; it does not register domain names.",
+   "D": "CloudFront supports custom domain names (CNAMEs) but requires the domain to already be registered elsewhere; it does not perform domain registration.",
+   "A": "IAM manages AWS identities and access control; it has no role in domain name registration."
+  },
+  "explanation": "Amazon Route 53 is both a DNS service and a domain registrar. You can register new domain names, transfer existing domains, and automatically create a hosted zone for your domain in Route 53. Route 53 supports hundreds of top-level domains (TLDs) and provides WHOIS privacy protection.",
+  "module_ref": "soa/networking/route53-registration",
+  "tags": [
+   "route53",
+   "domain-registration",
+   "dns",
+   "hosted-zone"
+  ]
+ }
 ]

@@ -12,7 +12,9 @@ import SettingsModal from "./components/ui/SettingsModal";
 import TemplateModal from "./components/ui/TemplateModal";
 import ImportPlanModal from "./components/ui/ImportPlanModal";
 import ImportTfModal from "./components/ui/ImportTfModal";
+import ImportTfReportModal from "./components/ui/ImportTfReportModal";
 import ImportCLIReportModal from "./components/ui/ImportCLIReportModal";
+import DiscoveryWizard from "./components/ui/DiscoveryWizard";
 import LandingPage from "./components/LandingPage";
 import LandingAccountBar from "./components/LandingAccountBar";
 import useGraphStore from "./store/graphStore";
@@ -58,7 +60,9 @@ export default function App() {
   const [templatesOpen, setTemplatesOpen] = useState(false);
   const [importPlanOpen, setImportPlanOpen] = useState(false);
   const [importTfOpen, setImportTfOpen] = useState(false);
+  const [importTfReport, setImportTfReport] = useState(null);
   const [importCLIOpen, setImportCLIOpen] = useState(false);
+  const [discoveryWizardOpen, setDiscoveryWizardOpen] = useState(false);
   const [cloudSavesOpen, setCloudSavesOpen] = useState(false);
   const [migrationOpen, setMigrationOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
@@ -290,6 +294,7 @@ export default function App() {
               label: c.label ?? c.data?.label ?? c.type,
               awsType: c.awsType ?? c.cloudType ?? c.data?.awsType ?? c.type,
               icon: c.icon ?? c.data?.icon ?? "",
+              nodeType: c.nodeType ?? c.data?.nodeType ?? c.type,
               config: c.config ?? c.data?.config ?? {},
               category: c.category ?? c.data?.category ?? "",
               security_group_ids: c.security_group_ids ?? c.data?.security_group_ids ?? [],
@@ -328,7 +333,7 @@ export default function App() {
   );
 
   const handleImportTFApply = useCallback(
-    ({ graph, warnings }) => {
+    ({ graph, warnings, report }) => {
       const restoredNodes = (graph.components ?? []).map((c) => ({
         id: c.id,
         type: c.type,
@@ -339,6 +344,7 @@ export default function App() {
           label: c.label ?? c.type,
           awsType: c.awsType ?? c.cloudType ?? c.type,
           icon: c.icon ?? "",
+          nodeType: c.type,
           config: c.config ?? {},
           category: c.category ?? "",
           security_group_ids: c.security_group_ids ?? [],
@@ -363,6 +369,9 @@ export default function App() {
       setInfraProvider(graph.provider ?? "aws");
       updateFindings(restoredNodes, restoredEdges, importedSGs, importedRoles);
       setShowLanding(false);
+      if (report) {
+        setImportTfReport({ report, warnings: warnings ?? [] });
+      }
     },
     [loadState, setSecurityGroups, setIAMRoles, setInfraProvider, updateFindings]
   );
@@ -808,7 +817,7 @@ export default function App() {
                 <ValidateTab onSelectNode={(id) => handleNodeSelect(id)} />
               )}
               {sidebarTab === "Discover" && (
-                <DiscoverTab onOpenImport={() => setImportCLIOpen(true)} />
+                <DiscoverTab onOpenImport={() => setImportCLIOpen(true)} onOpenWizard={() => setDiscoveryWizardOpen(true)} />
               )}
             </div>
           </aside>
@@ -848,6 +857,14 @@ export default function App() {
         />
       )}
 
+      {importTfReport && (
+        <ImportTfReportModal
+          report={importTfReport.report}
+          warnings={importTfReport.warnings}
+          onClose={() => setImportTfReport(null)}
+        />
+      )}
+
       {/* Import Plan modal */}
       {importPlanOpen && (
         <ImportPlanModal
@@ -858,6 +875,12 @@ export default function App() {
       )}
 
       {/* Import CLI Report modal */}
+      {discoveryWizardOpen && (
+        <DiscoveryWizard
+          onClose={() => setDiscoveryWizardOpen(false)}
+          onSwitchToDiscover={() => setSidebarTab("Discover")}
+        />
+      )}
       {importCLIOpen && (
         <ImportCLIReportModal
           onClose={() => setImportCLIOpen(false)}

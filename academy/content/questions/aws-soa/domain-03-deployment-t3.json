@@ -1,504 +1,504 @@
 [
-  {
-    "id": "aws-soa-t3-03-001",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "A CloudFormation stack resource keeps failing during creation, rolling back on every attempt. The administrator needs to debug without repeated rollbacks. What option helps?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Create the stack with --disable-rollback; on failure the stack remains in CREATE_FAILED state with successfully created resources intact for investigation."
-      },
-      {
-        "label": "B",
-        "text": "Set DeletionPolicy: Retain on the failing resource to prevent it from being removed during rollback."
-      },
-      {
-        "label": "C",
-        "text": "Use CloudFormation Designer to simulate resource creation without deploying to identify the error."
-      },
-      {
-        "label": "D",
-        "text": "Enable CloudFormation rollback triggers with a CloudWatch alarm to pause rollback for 30 minutes for investigation."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "D": "Rollback triggers apply to stack updates, not initial creation failures.",
-      "B": "DeletionPolicy: Retain prevents deletion when the stack is deleted; it does not prevent rollback on creation failure.",
-      "C": "CloudFormation Designer is a visual editor; it does not simulate deployments."
-    },
-    "explanation": "--disable-rollback (or 'Preserve successfully provisioned resources' in the console) leaves resources in their current state on failure. The administrator can inspect CREATE_FAILED resources and their error messages without the stack rolling back and deleting everything.",
-    "module_ref": "soa/deployment/cloudformation-disable-rollback",
-    "tags": [
-      "cloudformation",
-      "disable-rollback",
-      "debugging"
-    ]
+ {
+  "id": "aws-soa-t3-03-001",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "A CloudFormation stack resource keeps failing during creation, rolling back on every attempt. The administrator needs to debug without repeated rollbacks. What option helps?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Create the stack with --disable-rollback; on failure the stack remains in CREATE_FAILED state with successfully created resources intact for investigation."
+   },
+   {
+    "label": "B",
+    "text": "Set DeletionPolicy: Retain on the failing resource to prevent it from being removed during rollback."
+   },
+   {
+    "label": "C",
+    "text": "Use CloudFormation Designer to simulate resource creation without deploying to identify the error."
+   },
+   {
+    "label": "D",
+    "text": "Enable CloudFormation rollback triggers with a CloudWatch alarm to pause rollback for 30 minutes for investigation."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "D": "Rollback triggers apply to stack updates, not initial creation failures.",
+   "B": "DeletionPolicy: Retain prevents deletion when the stack is deleted; it does not prevent rollback on creation failure.",
+   "C": "CloudFormation Designer is a visual editor; it does not simulate deployments."
   },
-  {
-    "id": "aws-soa-t3-03-002",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "A SysOps administrator needs to pass a secure API key to an EC2 instance at launch without storing it in the AMI or user data (readable in plaintext). What is the recommended approach?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Store the API key as a SecureString in SSM Parameter Store; configure the instance's IAM role with ssm:GetParameter permission; retrieve the key at startup via the SSM SDK."
-      },
-      {
-        "label": "B",
-        "text": "Pass the API key as a base64-encoded CloudFormation parameter; base64 obfuscates the value from casual inspection."
-      },
-      {
-        "label": "C",
-        "text": "Store the API key as an environment variable in the launch template; launch template data is encrypted at rest with AWS-managed keys."
-      },
-      {
-        "label": "D",
-        "text": "Encrypt the API key with KMS and store the ciphertext in the CloudFormation template parameter default value; the instance decrypts at startup."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "D": "CloudFormation template parameters and defaults are visible to anyone with access; storing secrets in templates is not recommended.",
-      "C": "Launch template environment variables are retrievable by anyone with describe launch template permissions; they are not secret storage.",
-      "B": "Base64 is encoding, not encryption; it provides no security."
-    },
-    "explanation": "SSM Parameter Store SecureString parameters are encrypted with KMS and access-controlled via IAM. At startup, the instance retrieves the current value using its IAM role. This separates secret management from instance configuration and supports rotation without template changes.",
-    "module_ref": "soa/deployment/ssm-secure-launch",
-    "tags": [
-      "ssm",
-      "parameter-store",
-      "secure-string",
-      "ec2"
-    ]
+  "explanation": "--disable-rollback (or 'Preserve successfully provisioned resources' in the console) leaves resources in their current state on failure. The administrator can inspect CREATE_FAILED resources and their error messages without the stack rolling back and deleting everything.",
+  "module_ref": "soa/deployment/cloudformation-disable-rollback",
+  "tags": [
+   "cloudformation",
+   "disable-rollback",
+   "debugging"
+  ]
+ },
+ {
+  "id": "aws-soa-t3-03-002",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "A SysOps administrator needs to pass a secure API key to an EC2 instance at launch without storing it in the AMI or user data (readable in plaintext). What is the recommended approach?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Store the API key as a SecureString in SSM Parameter Store; configure the instance's IAM role with ssm:GetParameter permission; retrieve the key at startup via the SSM SDK."
+   },
+   {
+    "label": "B",
+    "text": "Pass the API key as a base64-encoded CloudFormation parameter; base64 obfuscates the value from casual inspection."
+   },
+   {
+    "label": "C",
+    "text": "Store the API key as an environment variable in the launch template; launch template data is encrypted at rest with AWS-managed keys."
+   },
+   {
+    "label": "D",
+    "text": "Encrypt the API key with KMS and store the ciphertext in the CloudFormation template parameter default value; the instance decrypts at startup."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "D": "CloudFormation template parameters and defaults are visible to anyone with access; storing secrets in templates is not recommended.",
+   "C": "Launch template environment variables are retrievable by anyone with describe launch template permissions; they are not secret storage.",
+   "B": "Base64 is encoding, not encryption; it provides no security."
   },
-  {
-    "id": "aws-soa-t3-03-003",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "A SysOps administrator needs to deploy a CloudFormation stack to 12 accounts across 4 OUs with a staged rollout. Which StackSets approach supports this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Create separate StackSets for each OU and deploy them in sequence manually."
-      },
-      {
-        "label": "B",
-        "text": "Use CloudFormation StackSets with MaxConcurrentAccounts and FailureTolerancePercentage settings; deploy to one OU at a time in successive operations to stage the rollout."
-      },
-      {
-        "label": "C",
-        "text": "Use StackSets filtered by account tags; tag accounts in each wave and deploy wave by wave."
-      },
-      {
-        "label": "D",
-        "text": "Use Service-Managed StackSets with automatic deployment order based on the OU hierarchy."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "C": "StackSets targets accounts by account ID or OU ID, not by tags on accounts.",
-      "A": "Multiple StackSets per OU is valid but more complex than staged operations within one StackSet.",
-      "D": "StackSets does not automatically determine deployment order from OU hierarchy; you specify the order through successive operations."
-    },
-    "explanation": "StackSets deployment operations can be scoped to specific OUs with configurable concurrency and failure tolerance settings. Running successive operations \u2014 first OU 1, then OU 2, etc. \u2014 provides a staged rollout from a single StackSet.",
-    "module_ref": "soa/deployment/cloudformation-stacksets-staged",
-    "tags": [
-      "cloudformation",
-      "stacksets",
-      "organizations",
-      "staged-rollout"
-    ]
+  "explanation": "SSM Parameter Store SecureString parameters are encrypted with KMS and access-controlled via IAM. At startup, the instance retrieves the current value using its IAM role. This separates secret management from instance configuration and supports rotation without template changes.",
+  "module_ref": "soa/deployment/ssm-secure-launch",
+  "tags": [
+   "ssm",
+   "parameter-store",
+   "secure-string",
+   "ec2"
+  ]
+ },
+ {
+  "id": "aws-soa-t3-03-003",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "A SysOps administrator needs to deploy a CloudFormation stack to 12 accounts across 4 OUs with a staged rollout. Which StackSets approach supports this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Create separate StackSets for each OU and deploy them in sequence manually."
+   },
+   {
+    "label": "B",
+    "text": "Use CloudFormation StackSets with MaxConcurrentAccounts and FailureTolerancePercentage settings; deploy to one OU at a time in successive operations to stage the rollout."
+   },
+   {
+    "label": "C",
+    "text": "Use StackSets filtered by account tags; tag accounts in each wave and deploy wave by wave."
+   },
+   {
+    "label": "D",
+    "text": "Use Service-Managed StackSets with automatic deployment order based on the OU hierarchy."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "C": "StackSets targets accounts by account ID or OU ID, not by tags on accounts.",
+   "A": "Multiple StackSets per OU is valid but more complex than staged operations within one StackSet.",
+   "D": "StackSets does not automatically determine deployment order from OU hierarchy; you specify the order through successive operations."
   },
-  {
-    "id": "aws-soa-t3-03-004",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "A SysOps administrator needs automated recovery when an EC2 instance's system status check fails. What is the recommended lowest-overhead configuration?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Create a Lambda function triggered by CloudWatch Logs that calls ec2:RebootInstances on instances with failed status checks."
-      },
-      {
-        "label": "B",
-        "text": "Enable EC2 detailed monitoring; it reports failures within 1 minute enabling faster manual intervention."
-      },
-      {
-        "label": "C",
-        "text": "Create an EventBridge rule matching EC2 status check failure events and invoke an SSM Automation document to reboot the instance."
-      },
-      {
-        "label": "D",
-        "text": "Create a CloudWatch alarm on StatusCheckFailed_System with an EC2 Recover action; it automatically migrates the instance to healthy hardware preserving the instance ID and EBS volumes."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "C": "EventBridge + SSM Automation is valid but requires more configuration; CloudWatch alarm Recover action is purpose-built and simpler.",
-      "A": "Lambda requires custom code and log parsing; the built-in alarm action requires no code.",
-      "B": "Detailed monitoring improves metric resolution but does not automate recovery."
-    },
-    "explanation": "The CloudWatch EC2 Recover alarm action is the lowest-overhead automated recovery mechanism. It migrates the instance to new hardware while preserving the instance ID, Elastic IPs, and attached EBS volumes.",
-    "module_ref": "soa/deployment/ec2-cloudwatch-recover",
-    "tags": [
-      "cloudwatch",
-      "ec2",
-      "recover-action",
-      "status-check"
-    ]
+  "explanation": "StackSets deployment operations can be scoped to specific OUs with configurable concurrency and failure tolerance settings. Running successive operations — first OU 1, then OU 2, etc. — provides a staged rollout from a single StackSet.",
+  "module_ref": "soa/deployment/cloudformation-stacksets-staged",
+  "tags": [
+   "cloudformation",
+   "stacksets",
+   "organizations",
+   "staged-rollout"
+  ]
+ },
+ {
+  "id": "aws-soa-t3-03-004",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "A SysOps administrator needs automated recovery when an EC2 instance's system status check fails. What is the recommended lowest-overhead configuration?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Create a Lambda function triggered by CloudWatch Logs that calls ec2:RebootInstances on instances with failed status checks."
+   },
+   {
+    "label": "B",
+    "text": "Enable EC2 detailed monitoring; it reports failures within 1 minute enabling faster manual intervention."
+   },
+   {
+    "label": "C",
+    "text": "Create an EventBridge rule matching EC2 status check failure events and invoke an SSM Automation document to reboot the instance."
+   },
+   {
+    "label": "D",
+    "text": "Create a CloudWatch alarm on StatusCheckFailed_System with an EC2 Recover action; it automatically migrates the instance to healthy hardware preserving the instance ID and EBS volumes."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "C": "EventBridge + SSM Automation is valid but requires more configuration; CloudWatch alarm Recover action is purpose-built and simpler.",
+   "A": "Lambda requires custom code and log parsing; the built-in alarm action requires no code.",
+   "B": "Detailed monitoring improves metric resolution but does not automate recovery."
   },
-  {
-    "id": "aws-soa-t3-03-005",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "A company uses Terraform but requires all infrastructure to be tracked in CloudFormation for compliance. What is the recommended integration approach?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Export Terraform state to S3 and create a CloudFormation custom resource that reads the state file to track resources."
-      },
-      {
-        "label": "B",
-        "text": "Choose one IaC tool; using both Terraform and CloudFormation simultaneously is not supported."
-      },
-      {
-        "label": "C",
-        "text": "Convert Terraform to CloudFormation using CDK for Terraform migration tools."
-      },
-      {
-        "label": "D",
-        "text": "Use AWS Service Catalog with Terraform products; Service Catalog tracks provisioned Terraform environments in portfolios alongside CloudFormation products for governance."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "A": "Reading Terraform state in a custom resource is fragile and non-standard.",
-      "C": "CDKTF writes Terraform configs in programming languages; it does not convert Terraform to CloudFormation.",
-      "B": "Both tools can coexist; Service Catalog supports Terraform as a product type."
-    },
-    "explanation": "AWS Service Catalog supports Terraform Open Source and Terraform Cloud as product types. Administrators publish Terraform configurations as products and portfolios; provisioned instances are tracked in Service Catalog alongside CloudFormation products, satisfying the compliance requirement.",
-    "module_ref": "soa/deployment/terraform-service-catalog",
-    "tags": [
-      "terraform",
-      "cloudformation",
-      "service-catalog",
-      "compliance"
-    ]
+  "explanation": "The CloudWatch EC2 Recover alarm action is the lowest-overhead automated recovery mechanism. It migrates the instance to new hardware while preserving the instance ID, Elastic IPs, and attached EBS volumes.",
+  "module_ref": "soa/deployment/ec2-cloudwatch-recover",
+  "tags": [
+   "cloudwatch",
+   "ec2",
+   "recover-action",
+   "status-check"
+  ]
+ },
+ {
+  "id": "aws-soa-t3-03-005",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "A company uses Terraform but requires all infrastructure to be tracked in CloudFormation for compliance. What is the recommended integration approach?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Export Terraform state to S3 and create a CloudFormation custom resource that reads the state file to track resources."
+   },
+   {
+    "label": "B",
+    "text": "Choose one IaC tool; using both Terraform and CloudFormation simultaneously is not supported."
+   },
+   {
+    "label": "C",
+    "text": "Convert Terraform to CloudFormation using CDK for Terraform migration tools."
+   },
+   {
+    "label": "D",
+    "text": "Use AWS Service Catalog with Terraform products; Service Catalog tracks provisioned Terraform environments in portfolios alongside CloudFormation products for governance."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "A": "Reading Terraform state in a custom resource is fragile and non-standard.",
+   "C": "CDKTF writes Terraform configs in programming languages; it does not convert Terraform to CloudFormation.",
+   "B": "Both tools can coexist; Service Catalog supports Terraform as a product type."
   },
-  {
-    "id": "aws-soa-t3-03-006",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "Several EC2 instances show as Online in the SSM console but do not appear as managed instances. What is the most common cause?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Instances require the tag SSM:ManagedInstance=true to be recognized as managed."
-      },
-      {
-        "label": "B",
-        "text": "The SSM Agent version is too old; agents below version 2.0 appear Online but are not registered as managed."
-      },
-      {
-        "label": "C",
-        "text": "The IAM instance profiles are missing the AmazonSSMManagedInstanceCore policy; SSM Agent cannot authenticate with the SSM service to register."
-      },
-      {
-        "label": "D",
-        "text": "The instances are in a private subnet without NAT or VPC endpoints; SSM Agent cannot register without internet access."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "B": "Outdated SSM Agent is rarely the issue on modern AMIs; IAM misconfiguration is far more common.",
-      "D": "Instances in private subnets can use VPC Interface Endpoints or NAT; lack of internet alone does not explain the Online-but-not-managed state.",
-      "A": "No such tag requirement exists; managed instance registration is based on IAM and SSM Agent."
-    },
-    "explanation": "SSM Agent requires the AmazonSSMManagedInstanceCore policy (or equivalent) on the instance's IAM role to authenticate with the SSM service and register as a managed instance. Without it, the agent runs but cannot complete registration.",
-    "module_ref": "soa/deployment/ssm-managed-instance-iam",
-    "tags": [
-      "ssm",
-      "managed-instances",
-      "iam",
-      "troubleshooting"
-    ]
+  "explanation": "AWS Service Catalog supports Terraform Open Source and Terraform Cloud as product types. Administrators publish Terraform configurations as products and portfolios; provisioned instances are tracked in Service Catalog alongside CloudFormation products, satisfying the compliance requirement.",
+  "module_ref": "soa/deployment/terraform-service-catalog",
+  "tags": [
+   "terraform",
+   "cloudformation",
+   "service-catalog",
+   "compliance"
+  ]
+ },
+ {
+  "id": "aws-soa-t3-03-006",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "Several EC2 instances show as Online in the SSM console but do not appear as managed instances. What is the most common cause?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Instances require the tag SSM:ManagedInstance=true to be recognized as managed."
+   },
+   {
+    "label": "B",
+    "text": "The SSM Agent version is too old; agents below version 2.0 appear Online but are not registered as managed."
+   },
+   {
+    "label": "C",
+    "text": "The IAM instance profiles are missing the AmazonSSMManagedInstanceCore policy; SSM Agent cannot authenticate with the SSM service to register."
+   },
+   {
+    "label": "D",
+    "text": "The instances are in a private subnet without NAT or VPC endpoints; SSM Agent cannot register without internet access."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "B": "Outdated SSM Agent is rarely the issue on modern AMIs; IAM misconfiguration is far more common.",
+   "D": "Instances in private subnets can use VPC Interface Endpoints or NAT; lack of internet alone does not explain the Online-but-not-managed state.",
+   "A": "No such tag requirement exists; managed instance registration is based on IAM and SSM Agent."
   },
-  {
-    "id": "aws-soa-t3-03-007",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "A SysOps administrator wants developers to self-service approved application environments (VPC + EC2 + RDS) without direct EC2 or RDS access. Which service provides this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "AWS Systems Manager Quick Setup provides pre-configured baselines that developers activate for new environments."
-      },
-      {
-        "label": "B",
-        "text": "CloudFormation StackSets with developer access to StackSet IDs; tagging stacks with the requester's username controls access."
-      },
-      {
-        "label": "C",
-        "text": "Control Tower Account Vending Machine provisions new accounts with standard configurations for developer environments."
-      },
-      {
-        "label": "D",
-        "text": "AWS Service Catalog publishes approved CloudFormation products; developers launch environments through Service Catalog without needing direct IAM permissions for EC2 or RDS."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "B": "StackSets deploy the same template to many accounts; they are not a self-service portal and don't restrict direct service permissions.",
-      "A": "SSM Quick Setup configures baselines on existing instances; it is not an environment provisioning portal.",
-      "C": "Account Vending Machine provisions whole accounts; not individual application environments within an account."
-    },
-    "explanation": "AWS Service Catalog lets administrators publish approved CloudFormation stacks as products. When a developer launches a product, a launch role with the required permissions deploys the stack. Developers need no direct EC2 or RDS permissions, enforcing least privilege.",
-    "module_ref": "soa/deployment/service-catalog",
-    "tags": [
-      "service-catalog",
-      "self-service",
-      "least-privilege",
-      "governance"
-    ]
+  "explanation": "SSM Agent requires the AmazonSSMManagedInstanceCore policy (or equivalent) on the instance's IAM role to authenticate with the SSM service and register as a managed instance. Without it, the agent runs but cannot complete registration.",
+  "module_ref": "soa/deployment/ssm-managed-instance-iam",
+  "tags": [
+   "ssm",
+   "managed-instances",
+   "iam",
+   "troubleshooting"
+  ]
+ },
+ {
+  "id": "aws-soa-t3-03-007",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "A SysOps administrator wants developers to self-service approved application environments (VPC + EC2 + RDS) without direct EC2 or RDS access. Which service provides this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "AWS Systems Manager Quick Setup provides pre-configured baselines that developers activate for new environments."
+   },
+   {
+    "label": "B",
+    "text": "CloudFormation StackSets with developer access to StackSet IDs; tagging stacks with the requester's username controls access."
+   },
+   {
+    "label": "C",
+    "text": "Control Tower Account Vending Machine provisions new accounts with standard configurations for developer environments."
+   },
+   {
+    "label": "D",
+    "text": "AWS Service Catalog publishes approved CloudFormation products; developers launch environments through Service Catalog without needing direct IAM permissions for EC2 or RDS."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "B": "StackSets deploy the same template to many accounts; they are not a self-service portal and don't restrict direct service permissions.",
+   "A": "SSM Quick Setup configures baselines on existing instances; it is not an environment provisioning portal.",
+   "C": "Account Vending Machine provisions whole accounts; not individual application environments within an account."
   },
-  {
-    "id": "aws-soa-t3-03-008",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "A SysOps administrator runs a script via SSM Run Command that requires elevated (root) permissions on Linux instances. What special configuration is needed?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Prefix commands with 'aws ssm run-command --sudo' to elevate execution."
-      },
-      {
-        "label": "B",
-        "text": "Configure the SSM Agent to run as a specific elevated user in ssm-agent.json."
-      },
-      {
-        "label": "C",
-        "text": "No special configuration; SSM Agent runs as root on Linux by default, so all Run Command executions already have root privileges."
-      },
-      {
-        "label": "D",
-        "text": "Use Session Manager instead; it runs with elevated permissions while Run Command runs with limited permissions."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "B": "SSM Agent does not support per-user execution configuration; it always runs as root/LocalSystem.",
-      "D": "Both Run Command and Session Manager use the same SSM Agent process running as root.",
-      "A": "There is no --sudo flag in the SSM CLI."
-    },
-    "explanation": "On Linux EC2 instances, the SSM Agent runs as the root user. All commands executed via Run Command already have root privileges. No additional sudo prefixes or permission configuration are needed.",
-    "module_ref": "soa/deployment/ssm-run-command-permissions",
-    "tags": [
-      "ssm",
-      "run-command",
-      "root",
-      "permissions"
-    ]
+  "explanation": "AWS Service Catalog lets administrators publish approved CloudFormation stacks as products. When a developer launches a product, a launch role with the required permissions deploys the stack. Developers need no direct EC2 or RDS permissions, enforcing least privilege.",
+  "module_ref": "soa/deployment/service-catalog",
+  "tags": [
+   "service-catalog",
+   "self-service",
+   "least-privilege",
+   "governance"
+  ]
+ },
+ {
+  "id": "aws-soa-t3-03-008",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "A SysOps administrator runs a script via SSM Run Command that requires elevated (root) permissions on Linux instances. What special configuration is needed?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Prefix commands with 'aws ssm run-command --sudo' to elevate execution."
+   },
+   {
+    "label": "B",
+    "text": "Configure the SSM Agent to run as a specific elevated user in ssm-agent.json."
+   },
+   {
+    "label": "C",
+    "text": "No special configuration; SSM Agent runs as root on Linux by default, so all Run Command executions already have root privileges."
+   },
+   {
+    "label": "D",
+    "text": "Use Session Manager instead; it runs with elevated permissions while Run Command runs with limited permissions."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "B": "SSM Agent does not support per-user execution configuration; it always runs as root/LocalSystem.",
+   "D": "Both Run Command and Session Manager use the same SSM Agent process running as root.",
+   "A": "There is no --sudo flag in the SSM CLI."
   },
-  {
-    "id": "aws-soa-t3-03-009",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "A SysOps administrator needs to update a launch template with a new AMI without immediately replacing running instances. What is the correct procedure?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Edit the existing launch template version in-place with the new AMI; changes take effect on the next scaling event."
-      },
-      {
-        "label": "B",
-        "text": "Create a new version of the launch template with the updated AMI, set it as default, and update the Auto Scaling group to use the new default; running instances continue until natural replacement events."
-      },
-      {
-        "label": "C",
-        "text": "Update the AMI ID in the Auto Scaling group's instance refresh configuration without changing the launch template."
-      },
-      {
-        "label": "D",
-        "text": "Create an entirely new launch template with the updated AMI and update the Auto Scaling group to reference it."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "A": "Launch template versions are immutable; you cannot edit an existing version.",
-      "D": "Creating a new launch template is more disruptive than creating a new version of the existing one.",
-      "C": "Instance Refresh replaces running instances; it is a separate action from updating the configuration for future launches."
-    },
-    "explanation": "Launch templates support versioning. Create a new version with the updated AMI, set it as default, and update the ASG to use the new default version. Running instances are unaffected until replaced through normal ASG events, an instance refresh, or manual termination.",
-    "module_ref": "soa/deployment/launch-template-versioning",
-    "tags": [
-      "launch-template",
-      "versioning",
-      "auto-scaling",
-      "ami"
-    ]
+  "explanation": "On Linux EC2 instances, the SSM Agent runs as the root user. All commands executed via Run Command already have root privileges. No additional sudo prefixes or permission configuration are needed.",
+  "module_ref": "soa/deployment/ssm-run-command-permissions",
+  "tags": [
+   "ssm",
+   "run-command",
+   "root",
+   "permissions"
+  ]
+ },
+ {
+  "id": "aws-soa-t3-03-009",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "A SysOps administrator needs to update a launch template with a new AMI without immediately replacing running instances. What is the correct procedure?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Edit the existing launch template version in-place with the new AMI; changes take effect on the next scaling event."
+   },
+   {
+    "label": "B",
+    "text": "Create a new version of the launch template with the updated AMI, set it as default, and update the Auto Scaling group to use the new default; running instances continue until natural replacement events."
+   },
+   {
+    "label": "C",
+    "text": "Update the AMI ID in the Auto Scaling group's instance refresh configuration without changing the launch template."
+   },
+   {
+    "label": "D",
+    "text": "Create an entirely new launch template with the updated AMI and update the Auto Scaling group to reference it."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "A": "Launch template versions are immutable; you cannot edit an existing version.",
+   "D": "Creating a new launch template is more disruptive than creating a new version of the existing one.",
+   "C": "Instance Refresh replaces running instances; it is a separate action from updating the configuration for future launches."
   },
-  {
-    "id": "aws-soa-t3-03-010",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "A CloudFormation template has a circular dependency between resources A, B, and C. How is this resolved?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Use DependsOn with a circular option to deploy circular resources in parallel without dependency enforcement."
-      },
-      {
-        "label": "B",
-        "text": "Break the cycle by using an SSM parameter or Lambda custom resource as an intermediary to pass values between resources without a direct DependsOn chain."
-      },
-      {
-        "label": "C",
-        "text": "Deploy resources one at a time using change sets; sequential deployment resolves circular dependency errors."
-      },
-      {
-        "label": "D",
-        "text": "Split resources into separate stacks and use cross-stack exports and imports; cross-stack references break circular dependencies."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "A": "There is no 'circular' option for DependsOn; CloudFormation does not support circular dependencies.",
-      "D": "Cross-stack references have the same circular dependency problem if the stacks reference each other.",
-      "C": "Change sets do not resolve circular dependencies."
-    },
-    "explanation": "Circular dependencies must be broken architecturally. Common solutions: use SSM Parameter Store to share values between resources across separate deployment steps, or use a Lambda custom resource to create one of the involved resources outside CloudFormation's dependency graph.",
-    "module_ref": "soa/deployment/cloudformation-circular-dependency",
-    "tags": [
-      "cloudformation",
-      "circular-dependency",
-      "custom-resource"
-    ]
+  "explanation": "Launch templates support versioning. Create a new version with the updated AMI, set it as default, and update the ASG to use the new default version. Running instances are unaffected until replaced through normal ASG events, an instance refresh, or manual termination.",
+  "module_ref": "soa/deployment/launch-template-versioning",
+  "tags": [
+   "launch-template",
+   "versioning",
+   "auto-scaling",
+   "ami"
+  ]
+ },
+ {
+  "id": "aws-soa-t3-03-010",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "A CloudFormation template has a circular dependency between resources A, B, and C. How is this resolved?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Use DependsOn with a circular option to deploy circular resources in parallel without dependency enforcement."
+   },
+   {
+    "label": "B",
+    "text": "Break the cycle by using an SSM parameter or Lambda custom resource as an intermediary to pass values between resources without a direct DependsOn chain."
+   },
+   {
+    "label": "C",
+    "text": "Deploy resources one at a time using change sets; sequential deployment resolves circular dependency errors."
+   },
+   {
+    "label": "D",
+    "text": "Split resources into separate stacks and use cross-stack exports and imports; cross-stack references break circular dependencies."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "A": "There is no 'circular' option for DependsOn; CloudFormation does not support circular dependencies.",
+   "D": "Cross-stack references have the same circular dependency problem if the stacks reference each other.",
+   "C": "Change sets do not resolve circular dependencies."
   },
-  {
-    "id": "aws-soa-t3-03-011",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "A SysOps administrator needs EC2 instances in an ASG to drain active connections before termination during scale-in. What feature achieves this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Configure instance protection to hold instances until they report zero connections, then remove protection for termination."
-      },
-      {
-        "label": "B",
-        "text": "Enable Connection Draining (deregistration delay) on the ALB target group; the ALB stops new requests to deregistering instances and waits for existing connections to complete."
-      },
-      {
-        "label": "C",
-        "text": "Set a long scale-in cooldown (600 seconds); connections drain naturally during the cooldown window."
-      },
-      {
-        "label": "D",
-        "text": "Configure an ASG lifecycle hook for the Terminating state; the hook pauses termination while the application handles graceful shutdown."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "D": "Lifecycle hooks pause the ASG termination state for custom processing but don't communicate with the load balancer; ALB deregistration delay is the mechanism that drains connections.",
-      "A": "Instance protection requires an external mechanism to remove protection; it doesn't drain connections automatically.",
-      "C": "Scale-in cooldown prevents new scale-in events; it doesn't drain connections from the instance being terminated."
-    },
-    "explanation": "ALB deregistration delay (Connection Draining, default 300s) stops routing new requests to a deregistering instance while allowing existing requests to complete. Combined with ASG termination waiting for deregistration, this provides graceful connection draining.",
-    "module_ref": "soa/deployment/alb-connection-draining",
-    "tags": [
-      "alb",
-      "connection-draining",
-      "auto-scaling",
-      "graceful-shutdown"
-    ]
+  "explanation": "Circular dependencies must be broken architecturally. Common solutions: use SSM Parameter Store to share values between resources across separate deployment steps, or use a Lambda custom resource to create one of the involved resources outside CloudFormation's dependency graph.",
+  "module_ref": "soa/deployment/cloudformation-circular-dependency",
+  "tags": [
+   "cloudformation",
+   "circular-dependency",
+   "custom-resource"
+  ]
+ },
+ {
+  "id": "aws-soa-t3-03-011",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "A SysOps administrator needs EC2 instances in an ASG to drain active connections before termination during scale-in. What feature achieves this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Configure instance protection to hold instances until they report zero connections, then remove protection for termination."
+   },
+   {
+    "label": "B",
+    "text": "Enable Connection Draining (deregistration delay) on the ALB target group; the ALB stops new requests to deregistering instances and waits for existing connections to complete."
+   },
+   {
+    "label": "C",
+    "text": "Set a long scale-in cooldown (600 seconds); connections drain naturally during the cooldown window."
+   },
+   {
+    "label": "D",
+    "text": "Configure an ASG lifecycle hook for the Terminating state; the hook pauses termination while the application handles graceful shutdown."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "D": "Lifecycle hooks pause the ASG termination state for custom processing but don't communicate with the load balancer; ALB deregistration delay is the mechanism that drains connections.",
+   "A": "Instance protection requires an external mechanism to remove protection; it doesn't drain connections automatically.",
+   "C": "Scale-in cooldown prevents new scale-in events; it doesn't drain connections from the instance being terminated."
   },
-  {
-    "id": "aws-soa-t3-03-012",
-    "domain": 3,
-    "domain_name": "Deployment, Provisioning, and Automation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 3,
-    "active": true,
-    "stem": "A SysOps administrator needs to automate: build a new app version, run integration tests, deploy to production only if tests pass. Which AWS service orchestrates this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "AWS Step Functions coordinates the workflow: CodeBuild for testing, Lambda for decision, CodeDeploy for deployment."
-      },
-      {
-        "label": "B",
-        "text": "AWS Batch processes integration tests and triggers CodeDeploy via EventBridge when all jobs succeed."
-      },
-      {
-        "label": "C",
-        "text": "AWS Systems Manager Automation executes an SSM document that runs tests and conditionally deploys based on results."
-      },
-      {
-        "label": "D",
-        "text": "AWS CodePipeline orchestrates a multi-stage pipeline: CodeBuild runs tests in a Test stage, and a Deploy stage runs only if the Test stage succeeds."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "A": "Step Functions is valid for complex workflows but CodePipeline is the purpose-built CI/CD orchestration service with native build and deploy integrations.",
-      "C": "SSM Automation is for operational runbooks; it is not the standard CI/CD orchestration tool.",
-      "B": "AWS Batch is for compute-intensive batch processing; it is not a CI/CD pipeline tool."
-    },
-    "explanation": "CodePipeline orchestrates sequential stages: Source, Build (CodeBuild), Test (CodeBuild), Deploy (CodeDeploy/CloudFormation). Each stage must pass before the next executes. A failed Test stage stops the pipeline, preventing deployment of bad code.",
-    "module_ref": "soa/deployment/codepipeline",
-    "tags": [
-      "codepipeline",
-      "codebuild",
-      "codedeploy",
-      "cicd"
-    ]
-  }
+  "explanation": "ALB deregistration delay (Connection Draining, default 300s) stops routing new requests to a deregistering instance while allowing existing requests to complete. Combined with ASG termination waiting for deregistration, this provides graceful connection draining.",
+  "module_ref": "soa/deployment/alb-connection-draining",
+  "tags": [
+   "alb",
+   "connection-draining",
+   "auto-scaling",
+   "graceful-shutdown"
+  ]
+ },
+ {
+  "id": "aws-soa-t3-03-012",
+  "domain": 3,
+  "domain_name": "Deployment, Provisioning, and Automation",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 3,
+  "active": true,
+  "stem": "A SysOps administrator needs to automate: build a new app version, run integration tests, deploy to production only if tests pass. Which AWS service orchestrates this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "AWS Step Functions coordinates the workflow: CodeBuild for testing, Lambda for decision, CodeDeploy for deployment."
+   },
+   {
+    "label": "B",
+    "text": "AWS Batch processes integration tests and triggers CodeDeploy via EventBridge when all jobs succeed."
+   },
+   {
+    "label": "C",
+    "text": "AWS Systems Manager Automation executes an SSM document that runs tests and conditionally deploys based on results."
+   },
+   {
+    "label": "D",
+    "text": "AWS CodePipeline orchestrates a multi-stage pipeline: CodeBuild runs tests in a Test stage, and a Deploy stage runs only if the Test stage succeeds."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "A": "Step Functions is valid for complex workflows but CodePipeline is the purpose-built CI/CD orchestration service with native build and deploy integrations.",
+   "C": "SSM Automation is for operational runbooks; it is not the standard CI/CD orchestration tool.",
+   "B": "AWS Batch is for compute-intensive batch processing; it is not a CI/CD pipeline tool."
+  },
+  "explanation": "CodePipeline orchestrates sequential stages: Source, Build (CodeBuild), Test (CodeBuild), Deploy (CodeDeploy/CloudFormation). Each stage must pass before the next executes. A failed Test stage stops the pipeline, preventing deployment of bad code.",
+  "module_ref": "soa/deployment/codepipeline",
+  "tags": [
+   "codepipeline",
+   "codebuild",
+   "codedeploy",
+   "cicd"
+  ]
+ }
 ]

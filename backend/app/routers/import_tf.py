@@ -7,9 +7,10 @@ loadState path.
 """
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
-from typing import Any
+from typing import Annotated, Any
+import json
 
 from app.services.tf_importer import import_terraform
 
@@ -19,11 +20,13 @@ router = APIRouter(prefix="/import-tf", tags=["import"])
 class ImportResponse(BaseModel):
     graph: dict[str, Any]
     warnings: list[str]
+    report: dict[str, Any]
 
 
 @router.post("", response_model=ImportResponse)
 async def import_tf_files(
     files: list[UploadFile] = File(...),
+    relative_paths: Annotated[str, Form()] = "[]",
 ) -> ImportResponse:
     """
     Parse one or more Terraform .tf files and return a Graph JSON.
@@ -36,10 +39,17 @@ async def import_tf_files(
     if not files:
         raise HTTPException(status_code=422, detail="No files provided.")
 
+    try:
+        path_hints: list[str] = json.loads(relative_paths)
+        if not isinstance(path_hints, list):
+            path_hints = []
+    except json.JSONDecodeError:
+        path_hints = []
+
     contents: list[str] = []
     filenames: list[str] = []
 
-    for upload in files:
+    for idx, upload in enumerate(files):
         if not upload.filename:
             continue
         raw = await upload.read()
@@ -50,7 +60,9 @@ async def import_tf_files(
                 status_code=422,
                 detail=f"File '{upload.filename}' is not valid UTF-8.",
             )
-        filenames.append(upload.filename)
+        hint = path_hints[idx] if idx < len(path_hints) else ""
+        rel = (hint or upload.filename or "").replace("\\", "/").strip()
+        filenames.append(rel or upload.filename or f"upload_{idx}.tf")
 
     if not contents:
         raise HTTPException(status_code=422, detail="No readable .tf files provided.")
@@ -63,4 +75,8 @@ async def import_tf_files(
             detail=f"Failed to parse Terraform files: {str(exc)}",
         )
 
-    return ImportResponse(graph=result["graph"], warnings=result["warnings"])
+    return ImportResponse(
+        graph=result["graph"],
+        warnings=result["warnings"],
+        report=result["report"],
+    )

@@ -15,19 +15,19 @@ const DIFFICULTY_CONFIG = {
 };
 
 const CERT_LABELS = {
-  // AWS
-  aws_ccp:  "AWS CCP",
-  aws_saa:  "AWS SAA",
-  aws_sap:  "AWS SAP",
-  aws_dva:  "AWS DVA",
-  aws_soa:  "AWS SOA",
-  aws_dop:  "AWS DOP",
-  aws_scs:  "AWS SCS",
-  aws_ans:  "AWS ANS",
-  aws_dbs:  "AWS DBS",
-  aws_dea:  "AWS DEA",
-  aws_mla:  "AWS MLA",
-  aws_mls:  "AWS MLS",
+  // AWS — official exam codes (matches curriculum cert tags)
+  "CLF-C02": "AWS CLF",
+  "AIF-C01": "AWS AIF",
+  "SAA-C03": "AWS SAA",
+  "DVA-C02": "AWS DVA",
+  "SOA-C03": "AWS SOA",
+  "DEA-C01": "AWS DEA",
+  "MLA-C01": "AWS MLA",
+  "SAP-C02": "AWS SAP",
+  "DOP-C02": "AWS DOP",
+  "AIP-C01": "AWS AIP",
+  "ANS-C01": "AWS ANS",
+  "SCS-C03": "AWS SCS",
   // Azure
   az_900:   "AZ-900",
   az_104:   "AZ-104",

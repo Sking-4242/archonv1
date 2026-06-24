@@ -1,14 +1,24 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../../store/authStore";
 import { listAssignments } from "../../api/assignments";
 import { joinClass, myEnrolledClasses } from "../../api/classes";
+import { listCerts, listLibrary } from "../../api/library";
+import { fetchPracticeTestAttempts } from "../../api/practiceTests";
 
-function StatCard({ label, value, color }) {
+const COURSE = "aws";
+
+const LEVEL_BADGE = {
+  foundational: "bg-green-50 text-green-700 border-green-200",
+  associate: "bg-blue-50 text-blue-700 border-blue-200",
+  professional: "bg-purple-50 text-purple-700 border-purple-200",
+  specialty: "bg-orange-50 text-orange-700 border-orange-200",
+};
+
+function ProgressBar({ pct, tone = "bg-blue-500" }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-xl p-5 flex flex-col gap-1">
-      <span className="text-xs text-gray-500 font-medium uppercase tracking-wide">{label}</span>
-      <span className={`text-3xl font-bold ${color}`}>{value}</span>
+    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+      <div className={`h-full ${tone} rounded-full transition-all`} style={{ width: `${pct}%` }} />
     </div>
   );
 }
@@ -16,6 +26,10 @@ function StatCard({ label, value, color }) {
 export default function StudentHome() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
+
+  const [certs, setCerts] = useState([]);
+  const [lessons, setLessons] = useState([]);
+  const [attempts, setAttempts] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [classes, setClasses] = useState([]);
   const [joinCode, setJoinCode] = useState("");
@@ -23,17 +37,66 @@ export default function StudentHome() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([listAssignments(), myEnrolledClasses()])
-      .then(([a, c]) => {
-        setAssignments(a);
-        setClasses(c);
-      })
-      .catch(() => {
-        setAssignments([]);
-        setClasses([]);
+    Promise.allSettled([
+      listCerts(COURSE),
+      listLibrary(COURSE),
+      fetchPracticeTestAttempts(),
+      listAssignments(),
+      myEnrolledClasses(),
+    ])
+      .then(([c, l, at, a, cl]) => {
+        if (c.status === "fulfilled") setCerts(c.value ?? []);
+        if (l.status === "fulfilled") setLessons(l.value ?? []);
+        if (at.status === "fulfilled") setAttempts(at.value ?? []);
+        if (a.status === "fulfilled") setAssignments(a.value ?? []);
+        if (cl.status === "fulfilled") setClasses(cl.value ?? []);
       })
       .finally(() => setLoading(false));
   }, []);
+
+  // Per-cert lesson progress, computed from the library lessons' certification tags
+  const certCards = useMemo(() => {
+    const byCode = {};
+    for (const lesson of lessons) {
+      for (const code of lesson.certification_tags ?? []) {
+        const b = (byCode[code] ??= { total: 0, done: 0 });
+        b.total += 1;
+        if (lesson.completed) b.done += 1;
+      }
+    }
+    return certs
+      .map((cert) => {
+        const b = byCode[cert.code] ?? { total: 0, done: 0 };
+        const pct = b.total === 0 ? 0 : Math.round((b.done / b.total) * 100);
+        return { ...cert, total: b.total, done: b.done, pct };
+      })
+      .filter((c) => c.total > 0)
+      .sort((a, b) => {
+        const aInProg = a.pct > 0 && a.pct < 100 ? 0 : 1;
+        const bInProg = b.pct > 0 && b.pct < 100 ? 0 : 1;
+        if (aInProg !== bInProg) return aInProg - bInProg;
+        return b.pct - a.pct;
+      });
+  }, [certs, lessons]);
+
+  const activeCert = useMemo(() => {
+    const inProgress = certCards.filter((c) => c.pct > 0 && c.pct < 100);
+    if (inProgress.length) return inProgress[0];
+    return certCards[0] ?? null;
+  }, [certCards]);
+
+  const recentAttempts = useMemo(
+    () => attempts.filter((a) => a.status === "completed").slice(0, 3),
+    [attempts]
+  );
+
+  const upcoming = assignments.filter(
+    (a) => a.status === "not_started" || a.status === "in_progress"
+  );
+
+  function openCert(code) {
+    navigate(`/course-library?provider=${COURSE}&cert=${encodeURIComponent(code)}`);
+  }
 
   async function handleQuickJoin(e) {
     e.preventDefault();
@@ -43,50 +106,195 @@ export default function StudentHome() {
       const result = await joinClass(joinCode.trim());
       setJoinCode("");
       setJoinMessage(`Joined ${result.name}.`);
-      const fresh = await myEnrolledClasses();
-      setClasses(fresh);
+      setClasses(await myEnrolledClasses());
     } catch (err) {
       setJoinMessage(err.message ?? "Could not join");
     }
   }
 
-  const upcoming = assignments.filter(
-    (a) => a.status === "not_started" || a.status === "in_progress"
-  );
-  const graded = assignments.filter((a) => a.status === "graded");
-  const submitted = assignments.filter((a) => a.status === "submitted");
-
   return (
     <div className="space-y-8">
-      {/* Welcome banner */}
-      <div className="bg-blue-600 rounded-2xl px-8 py-7 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">
-            Welcome back, {user?.name?.split(" ")[0] ?? "Student"}
-          </h1>
-          <p className="text-blue-100 mt-1 text-sm">
-            {upcoming.length > 0
-              ? `You have ${upcoming.length} assignment${upcoming.length !== 1 ? "s" : ""} in progress.`
-              : "You're all caught up — great work!"}
-          </p>
+      {/* Continue-studying banner */}
+      <div className="bg-blue-600 rounded-2xl px-8 py-7 flex items-center justify-between gap-6">
+        <div className="min-w-0">
+          <p className="text-blue-100 text-sm">Welcome back, {user?.name?.split(" ")[0] ?? "Student"}</p>
+          {activeCert ? (
+            <>
+              <h1 className="text-2xl font-bold text-white mt-1 truncate">
+                Continue {activeCert.short_name || activeCert.name}
+              </h1>
+              <p className="text-blue-100 mt-1 text-sm">
+                {activeCert.done}/{activeCert.total} lessons · {activeCert.pct}% complete
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl font-bold text-white mt-1">Pick a certification to start</h1>
+              <p className="text-blue-100 mt-1 text-sm">
+                Choose a cert path and follow its domain-weighted study plan.
+              </p>
+            </>
+          )}
         </div>
-        <div className="hidden md:block opacity-20">
-          <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-            <polygon points="40,5 75,22.5 75,57.5 40,75 5,57.5 5,22.5" stroke="white" strokeWidth="2" fill="none" />
-            <circle cx="40" cy="40" r="14" stroke="white" strokeWidth="2" fill="none" />
-          </svg>
-        </div>
+        <button
+          onClick={() => (activeCert ? openCert(activeCert.code) : navigate("/course-library"))}
+          className="shrink-0 bg-white text-blue-700 text-sm font-semibold px-5 py-2.5 rounded-lg hover:bg-blue-50 transition-colors"
+        >
+          {activeCert ? "Resume" : "Browse cert paths"}
+        </button>
       </div>
 
-      {/* Stats row */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard label="Total Assignments" value={assignments.length} color="text-gray-900" />
-        <StatCard label="In Progress" value={upcoming.length} color="text-blue-600" />
-        <StatCard label="Submitted" value={submitted.length} color="text-yellow-600" />
-        <StatCard label="Graded" value={graded.length} color="text-green-600" />
+      {/* Cert paths */}
+      <section>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-semibold text-gray-900">Your cert paths</h2>
+          <button
+            onClick={() => navigate("/course-library")}
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+          >
+            View all →
+          </button>
+        </div>
+        {loading ? (
+          <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-400 text-sm">
+            Loading…
+          </div>
+        ) : certCards.length === 0 ? (
+          <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-400 text-sm">
+            No cert progress yet — open a cert path to begin.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {certCards.map((cert) => (
+              <button
+                key={cert.code}
+                onClick={() => openCert(cert.code)}
+                className="text-left bg-white border border-gray-200 rounded-xl p-5 hover:border-blue-300 transition-colors flex flex-col gap-3"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
+                    <div className="font-semibold text-gray-900 text-sm truncate">
+                      {cert.short_name || cert.name}
+                    </div>
+                    <div className="text-xs text-gray-400 font-mono mt-0.5">{cert.code}</div>
+                  </div>
+                  <span
+                    className={`text-[11px] px-2 py-0.5 rounded-full border font-medium capitalize shrink-0 ${
+                      LEVEL_BADGE[cert.level] ?? "bg-gray-50 text-gray-600 border-gray-200"
+                    }`}
+                  >
+                    {cert.level}
+                  </span>
+                </div>
+                <div>
+                  <div className="flex justify-between text-xs text-gray-500 mb-1">
+                    <span>{cert.done}/{cert.total} lessons</span>
+                    <span className="font-medium text-gray-700">{cert.pct}%</span>
+                  </div>
+                  <ProgressBar pct={cert.pct} tone={cert.pct >= 80 ? "bg-green-500" : "bg-blue-500"} />
+                </div>
+                <span className="text-xs text-blue-600 font-medium">
+                  {cert.pct === 0 ? "Start →" : cert.pct === 100 ? "Review →" : "Resume →"}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Two-column: up next + recent practice */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Up next (assignments) */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-gray-900">Up next</h2>
+            <button
+              onClick={() => navigate("/assignments")}
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              View all →
+            </button>
+          </div>
+          {upcoming.length === 0 ? (
+            <div className="bg-white border border-gray-200 rounded-xl p-6 text-center text-gray-400 text-sm">
+              No upcoming assignments
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {upcoming.slice(0, 3).map((a) => (
+                <div
+                  key={a.id}
+                  onClick={() => navigate(`/assignment/${a.id}`)}
+                  className="bg-white border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between hover:border-blue-300 transition-colors cursor-pointer"
+                >
+                  <div className="min-w-0">
+                    <div className="font-medium text-gray-900 text-sm truncate">{a.title}</div>
+                    {a.due_date && (
+                      <div className="text-xs text-gray-400 mt-0.5">
+                        Due {new Date(a.due_date).toLocaleDateString()}
+                      </div>
+                    )}
+                  </div>
+                  <span
+                    className={`text-xs px-2.5 py-1 rounded-full font-medium shrink-0 ${
+                      a.status === "in_progress" ? "bg-blue-50 text-blue-700" : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {a.status === "in_progress" ? "In progress" : "Not started"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Recent practice scores */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-gray-900">Recent practice</h2>
+            <button
+              onClick={() => navigate("/practice-tests")}
+              className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+            >
+              Practice tests →
+            </button>
+          </div>
+          {recentAttempts.length === 0 ? (
+            <div className="bg-white border border-gray-200 rounded-xl p-6 text-center text-gray-400 text-sm">
+              No practice tests taken yet
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {recentAttempts.map((a) => {
+                const pct = a.percent ?? 0;
+                const passed = pct >= 70;
+                return (
+                  <div
+                    key={a.id ?? `${a.cert}-${a.test_number}`}
+                    className="bg-white border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between"
+                  >
+                    <div className="min-w-0">
+                      <div className="font-medium text-gray-900 text-sm truncate">
+                        {a.cert} · Test {a.test_number}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-0.5 capitalize">{a.mode} mode</div>
+                    </div>
+                    <span
+                      className={`text-sm font-semibold shrink-0 ${
+                        passed ? "text-green-600" : "text-orange-600"
+                      }`}
+                    >
+                      {pct}%
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
       </div>
 
-      {/* Classes */}
+      {/* Classes / quick join */}
       <section className="bg-white border border-gray-200 rounded-xl p-5 space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
@@ -121,73 +329,6 @@ export default function StudentHome() {
           </button>
         </form>
         {joinMessage && <p className="text-xs text-green-700">{joinMessage}</p>}
-      </section>
-
-      {/* Practice tests promo */}
-      <section className="bg-white border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between gap-4">
-        <div>
-          <div className="font-medium text-gray-900 text-sm">AWS Cloud Practitioner practice tests</div>
-          <p className="text-xs text-gray-500 mt-1">
-            Study mode with explanations or timed live exams. Test 1 is free with your account.
-          </p>
-        </div>
-        <button
-          onClick={() => navigate("/practice-tests")}
-          className="shrink-0 text-sm px-4 py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700"
-        >
-          Open practice tests
-        </button>
-      </section>
-
-      {/* Upcoming assignments */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-gray-900">Upcoming Work</h2>
-          <button
-            onClick={() => navigate("/assignments")}
-            className="text-sm text-blue-600 hover:text-blue-700 font-medium"
-          >
-            View all →
-          </button>
-        </div>
-
-        {loading ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-400 text-sm">
-            Loading assignments…
-          </div>
-        ) : upcoming.length === 0 ? (
-          <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
-            <div className="text-gray-400 text-sm">No upcoming assignments</div>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {upcoming.slice(0, 3).map((a) => (
-              <div
-                key={a.id}
-                className="bg-white border border-gray-200 rounded-xl px-5 py-4 flex items-center justify-between hover:border-blue-300 transition-colors cursor-pointer"
-                onClick={() => navigate(`/assignment/${a.id}`)}
-              >
-                <div>
-                  <div className="font-medium text-gray-900 text-sm">{a.title}</div>
-                  {a.due_date && (
-                    <div className="text-xs text-gray-400 mt-0.5">
-                      Due {new Date(a.due_date).toLocaleDateString()}
-                    </div>
-                  )}
-                </div>
-                <span
-                  className={`text-xs px-2.5 py-1 rounded-full font-medium ${
-                    a.status === "in_progress"
-                      ? "bg-blue-50 text-blue-700"
-                      : "bg-gray-100 text-gray-600"
-                  }`}
-                >
-                  {a.status === "in_progress" ? "In Progress" : "Not Started"}
-                </span>
-              </div>
-            ))}
-          </div>
-        )}
       </section>
     </div>
   );

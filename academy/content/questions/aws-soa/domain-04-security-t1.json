@@ -1,428 +1,428 @@
 [
-  {
-    "id": "aws-soa-t1-04-001",
-    "domain": 4,
-    "domain_name": "Security and Compliance",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to grant an EC2 instance permission to write logs to an S3 bucket without storing access keys on the instance. What is the correct approach?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Create an IAM role with S3 write permissions and provide the role's ARN in the application's environment variables so the SDK can assume it."
-      },
-      {
-        "label": "B",
-        "text": "Create an IAM role with an S3 write policy, attach the role to the EC2 instance as an instance profile, and configure the application to use the instance metadata credentials."
-      },
-      {
-        "label": "C",
-        "text": "Create an IAM user with S3 write permissions, generate access keys, and store them in the application's configuration file on the instance."
-      },
-      {
-        "label": "D",
-        "text": "Attach an S3 bucket policy that grants the EC2 instance's public IP address permission to write objects directly to the bucket."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "C": "Storing access keys in configuration files is a security anti-pattern; keys can be accidentally exposed and do not rotate automatically.",
-      "D": "S3 bucket policies support IAM principals and VPC conditions, not IP addresses for granting EC2 write access; also, EC2 public IPs can change.",
-      "A": "Providing a role ARN in environment variables still requires credentials to assume the role; instance profiles provide automatic, rotating credentials via the instance metadata service."
-    },
-    "explanation": "IAM instance profiles are the AWS-recommended way to grant EC2 instances permissions without managing credentials. When you attach an IAM role to an instance, the AWS SDK automatically retrieves temporary credentials from the instance metadata endpoint (169.254.169.254). The credentials rotate automatically every few hours.",
-    "module_ref": "soa/security/ec2-instance-profile",
-    "tags": [
-      "iam",
-      "instance-profile",
-      "ec2",
-      "s3",
-      "credentials"
-    ]
+ {
+  "id": "aws-soa-t1-04-001",
+  "domain": 4,
+  "domain_name": "Security and Compliance",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to grant an EC2 instance permission to write logs to an S3 bucket without storing access keys on the instance. What is the correct approach?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Create an IAM role with S3 write permissions and provide the role's ARN in the application's environment variables so the SDK can assume it."
+   },
+   {
+    "label": "B",
+    "text": "Create an IAM role with an S3 write policy, attach the role to the EC2 instance as an instance profile, and configure the application to use the instance metadata credentials."
+   },
+   {
+    "label": "C",
+    "text": "Create an IAM user with S3 write permissions, generate access keys, and store them in the application's configuration file on the instance."
+   },
+   {
+    "label": "D",
+    "text": "Attach an S3 bucket policy that grants the EC2 instance's public IP address permission to write objects directly to the bucket."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "C": "Storing access keys in configuration files is a security anti-pattern; keys can be accidentally exposed and do not rotate automatically.",
+   "D": "S3 bucket policies support IAM principals and VPC conditions, not IP addresses for granting EC2 write access; also, EC2 public IPs can change.",
+   "A": "Providing a role ARN in environment variables still requires credentials to assume the role; instance profiles provide automatic, rotating credentials via the instance metadata service."
   },
-  {
-    "id": "aws-soa-t1-04-002",
-    "domain": 4,
-    "domain_name": "Security and Compliance",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A company wants to enforce a policy that no IAM user in the organization can disable CloudTrail logging, even if they have AdministratorAccess. How can this be enforced organization-wide?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable AWS Config with the cloud-trail-enabled rule, which automatically re-enables CloudTrail whenever it is disabled by any user."
-      },
-      {
-        "label": "B",
-        "text": "Enable CloudTrail log file validation and configure an S3 bucket policy that denies DeleteObject actions on the CloudTrail log bucket for all users."
-      },
-      {
-        "label": "C",
-        "text": "Create a Service Control Policy (SCP) in AWS Organizations that denies the cloudtrail:StopLogging and cloudtrail:DeleteTrail actions and attach it to the root of the organization."
-      },
-      {
-        "label": "D",
-        "text": "Create an IAM permission boundary for all users that explicitly denies the cloudtrail:StopLogging action across all AWS accounts."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "B": "Protecting the log bucket is important but does not prevent CloudTrail from being stopped; an adversary could stop logging without deleting logs.",
-      "D": "Permission boundaries are set per IAM entity within a single account and cannot be enforced organization-wide across all accounts from a central location.",
-      "A": "AWS Config can detect and alert on CloudTrail being disabled, but automated remediation introduces a race condition and does not preventively block the action."
-    },
-    "explanation": "AWS Organizations Service Control Policies act as guardrails that override individual account IAM permissions. An SCP denying cloudtrail:StopLogging at the root OU applies to all accounts and all principals (including those with AdministratorAccess), because SCPs define the maximum permission boundary regardless of IAM policies.",
-    "module_ref": "soa/security/organizations-scp",
-    "tags": [
-      "scp",
-      "organizations",
-      "cloudtrail",
-      "guardrails",
-      "iam"
-    ]
+  "explanation": "IAM instance profiles are the AWS-recommended way to grant EC2 instances permissions without managing credentials. When you attach an IAM role to an instance, the AWS SDK automatically retrieves temporary credentials from the instance metadata endpoint (169.254.169.254). The credentials rotate automatically every few hours.",
+  "module_ref": "soa/security/ec2-instance-profile",
+  "tags": [
+   "iam",
+   "instance-profile",
+   "ec2",
+   "s3",
+   "credentials"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-04-002",
+  "domain": 4,
+  "domain_name": "Security and Compliance",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A company wants to enforce a policy that no IAM user in the organization can disable CloudTrail logging, even if they have AdministratorAccess. How can this be enforced organization-wide?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable AWS Config with the cloud-trail-enabled rule, which automatically re-enables CloudTrail whenever it is disabled by any user."
+   },
+   {
+    "label": "B",
+    "text": "Enable CloudTrail log file validation and configure an S3 bucket policy that denies DeleteObject actions on the CloudTrail log bucket for all users."
+   },
+   {
+    "label": "C",
+    "text": "Create a Service Control Policy (SCP) in AWS Organizations that denies the cloudtrail:StopLogging and cloudtrail:DeleteTrail actions and attach it to the root of the organization."
+   },
+   {
+    "label": "D",
+    "text": "Create an IAM permission boundary for all users that explicitly denies the cloudtrail:StopLogging action across all AWS accounts."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "B": "Protecting the log bucket is important but does not prevent CloudTrail from being stopped; an adversary could stop logging without deleting logs.",
+   "D": "Permission boundaries are set per IAM entity within a single account and cannot be enforced organization-wide across all accounts from a central location.",
+   "A": "AWS Config can detect and alert on CloudTrail being disabled, but automated remediation introduces a race condition and does not preventively block the action."
   },
-  {
-    "id": "aws-soa-t1-04-003",
-    "domain": 4,
-    "domain_name": "Security and Compliance",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to encrypt an existing unencrypted EBS volume attached to a running EC2 instance. What is the correct process?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Detach the EBS volume, enable the encryption flag via the ModifyVolume API, reattach it, and restart the instance to apply encryption."
-      },
-      {
-        "label": "B",
-        "text": "Create a snapshot of the unencrypted volume, copy the snapshot with encryption enabled using a KMS key, create a new EBS volume from the encrypted snapshot, and swap it with the original volume."
-      },
-      {
-        "label": "C",
-        "text": "Enable EBS encryption at the volume level through the EC2 console; AWS will encrypt the existing data in place without requiring a snapshot."
-      },
-      {
-        "label": "D",
-        "text": "Create a new encrypted EBS volume and use AWS DataSync to copy all files from the original unencrypted volume to the encrypted volume."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "C": "EBS encryption cannot be applied to an existing volume in place; you must create an encrypted copy from a snapshot.",
-      "A": "The ModifyVolume API can change volume size and type but cannot enable encryption on an existing volume.",
-      "D": "DataSync is designed for data migration between storage services; using it to copy a volume requires the OS to be running and only copies files, not block-level data."
-    },
-    "explanation": "EBS encryption is set at volume creation time and cannot be changed on an existing volume. The standard procedure is: (1) create a snapshot, (2) copy the snapshot and enable encryption using a KMS key, (3) create a new volume from the encrypted snapshot, (4) stop the instance, (5) detach the old volume and attach the new encrypted volume, (6) restart the instance.",
-    "module_ref": "soa/security/ebs-encryption",
-    "tags": [
-      "ebs",
-      "encryption",
-      "kms",
-      "snapshot",
-      "migration"
-    ]
+  "explanation": "AWS Organizations Service Control Policies act as guardrails that override individual account IAM permissions. An SCP denying cloudtrail:StopLogging at the root OU applies to all accounts and all principals (including those with AdministratorAccess), because SCPs define the maximum permission boundary regardless of IAM policies.",
+  "module_ref": "soa/security/organizations-scp",
+  "tags": [
+   "scp",
+   "organizations",
+   "cloudtrail",
+   "guardrails",
+   "iam"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-04-003",
+  "domain": 4,
+  "domain_name": "Security and Compliance",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to encrypt an existing unencrypted EBS volume attached to a running EC2 instance. What is the correct process?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Detach the EBS volume, enable the encryption flag via the ModifyVolume API, reattach it, and restart the instance to apply encryption."
+   },
+   {
+    "label": "B",
+    "text": "Create a snapshot of the unencrypted volume, copy the snapshot with encryption enabled using a KMS key, create a new EBS volume from the encrypted snapshot, and swap it with the original volume."
+   },
+   {
+    "label": "C",
+    "text": "Enable EBS encryption at the volume level through the EC2 console; AWS will encrypt the existing data in place without requiring a snapshot."
+   },
+   {
+    "label": "D",
+    "text": "Create a new encrypted EBS volume and use AWS DataSync to copy all files from the original unencrypted volume to the encrypted volume."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "C": "EBS encryption cannot be applied to an existing volume in place; you must create an encrypted copy from a snapshot.",
+   "A": "The ModifyVolume API can change volume size and type but cannot enable encryption on an existing volume.",
+   "D": "DataSync is designed for data migration between storage services; using it to copy a volume requires the OS to be running and only copies files, not block-level data."
   },
-  {
-    "id": "aws-soa-t1-04-004",
-    "domain": 4,
-    "domain_name": "Security and Compliance",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A security team wants to receive alerts whenever a new IAM user is created in an AWS account. Which combination of services implements this with the least configuration?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable Amazon GuardDuty, which detects IAM user creation as a suspicious activity finding and sends an alert to the security team."
-      },
-      {
-        "label": "B",
-        "text": "Create a CloudWatch Logs metric filter on the CloudTrail log group that matches CreateUser API calls, then configure a CloudWatch alarm with an SNS notification."
-      },
-      {
-        "label": "C",
-        "text": "Configure an AWS Config rule that detects new IAM users and triggers an SNS notification when the evaluation returns NON_COMPLIANT."
-      },
-      {
-        "label": "D",
-        "text": "Create an EventBridge rule that matches CreateUser events from CloudTrail and routes them to an SNS topic configured with an email subscription."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "B": "CloudWatch Logs metric filters require CloudTrail logs to be sent to a log group, plus creating a metric filter and alarm; EventBridge natively integrates with CloudTrail events without these extra steps.",
-      "C": "AWS Config rules evaluate resource compliance states, not real-time API events; there is also latency in Config evaluations compared to EventBridge event matching.",
-      "A": "GuardDuty focuses on detecting malicious or anomalous behavior (e.g., compromised credentials); routine IAM user creation is not a GuardDuty finding."
-    },
-    "explanation": "Amazon EventBridge automatically receives CloudTrail management events and can match specific API calls. An EventBridge rule with an event pattern matching {source: aws.iam, detail.eventName: CreateUser} routes matching events to an SNS topic in near-real-time. This requires no log shipping, no metric filters, and minimal configuration.",
-    "module_ref": "soa/security/eventbridge-cloudtrail-alerts",
-    "tags": [
-      "eventbridge",
-      "cloudtrail",
-      "sns",
-      "iam",
-      "alerting"
-    ]
+  "explanation": "EBS encryption is set at volume creation time and cannot be changed on an existing volume. The standard procedure is: (1) create a snapshot, (2) copy the snapshot and enable encryption using a KMS key, (3) create a new volume from the encrypted snapshot, (4) stop the instance, (5) detach the old volume and attach the new encrypted volume, (6) restart the instance.",
+  "module_ref": "soa/security/ebs-encryption",
+  "tags": [
+   "ebs",
+   "encryption",
+   "kms",
+   "snapshot",
+   "migration"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-04-004",
+  "domain": 4,
+  "domain_name": "Security and Compliance",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A security team wants to receive alerts whenever a new IAM user is created in an AWS account. Which combination of services implements this with the least configuration?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable Amazon GuardDuty, which detects IAM user creation as a suspicious activity finding and sends an alert to the security team."
+   },
+   {
+    "label": "B",
+    "text": "Create a CloudWatch Logs metric filter on the CloudTrail log group that matches CreateUser API calls, then configure a CloudWatch alarm with an SNS notification."
+   },
+   {
+    "label": "C",
+    "text": "Configure an AWS Config rule that detects new IAM users and triggers an SNS notification when the evaluation returns NON_COMPLIANT."
+   },
+   {
+    "label": "D",
+    "text": "Create an EventBridge rule that matches CreateUser events from CloudTrail and routes them to an SNS topic configured with an email subscription."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "B": "CloudWatch Logs metric filters require CloudTrail logs to be sent to a log group, plus creating a metric filter and alarm; EventBridge natively integrates with CloudTrail events without these extra steps.",
+   "C": "AWS Config rules evaluate resource compliance states, not real-time API events; there is also latency in Config evaluations compared to EventBridge event matching.",
+   "A": "GuardDuty focuses on detecting malicious or anomalous behavior (e.g., compromised credentials); routine IAM user creation is not a GuardDuty finding."
   },
-  {
-    "id": "aws-soa-t1-04-005",
-    "domain": 4,
-    "domain_name": "Security and Compliance",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "An AWS account has several S3 buckets that should not be publicly accessible. Which service provides a centralized control to block all public access to S3 buckets across the entire account with a single setting?",
-    "options": [
-      {
-        "label": "A",
-        "text": "An AWS Organizations SCP can be applied to deny the s3:PutBucketPolicy and s3:PutBucketAcl actions, preventing new public policies from being applied."
-      },
-      {
-        "label": "B",
-        "text": "Amazon Macie scans all S3 buckets for public access misconfigurations and automatically revokes public access when a violation is detected."
-      },
-      {
-        "label": "C",
-        "text": "The S3 Block Public Access account-level setting can be enabled to block all public access to every S3 bucket in the account, overriding any existing bucket policies or ACLs."
-      },
-      {
-        "label": "D",
-        "text": "An AWS Config rule can be created to evaluate S3 bucket public access settings and trigger automatic remediation to remove public access configurations."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "A": "An SCP can prevent future policy changes but does not block existing public bucket policies or ACLs; the S3 Block Public Access setting addresses both current and future configurations.",
-      "D": "AWS Config + remediation can detect and fix public access configurations, but it involves additional setup and latency compared to the single account-level Block Public Access toggle.",
-      "B": "Macie is a data discovery and classification service; it can alert on public buckets but does not automatically revoke access."
-    },
-    "explanation": "Amazon S3 Block Public Access can be enabled at the account level with a single API call or console toggle. When enabled, it overrides all bucket policies, bucket ACLs, and object ACLs that would otherwise grant public access, preventing any bucket in the account from being made publicly accessible regardless of individual bucket settings.",
-    "module_ref": "soa/security/s3-block-public-access",
-    "tags": [
-      "s3",
-      "block-public-access",
-      "account-level",
-      "security"
-    ]
+  "explanation": "Amazon EventBridge automatically receives CloudTrail management events and can match specific API calls. An EventBridge rule with an event pattern matching {source: aws.iam, detail.eventName: CreateUser} routes matching events to an SNS topic in near-real-time. This requires no log shipping, no metric filters, and minimal configuration.",
+  "module_ref": "soa/security/eventbridge-cloudtrail-alerts",
+  "tags": [
+   "eventbridge",
+   "cloudtrail",
+   "sns",
+   "iam",
+   "alerting"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-04-005",
+  "domain": 4,
+  "domain_name": "Security and Compliance",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "An AWS account has several S3 buckets that should not be publicly accessible. Which service provides a centralized control to block all public access to S3 buckets across the entire account with a single setting?",
+  "options": [
+   {
+    "label": "A",
+    "text": "An AWS Organizations SCP can be applied to deny the s3:PutBucketPolicy and s3:PutBucketAcl actions, preventing new public policies from being applied."
+   },
+   {
+    "label": "B",
+    "text": "Amazon Macie scans all S3 buckets for public access misconfigurations and automatically revokes public access when a violation is detected."
+   },
+   {
+    "label": "C",
+    "text": "The S3 Block Public Access account-level setting can be enabled to block all public access to every S3 bucket in the account, overriding any existing bucket policies or ACLs."
+   },
+   {
+    "label": "D",
+    "text": "An AWS Config rule can be created to evaluate S3 bucket public access settings and trigger automatic remediation to remove public access configurations."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "A": "An SCP can prevent future policy changes but does not block existing public bucket policies or ACLs; the S3 Block Public Access setting addresses both current and future configurations.",
+   "D": "AWS Config + remediation can detect and fix public access configurations, but it involves additional setup and latency compared to the single account-level Block Public Access toggle.",
+   "B": "Macie is a data discovery and classification service; it can alert on public buckets but does not automatically revoke access."
   },
-  {
-    "id": "aws-soa-t1-04-006",
-    "domain": 4,
-    "domain_name": "Security and Compliance",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to evaluate whether resources in an AWS account comply with internal configuration standards on an ongoing basis. Which service continuously monitors resource configurations and evaluates them against rules?",
-    "options": [
-      {
-        "label": "A",
-        "text": "AWS Security Hub aggregates security findings from multiple services and provides a compliance score against standards like CIS AWS Foundations Benchmark."
-      },
-      {
-        "label": "B",
-        "text": "AWS Trusted Advisor checks account configurations against AWS best practices on a periodic basis and provides a compliance score for each category."
-      },
-      {
-        "label": "C",
-        "text": "AWS Config continuously records resource configuration changes and evaluates each resource against defined Config rules, reporting compliant or non-compliant status."
-      },
-      {
-        "label": "D",
-        "text": "Amazon Inspector continuously assesses EC2 instances against CIS benchmarks and reports configuration violations as security findings."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "B": "Trusted Advisor provides best-practice recommendations but does not evaluate custom configuration rules or offer continuous change-triggered evaluation.",
-      "D": "Inspector focuses on vulnerability assessments (CVEs and software vulnerabilities on EC2/ECR) rather than continuous configuration compliance evaluation across all resource types.",
-      "A": "Security Hub aggregates findings and maps them to compliance frameworks, but the underlying configuration evaluation is performed by Config rules, not Security Hub itself."
-    },
-    "explanation": "AWS Config records configuration changes for supported resource types and runs Config rules \u2014 either AWS managed or custom Lambda-backed \u2014 to evaluate whether each resource is compliant. Rules can trigger on configuration changes or on a periodic schedule. The Config dashboard shows aggregate compliance status across all rules and resources.",
-    "module_ref": "soa/security/aws-config-rules",
-    "tags": [
-      "aws-config",
-      "compliance",
-      "configuration-rules",
-      "continuous-monitoring"
-    ]
+  "explanation": "Amazon S3 Block Public Access can be enabled at the account level with a single API call or console toggle. When enabled, it overrides all bucket policies, bucket ACLs, and object ACLs that would otherwise grant public access, preventing any bucket in the account from being made publicly accessible regardless of individual bucket settings.",
+  "module_ref": "soa/security/s3-block-public-access",
+  "tags": [
+   "s3",
+   "block-public-access",
+   "account-level",
+   "security"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-04-006",
+  "domain": 4,
+  "domain_name": "Security and Compliance",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to evaluate whether resources in an AWS account comply with internal configuration standards on an ongoing basis. Which service continuously monitors resource configurations and evaluates them against rules?",
+  "options": [
+   {
+    "label": "A",
+    "text": "AWS Security Hub aggregates security findings from multiple services and provides a compliance score against standards like CIS AWS Foundations Benchmark."
+   },
+   {
+    "label": "B",
+    "text": "AWS Trusted Advisor checks account configurations against AWS best practices on a periodic basis and provides a compliance score for each category."
+   },
+   {
+    "label": "C",
+    "text": "AWS Config continuously records resource configuration changes and evaluates each resource against defined Config rules, reporting compliant or non-compliant status."
+   },
+   {
+    "label": "D",
+    "text": "Amazon Inspector continuously assesses EC2 instances against CIS benchmarks and reports configuration violations as security findings."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "B": "Trusted Advisor provides best-practice recommendations but does not evaluate custom configuration rules or offer continuous change-triggered evaluation.",
+   "D": "Inspector focuses on vulnerability assessments (CVEs and software vulnerabilities on EC2/ECR) rather than continuous configuration compliance evaluation across all resource types.",
+   "A": "Security Hub aggregates findings and maps them to compliance frameworks, but the underlying configuration evaluation is performed by Config rules, not Security Hub itself."
   },
-  {
-    "id": "aws-soa-t1-04-007",
-    "domain": 4,
-    "domain_name": "Security and Compliance",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A company requires that all data stored in Amazon S3 be encrypted at rest using keys managed by the company, not AWS. Which S3 encryption option meets this requirement?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Server-Side Encryption with AWS KMS Customer Managed Keys (SSE-KMS with CMK) encrypts objects using a KMS key that the company creates, controls, and can audit."
-      },
-      {
-        "label": "B",
-        "text": "Client-side encryption where the application encrypts data before uploading to S3 using the company's own key management infrastructure outside AWS."
-      },
-      {
-        "label": "C",
-        "text": "Server-Side Encryption with customer-provided keys (SSE-C) requires the company to supply the encryption key with every PUT and GET request, with AWS performing the encryption."
-      },
-      {
-        "label": "D",
-        "text": "Server-Side Encryption with Amazon S3 managed keys (SSE-S3) encrypts objects using an AWS-managed key, which AWS rotates annually without customer involvement."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "D": "SSE-S3 uses AWS-managed keys that AWS controls; the company has no visibility into or control over the key material.",
-      "C": "SSE-C meets the requirement technically, but it requires the application to supply the key on every API call and AWS does not store the key; it is operationally more complex than SSE-KMS with a CMK.",
-      "B": "Client-side encryption is valid but moves all key management outside AWS, which may not be the intent; SSE-KMS with a CMK provides key management within AWS with company control."
-    },
-    "explanation": "SSE-KMS with a Customer Managed Key (CMK) stores the encryption key in AWS KMS under the company's control. The company can define key policies, enable key rotation, audit key usage via CloudTrail, and rotate or disable the key. S3 requests the CMK each time it encrypts or decrypts an object, and all KMS API calls are logged.",
-    "module_ref": "soa/security/s3-sse-kms",
-    "tags": [
-      "s3",
-      "encryption",
-      "kms",
-      "cmk",
-      "data-protection"
-    ]
+  "explanation": "AWS Config records configuration changes for supported resource types and runs Config rules — either AWS managed or custom Lambda-backed — to evaluate whether each resource is compliant. Rules can trigger on configuration changes or on a periodic schedule. The Config dashboard shows aggregate compliance status across all rules and resources.",
+  "module_ref": "soa/security/aws-config-rules",
+  "tags": [
+   "aws-config",
+   "compliance",
+   "configuration-rules",
+   "continuous-monitoring"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-04-007",
+  "domain": 4,
+  "domain_name": "Security and Compliance",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A company requires that all data stored in Amazon S3 be encrypted at rest using keys managed by the company, not AWS. Which S3 encryption option meets this requirement?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Server-Side Encryption with AWS KMS Customer Managed Keys (SSE-KMS with CMK) encrypts objects using a KMS key that the company creates, controls, and can audit."
+   },
+   {
+    "label": "B",
+    "text": "Client-side encryption where the application encrypts data before uploading to S3 using the company's own key management infrastructure outside AWS."
+   },
+   {
+    "label": "C",
+    "text": "Server-Side Encryption with customer-provided keys (SSE-C) requires the company to supply the encryption key with every PUT and GET request, with AWS performing the encryption."
+   },
+   {
+    "label": "D",
+    "text": "Server-Side Encryption with Amazon S3 managed keys (SSE-S3) encrypts objects using an AWS-managed key, which AWS rotates annually without customer involvement."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "D": "SSE-S3 uses AWS-managed keys that AWS controls; the company has no visibility into or control over the key material.",
+   "C": "SSE-C meets the requirement technically, but it requires the application to supply the key on every API call and AWS does not store the key; it is operationally more complex than SSE-KMS with a CMK.",
+   "B": "Client-side encryption is valid but moves all key management outside AWS, which may not be the intent; SSE-KMS with a CMK provides key management within AWS with company control."
   },
-  {
-    "id": "aws-soa-t1-04-008",
-    "domain": 4,
-    "domain_name": "Security and Compliance",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator reviews an IAM policy and needs to determine the effective permissions for a user who has both an identity-based policy and a resource-based policy on an S3 bucket. How does AWS evaluate the permissions?",
-    "options": [
-      {
-        "label": "A",
-        "text": "AWS evaluates the intersection of the two policies; only actions allowed by both the identity-based policy and the resource-based policy are permitted."
-      },
-      {
-        "label": "B",
-        "text": "AWS evaluates the union of the identity-based policy and the resource-based policy; any action allowed by either policy is permitted unless explicitly denied."
-      },
-      {
-        "label": "C",
-        "text": "The resource-based policy always takes precedence over the identity-based policy for S3 actions, overriding any deny in the identity-based policy."
-      },
-      {
-        "label": "D",
-        "text": "The identity-based policy always takes precedence over the resource-based policy, and the resource-based policy only applies to cross-account access."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "A": "AWS IAM uses a union (logical OR) of allow statements, not an intersection, for same-account access; an explicit deny in either policy will still override any allows.",
-      "C": "Neither policy type automatically takes precedence; an explicit deny in either policy overrides any allow, regardless of which policy type contains the deny.",
-      "D": "Resource-based policies apply to both same-account and cross-account access; there is no blanket rule that identity-based policies take precedence."
-    },
-    "explanation": "For same-account access, AWS IAM takes the union of identity-based and resource-based policies. If either policy allows an action and neither policy explicitly denies it, the action is permitted. An explicit deny in any policy always overrides any allow. The default is implicit deny, so actions not explicitly allowed are denied.",
-    "module_ref": "soa/security/iam-policy-evaluation",
-    "tags": [
-      "iam",
-      "policy-evaluation",
-      "identity-based",
-      "resource-based",
-      "permissions"
-    ]
+  "explanation": "SSE-KMS with a Customer Managed Key (CMK) stores the encryption key in AWS KMS under the company's control. The company can define key policies, enable key rotation, audit key usage via CloudTrail, and rotate or disable the key. S3 requests the CMK each time it encrypts or decrypts an object, and all KMS API calls are logged.",
+  "module_ref": "soa/security/s3-sse-kms",
+  "tags": [
+   "s3",
+   "encryption",
+   "kms",
+   "cmk",
+   "data-protection"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-04-008",
+  "domain": 4,
+  "domain_name": "Security and Compliance",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator reviews an IAM policy and needs to determine the effective permissions for a user who has both an identity-based policy and a resource-based policy on an S3 bucket. How does AWS evaluate the permissions?",
+  "options": [
+   {
+    "label": "A",
+    "text": "AWS evaluates the intersection of the two policies; only actions allowed by both the identity-based policy and the resource-based policy are permitted."
+   },
+   {
+    "label": "B",
+    "text": "AWS evaluates the union of the identity-based policy and the resource-based policy; any action allowed by either policy is permitted unless explicitly denied."
+   },
+   {
+    "label": "C",
+    "text": "The resource-based policy always takes precedence over the identity-based policy for S3 actions, overriding any deny in the identity-based policy."
+   },
+   {
+    "label": "D",
+    "text": "The identity-based policy always takes precedence over the resource-based policy, and the resource-based policy only applies to cross-account access."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "A": "AWS IAM uses a union (logical OR) of allow statements, not an intersection, for same-account access; an explicit deny in either policy will still override any allows.",
+   "C": "Neither policy type automatically takes precedence; an explicit deny in either policy overrides any allow, regardless of which policy type contains the deny.",
+   "D": "Resource-based policies apply to both same-account and cross-account access; there is no blanket rule that identity-based policies take precedence."
   },
-  {
-    "id": "aws-soa-t1-04-009",
-    "domain": 4,
-    "domain_name": "Security and Compliance",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to enforce MFA for all IAM users when they perform sensitive operations such as terminating EC2 instances. How is this enforced in an IAM policy?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable MFA for all IAM users in the account settings; once MFA is enabled, all API calls automatically require MFA authentication before proceeding."
-      },
-      {
-        "label": "B",
-        "text": "Attach a permission boundary to the IAM role with an MFA condition; permission boundaries override identity-based policies and enforce MFA for all actions."
-      },
-      {
-        "label": "C",
-        "text": "Create an SCP in AWS Organizations that denies all EC2 terminate actions unless the request originates from an MFA-authenticated session."
-      },
-      {
-        "label": "D",
-        "text": "Add an IAM condition to the policy using the aws:MultiFactorAuthPresent condition key with a value of 'true'; the action is denied unless the request was made using MFA."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "A": "Enabling MFA for users requires them to use MFA to log into the console but does not automatically enforce MFA for every programmatic API call; a condition in the policy is required.",
-      "B": "Permission boundaries define the maximum permissions for an entity; while they can include conditions, they do not automatically enforce MFA for specific actions.",
-      "C": "SCPs are effective for organization-wide enforcement, but the question asks about an IAM policy mechanism; the condition key approach is the direct IAM policy answer."
-    },
-    "explanation": "The aws:MultiFactorAuthPresent condition key is true when the request was made by a session authenticated with MFA. Adding a Deny statement with the condition 'aws:MultiFactorAuthPresent': 'false' or an Allow statement that requires the condition to be true ensures that the sensitive action (such as ec2:TerminateInstances) can only be performed when the user has authenticated with MFA.",
-    "module_ref": "soa/security/iam-mfa-condition",
-    "tags": [
-      "iam",
-      "mfa",
-      "condition-key",
-      "least-privilege"
-    ]
+  "explanation": "For same-account access, AWS IAM takes the union of identity-based and resource-based policies. If either policy allows an action and neither policy explicitly denies it, the action is permitted. An explicit deny in any policy always overrides any allow. The default is implicit deny, so actions not explicitly allowed are denied.",
+  "module_ref": "soa/security/iam-policy-evaluation",
+  "tags": [
+   "iam",
+   "policy-evaluation",
+   "identity-based",
+   "resource-based",
+   "permissions"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-04-009",
+  "domain": 4,
+  "domain_name": "Security and Compliance",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to enforce MFA for all IAM users when they perform sensitive operations such as terminating EC2 instances. How is this enforced in an IAM policy?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable MFA for all IAM users in the account settings; once MFA is enabled, all API calls automatically require MFA authentication before proceeding."
+   },
+   {
+    "label": "B",
+    "text": "Attach a permission boundary to the IAM role with an MFA condition; permission boundaries override identity-based policies and enforce MFA for all actions."
+   },
+   {
+    "label": "C",
+    "text": "Create an SCP in AWS Organizations that denies all EC2 terminate actions unless the request originates from an MFA-authenticated session."
+   },
+   {
+    "label": "D",
+    "text": "Add an IAM condition to the policy using the aws:MultiFactorAuthPresent condition key with a value of 'true'; the action is denied unless the request was made using MFA."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "A": "Enabling MFA for users requires them to use MFA to log into the console but does not automatically enforce MFA for every programmatic API call; a condition in the policy is required.",
+   "B": "Permission boundaries define the maximum permissions for an entity; while they can include conditions, they do not automatically enforce MFA for specific actions.",
+   "C": "SCPs are effective for organization-wide enforcement, but the question asks about an IAM policy mechanism; the condition key approach is the direct IAM policy answer."
   },
-  {
-    "id": "aws-soa-t1-04-010",
-    "domain": 4,
-    "domain_name": "Security and Compliance",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to audit all changes to security group rules across an AWS account over the past 90 days. Where is this information found?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Amazon VPC Flow Logs record all accepted and rejected traffic including changes to security group rules and can be queried to reconstruct rule change history."
-      },
-      {
-        "label": "B",
-        "text": "AWS Security Hub maintains a 90-day audit log of all security group changes and provides a filterable change history in the Findings console."
-      },
-      {
-        "label": "C",
-        "text": "AWS Config records the configuration history of security groups; the Config timeline for each security group shows every change with before and after snapshots."
-      },
-      {
-        "label": "D",
-        "text": "AWS CloudTrail logs all EC2 API calls including AuthorizeSecurityGroupIngress and RevokeSecurityGroupIngress; query the CloudTrail event history or CloudTrail Lake for the past 90 days."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "C": "AWS Config records configuration snapshots of security groups and can show what changed, but CloudTrail captures who made the change, when, and from which IP \u2014 making it the audit-focused answer.",
-      "A": "VPC Flow Logs capture network traffic metadata (source IP, destination port, accept/reject); they do not record security group rule changes.",
-      "B": "Security Hub aggregates security findings; it does not maintain its own audit log of security group configuration changes."
-    },
-    "explanation": "AWS CloudTrail records all AWS API calls including EC2 security group modification actions such as AuthorizeSecurityGroupIngress, RevokeSecurityGroupIngress, and ModifySecurityGroupRules. The event history in the console retains 90 days of events. For longer retention or advanced querying, CloudTrail logs can be stored in S3 or analyzed with CloudTrail Lake.",
-    "module_ref": "soa/security/cloudtrail-audit",
-    "tags": [
-      "cloudtrail",
-      "audit",
-      "security-groups",
-      "event-history"
-    ]
-  }
+  "explanation": "The aws:MultiFactorAuthPresent condition key is true when the request was made by a session authenticated with MFA. Adding a Deny statement with the condition 'aws:MultiFactorAuthPresent': 'false' or an Allow statement that requires the condition to be true ensures that the sensitive action (such as ec2:TerminateInstances) can only be performed when the user has authenticated with MFA.",
+  "module_ref": "soa/security/iam-mfa-condition",
+  "tags": [
+   "iam",
+   "mfa",
+   "condition-key",
+   "least-privilege"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-04-010",
+  "domain": 4,
+  "domain_name": "Security and Compliance",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to audit all changes to security group rules across an AWS account over the past 90 days. Where is this information found?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Amazon VPC Flow Logs record all accepted and rejected traffic including changes to security group rules and can be queried to reconstruct rule change history."
+   },
+   {
+    "label": "B",
+    "text": "AWS Security Hub maintains a 90-day audit log of all security group changes and provides a filterable change history in the Findings console."
+   },
+   {
+    "label": "C",
+    "text": "AWS Config records the configuration history of security groups; the Config timeline for each security group shows every change with before and after snapshots."
+   },
+   {
+    "label": "D",
+    "text": "AWS CloudTrail logs all EC2 API calls including AuthorizeSecurityGroupIngress and RevokeSecurityGroupIngress; query the CloudTrail event history or CloudTrail Lake for the past 90 days."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "C": "AWS Config records configuration snapshots of security groups and can show what changed, but CloudTrail captures who made the change, when, and from which IP — making it the audit-focused answer.",
+   "A": "VPC Flow Logs capture network traffic metadata (source IP, destination port, accept/reject); they do not record security group rule changes.",
+   "B": "Security Hub aggregates security findings; it does not maintain its own audit log of security group configuration changes."
+  },
+  "explanation": "AWS CloudTrail records all AWS API calls including EC2 security group modification actions such as AuthorizeSecurityGroupIngress, RevokeSecurityGroupIngress, and ModifySecurityGroupRules. The event history in the console retains 90 days of events. For longer retention or advanced querying, CloudTrail logs can be stored in S3 or analyzed with CloudTrail Lake.",
+  "module_ref": "soa/security/cloudtrail-audit",
+  "tags": [
+   "cloudtrail",
+   "audit",
+   "security-groups",
+   "event-history"
+  ]
+ }
 ]

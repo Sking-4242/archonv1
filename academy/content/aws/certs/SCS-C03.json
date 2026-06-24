@@ -1,0 +1,257 @@
+{
+  "cert": {
+    "code": "SCS-C03",
+    "name": "AWS Certified Security - Specialty",
+    "short_name": "Security Specialty",
+    "level": "specialty",
+    "status": "active",
+    "retires_on": null,
+    "exam_guide_url": "https://docs.aws.amazon.com/aws-certification/latest/examguides/security-specialty-03.html",
+    "blueprint_version": "1.0"
+  },
+  "exam": {
+    "scored_questions": 50,
+    "unscored_questions": 15,
+    "duration_minutes": 170,
+    "passing_score": 750,
+    "scoring_model": "compensatory",
+    "question_formats": ["multiple choice", "multiple response", "ordering", "matching"],
+    "cost_usd": 300,
+    "prerequisites": []
+  },
+  "domains": [
+    {
+      "id": "D1",
+      "title": "Detection",
+      "weight": 16,
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Design and implement monitoring and alerting solutions",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/01-security-monitoring-and-threat-detection.md", "emphasis": "core", "note": "GuardDuty, Security Hub, Macie, Detective, Security Lake; org-wide." },
+            { "ref": "module-15-security-services/05-guardduty-security-hub.md", "emphasis": "supporting", "note": "SAA-level intro to GuardDuty/Security Hub." }
+          ]
+        },
+        {
+          "id": "1.2",
+          "title": "Design and implement logging solutions",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/02-designing-logging-solutions-at-scale.md", "emphasis": "core", "note": "Org CloudTrail, dedicated logging account, integrity." },
+            { "ref": "certs/SCS-C03/lessons/03-log-storage-analysis-and-correlation.md", "emphasis": "core", "note": "Security Lake/OCSF, Athena, OpenSearch, network logs." },
+            { "ref": "module-15-security-services/06-config-cloudtrail.md", "emphasis": "supporting" },
+            { "ref": "module-13-vpc-networking/08-flow-logs.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "1.3",
+          "title": "Troubleshoot security monitoring, logging, and alerting",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/04-troubleshooting-detection-logging-alerting.md", "emphasis": "core", "note": "Missing logs, agent/permission/KMS, scope." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D2",
+      "title": "Incident Response",
+      "weight": 14,
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Design and test an incident response plan",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/05-incident-response-planning-and-runbooks.md", "emphasis": "core", "note": "Runbooks, break-glass, blast radius, severity/escalation." },
+            { "ref": "certs/SCS-C03/lessons/06-automating-and-testing-incident-response.md", "emphasis": "core", "note": "Automated remediation, Shield Advanced, FIS/Resilience Hub." }
+          ]
+        },
+        {
+          "id": "2.2",
+          "title": "Respond to security events",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/07-responding-to-security-events-forensics.md", "emphasis": "core", "note": "Forensics, containment, recovery, Detective; order of operations." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D3",
+      "title": "Infrastructure Security",
+      "weight": 18,
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Security controls for network edge services",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/08-edge-security-cloudfront-waf-shield.md", "emphasis": "core", "note": "CloudFront/WAF/Shield Advanced, OWASP, rate/geo." },
+            { "ref": "module-15-security-services/07-waf-shield-firewall-manager.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "3.2",
+          "title": "Security controls for compute workloads",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/09-securing-compute-workloads.md", "emphasis": "core", "note": "Hardened images, Inspector, Patch Manager, Session Manager, IMDSv2, GenAI guardrails." }
+          ]
+        },
+        {
+          "id": "3.3",
+          "title": "Network security controls and segmentation",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/10-network-security-controls-and-segmentation.md", "emphasis": "core", "note": "SG/NACL/Network Firewall, segmentation, access analysis." },
+            { "ref": "certs/SCS-C03/lessons/11-secure-hybrid-and-private-connectivity.md", "emphasis": "core", "note": "VPN, Direct Connect/MACsec, PrivateLink, Verified Access." },
+            { "ref": "module-13-vpc-networking/02-security-groups-nacls.md", "emphasis": "supporting" },
+            { "ref": "module-13-vpc-networking/06-network-firewall.md", "emphasis": "supporting" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D4",
+      "title": "Identity and Access Management",
+      "weight": 20,
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "Authentication strategies",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/12-authentication-strategies-and-federation.md", "emphasis": "core", "note": "IAM Identity Center, Cognito, MFA, federation, root protection." },
+            { "ref": "certs/SCS-C03/lessons/13-temporary-credentials-and-workload-identity.md", "emphasis": "core", "note": "STS, presigned URLs, session policies/tags, IAM Roles Anywhere." },
+            { "ref": "module-04-iam/01-iam-overview.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "4.2",
+          "title": "Authorization strategies",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/14-iam-policy-evaluation-and-least-privilege.md", "emphasis": "core", "note": "Full policy-evaluation logic; SCP/RCP/boundary/session; least privilege." },
+            { "ref": "certs/SCS-C03/lessons/15-advanced-authorization-rbac-abac-cross-account.md", "emphasis": "core", "note": "RBAC/ABAC, cross-account, Verified Permissions/Cedar." },
+            { "ref": "certs/SCS-C03/lessons/16-troubleshooting-and-analyzing-authorization.md", "emphasis": "core", "note": "Policy Simulator, IAM Access Analyzer (external/unused/internal/custom checks)." },
+            { "ref": "module-04-iam/03-policies.md", "emphasis": "supporting" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D5",
+      "title": "Data Protection",
+      "weight": 18,
+      "tasks": [
+        {
+          "id": "5.1",
+          "title": "Controls for data in transit",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/17-protecting-data-in-transit.md", "emphasis": "core", "note": "Enforce TLS, ACM/Private CA, PrivateLink, inter-node encryption." }
+          ]
+        },
+        {
+          "id": "5.2",
+          "title": "Controls for data at rest",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/19-encryption-at-rest-and-key-material.md", "emphasis": "core", "note": "SSE vs client-side, KMS vs CloudHSM, BYOK vs XKS." },
+            { "ref": "certs/SCS-C03/lessons/20-data-integrity-lifecycle-and-backups.md", "emphasis": "core", "note": "Object Lock/Vault Lock WORM, versioning, ransomware-resistant backups." }
+          ]
+        },
+        {
+          "id": "5.3",
+          "title": "Protect confidential data, credentials, secrets, and key material",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/18-aws-kms-deep-dive.md", "emphasis": "core", "note": "Key policies/grants, encryption context, envelope encryption, multi-Region keys." },
+            { "ref": "certs/SCS-C03/lessons/21-secrets-management-and-data-masking.md", "emphasis": "core", "note": "Secrets Manager rotation, data masking (CW Logs/SNS)." },
+            { "ref": "module-15-security-services/02-kms.md", "emphasis": "supporting", "note": "SAA-level KMS intro." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D6",
+      "title": "Security Foundations and Governance",
+      "weight": 14,
+      "tasks": [
+        {
+          "id": "6.1",
+          "title": "Centrally deploy and manage AWS accounts",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/22-multi-account-governance.md", "emphasis": "core", "note": "Organizations, Control Tower, SCP/RCP/declarative, delegated admin, centralized root." },
+            { "ref": "module-05-shared-responsibility-and-compliance/01-shared-responsibility.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "6.2",
+          "title": "Secure and consistent deployment strategy",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/23-secure-consistent-resource-deployment.md", "emphasis": "core", "note": "IaC/StackSets, CloudFormation Guard, tagging, Firewall Manager, RAM." }
+          ]
+        },
+        {
+          "id": "6.3",
+          "title": "Evaluate the compliance of AWS resources",
+          "lessons": [
+            { "ref": "certs/SCS-C03/lessons/24-evaluating-compliance-of-aws-resources.md", "emphasis": "core", "note": "Config rules/remediation, Security Hub, Audit Manager, Artifact, Well-Architected Tool." }
+          ]
+        }
+      ]
+    }
+  ],
+  "cert_specific_lessons": [
+    { "file": "certs/SCS-C03/lessons/01-security-monitoring-and-threat-detection.md", "title": "Security Monitoring and Threat Detection Services", "status": "published", "covers_tasks": ["1.1"] },
+    { "file": "certs/SCS-C03/lessons/02-designing-logging-solutions-at-scale.md", "title": "Designing Logging Solutions at Scale", "status": "published", "covers_tasks": ["1.2"] },
+    { "file": "certs/SCS-C03/lessons/03-log-storage-analysis-and-correlation.md", "title": "Log Storage, Analysis, and Correlation", "status": "published", "covers_tasks": ["1.2"] },
+    { "file": "certs/SCS-C03/lessons/04-troubleshooting-detection-logging-alerting.md", "title": "Troubleshooting Detection, Logging, and Alerting", "status": "published", "covers_tasks": ["1.3"] },
+    { "file": "certs/SCS-C03/lessons/05-incident-response-planning-and-runbooks.md", "title": "Incident Response Planning and Runbooks", "status": "published", "covers_tasks": ["2.1"] },
+    { "file": "certs/SCS-C03/lessons/06-automating-and-testing-incident-response.md", "title": "Automating and Testing Incident Response", "status": "published", "covers_tasks": ["2.1"] },
+    { "file": "certs/SCS-C03/lessons/07-responding-to-security-events-forensics.md", "title": "Responding to Security Events: Forensics, Containment, and Recovery", "status": "published", "covers_tasks": ["2.2"] },
+    { "file": "certs/SCS-C03/lessons/08-edge-security-cloudfront-waf-shield.md", "title": "Edge Security: CloudFront, WAF, and Shield Advanced", "status": "published", "covers_tasks": ["3.1"] },
+    { "file": "certs/SCS-C03/lessons/09-securing-compute-workloads.md", "title": "Securing Compute Workloads", "status": "published", "covers_tasks": ["3.2"] },
+    { "file": "certs/SCS-C03/lessons/10-network-security-controls-and-segmentation.md", "title": "Network Security Controls and Segmentation", "status": "published", "covers_tasks": ["3.3"] },
+    { "file": "certs/SCS-C03/lessons/11-secure-hybrid-and-private-connectivity.md", "title": "Secure Hybrid and Private Connectivity", "status": "published", "covers_tasks": ["3.3"] },
+    { "file": "certs/SCS-C03/lessons/12-authentication-strategies-and-federation.md", "title": "Authentication Strategies and Federation", "status": "published", "covers_tasks": ["4.1"] },
+    { "file": "certs/SCS-C03/lessons/13-temporary-credentials-and-workload-identity.md", "title": "Temporary Credentials and Workload Identity", "status": "published", "covers_tasks": ["4.1"] },
+    { "file": "certs/SCS-C03/lessons/14-iam-policy-evaluation-and-least-privilege.md", "title": "IAM Policy Evaluation and Least Privilege", "status": "published", "covers_tasks": ["4.2"] },
+    { "file": "certs/SCS-C03/lessons/15-advanced-authorization-rbac-abac-cross-account.md", "title": "Advanced Authorization: RBAC, ABAC, and Cross-Account", "status": "published", "covers_tasks": ["4.2"] },
+    { "file": "certs/SCS-C03/lessons/16-troubleshooting-and-analyzing-authorization.md", "title": "Troubleshooting and Analyzing Authorization", "status": "published", "covers_tasks": ["4.2"] },
+    { "file": "certs/SCS-C03/lessons/17-protecting-data-in-transit.md", "title": "Protecting Data in Transit", "status": "published", "covers_tasks": ["5.1"] },
+    { "file": "certs/SCS-C03/lessons/18-aws-kms-deep-dive.md", "title": "AWS KMS Deep Dive", "status": "published", "covers_tasks": ["5.3"] },
+    { "file": "certs/SCS-C03/lessons/19-encryption-at-rest-and-key-material.md", "title": "Encryption at Rest and Key Material Choices", "status": "published", "covers_tasks": ["5.2"] },
+    { "file": "certs/SCS-C03/lessons/20-data-integrity-lifecycle-and-backups.md", "title": "Data Integrity, Lifecycle, and Resilient Backups", "status": "published", "covers_tasks": ["5.2"] },
+    { "file": "certs/SCS-C03/lessons/21-secrets-management-and-data-masking.md", "title": "Secrets Management and Data Masking", "status": "published", "covers_tasks": ["5.3"] },
+    { "file": "certs/SCS-C03/lessons/22-multi-account-governance.md", "title": "Multi-Account Governance", "status": "published", "covers_tasks": ["6.1"] },
+    { "file": "certs/SCS-C03/lessons/23-secure-consistent-resource-deployment.md", "title": "Secure and Consistent Resource Deployment", "status": "published", "covers_tasks": ["6.2"] },
+    { "file": "certs/SCS-C03/lessons/24-evaluating-compliance-of-aws-resources.md", "title": "Evaluating Compliance of AWS Resources", "status": "published", "covers_tasks": ["6.3"] },
+    { "file": "certs/SCS-C03/lessons/25-exam-strategy-and-question-patterns.md", "title": "SCS-C03 Exam Strategy and Question Patterns", "status": "published", "covers_tasks": ["1.1", "2.2", "3.3", "4.2", "5.2", "6.1"] }
+  ],
+  "related_service_lessons": {
+    "certs/SCS-C03/lessons/01-security-monitoring-and-threat-detection.md": ["services/guardduty.md", "services/amazon-security-hub.md", "services/amazon-macie.md", "services/amazon-detective.md"],
+    "certs/SCS-C03/lessons/04-troubleshooting-detection-logging-alerting.md": ["services/guardduty.md", "services/amazon-security-hub.md"],
+    "certs/SCS-C03/lessons/07-responding-to-security-events-forensics.md": ["services/amazon-detective.md"],
+    "certs/SCS-C03/lessons/06-automating-and-testing-incident-response.md": ["services/amazon-eventbridge.md"],
+    "certs/SCS-C03/lessons/12-authentication-strategies-and-federation.md": ["services/amazon-cognito.md"],
+    "certs/SCS-C03/lessons/08-edge-security-cloudfront-waf-shield.md": ["services/aws-waf.md", "services/aws-shield.md"],
+    "certs/SCS-C03/lessons/18-aws-kms-deep-dive.md": ["services/aws-kms.md"],
+    "certs/SCS-C03/lessons/19-encryption-at-rest-and-key-material.md": ["services/aws-kms.md"],
+    "certs/SCS-C03/lessons/21-secrets-management-and-data-masking.md": ["services/aws-kms.md", "services/aws-secrets-manager.md"],
+    "certs/SCS-C03/lessons/24-evaluating-compliance-of-aws-resources.md": ["services/aws-config.md", "services/amazon-security-hub.md"],
+    "certs/SCS-C03/lessons/02-designing-logging-solutions-at-scale.md": ["services/aws-cloudtrail.md", "services/amazon-s3.md"],
+    "certs/SCS-C03/lessons/03-log-storage-analysis-and-correlation.md": ["services/amazon-s3.md", "services/amazon-athena.md", "services/amazon-opensearch.md"],
+    "certs/SCS-C03/lessons/17-protecting-data-in-transit.md": ["services/aws-certificate-manager.md"],
+    "certs/SCS-C03/lessons/20-data-integrity-lifecycle-and-backups.md": ["services/aws-backup.md"],
+    "certs/SCS-C03/lessons/09-securing-compute-workloads.md": ["services/amazon-ec2.md", "services/amazon-ecs.md", "services/amazon-eks.md", "services/aws-lambda.md", "services/amazon-inspector.md", "services/amazon-ecr.md"],
+    "certs/SCS-C03/lessons/10-network-security-controls-and-segmentation.md": ["services/amazon-vpc.md"],
+    "certs/SCS-C03/lessons/22-multi-account-governance.md": ["services/aws-organizations.md"],
+    "module-04-iam/01-iam-overview.md": ["services/aws-iam.md"],
+    "module-15-security-services/06-config-cloudtrail.md": ["services/aws-config.md", "services/aws-cloudtrail.md"]
+  },
+  "question_bank": {
+    "path": "questions/aws-scs",
+    "blueprint_weighted": false,
+    "target_count": null
+  },
+  "coverage": {
+    "shared_lessons": 10,
+    "cert_specific_needed": 0,
+    "gaps": [
+      "Full specialty-depth coverage: 25 cert-specific lessons (2,000+ words each) across all six domains, plus reuse of 10 SAA-level shared security lessons as prerequisites.",
+      "Existing question bank (questions/aws-scs, 42 files) is mapped but not yet verified as weighted to 16/14/18/20/18/14."
+    ]
+  }
+}

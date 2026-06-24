@@ -2175,6 +2175,9 @@ export const COMPONENT_CONFIGS = {
 
 };
 
+// Importer previously used type "kms"; palette/validation use "kms_key".
+COMPONENT_CONFIGS.kms = COMPONENT_CONFIGS.kms_key;
+
 export function getDefaultConfig(type) {
   const fields = COMPONENT_CONFIGS[type] ?? [];
   return Object.fromEntries(fields.map((f) => [f.key, f.default]));

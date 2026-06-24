@@ -1,0 +1,215 @@
+{
+  "cert": {
+    "code": "SOA-C03",
+    "name": "AWS Certified CloudOps Engineer - Associate",
+    "short_name": "CloudOps Engineer Associate",
+    "level": "associate",
+    "status": "active",
+    "retires_on": null,
+    "exam_guide_url": "https://docs.aws.amazon.com/aws-certification/latest/examguides/sysops-administrator-associate-03.html",
+    "blueprint_version": "1.0"
+  },
+  "exam": {
+    "scored_questions": 50,
+    "unscored_questions": 15,
+    "duration_minutes": 130,
+    "passing_score": 720,
+    "scoring_model": "compensatory",
+    "question_formats": ["multiple choice", "multiple response"],
+    "cost_usd": 150,
+    "prerequisites": []
+  },
+  "domains": [
+    {
+      "id": "D1",
+      "title": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+      "weight": 22,
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Implement metrics, alarms, and filters using AWS monitoring and logging services",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/01-cloudwatch-operations-metrics-alarms-dashboards.md", "emphasis": "core", "note": "CloudWatch agent, alarms, composite alarms, cross-account dashboards." },
+            { "ref": "module-16-monitoring-and-observability/01-cloudwatch-metrics.md", "emphasis": "supporting" },
+            { "ref": "module-16-monitoring-and-observability/02-cloudwatch-logs.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "1.2",
+          "title": "Identify and remediate issues using monitoring and availability metrics",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/02-automation-and-remediation-ssm-eventbridge.md", "emphasis": "core", "note": "SSM Automation runbooks, EventBridge routing/troubleshooting, auto-remediation." },
+            { "ref": "module-16-monitoring-and-observability/05-systems-manager.md", "emphasis": "supporting" },
+            { "ref": "module-16-monitoring-and-observability/06-eventbridge.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "1.3",
+          "title": "Implement performance optimization for compute, storage, and database",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/03-performance-optimization-and-troubleshooting.md", "emphasis": "core", "note": "EBS volume types, RDS Performance Insights/Proxy, S3 transfer, EFS/FSx, placement groups." },
+            { "ref": "module-10-storage-ebs-efs/01-ebs-deep-dive.md", "emphasis": "supporting" },
+            { "ref": "module-11-rds-and-aurora/06-rds-proxy.md", "emphasis": "supporting" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D2",
+      "title": "Reliability and Business Continuity",
+      "weight": 22,
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Implement scalability and elasticity",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/04-scaling-and-high-availability-operations.md", "emphasis": "core", "note": "Auto Scaling policies, health checks, caching, DB scaling, Multi-AZ." },
+            { "ref": "module-08-scaling-and-load-balancing/04-auto-scaling-groups.md", "emphasis": "supporting" },
+            { "ref": "module-08-scaling-and-load-balancing/05-scaling-policies.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "2.2",
+          "title": "Implement highly available and resilient environments",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/04-scaling-and-high-availability-operations.md", "emphasis": "core", "note": "ELB/Route 53 health checks, Multi-AZ fault tolerance." },
+            { "ref": "module-23-high-availability-and-dr/01-ha-fundamentals.md", "emphasis": "supporting" },
+            { "ref": "module-11-rds-and-aurora/02-multi-az-and-read-replicas.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "2.3",
+          "title": "Implement backup and restore strategies",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/05-backup-restore-and-dr-operations.md", "emphasis": "core", "note": "AWS Backup, PITR, versioning, DR strategies, RTO/RPO." },
+            { "ref": "module-11-rds-and-aurora/03-backups-and-snapshots.md", "emphasis": "supporting" },
+            { "ref": "module-23-high-availability-and-dr/02-disaster-recovery.md", "emphasis": "supporting" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D3",
+      "title": "Deployment, Provisioning, and Automation",
+      "weight": 22,
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Provision and maintain cloud resources",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/06-iac-operations-cloudformation-stacksets.md", "emphasis": "core", "note": "CloudFormation/CDK, StackSets, deployment troubleshooting, Image Builder, strategies." },
+            { "ref": "module-20-developer-tools-cicd/05-infrastructure-as-code.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "3.2",
+          "title": "Automate the management of existing resources",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/02-automation-and-remediation-ssm-eventbridge.md", "emphasis": "core", "note": "Systems Manager operational automation; event-driven automation (Lambda, S3 events)." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D4",
+      "title": "Security and Compliance",
+      "weight": 16,
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "Implement and manage security and compliance tools and policies",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/07-operational-security-and-compliance.md", "emphasis": "core", "note": "IAM ops, access troubleshooting (CloudTrail/Policy Simulator/Access Analyzer), SCPs, Trusted Advisor." },
+            { "ref": "module-04-iam/01-iam-overview.md", "emphasis": "supporting" },
+            { "ref": "module-15-security-services/06-config-cloudtrail.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "4.2",
+          "title": "Implement strategies to protect data and infrastructure",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/07-operational-security-and-compliance.md", "emphasis": "core", "note": "Encryption at rest (KMS)/in transit (ACM), secrets, remediating Security Hub/GuardDuty/Config/Inspector findings." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D5",
+      "title": "Networking and Content Delivery",
+      "weight": 18,
+      "tasks": [
+        {
+          "id": "5.1",
+          "title": "Implement and optimize networking features and connectivity",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/08-network-operations-and-troubleshooting.md", "emphasis": "core", "note": "VPC config, private connectivity, network protection services, network cost." },
+            { "ref": "module-13-vpc-networking/01-vpc-fundamentals.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "5.2",
+          "title": "Configure domains, DNS services, and content delivery",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/08-network-operations-and-troubleshooting.md", "emphasis": "core", "note": "Route 53 Resolver, routing policies, CloudFront/Global Accelerator." },
+            { "ref": "module-14-dns-cdn-and-hybrid/02-routing-policies.md", "emphasis": "supporting" },
+            { "ref": "module-14-dns-cdn-and-hybrid/03-cloudfront.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "5.3",
+          "title": "Troubleshoot network connectivity issues",
+          "lessons": [
+            { "ref": "certs/SOA-C03/lessons/08-network-operations-and-troubleshooting.md", "emphasis": "core", "note": "Connectivity troubleshooting chain, network logs, CloudFront caching issues." },
+            { "ref": "module-13-vpc-networking/08-flow-logs.md", "emphasis": "supporting" }
+          ]
+        }
+      ]
+    }
+  ],
+  "cert_specific_lessons": [
+    { "file": "certs/SOA-C03/lessons/01-cloudwatch-operations-metrics-alarms-dashboards.md", "title": "CloudWatch Operations: Metrics, Alarms, Dashboards, and the Agent", "status": "published", "covers_tasks": ["1.1"] },
+    { "file": "certs/SOA-C03/lessons/02-automation-and-remediation-ssm-eventbridge.md", "title": "Automation and Remediation: Systems Manager and EventBridge", "status": "published", "covers_tasks": ["1.2", "3.2"] },
+    { "file": "certs/SOA-C03/lessons/03-performance-optimization-and-troubleshooting.md", "title": "Performance Optimization and Troubleshooting", "status": "published", "covers_tasks": ["1.3"] },
+    { "file": "certs/SOA-C03/lessons/04-scaling-and-high-availability-operations.md", "title": "Scaling and High-Availability Operations", "status": "published", "covers_tasks": ["2.1", "2.2"] },
+    { "file": "certs/SOA-C03/lessons/05-backup-restore-and-dr-operations.md", "title": "Backup, Restore, and Disaster Recovery Operations", "status": "published", "covers_tasks": ["2.3"] },
+    { "file": "certs/SOA-C03/lessons/06-iac-operations-cloudformation-stacksets.md", "title": "Infrastructure as Code Operations: CloudFormation, StackSets, and Troubleshooting", "status": "published", "covers_tasks": ["3.1"] },
+    { "file": "certs/SOA-C03/lessons/07-operational-security-and-compliance.md", "title": "Operational Security and Compliance", "status": "published", "covers_tasks": ["4.1", "4.2"] },
+    { "file": "certs/SOA-C03/lessons/08-network-operations-and-troubleshooting.md", "title": "Network Operations and Troubleshooting", "status": "published", "covers_tasks": ["5.1", "5.2", "5.3"] },
+    { "file": "certs/SOA-C03/lessons/09-exam-strategy-and-question-patterns.md", "title": "SOA-C03 Exam Strategy and Question Patterns", "status": "published", "covers_tasks": ["1.1", "2.1", "3.1", "4.1", "5.3"] }
+  ],
+  "related_service_lessons": {
+    "certs/SOA-C03/lessons/01-cloudwatch-operations-metrics-alarms-dashboards.md": ["services/amazon-cloudwatch.md"],
+    "module-16-monitoring-and-observability/01-cloudwatch-metrics.md": ["services/amazon-cloudwatch.md"],
+    "certs/SOA-C03/lessons/02-automation-and-remediation-ssm-eventbridge.md": ["services/aws-systems-manager.md", "services/amazon-eventbridge.md"],
+    "module-16-monitoring-and-observability/05-systems-manager.md": ["services/aws-systems-manager.md"],
+    "module-16-monitoring-and-observability/06-eventbridge.md": ["services/amazon-eventbridge.md"],
+    "certs/SOA-C03/lessons/07-operational-security-and-compliance.md": ["services/amazon-inspector.md", "services/amazon-detective.md"],
+    "certs/SOA-C03/lessons/05-backup-restore-and-dr-operations.md": ["services/aws-backup.md"],
+    "module-11-rds-and-aurora/03-backups-and-snapshots.md": ["services/amazon-rds.md", "services/aws-backup.md"],
+    "module-10-storage-ebs-efs/01-ebs-deep-dive.md": ["services/amazon-ebs.md"],
+    "module-08-scaling-and-load-balancing/04-auto-scaling-groups.md": ["services/ec2-auto-scaling.md"],
+    "module-11-rds-and-aurora/02-multi-az-and-read-replicas.md": ["services/amazon-rds.md"],
+    "module-11-rds-and-aurora/03-backups-and-snapshots.md": ["services/amazon-rds.md", "services/amazon-ebs.md"],
+    "certs/SOA-C03/lessons/06-iac-operations-cloudformation-stacksets.md": ["services/aws-cloudformation.md"],
+    "module-20-developer-tools-cicd/05-infrastructure-as-code.md": ["services/aws-cloudformation.md"],
+    "module-04-iam/01-iam-overview.md": ["services/aws-iam.md"],
+    "module-15-security-services/06-config-cloudtrail.md": ["services/aws-config.md", "services/aws-cloudtrail.md"],
+    "module-13-vpc-networking/01-vpc-fundamentals.md": ["services/amazon-vpc.md"],
+    "module-13-vpc-networking/08-flow-logs.md": ["services/amazon-vpc.md"],
+    "module-14-dns-cdn-and-hybrid/02-routing-policies.md": ["services/amazon-route-53.md"],
+    "module-14-dns-cdn-and-hybrid/03-cloudfront.md": ["services/amazon-cloudfront.md"]
+  },
+  "question_bank": {
+    "path": "questions/aws-soa",
+    "blueprint_weighted": false,
+    "target_count": null
+  },
+  "coverage": {
+    "shared_lessons": 16,
+    "cert_specific_needed": 0,
+    "gaps": [
+      "Full blueprint coverage: 9 cert-specific operational/troubleshooting lessons across all five domains (SAA-model format), plus reuse of shared monitoring, scaling, HA/DR, storage, database, IaC, security, and networking lessons.",
+      "Question bank (questions/aws-soa) was re-mapped from retired SOA-C02 to SOA-C03 during the practice-test QA (212 active questions, cost questions deactivated); not yet verified as weighted to 22/22/22/16/18."
+    ]
+  }
+}

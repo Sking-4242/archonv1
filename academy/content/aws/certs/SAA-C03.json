@@ -1,0 +1,333 @@
+{
+  "cert": {
+    "code": "SAA-C03",
+    "name": "AWS Certified Solutions Architect - Associate",
+    "short_name": "Solutions Architect Associate",
+    "level": "associate",
+    "status": "active",
+    "retires_on": null,
+    "exam_guide_url": "https://docs.aws.amazon.com/aws-certification/latest/solutions-architect-associate-03/solutions-architect-associate-03.html",
+    "blueprint_version": "1.1"
+  },
+  "exam": {
+    "scored_questions": 50,
+    "unscored_questions": 15,
+    "duration_minutes": 130,
+    "passing_score": 720,
+    "scoring_model": "compensatory",
+    "question_formats": ["multiple choice", "multiple response"],
+    "cost_usd": 150,
+    "prerequisites": []
+  },
+  "domains": [
+    {
+      "id": "D1",
+      "title": "Design Secure Architectures",
+      "weight": 30,
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Design secure access to AWS resources",
+          "lessons": [
+            { "ref": "module-04-iam/01-iam-overview.md", "emphasis": "core" },
+            { "ref": "module-04-iam/02-users-groups-roles.md", "emphasis": "core" },
+            { "ref": "module-04-iam/03-policies.md", "emphasis": "core", "note": "Identity vs. resource policies, policy evaluation logic." },
+            { "ref": "module-04-iam/04-least-privilege.md", "emphasis": "core" },
+            { "ref": "module-04-iam/05-mfa.md", "emphasis": "core" },
+            { "ref": "module-04-iam/06-organizations.md", "emphasis": "core", "note": "SCPs and multi-account guardrails." },
+            { "ref": "module-15-security-services/01-iam-advanced.md", "emphasis": "core", "note": "Permission boundaries, role chaining." },
+            { "ref": "certs/SAA-C03/lessons/cross-account-access-patterns.md", "emphasis": "core", "note": "Cert-specific: STS assume-role, two-sided trust, ExternalId, resource policies." },
+            { "ref": "module-05-shared-responsibility-and-compliance/01-shared-responsibility.md", "emphasis": "supporting" },
+            { "ref": "module-02-aws-global-infrastructure/01-regions.md", "emphasis": "skim" },
+            { "ref": "module-02-aws-global-infrastructure/02-availability-zones.md", "emphasis": "skim" }
+          ]
+        },
+        {
+          "id": "1.2",
+          "title": "Design secure workloads and applications",
+          "lessons": [
+            { "ref": "module-13-vpc-networking/02-security-groups-nacls.md", "emphasis": "core" },
+            { "ref": "module-13-vpc-networking/07-vpc-design-patterns.md", "emphasis": "core", "note": "Public/private subnet segmentation." },
+            { "ref": "module-13-vpc-networking/05-vpc-endpoints.md", "emphasis": "supporting" },
+            { "ref": "module-13-vpc-networking/06-network-firewall.md", "emphasis": "supporting" },
+            { "ref": "module-15-security-services/05-guardduty-security-hub.md", "emphasis": "core" },
+            { "ref": "module-15-security-services/07-waf-shield-firewall-manager.md", "emphasis": "core", "note": "DDoS, SQLi, L7 protection." },
+            { "ref": "module-15-security-services/03-secrets-manager.md", "emphasis": "core", "note": "App credential security." },
+            { "ref": "certs/SAA-C03/lessons/cognito-user-app-auth.md", "emphasis": "core", "note": "Cert-specific: end-user auth; user pools vs. identity pools." },
+            { "ref": "module-13-vpc-networking/04-vpn-direct-connect.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "1.3",
+          "title": "Determine appropriate data security controls",
+          "lessons": [
+            { "ref": "module-15-security-services/02-kms.md", "emphasis": "core", "note": "Encryption at rest, key policies, rotation." },
+            { "ref": "module-15-security-services/04-acm-cloudhsm-macie.md", "emphasis": "core", "note": "TLS in transit, data classification with Macie." },
+            { "ref": "module-09-s3/04-security.md", "emphasis": "core" },
+            { "ref": "module-09-s3/03-versioning.md", "emphasis": "supporting", "note": "Object Lock, data retention." },
+            { "ref": "module-09-s3/05-replication.md", "emphasis": "supporting" },
+            { "ref": "module-11-rds-and-aurora/03-backups-and-snapshots.md", "emphasis": "supporting" },
+            { "ref": "module-05-shared-responsibility-and-compliance/04-compliance.md", "emphasis": "skim" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D2",
+      "title": "Design Resilient Architectures",
+      "weight": 26,
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Design scalable and loosely coupled architectures",
+          "lessons": [
+            { "ref": "module-08-scaling-and-load-balancing/01-elb-overview.md", "emphasis": "core" },
+            { "ref": "module-08-scaling-and-load-balancing/02-alb-vs-nlb.md", "emphasis": "core" },
+            { "ref": "module-08-scaling-and-load-balancing/04-auto-scaling-groups.md", "emphasis": "core" },
+            { "ref": "module-19-messaging-and-integration/01-sqs.md", "emphasis": "core", "note": "Decoupling, queue-based load leveling." },
+            { "ref": "module-19-messaging-and-integration/02-sns.md", "emphasis": "core", "note": "Pub/sub fan-out." },
+            { "ref": "module-19-messaging-and-integration/05-integration-patterns.md", "emphasis": "core" },
+            { "ref": "certs/SAA-C03/lessons/messaging-decoupling-decisions.md", "emphasis": "core", "note": "Cert-specific: SQS vs. SNS vs. Kinesis vs. EventBridge selection." },
+            { "ref": "module-17-serverless-lambda/01-lambda-fundamentals.md", "emphasis": "core" },
+            { "ref": "module-17-serverless-lambda/03-step-functions.md", "emphasis": "supporting", "note": "Workflow orchestration." },
+            { "ref": "module-17-serverless-lambda/04-api-gateway.md", "emphasis": "supporting" },
+            { "ref": "module-18-containers-ecs-eks/01-containers-on-aws.md", "emphasis": "supporting", "note": "ECS/EKS/Fargate selection." },
+            { "ref": "module-16-monitoring-and-observability/06-eventbridge.md", "emphasis": "supporting", "note": "Event-driven architecture." }
+          ]
+        },
+        {
+          "id": "2.2",
+          "title": "Design highly available and/or fault-tolerant architectures",
+          "lessons": [
+            { "ref": "module-23-high-availability-and-dr/01-ha-fundamentals.md", "emphasis": "core" },
+            { "ref": "module-23-high-availability-and-dr/02-disaster-recovery.md", "emphasis": "core", "note": "Backup/restore, pilot light, warm standby, active-active; RPO/RTO." },
+            { "ref": "module-11-rds-and-aurora/02-multi-az-and-read-replicas.md", "emphasis": "core" },
+            { "ref": "module-14-dns-cdn-and-hybrid/02-routing-policies.md", "emphasis": "core", "note": "Route 53 failover/health checks." },
+            { "ref": "module-08-scaling-and-load-balancing/05-scaling-policies.md", "emphasis": "supporting" },
+            { "ref": "module-11-rds-and-aurora/06-rds-proxy.md", "emphasis": "supporting", "note": "Proxy/connection resilience." },
+            { "ref": "module-16-monitoring-and-observability/03-xray-tracing.md", "emphasis": "skim", "note": "Workload visibility." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D3",
+      "title": "Design High-Performing Architectures",
+      "weight": 24,
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Determine high-performing and/or scalable storage solutions",
+          "lessons": [
+            { "ref": "module-09-s3/01-s3-overview.md", "emphasis": "core" },
+            { "ref": "module-09-s3/06-performance.md", "emphasis": "core" },
+            { "ref": "module-10-storage-ebs-efs/01-ebs-deep-dive.md", "emphasis": "core", "note": "Volume types, IOPS/throughput." },
+            { "ref": "module-10-storage-ebs-efs/03-efs.md", "emphasis": "core" },
+            { "ref": "module-10-storage-ebs-efs/04-fsx.md", "emphasis": "supporting" },
+            { "ref": "module-10-storage-ebs-efs/05-storage-gateway.md", "emphasis": "supporting", "note": "Hybrid storage." }
+          ]
+        },
+        {
+          "id": "3.2",
+          "title": "Design high-performing and elastic compute solutions",
+          "lessons": [
+            { "ref": "module-07-ec2/01-ec2-overview.md", "emphasis": "core" },
+            { "ref": "module-07-ec2/02-instance-types.md", "emphasis": "core", "note": "Family selection by workload." },
+            { "ref": "module-08-scaling-and-load-balancing/04-auto-scaling-groups.md", "emphasis": "core" },
+            { "ref": "module-17-serverless-lambda/01-lambda-fundamentals.md", "emphasis": "core" },
+            { "ref": "module-17-serverless-lambda/02-lambda-advanced.md", "emphasis": "supporting", "note": "Memory/power tuning." },
+            { "ref": "module-18-containers-ecs-eks/01-containers-on-aws.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "3.3",
+          "title": "Determine high-performing database solutions",
+          "lessons": [
+            { "ref": "module-11-rds-and-aurora/01-rds-fundamentals.md", "emphasis": "core" },
+            { "ref": "module-11-rds-and-aurora/02-multi-az-and-read-replicas.md", "emphasis": "core", "note": "Read replicas for read-heavy workloads." },
+            { "ref": "module-11-rds-and-aurora/04-aurora-architecture.md", "emphasis": "core" },
+            { "ref": "module-12-dynamodb-and-databases/01-dynamodb-fundamentals.md", "emphasis": "core", "note": "Relational vs. non-relational decision." },
+            { "ref": "module-12-dynamodb-and-databases/05-elasticache.md", "emphasis": "core", "note": "Caching strategies." },
+            { "ref": "certs/SAA-C03/lessons/caching-strategies.md", "emphasis": "core", "note": "Cert-specific: where to cache — CloudFront, ElastiCache, DAX, read replicas." },
+            { "ref": "module-12-dynamodb-and-databases/03-streams-transactions-dax.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "3.4",
+          "title": "Determine high-performing and/or scalable network architectures",
+          "lessons": [
+            { "ref": "module-13-vpc-networking/01-vpc-fundamentals.md", "emphasis": "core", "note": "Subnet tiers, routing, IP addressing." },
+            { "ref": "module-14-dns-cdn-and-hybrid/03-cloudfront.md", "emphasis": "core", "note": "Edge caching." },
+            { "ref": "module-14-dns-cdn-and-hybrid/04-global-accelerator.md", "emphasis": "core" },
+            { "ref": "module-13-vpc-networking/03-vpc-peering-transit-gateway.md", "emphasis": "supporting" },
+            { "ref": "module-13-vpc-networking/04-vpn-direct-connect.md", "emphasis": "supporting", "note": "PrivateLink, hybrid options." }
+          ]
+        },
+        {
+          "id": "3.5",
+          "title": "Determine high-performing data ingestion and transformation solutions",
+          "lessons": [
+            { "ref": "module-19-messaging-and-integration/03-kinesis.md", "emphasis": "core", "note": "Streaming ingestion." },
+            { "ref": "module-21-analytics-and-data-engineering/01-data-lake-architecture.md", "emphasis": "supporting" },
+            { "ref": "module-21-analytics-and-data-engineering/02-glue.md", "emphasis": "supporting", "note": "ETL, format transforms (csv to parquet)." },
+            { "ref": "module-21-analytics-and-data-engineering/03-athena.md", "emphasis": "supporting" },
+            { "ref": "module-10-storage-ebs-efs/05-storage-gateway.md", "emphasis": "skim", "note": "DataSync/Transfer Family adjacency." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D4",
+      "title": "Design Cost-Optimized Architectures",
+      "weight": 20,
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "Design cost-optimized storage solutions",
+          "lessons": [
+            { "ref": "module-09-s3/02-storage-classes.md", "emphasis": "core", "note": "Tiering, Intelligent-Tiering, lifecycle." },
+            { "ref": "module-24-cost-optimization/03-storage-cost-optimization.md", "emphasis": "core" },
+            { "ref": "module-10-storage-ebs-efs/02-ebs-snapshots.md", "emphasis": "supporting", "note": "Backup/archival cost." },
+            { "ref": "module-03-pricing-and-billing/05-cost-explorer.md", "emphasis": "supporting", "note": "Cost Explorer, Budgets, allocation tags." }
+          ]
+        },
+        {
+          "id": "4.2",
+          "title": "Design cost-optimized compute solutions",
+          "lessons": [
+            { "ref": "module-07-ec2/04-pricing-models.md", "emphasis": "core" },
+            { "ref": "module-03-pricing-and-billing/03-pricing-models.md", "emphasis": "core", "note": "On-Demand, Reserved, Spot, Savings Plans." },
+            { "ref": "module-24-cost-optimization/02-purchasing-strategies.md", "emphasis": "core" },
+            { "ref": "module-24-cost-optimization/01-cost-fundamentals.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "4.3",
+          "title": "Design cost-optimized database solutions",
+          "lessons": [
+            { "ref": "module-11-rds-and-aurora/01-rds-fundamentals.md", "emphasis": "supporting", "note": "Right-sizing, Aurora Serverless vs. provisioned." },
+            { "ref": "module-12-dynamodb-and-databases/01-dynamodb-fundamentals.md", "emphasis": "supporting", "note": "On-demand vs. provisioned capacity." },
+            { "ref": "module-24-cost-optimization/04-cost-tools.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "4.4",
+          "title": "Design cost-optimized network architectures",
+          "lessons": [
+            { "ref": "certs/SAA-C03/lessons/network-data-transfer-cost.md", "emphasis": "core", "note": "Cert-specific: data-transfer cost hierarchy, NAT, endpoints, egress." },
+            { "ref": "module-13-vpc-networking/lab-nat-gateway.md", "emphasis": "core", "note": "NAT gateway vs. NAT instance cost, per-AZ vs. shared." },
+            { "ref": "module-14-dns-cdn-and-hybrid/03-cloudfront.md", "emphasis": "supporting", "note": "Egress/CDN cost trade-offs." },
+            { "ref": "module-13-vpc-networking/05-vpc-endpoints.md", "emphasis": "supporting", "note": "Endpoints to avoid NAT/egress charges." },
+            { "ref": "module-24-cost-optimization/04-cost-tools.md", "emphasis": "skim" }
+          ]
+        }
+      ]
+    }
+  ],
+  "cert_specific_lessons": [
+    {
+      "file": "certs/SAA-C03/lessons/cross-account-access-patterns.md",
+      "title": "Cross-Account Access: STS, Role Switching, and Resource Policies",
+      "status": "published",
+      "covers_tasks": ["1.1"],
+      "rationale": "Domain 1.1 explicitly tests STS, role switching, and cross-account access. The general IAM module introduces roles but does not work the multi-account assume-role patterns the exam leans on."
+    },
+    {
+      "file": "certs/SAA-C03/lessons/cognito-user-app-auth.md",
+      "title": "Amazon Cognito for Application User Authentication",
+      "status": "published",
+      "covers_tasks": ["1.2"],
+      "rationale": "Cognito is named in Domain 1.2 and appears in SAA scenarios, but there is no Cognito lesson in the general path."
+    },
+    {
+      "file": "certs/SAA-C03/lessons/messaging-decoupling-decisions.md",
+      "title": "Choosing Decoupling Services: SQS, SNS, Kinesis, and EventBridge",
+      "status": "published",
+      "covers_tasks": ["2.1"],
+      "rationale": "Domain 2.1 tests selection among messaging primitives. The shared lessons teach each service alone; this lesson builds the comparative decision the exam actually asks."
+    },
+    {
+      "file": "certs/SAA-C03/lessons/caching-strategies.md",
+      "title": "Caching Strategies on AWS: Edge, In-Memory, and Database Acceleration",
+      "status": "published",
+      "covers_tasks": ["3.3", "3.4"],
+      "rationale": "Caching is scattered across CloudFront, ElastiCache, and DAX lessons. Domain 3 tests where to place a cache; this consolidates the decision."
+    },
+    {
+      "file": "certs/SAA-C03/lessons/network-data-transfer-cost.md",
+      "title": "Cost-Optimized Networking: Data Transfer, NAT, and Egress",
+      "status": "published",
+      "covers_tasks": ["4.4"],
+      "rationale": "Domain 4.4 is dense with data-transfer cost decisions (NAT placement, endpoints, egress) the shared lessons mention only in passing."
+    },
+    {
+      "file": "certs/SAA-C03/lessons/saa-scenario-decision-drills.md",
+      "title": "SAA Scenario Decision Drills: Picking the Right Service Under Constraints",
+      "status": "published",
+      "covers_tasks": ["2.1", "2.2", "3.2", "3.3", "4.2"],
+      "rationale": "SAA is a design/selection exam. A scenario-drill lesson that forces service trade-off decisions (e.g. SQS vs. Kinesis, Aurora vs. DynamoDB, Spot vs. Reserved) trains the exam's core skill in a way individual service lessons do not."
+    },
+    {
+      "file": "certs/SAA-C03/lessons/exam-strategy-and-question-patterns.md",
+      "title": "SAA-C03 Exam Strategy and Question Patterns",
+      "status": "published",
+      "covers_tasks": ["1.1", "2.1", "3.1", "4.1"],
+      "rationale": "Distractor patterns, keyword triggers (e.g. 'most cost-effective', 'least operational overhead'), and time management specific to SAA-C03."
+    }
+  ],
+  "related_service_lessons": {
+    "module-07-ec2/01-ec2-overview.md": ["services/amazon-ec2.md"],
+    "module-08-scaling-and-load-balancing/01-elb-overview.md": ["services/elastic-load-balancing.md"],
+    "module-08-scaling-and-load-balancing/04-auto-scaling-groups.md": ["services/ec2-auto-scaling.md"],
+    "module-09-s3/01-s3-overview.md": ["services/amazon-s3.md"],
+    "module-10-storage-ebs-efs/01-ebs-deep-dive.md": ["services/amazon-ebs.md"],
+    "module-10-storage-ebs-efs/03-efs.md": ["services/amazon-efs.md"],
+    "module-11-rds-and-aurora/01-rds-fundamentals.md": ["services/amazon-rds.md"],
+    "module-12-dynamodb-and-databases/01-dynamodb-fundamentals.md": ["services/amazon-dynamodb.md"],
+    "module-13-vpc-networking/01-vpc-fundamentals.md": ["services/amazon-vpc.md"],
+    "module-14-dns-cdn-and-hybrid/02-routing-policies.md": ["services/amazon-route-53.md"],
+    "module-14-dns-cdn-and-hybrid/03-cloudfront.md": ["services/amazon-cloudfront.md"],
+    "module-17-serverless-lambda/01-lambda-fundamentals.md": ["services/aws-lambda.md"],
+    "module-17-serverless-lambda/04-api-gateway.md": ["services/amazon-api-gateway.md", "services/aws-appsync.md"],
+    "module-18-containers-ecs-eks/01-containers-on-aws.md": ["services/amazon-ecs.md", "services/amazon-eks.md", "services/amazon-ecr.md"],
+    "module-19-messaging-and-integration/01-sqs.md": ["services/amazon-sqs.md"],
+    "module-19-messaging-and-integration/02-sns.md": ["services/amazon-sns.md"],
+    "module-04-iam/01-iam-overview.md": ["services/aws-iam.md"],
+    "module-04-iam/06-organizations.md": ["services/aws-organizations.md"],
+    "module-15-security-services/05-guardduty-security-hub.md": ["services/guardduty.md", "services/amazon-security-hub.md"],
+    "module-15-security-services/07-waf-shield-firewall-manager.md": ["services/aws-waf.md", "services/aws-shield.md"],
+    "module-16-monitoring-and-observability/06-eventbridge.md": ["services/amazon-eventbridge.md"],
+    "module-17-serverless-lambda/03-step-functions.md": ["services/aws-step-functions.md"],
+    "certs/SAA-C03/lessons/cognito-user-app-auth.md": ["services/amazon-cognito.md"],
+    "module-11-rds-and-aurora/04-aurora-architecture.md": ["services/amazon-aurora.md"],
+    "module-12-dynamodb-and-databases/05-elasticache.md": ["services/amazon-elasticache.md"],
+    "module-19-messaging-and-integration/03-kinesis.md": ["services/amazon-kinesis.md"],
+    "module-19-messaging-and-integration/05-integration-patterns.md": ["services/amazon-msk.md"],
+    "module-14-dns-cdn-and-hybrid/04-global-accelerator.md": ["services/aws-global-accelerator.md"],
+    "module-21-analytics-and-data-engineering/01-data-lake-architecture.md": ["services/amazon-redshift.md", "services/amazon-emr.md", "services/amazon-opensearch.md"],
+    "module-21-analytics-and-data-engineering/02-glue.md": ["services/aws-glue.md"],
+    "module-21-analytics-and-data-engineering/03-athena.md": ["services/amazon-athena.md"],
+    "module-11-rds-and-aurora/03-backups-and-snapshots.md": ["services/amazon-rds.md", "services/aws-backup.md"],
+    "module-23-high-availability-and-dr/02-disaster-recovery.md": ["services/aws-backup.md"],
+    "module-15-security-services/03-secrets-manager.md": ["services/aws-secrets-manager.md"],
+    "module-15-security-services/02-kms.md": ["services/aws-kms.md"],
+    "module-15-security-services/04-acm-cloudhsm-macie.md": ["services/amazon-macie.md", "services/aws-certificate-manager.md"],
+    "certs/SAA-C03/lessons/cross-account-access-patterns.md": ["services/aws-iam.md", "services/aws-organizations.md"],
+    "certs/SAA-C03/lessons/messaging-decoupling-decisions.md": ["services/amazon-sqs.md", "services/amazon-sns.md"],
+    "certs/SAA-C03/lessons/caching-strategies.md": ["services/amazon-cloudfront.md", "services/amazon-elasticache.md"],
+    "certs/SAA-C03/lessons/network-data-transfer-cost.md": ["services/amazon-vpc.md", "services/amazon-cloudfront.md"]
+  },
+  "question_bank": {
+    "path": "questions/aws-saa",
+    "blueprint_weighted": false,
+    "target_count": 390
+  },
+  "coverage": {
+    "shared_lessons": 58,
+    "cert_specific_needed": 0,
+    "gaps": [
+      "All four domains have published cert-specific lessons; full blueprint coverage in place.",
+      "Question bank (questions/aws-saa) is not yet weighted to the 30/26/24/20 domain split."
+    ]
+  }
+}

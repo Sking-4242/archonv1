@@ -26,8 +26,13 @@ class OllamaProvider(LLMProvider):
         try:
             response = httpx.post(
                 url,
-                json={"model": self._model, "prompt": full_prompt, "stream": False},
-                timeout=120.0,
+                json={
+                    "model": self._model,
+                    "prompt": full_prompt,
+                    "stream": False,
+                    "options": {"num_predict": 16384},
+                },
+                timeout=300.0,
             )
             response.raise_for_status()
             return response.json()["response"]

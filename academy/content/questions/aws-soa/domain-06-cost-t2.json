@@ -1,344 +1,349 @@
 [
-  {
-    "id": "aws-soa-t2-06-001",
-    "domain": 6,
-    "domain_name": "Cost and Performance Optimization",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A company has 50 EC2 instances with varying sizes. AWS Compute Optimizer recommends downsizing 20 of them. Before acting on all recommendations, a SysOps administrator wants to validate one recommendation on a non-critical instance. What is the correct process?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Apply Compute Optimizer recommendations to all 20 instances simultaneously; Compute Optimizer guarantees that recommendations will not degrade application performance."
-      },
-      {
-        "label": "B",
-        "text": "Change the non-critical instance type to the recommended size, monitor CloudWatch metrics (CPU, memory via CloudWatch agent, network) for one to two weeks, and compare performance against the previous instance type before applying to remaining instances."
-      },
-      {
-        "label": "C",
-        "text": "Create an AMI of the non-critical instance, launch a new instance of the recommended size from the AMI, run a load test for 30 minutes, and immediately apply the recommendation to all 20 instances if the test passes."
-      },
-      {
-        "label": "D",
-        "text": "Enable EC2 Auto Scaling on the non-critical instance and configure it to switch instance types based on CloudWatch metrics automatically, validating the recommendation dynamically."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "C": "A 30-minute load test may not capture daily or weekly traffic patterns; monitoring over 1-2 weeks with real production traffic provides more reliable validation.",
-      "A": "Compute Optimizer recommendations are based on historical metrics; they do not guarantee performance and should be validated, especially for latency-sensitive workloads.",
-      "D": "EC2 Auto Scaling changes instance counts, not instance types; instance type changes require stopping and modifying the instance or launching a new one."
-    },
-    "explanation": "Validating a Compute Optimizer recommendation requires changing the instance type and observing real workload behavior over a representative time period. CloudWatch metrics including CPU utilization, network throughput, and disk I/O (plus memory if the CloudWatch agent is installed) should all remain within acceptable bounds. This approach minimizes risk before applying changes at scale.",
-    "module_ref": "soa/cost/compute-optimizer-validation",
-    "tags": [
-      "compute-optimizer",
-      "rightsizing",
-      "ec2",
-      "validation",
-      "cost"
-    ]
+ {
+  "id": "aws-soa-t2-06-001",
+  "domain": 6,
+  "domain_name": "Cost and Performance Optimization (SOA-C02, retired)",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": false,
+  "stem": "A company has 50 EC2 instances with varying sizes. AWS Compute Optimizer recommends downsizing 20 of them. Before acting on all recommendations, a SysOps administrator wants to validate one recommendation on a non-critical instance. What is the correct process?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Apply Compute Optimizer recommendations to all 20 instances simultaneously; Compute Optimizer guarantees that recommendations will not degrade application performance."
+   },
+   {
+    "label": "B",
+    "text": "Change the non-critical instance type to the recommended size, monitor CloudWatch metrics (CPU, memory via CloudWatch agent, network) for one to two weeks, and compare performance against the previous instance type before applying to remaining instances."
+   },
+   {
+    "label": "C",
+    "text": "Create an AMI of the non-critical instance, launch a new instance of the recommended size from the AMI, run a load test for 30 minutes, and immediately apply the recommendation to all 20 instances if the test passes."
+   },
+   {
+    "label": "D",
+    "text": "Enable EC2 Auto Scaling on the non-critical instance and configure it to switch instance types based on CloudWatch metrics automatically, validating the recommendation dynamically."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "C": "A 30-minute load test may not capture daily or weekly traffic patterns; monitoring over 1-2 weeks with real production traffic provides more reliable validation.",
+   "A": "Compute Optimizer recommendations are based on historical metrics; they do not guarantee performance and should be validated, especially for latency-sensitive workloads.",
+   "D": "EC2 Auto Scaling changes instance counts, not instance types; instance type changes require stopping and modifying the instance or launching a new one."
   },
-  {
-    "id": "aws-soa-t2-06-002",
-    "domain": 6,
-    "domain_name": "Cost and Performance Optimization",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator notices that data transfer costs are high because EC2 instances in different Availability Zones within the same region are communicating across AZs. What architectural change reduces this cost?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Deploy application tiers within the same Availability Zone when possible, or co-locate dependent services in the same AZ to reduce cross-AZ data transfer costs while maintaining multi-AZ deployment for only stateful components."
-      },
-      {
-        "label": "B",
-        "text": "Use S3 Transfer Acceleration to route inter-AZ traffic through CloudFront edge locations, which have lower data transfer rates than VPC cross-AZ traffic."
-      },
-      {
-        "label": "C",
-        "text": "Enable VPC Endpoint for EC2 service-to-service communication; VPC Endpoints eliminate data transfer charges for inter-AZ traffic within the same VPC."
-      },
-      {
-        "label": "D",
-        "text": "Configure Enhanced Networking (SR-IOV) on all EC2 instances; enhanced networking reduces the per-byte cost of cross-AZ data transfer."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "C": "VPC Endpoints reduce data transfer costs for traffic to AWS services (S3, DynamoDB, SQS); they do not affect cross-AZ traffic between EC2 instances.",
-      "D": "Enhanced networking improves throughput and reduces latency and CPU overhead; it does not change the per-byte cost of cross-AZ data transfer.",
-      "B": "S3 Transfer Acceleration is for accelerating S3 uploads from the internet; it does not apply to inter-AZ EC2 traffic."
-    },
-    "explanation": "AWS charges for data transfer between Availability Zones within the same region. To reduce this cost, co-locate tightly coupled services (application layer and cache, for example) in the same AZ. Multi-AZ placement should be reserved for components requiring high availability (load balancers, databases). This requires careful architectural design to balance cost and availability.",
-    "module_ref": "soa/cost/cross-az-data-transfer",
-    "tags": [
-      "data-transfer",
-      "cost-optimization",
-      "cross-az",
-      "architecture"
-    ]
+  "explanation": "Validating a Compute Optimizer recommendation requires changing the instance type and observing real workload behavior over a representative time period. CloudWatch metrics including CPU utilization, network throughput, and disk I/O (plus memory if the CloudWatch agent is installed) should all remain within acceptable bounds. This approach minimizes risk before applying changes at scale.",
+  "module_ref": "soa/cost/compute-optimizer-validation",
+  "tags": [
+   "compute-optimizer",
+   "rightsizing",
+   "ec2",
+   "validation",
+   "cost"
+  ],
+  "out_of_scope_reason": "Cost/billing/TCO topics are out of scope for SOA-C03 (CloudOps Engineer); retained but inactive."
+ },
+ {
+  "id": "aws-soa-t2-06-002",
+  "domain": 6,
+  "domain_name": "Cost and Performance Optimization (SOA-C02, retired)",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": false,
+  "stem": "A SysOps administrator notices that data transfer costs are high because EC2 instances in different Availability Zones within the same region are communicating across AZs. What architectural change reduces this cost?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Deploy application tiers within the same Availability Zone when possible, or co-locate dependent services in the same AZ to reduce cross-AZ data transfer costs while maintaining multi-AZ deployment for only stateful components."
+   },
+   {
+    "label": "B",
+    "text": "Use S3 Transfer Acceleration to route inter-AZ traffic through CloudFront edge locations, which have lower data transfer rates than VPC cross-AZ traffic."
+   },
+   {
+    "label": "C",
+    "text": "Enable VPC Endpoint for EC2 service-to-service communication; VPC Endpoints eliminate data transfer charges for inter-AZ traffic within the same VPC."
+   },
+   {
+    "label": "D",
+    "text": "Configure Enhanced Networking (SR-IOV) on all EC2 instances; enhanced networking reduces the per-byte cost of cross-AZ data transfer."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "C": "VPC Endpoints reduce data transfer costs for traffic to AWS services (S3, DynamoDB, SQS); they do not affect cross-AZ traffic between EC2 instances.",
+   "D": "Enhanced networking improves throughput and reduces latency and CPU overhead; it does not change the per-byte cost of cross-AZ data transfer.",
+   "B": "S3 Transfer Acceleration is for accelerating S3 uploads from the internet; it does not apply to inter-AZ EC2 traffic."
   },
-  {
-    "id": "aws-soa-t2-06-003",
-    "domain": 6,
-    "domain_name": "Cost and Performance Optimization",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A company purchases a 1-year Compute Savings Plan. Three months later, the engineering team migrates workloads from EC2 to AWS Lambda. Will the Savings Plan still provide a discount?",
-    "options": [
-      {
-        "label": "A",
-        "text": "No. EC2 Savings Plans only apply to EC2 instances; Lambda usage is billed separately at standard rates and is not covered by an EC2 Savings Plan."
-      },
-      {
-        "label": "B",
-        "text": "Yes. Compute Savings Plans apply to EC2, Lambda, and Fargate usage; the committed spend is automatically applied to Lambda invocation costs, providing savings even after the migration."
-      },
-      {
-        "label": "C",
-        "text": "Yes, but only if the Lambda functions run in the same AWS region as the EC2 instances covered by the original Savings Plan commitment."
-      },
-      {
-        "label": "D",
-        "text": "No. Savings Plans cannot be transferred between compute services; the company must purchase a new Lambda Savings Plan and wait for the EC2 Savings Plan to expire."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "A": "EC2 Instance Savings Plans are restricted to specific EC2 instance families and regions; Compute Savings Plans are broader and cover Lambda and Fargate in addition to EC2.",
-      "C": "Compute Savings Plans apply across all regions globally; there is no region restriction for coverage.",
-      "D": "There is no separate 'Lambda Savings Plan'; Compute Savings Plans cover Lambda, EC2, and Fargate without separate purchasing."
-    },
-    "explanation": "AWS Compute Savings Plans offer the most flexibility. They apply to any EC2 instance (regardless of family, size, region, OS, or tenancy), AWS Lambda, and AWS Fargate. When the company migrates to Lambda, the Savings Plan automatically applies to Lambda compute charges, reducing per-request and per-GB-second costs. The committed hourly spend is consumed by whichever eligible compute service is running.",
-    "module_ref": "soa/cost/compute-savings-plans",
-    "tags": [
-      "savings-plans",
-      "lambda",
-      "ec2",
-      "fargate",
-      "cost-flexibility"
-    ]
+  "explanation": "AWS charges for data transfer between Availability Zones within the same region. To reduce this cost, co-locate tightly coupled services (application layer and cache, for example) in the same AZ. Multi-AZ placement should be reserved for components requiring high availability (load balancers, databases). This requires careful architectural design to balance cost and availability.",
+  "module_ref": "soa/cost/cross-az-data-transfer",
+  "tags": [
+   "data-transfer",
+   "cost-optimization",
+   "cross-az",
+   "architecture"
+  ],
+  "out_of_scope_reason": "Cost/billing/TCO topics are out of scope for SOA-C03 (CloudOps Engineer); retained but inactive."
+ },
+ {
+  "id": "aws-soa-t2-06-003",
+  "domain": 6,
+  "domain_name": "Cost and Performance Optimization (SOA-C02, retired)",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": false,
+  "stem": "A company purchases a 1-year Compute Savings Plan. Three months later, the engineering team migrates workloads from EC2 to AWS Lambda. Will the Savings Plan still provide a discount?",
+  "options": [
+   {
+    "label": "A",
+    "text": "No. EC2 Savings Plans only apply to EC2 instances; Lambda usage is billed separately at standard rates and is not covered by an EC2 Savings Plan."
+   },
+   {
+    "label": "B",
+    "text": "Yes. Compute Savings Plans apply to EC2, Lambda, and Fargate usage; the committed spend is automatically applied to Lambda invocation costs, providing savings even after the migration."
+   },
+   {
+    "label": "C",
+    "text": "Yes, but only if the Lambda functions run in the same AWS region as the EC2 instances covered by the original Savings Plan commitment."
+   },
+   {
+    "label": "D",
+    "text": "No. Savings Plans cannot be transferred between compute services; the company must purchase a new Lambda Savings Plan and wait for the EC2 Savings Plan to expire."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "A": "EC2 Instance Savings Plans are restricted to specific EC2 instance families and regions; Compute Savings Plans are broader and cover Lambda and Fargate in addition to EC2.",
+   "C": "Compute Savings Plans apply across all regions globally; there is no region restriction for coverage.",
+   "D": "There is no separate 'Lambda Savings Plan'; Compute Savings Plans cover Lambda, EC2, and Fargate without separate purchasing."
   },
-  {
-    "id": "aws-soa-t2-06-004",
-    "domain": 6,
-    "domain_name": "Cost and Performance Optimization",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator needs to implement cost allocation tagging so that costs can be reported by department. Tags have been applied to resources, but the cost reports in Cost Explorer still show costs without department breakdowns. What step was missed?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Tags must be applied using AWS Resource Groups Tagging API before they are recognized by Cost Explorer; console-applied tags are not picked up for billing."
-      },
-      {
-        "label": "B",
-        "text": "Cost allocation tags only work for AWS-managed tags; user-defined tags cannot be used for cost allocation and must be converted to AWS system tags."
-      },
-      {
-        "label": "C",
-        "text": "User-defined cost allocation tags must be activated in the AWS Billing Console before they appear in Cost Explorer; applying tags to resources alone is not sufficient."
-      },
-      {
-        "label": "D",
-        "text": "Cost Explorer requires a minimum of 30 days of data after tags are applied before it displays the department cost breakdown in reports."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "B": "User-defined tags are fully supported as cost allocation tags; they must simply be activated in the Billing Console first.",
-      "A": "Tags applied via any mechanism (console, CLI, API, CloudFormation, Resource Groups Tagging API) are recognized for cost allocation once activated in Billing.",
-      "D": "While there is a 24-hour delay for tags to appear after activation, a 30-day minimum data requirement does not apply to tag activation."
-    },
-    "explanation": "Cost allocation tags must be explicitly activated in the AWS Billing and Cost Management console under Cost Allocation Tags. Until activated, user-defined tags are applied to resources but not tracked in billing reports. After activation, there is typically a 24-hour delay before tagged costs appear in Cost Explorer. New costs accrued after activation will be tagged; historical costs before activation are not retroactively tagged.",
-    "module_ref": "soa/cost/cost-allocation-tags",
-    "tags": [
-      "cost-allocation-tags",
-      "cost-explorer",
-      "billing",
-      "tagging"
-    ]
+  "explanation": "AWS Compute Savings Plans offer the most flexibility. They apply to any EC2 instance (regardless of family, size, region, OS, or tenancy), AWS Lambda, and AWS Fargate. When the company migrates to Lambda, the Savings Plan automatically applies to Lambda compute charges, reducing per-request and per-GB-second costs. The committed hourly spend is consumed by whichever eligible compute service is running.",
+  "module_ref": "soa/cost/compute-savings-plans",
+  "tags": [
+   "savings-plans",
+   "lambda",
+   "ec2",
+   "fargate",
+   "cost-flexibility"
+  ],
+  "out_of_scope_reason": "Cost/billing/TCO topics are out of scope for SOA-C03 (CloudOps Engineer); retained but inactive."
+ },
+ {
+  "id": "aws-soa-t2-06-004",
+  "domain": 6,
+  "domain_name": "Cost and Performance Optimization (SOA-C02, retired)",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": false,
+  "stem": "A SysOps administrator needs to implement cost allocation tagging so that costs can be reported by department. Tags have been applied to resources, but the cost reports in Cost Explorer still show costs without department breakdowns. What step was missed?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Tags must be applied using AWS Resource Groups Tagging API before they are recognized by Cost Explorer; console-applied tags are not picked up for billing."
+   },
+   {
+    "label": "B",
+    "text": "Cost allocation tags only work for AWS-managed tags; user-defined tags cannot be used for cost allocation and must be converted to AWS system tags."
+   },
+   {
+    "label": "C",
+    "text": "User-defined cost allocation tags must be activated in the AWS Billing Console before they appear in Cost Explorer; applying tags to resources alone is not sufficient."
+   },
+   {
+    "label": "D",
+    "text": "Cost Explorer requires a minimum of 30 days of data after tags are applied before it displays the department cost breakdown in reports."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "B": "User-defined tags are fully supported as cost allocation tags; they must simply be activated in the Billing Console first.",
+   "A": "Tags applied via any mechanism (console, CLI, API, CloudFormation, Resource Groups Tagging API) are recognized for cost allocation once activated in Billing.",
+   "D": "While there is a 24-hour delay for tags to appear after activation, a 30-day minimum data requirement does not apply to tag activation."
   },
-  {
-    "id": "aws-soa-t2-06-005",
-    "domain": 6,
-    "domain_name": "Cost and Performance Optimization",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "An Amazon EBS gp2 volume on an EC2 instance is experiencing I/O throttling. The volume is 100 GB. The application requires sustained 5,000 IOPS. What is the most cost-effective remediation?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Switch from gp2 to io2 Block Express and provision exactly 5,000 IOPS; io2 provides higher IOPS per GB at a lower cost than gp3 for provisioned workloads under 10,000 IOPS."
-      },
-      {
-        "label": "B",
-        "text": "Migrate the volume from gp2 to gp3; gp3 provides a baseline of 3,000 IOPS plus the ability to provision up to 16,000 IOPS independently of volume size, at a lower cost per GB than gp2 with provisioned IOPS."
-      },
-      {
-        "label": "C",
-        "text": "Increase the gp2 volume size to 1,667 GB; gp2 provides 3 IOPS/GB, so a 1,667 GB volume provides 5,001 IOPS at baseline, eliminating the throttling without changing the volume type."
-      },
-      {
-        "label": "D",
-        "text": "Enable EBS burst balance monitoring; gp2 volumes accumulate burst credits at 3 IOPS/GB/s. Reducing I/O usage during off-peak hours restores the burst credit balance for peak periods."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "C": "Increasing gp2 to 1,667 GB achieves the IOPS requirement, but the additional 1,567 GB of storage costs significantly more than a gp3 volume with independently provisioned IOPS.",
-      "A": "io2 Block Express is designed for high-performance databases requiring very high IOPS (up to 256,000); for 5,000 IOPS, gp3 is more cost-effective.",
-      "D": "gp2 burst credits only address burst I/O above the baseline temporarily; the requirement is for sustained 5,000 IOPS, which exceeds the gp2 baseline for a 100 GB volume (300 IOPS baseline)."
-    },
-    "explanation": "gp3 volumes decouple IOPS from volume size. A 100 GB gp3 volume with 5,000 IOPS provisioned meets the requirement. gp3 is up to 20% cheaper per GB than gp2 and allows provisioning IOPS and throughput independently. The gp2 baseline for 100 GB is only 300 IOPS (100 GB \u00d7 3 IOPS/GB), which is why throttling occurs.",
-    "module_ref": "soa/cost/ebs-gp3-migration",
-    "tags": [
-      "ebs",
-      "gp3",
-      "iops",
-      "cost-optimization",
-      "volume-types"
-    ]
+  "explanation": "Cost allocation tags must be explicitly activated in the AWS Billing and Cost Management console under Cost Allocation Tags. Until activated, user-defined tags are applied to resources but not tracked in billing reports. After activation, there is typically a 24-hour delay before tagged costs appear in Cost Explorer. New costs accrued after activation will be tagged; historical costs before activation are not retroactively tagged.",
+  "module_ref": "soa/cost/cost-allocation-tags",
+  "tags": [
+   "cost-allocation-tags",
+   "cost-explorer",
+   "billing",
+   "tagging"
+  ],
+  "out_of_scope_reason": "Cost/billing/TCO topics are out of scope for SOA-C03 (CloudOps Engineer); retained but inactive."
+ },
+ {
+  "id": "aws-soa-t2-06-005",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "An Amazon EBS gp2 volume on an EC2 instance is experiencing I/O throttling. The volume is 100 GB. The application requires sustained 5,000 IOPS. What is the most cost-effective remediation?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Switch from gp2 to io2 Block Express and provision exactly 5,000 IOPS; io2 provides higher IOPS per GB at a lower cost than gp3 for provisioned workloads under 10,000 IOPS."
+   },
+   {
+    "label": "B",
+    "text": "Migrate the volume from gp2 to gp3; gp3 provides a baseline of 3,000 IOPS plus the ability to provision up to 16,000 IOPS independently of volume size, at a lower cost per GB than gp2 with provisioned IOPS."
+   },
+   {
+    "label": "C",
+    "text": "Increase the gp2 volume size to 1,667 GB; gp2 provides 3 IOPS/GB, so a 1,667 GB volume provides 5,001 IOPS at baseline, eliminating the throttling without changing the volume type."
+   },
+   {
+    "label": "D",
+    "text": "Enable EBS burst balance monitoring; gp2 volumes accumulate burst credits at 3 IOPS/GB/s. Reducing I/O usage during off-peak hours restores the burst credit balance for peak periods."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "C": "Increasing gp2 to 1,667 GB achieves the IOPS requirement, but the additional 1,567 GB of storage costs significantly more than a gp3 volume with independently provisioned IOPS.",
+   "A": "io2 Block Express is designed for high-performance databases requiring very high IOPS (up to 256,000); for 5,000 IOPS, gp3 is more cost-effective.",
+   "D": "gp2 burst credits only address burst I/O above the baseline temporarily; the requirement is for sustained 5,000 IOPS, which exceeds the gp2 baseline for a 100 GB volume (300 IOPS baseline)."
   },
-  {
-    "id": "aws-soa-t2-06-006",
-    "domain": 6,
-    "domain_name": "Cost and Performance Optimization",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator needs to reduce the cost of storing 10 TB of infrequently accessed data in S3 that must be retrievable within 12 hours. Which storage class minimizes cost for this requirement?",
-    "options": [
-      {
-        "label": "A",
-        "text": "S3 Glacier Flexible Retrieval (formerly S3 Glacier) provides the lowest per-GB storage cost for infrequently accessed data with retrieval times of minutes (Expedited), 3-5 hours (Standard), or 5-12 hours (Bulk)."
-      },
-      {
-        "label": "B",
-        "text": "S3 Glacier Deep Archive provides the absolute lowest per-GB cost but has a minimum retrieval time of 12 hours for Standard retrieval, which just meets the requirement."
-      },
-      {
-        "label": "C",
-        "text": "S3 Standard-Infrequent Access (Standard-IA) provides lower storage cost than S3 Standard with retrieval in milliseconds, suitable for infrequent access with a 12-hour retrieval SLA."
-      },
-      {
-        "label": "D",
-        "text": "S3 Intelligent-Tiering automatically moves objects to the lowest-cost tier including Glacier, and retrieves them within the configured retrieval time based on the access pattern."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "A": "S3 Glacier Flexible Retrieval also meets the 12-hour requirement (Bulk retrieval: 5-12 hours), but S3 Glacier Deep Archive has a lower per-GB storage cost and Standard retrieval completes within 12 hours.",
-      "C": "S3 Standard-IA meets the retrieval time requirement but costs more per GB than Glacier storage classes; it is not the lowest-cost option when access is truly infrequent.",
-      "D": "S3 Intelligent-Tiering has a per-object monitoring fee and does not guarantee retrieval within a specific time for Glacier-archived objects without additional configuration."
-    },
-    "explanation": "S3 Glacier Deep Archive is the lowest-cost AWS storage class, designed for data retained for 7-10 years or longer with rare access. Standard retrieval from Deep Archive completes in 12 hours, which exactly meets the requirement. At approximately $0.00099/GB/month, it is significantly cheaper than S3 Glacier Flexible Retrieval ($0.004/GB/month) for the same retrieval window.",
-    "module_ref": "soa/cost/s3-glacier-deep-archive",
-    "tags": [
-      "s3",
-      "glacier-deep-archive",
-      "storage-class",
-      "cost-optimization",
-      "retrieval"
-    ]
+  "explanation": "gp3 volumes decouple IOPS from volume size. A 100 GB gp3 volume with 5,000 IOPS provisioned meets the requirement. gp3 is up to 20% cheaper per GB than gp2 and allows provisioning IOPS and throughput independently. The gp2 baseline for 100 GB is only 300 IOPS (100 GB × 3 IOPS/GB), which is why throttling occurs.",
+  "module_ref": "soa/cost/ebs-gp3-migration",
+  "tags": [
+   "ebs",
+   "gp3",
+   "iops",
+   "cost-optimization",
+   "volume-types"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-06-006",
+  "domain": 6,
+  "domain_name": "Cost and Performance Optimization (SOA-C02, retired)",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": false,
+  "stem": "A SysOps administrator needs to reduce the cost of storing 10 TB of infrequently accessed data in S3 that must be retrievable within 12 hours. Which storage class minimizes cost for this requirement?",
+  "options": [
+   {
+    "label": "A",
+    "text": "S3 Glacier Flexible Retrieval (formerly S3 Glacier) provides the lowest per-GB storage cost for infrequently accessed data with retrieval times of minutes (Expedited), 3-5 hours (Standard), or 5-12 hours (Bulk)."
+   },
+   {
+    "label": "B",
+    "text": "S3 Glacier Deep Archive provides the absolute lowest per-GB cost but has a minimum retrieval time of 12 hours for Standard retrieval, which just meets the requirement."
+   },
+   {
+    "label": "C",
+    "text": "S3 Standard-Infrequent Access (Standard-IA) provides lower storage cost than S3 Standard with retrieval in milliseconds, suitable for infrequent access with a 12-hour retrieval SLA."
+   },
+   {
+    "label": "D",
+    "text": "S3 Intelligent-Tiering automatically moves objects to the lowest-cost tier including Glacier, and retrieves them within the configured retrieval time based on the access pattern."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "A": "S3 Glacier Flexible Retrieval also meets the 12-hour requirement (Bulk retrieval: 5-12 hours), but S3 Glacier Deep Archive has a lower per-GB storage cost and Standard retrieval completes within 12 hours.",
+   "C": "S3 Standard-IA meets the retrieval time requirement but costs more per GB than Glacier storage classes; it is not the lowest-cost option when access is truly infrequent.",
+   "D": "S3 Intelligent-Tiering has a per-object monitoring fee and does not guarantee retrieval within a specific time for Glacier-archived objects without additional configuration."
   },
-  {
-    "id": "aws-soa-t2-06-007",
-    "domain": 6,
-    "domain_name": "Cost and Performance Optimization",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator needs to identify EC2 instances that have been idle (less than 5% CPU for 14 days) to rightsize or terminate them. Which AWS tool provides this report without manual CloudWatch queries?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Amazon CloudWatch automatically generates an Idle Instances report in the CloudWatch console that lists instances below the configured CPU threshold for the specified period."
-      },
-      {
-        "label": "B",
-        "text": "AWS Trusted Advisor's Low Utilization Amazon EC2 Instances check reports instances with 14-day average CPU below 10% and peak network I/O below 5 MB, flagging them for rightsizing or termination."
-      },
-      {
-        "label": "C",
-        "text": "AWS Compute Optimizer identifies instances with low utilization and recommends the correct action (terminate, rightsize, or switch to Spot) based on 14-day CloudWatch metrics."
-      },
-      {
-        "label": "D",
-        "text": "AWS Cost Explorer's rightsizing recommendations report identifies instances with CPU below 5% over 14 days and provides termination or downsizing suggestions."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "D": "Cost Explorer rightsizing recommendations focus on downsizing over-provisioned instances; it does not specifically flag idle instances for termination.",
-      "A": "CloudWatch does not have an automatic Idle Instances report; you would need to build a custom dashboard or use Logs Insights to query metric data.",
-      "C": "Compute Optimizer recommends optimal instance types but focuses on rightsizing; Trusted Advisor specifically flags low-utilization instances as candidates for termination."
-    },
-    "explanation": "AWS Trusted Advisor's 'Low Utilization Amazon EC2 Instances' check (available in Business or Enterprise Support tiers) identifies instances with average CPU utilization below 10% and low network I/O over a 14-day period. It provides a direct list of idle instances without requiring manual CloudWatch queries, supporting fast identification of termination candidates.",
-    "module_ref": "soa/cost/trusted-advisor-idle-instances",
-    "tags": [
-      "trusted-advisor",
-      "low-utilization",
-      "ec2",
-      "cost-optimization",
-      "idle"
-    ]
+  "explanation": "S3 Glacier Deep Archive is the lowest-cost AWS storage class, designed for data retained for 7-10 years or longer with rare access. Standard retrieval from Deep Archive completes in 12 hours, which exactly meets the requirement. At approximately $0.00099/GB/month, it is significantly cheaper than S3 Glacier Flexible Retrieval ($0.004/GB/month) for the same retrieval window.",
+  "module_ref": "soa/cost/s3-glacier-deep-archive",
+  "tags": [
+   "s3",
+   "glacier-deep-archive",
+   "storage-class",
+   "cost-optimization",
+   "retrieval"
+  ],
+  "out_of_scope_reason": "Cost/billing/TCO topics are out of scope for SOA-C03 (CloudOps Engineer); retained but inactive."
+ },
+ {
+  "id": "aws-soa-t2-06-007",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A SysOps administrator needs to identify EC2 instances that have been idle (less than 5% CPU for 14 days) to rightsize or terminate them. Which AWS tool provides this report without manual CloudWatch queries?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Amazon CloudWatch automatically generates an Idle Instances report in the CloudWatch console that lists instances below the configured CPU threshold for the specified period."
+   },
+   {
+    "label": "B",
+    "text": "AWS Trusted Advisor's Low Utilization Amazon EC2 Instances check reports instances with 14-day average CPU below 10% and peak network I/O below 5 MB, flagging them for rightsizing or termination."
+   },
+   {
+    "label": "C",
+    "text": "AWS Compute Optimizer identifies instances with low utilization and recommends the correct action (terminate, rightsize, or switch to Spot) based on 14-day CloudWatch metrics."
+   },
+   {
+    "label": "D",
+    "text": "AWS Cost Explorer's rightsizing recommendations report identifies instances with CPU below 5% over 14 days and provides termination or downsizing suggestions."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "D": "Cost Explorer rightsizing recommendations focus on downsizing over-provisioned instances; it does not specifically flag idle instances for termination.",
+   "A": "CloudWatch does not have an automatic Idle Instances report; you would need to build a custom dashboard or use Logs Insights to query metric data.",
+   "C": "Compute Optimizer recommends optimal instance types but focuses on rightsizing; Trusted Advisor specifically flags low-utilization instances as candidates for termination."
   },
-  {
-    "id": "aws-soa-t2-06-008",
-    "domain": 6,
-    "domain_name": "Cost and Performance Optimization",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "An application using Amazon ElastiCache Redis experiences high latency during peak hours. The cluster has a single node. What change improves read performance at the lowest cost?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable Multi-AZ with automatic failover on the existing single-node cluster; Multi-AZ improves performance by distributing read requests across the primary and standby."
-      },
-      {
-        "label": "B",
-        "text": "Enable ElastiCache cluster mode (sharding) to distribute the dataset across multiple shards, reducing the per-node memory footprint and improving throughput."
-      },
-      {
-        "label": "C",
-        "text": "Upgrade the primary ElastiCache node to a larger instance type with more memory and CPU; a larger single node handles more concurrent connections without read distribution overhead."
-      },
-      {
-        "label": "D",
-        "text": "Add read replicas to the ElastiCache Redis cluster; read replicas handle read traffic, reducing load on the primary node and improving read latency during peak hours."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "C": "Upgrading to a larger instance increases read capacity but costs more than adding lower-tier read replicas; read replicas distribute the read load more cost-effectively.",
-      "A": "Multi-AZ provides high availability and automatic failover; the standby is a passive replica that does not serve reads, so it does not improve read performance.",
-      "B": "Cluster mode (sharding) distributes data across multiple shards for scalability, but it adds architectural complexity; for improving read performance, read replicas are the targeted and lower-cost solution."
-    },
-    "explanation": "ElastiCache Redis read replicas receive asynchronous replication from the primary node and can serve read requests. By adding read replicas and configuring the application to direct reads to the replicas (via the reader endpoint), read load is distributed across multiple nodes. This reduces primary node CPU and connection load, improving read latency at a lower cost than upgrading to a larger primary node.",
-    "module_ref": "soa/cost/elasticache-read-replicas",
-    "tags": [
-      "elasticache",
-      "redis",
-      "read-replicas",
-      "performance",
-      "latency"
-    ]
-  }
+  "explanation": "AWS Trusted Advisor's 'Low Utilization Amazon EC2 Instances' check (available in Business or Enterprise Support tiers) identifies instances with average CPU utilization below 10% and low network I/O over a 14-day period. It provides a direct list of idle instances without requiring manual CloudWatch queries, supporting fast identification of termination candidates.",
+  "module_ref": "soa/cost/trusted-advisor-idle-instances",
+  "tags": [
+   "trusted-advisor",
+   "low-utilization",
+   "ec2",
+   "cost-optimization",
+   "idle"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-06-008",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "An application using Amazon ElastiCache Redis experiences high latency during peak hours. The cluster has a single node. What change improves read performance at the lowest cost?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable Multi-AZ with automatic failover on the existing single-node cluster; Multi-AZ improves performance by distributing read requests across the primary and standby."
+   },
+   {
+    "label": "B",
+    "text": "Enable ElastiCache cluster mode (sharding) to distribute the dataset across multiple shards, reducing the per-node memory footprint and improving throughput."
+   },
+   {
+    "label": "C",
+    "text": "Upgrade the primary ElastiCache node to a larger instance type with more memory and CPU; a larger single node handles more concurrent connections without read distribution overhead."
+   },
+   {
+    "label": "D",
+    "text": "Add read replicas to the ElastiCache Redis cluster; read replicas handle read traffic, reducing load on the primary node and improving read latency during peak hours."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "C": "Upgrading to a larger instance increases read capacity but costs more than adding lower-tier read replicas; read replicas distribute the read load more cost-effectively.",
+   "A": "Multi-AZ provides high availability and automatic failover; the standby is a passive replica that does not serve reads, so it does not improve read performance.",
+   "B": "Cluster mode (sharding) distributes data across multiple shards for scalability, but it adds architectural complexity; for improving read performance, read replicas are the targeted and lower-cost solution."
+  },
+  "explanation": "ElastiCache Redis read replicas receive asynchronous replication from the primary node and can serve read requests. By adding read replicas and configuring the application to direct reads to the replicas (via the reader endpoint), read load is distributed across multiple nodes. This reduces primary node CPU and connection load, improving read latency at a lower cost than upgrading to a larger primary node.",
+  "module_ref": "soa/cost/elasticache-read-replicas",
+  "tags": [
+   "elasticache",
+   "redis",
+   "read-replicas",
+   "performance",
+   "latency"
+  ]
+ }
 ]

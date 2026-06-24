@@ -9,6 +9,7 @@ export function graphJsonToCanvasState(data) {
       label: c.label ?? c.data?.label ?? c.type,
       awsType: c.awsType ?? c.cloudType ?? c.data?.awsType ?? c.type,
       icon: c.icon ?? c.data?.icon ?? "",
+      nodeType: c.nodeType ?? c.data?.nodeType ?? c.type,
       config: c.config ?? c.data?.config ?? {},
       category: c.category ?? c.data?.category ?? "",
       security_group_ids: c.security_group_ids ?? c.data?.security_group_ids ?? [],

@@ -25,6 +25,7 @@ class OpenAIProvider(LLMProvider):
     def generate(self, system_prompt: str, user_prompt: str) -> str:
         response = self._client.chat.completions.create(
             model=self._model,
+            max_tokens=16384,
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},

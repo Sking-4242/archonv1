@@ -1,6 +1,6 @@
 """Tests for HCL validators and prompt sanitization."""
 
-from app.utils.validators import strip_fences, validate_hcl
+from app.utils.validators import strip_fences, validate_hcl, validate_scaffold
 
 
 class TestStripFences:
@@ -19,6 +19,16 @@ class TestStripFences:
     def test_strips_whitespace(self):
         raw = "  \nresource \"aws_instance\" \"web\" {}\n  "
         assert strip_fences(raw).strip() == 'resource "aws_instance" "web" {}'
+
+
+class TestValidateScaffold:
+    def test_scaffold_requires_terraform_or_resource(self):
+        errors = validate_scaffold("variable {}")
+        assert errors
+
+    def test_balanced_scaffold_passes_without_hcl2(self):
+        hcl = 'resource "aws_vpc" "main" { cidr_block = "10.0.0.0/16" }'
+        assert validate_scaffold(hcl) == []
 
 
 class TestValidateHcl:

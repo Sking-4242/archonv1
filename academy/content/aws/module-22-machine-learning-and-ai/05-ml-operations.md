@@ -2,7 +2,7 @@
 title: "MLOps: Operationalizing Machine Learning"
 type: content
 estimated_minutes: 13
-cert_tags: ["MLS-C01", "SAA-C03"]
+cert_tags: ["SAA-C03", "AIF-C01", "MLA-C01"]
 ---
 
 # MLOps: Operationalizing Machine Learning

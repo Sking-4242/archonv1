@@ -1,0 +1,271 @@
+{
+  "cert": {
+    "code": "CLF-C02",
+    "name": "AWS Certified Cloud Practitioner",
+    "short_name": "Cloud Practitioner",
+    "level": "foundational",
+    "status": "active",
+    "retires_on": null,
+    "exam_guide_url": "https://docs.aws.amazon.com/aws-certification/latest/examguides/cloud-practitioner-02.html",
+    "blueprint_version": "1.0"
+  },
+  "exam": {
+    "scored_questions": 50,
+    "unscored_questions": 15,
+    "duration_minutes": 90,
+    "passing_score": 700,
+    "scoring_model": "compensatory",
+    "question_formats": ["multiple choice", "multiple response"],
+    "cost_usd": 100,
+    "prerequisites": []
+  },
+  "domains": [
+    {
+      "id": "D1",
+      "title": "Cloud Concepts",
+      "weight": 24,
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Define the benefits of the AWS Cloud",
+          "lessons": [
+            { "ref": "module-01-cloud-fundamentals/01-what-is-cloud.md", "emphasis": "core" },
+            { "ref": "module-01-cloud-fundamentals/02-cloud-vs-on-prem.md", "emphasis": "core" },
+            { "ref": "module-01-cloud-fundamentals/05-benefits-of-cloud.md", "emphasis": "core", "note": "High availability, elasticity, agility, global reach." },
+            { "ref": "module-01-cloud-fundamentals/03-service-models.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "1.2",
+          "title": "Identify design principles of the AWS Cloud (Well-Architected)",
+          "lessons": [
+            { "ref": "module-06-well-architected-framework/01-framework-overview.md", "emphasis": "core", "note": "The six pillars and their differences." },
+            { "ref": "module-25-well-architected-deep-dive/01-war-framework.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "1.3",
+          "title": "Understand benefits of and strategies for migration",
+          "lessons": [
+            { "ref": "certs/CLF-C02/lessons/02-cloud-migration-and-caf.md", "emphasis": "core", "note": "Cert-specific: CAF, the 7 Rs, DMS/SCT/Snowball." }
+          ]
+        },
+        {
+          "id": "1.4",
+          "title": "Understand concepts of cloud economics",
+          "lessons": [
+            { "ref": "certs/CLF-C02/lessons/01-cloud-economics-and-value.md", "emphasis": "core", "note": "Cert-specific: CapEx/OpEx, TCO, economies of scale, rightsizing, BYOL." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D2",
+      "title": "Security and Compliance",
+      "weight": 30,
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Understand the AWS shared responsibility model",
+          "lessons": [
+            { "ref": "module-05-shared-responsibility-and-compliance/01-shared-responsibility.md", "emphasis": "core" },
+            { "ref": "module-05-shared-responsibility-and-compliance/02-security-in-the-cloud.md", "emphasis": "core", "note": "Customer responsibilities." },
+            { "ref": "module-05-shared-responsibility-and-compliance/03-security-of-the-cloud.md", "emphasis": "core", "note": "AWS responsibilities." }
+          ]
+        },
+        {
+          "id": "2.2",
+          "title": "Understand security, governance, and compliance concepts",
+          "lessons": [
+            { "ref": "module-05-shared-responsibility-and-compliance/04-compliance.md", "emphasis": "core", "note": "Compliance programs and AWS Artifact." },
+            { "ref": "certs/CLF-C02/lessons/04-security-services-overview.md", "emphasis": "core", "note": "Cert-specific: encryption, logging/auditing, where to find compliance info." }
+          ]
+        },
+        {
+          "id": "2.3",
+          "title": "Identify AWS access management capabilities",
+          "lessons": [
+            { "ref": "module-04-iam/01-iam-overview.md", "emphasis": "core" },
+            { "ref": "module-04-iam/02-users-groups-roles.md", "emphasis": "core" },
+            { "ref": "module-04-iam/03-policies.md", "emphasis": "core" },
+            { "ref": "module-04-iam/04-least-privilege.md", "emphasis": "core" },
+            { "ref": "module-04-iam/05-mfa.md", "emphasis": "core", "note": "MFA and root user protection." }
+          ]
+        },
+        {
+          "id": "2.4",
+          "title": "Identify components and resources for security",
+          "lessons": [
+            { "ref": "certs/CLF-C02/lessons/04-security-services-overview.md", "emphasis": "core", "note": "Cert-specific: GuardDuty, Inspector, Shield, WAF, Macie, Trusted Advisor." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D3",
+      "title": "Cloud Technology and Services",
+      "weight": 34,
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Define methods of deploying and operating in the AWS Cloud",
+          "lessons": [
+            { "ref": "certs/CLF-C02/lessons/03-accessing-and-deploying-on-aws.md", "emphasis": "core", "note": "Cert-specific: Console/CLI/SDK/IaC; deployment models." },
+            { "ref": "module-01-cloud-fundamentals/04-deployment-models.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "3.2",
+          "title": "Define the AWS global infrastructure",
+          "lessons": [
+            { "ref": "module-02-aws-global-infrastructure/01-regions.md", "emphasis": "core" },
+            { "ref": "module-02-aws-global-infrastructure/02-availability-zones.md", "emphasis": "core", "note": "High availability across AZs; no shared SPOF." },
+            { "ref": "module-02-aws-global-infrastructure/03-edge-locations.md", "emphasis": "core" },
+            { "ref": "module-02-aws-global-infrastructure/04-choosing-a-region.md", "emphasis": "supporting", "note": "Multi-Region: DR, latency, data sovereignty." }
+          ]
+        },
+        {
+          "id": "3.3",
+          "title": "Identify AWS compute services",
+          "lessons": [
+            { "ref": "module-07-ec2/01-ec2-overview.md", "emphasis": "core" },
+            { "ref": "module-07-ec2/02-instance-types.md", "emphasis": "core" },
+            { "ref": "module-08-scaling-and-load-balancing/04-auto-scaling-groups.md", "emphasis": "core", "note": "Auto scaling = elasticity." },
+            { "ref": "module-08-scaling-and-load-balancing/01-elb-overview.md", "emphasis": "supporting", "note": "Load balancer purpose." },
+            { "ref": "module-17-serverless-lambda/01-lambda-fundamentals.md", "emphasis": "core", "note": "Serverless compute." },
+            { "ref": "module-18-containers-ecs-eks/01-containers-on-aws.md", "emphasis": "core", "note": "ECS/EKS/Fargate." }
+          ]
+        },
+        {
+          "id": "3.4",
+          "title": "Identify AWS database services",
+          "lessons": [
+            { "ref": "module-11-rds-and-aurora/01-rds-fundamentals.md", "emphasis": "core", "note": "RDS/Aurora relational." },
+            { "ref": "module-12-dynamodb-and-databases/01-dynamodb-fundamentals.md", "emphasis": "core", "note": "DynamoDB NoSQL." },
+            { "ref": "module-12-dynamodb-and-databases/05-elasticache.md", "emphasis": "supporting", "note": "In-memory database." },
+            { "ref": "module-12-dynamodb-and-databases/06-other-databases.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "3.5",
+          "title": "Identify AWS network services",
+          "lessons": [
+            { "ref": "module-13-vpc-networking/01-vpc-fundamentals.md", "emphasis": "core", "note": "VPC components: subnets, gateways." },
+            { "ref": "module-13-vpc-networking/02-security-groups-nacls.md", "emphasis": "core", "note": "Security groups and NACLs." },
+            { "ref": "module-14-dns-cdn-and-hybrid/01-route53-fundamentals.md", "emphasis": "core", "note": "Route 53 DNS." }
+          ]
+        },
+        {
+          "id": "3.6",
+          "title": "Identify AWS storage services",
+          "lessons": [
+            { "ref": "module-09-s3/01-s3-overview.md", "emphasis": "core", "note": "Object storage." },
+            { "ref": "module-09-s3/02-storage-classes.md", "emphasis": "core", "note": "S3 storage classes and lifecycle." },
+            { "ref": "module-10-storage-ebs-efs/01-ebs-deep-dive.md", "emphasis": "core", "note": "Block storage (EBS)." },
+            { "ref": "module-10-storage-ebs-efs/03-efs.md", "emphasis": "supporting", "note": "File storage (EFS)." }
+          ]
+        },
+        {
+          "id": "3.7",
+          "title": "Identify AI/ML and analytics services",
+          "lessons": [
+            { "ref": "certs/CLF-C02/lessons/05-analytics-services-overview.md", "emphasis": "core", "note": "Cert-specific: Athena, Kinesis, Glue, QuickSight, Kendra." },
+            { "ref": "module-22-machine-learning-and-ai/01-ml-services-overview.md", "emphasis": "supporting", "note": "SageMaker and AI/ML tiers." },
+            { "ref": "module-22-machine-learning-and-ai/04-ai-services.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "3.8",
+          "title": "Identify services from other in-scope categories",
+          "lessons": [
+            { "ref": "certs/CLF-C02/lessons/06-other-aws-services-survey.md", "emphasis": "core", "note": "Cert-specific: EventBridge, Connect, SES, dev tools, WorkSpaces, Amplify, IoT." },
+            { "ref": "module-19-messaging-and-integration/01-sqs.md", "emphasis": "supporting" },
+            { "ref": "module-19-messaging-and-integration/02-sns.md", "emphasis": "supporting" }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D4",
+      "title": "Billing, Pricing, and Support",
+      "weight": 12,
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "Compare AWS pricing models",
+          "lessons": [
+            { "ref": "module-03-pricing-and-billing/01-pricing-model.md", "emphasis": "core" },
+            { "ref": "module-03-pricing-and-billing/03-pricing-models.md", "emphasis": "core", "note": "On-Demand, Reserved, Spot, Savings Plans." },
+            { "ref": "module-07-ec2/04-pricing-models.md", "emphasis": "supporting" },
+            { "ref": "module-24-cost-optimization/02-purchasing-strategies.md", "emphasis": "supporting" }
+          ]
+        },
+        {
+          "id": "4.2",
+          "title": "Understand billing, budget, and cost management resources",
+          "lessons": [
+            { "ref": "module-03-pricing-and-billing/05-cost-explorer.md", "emphasis": "core", "note": "Cost Explorer and Budgets." },
+            { "ref": "module-04-iam/06-organizations.md", "emphasis": "core", "note": "Organizations and consolidated billing." },
+            { "ref": "module-24-cost-optimization/04-cost-tools.md", "emphasis": "supporting", "note": "Pricing Calculator, cost allocation tags, CUR." }
+          ]
+        },
+        {
+          "id": "4.3",
+          "title": "Identify AWS technical resources and Support options",
+          "lessons": [
+            { "ref": "certs/CLF-C02/lessons/07-support-partners-and-resources.md", "emphasis": "core", "note": "Cert-specific: Support plans, Partners, Marketplace, Trusted Advisor, Health Dashboard." },
+            { "ref": "module-03-pricing-and-billing/04-support-plans.md", "emphasis": "supporting" }
+          ]
+        }
+      ]
+    }
+  ],
+  "cert_specific_lessons": [
+    { "file": "certs/CLF-C02/lessons/01-cloud-economics-and-value.md", "title": "Cloud Economics and the Value of AWS", "status": "published", "covers_tasks": ["1.1", "1.4"] },
+    { "file": "certs/CLF-C02/lessons/02-cloud-migration-and-caf.md", "title": "Cloud Migration and the AWS Cloud Adoption Framework", "status": "published", "covers_tasks": ["1.3"] },
+    { "file": "certs/CLF-C02/lessons/03-accessing-and-deploying-on-aws.md", "title": "Accessing and Deploying on AWS", "status": "published", "covers_tasks": ["3.1"] },
+    { "file": "certs/CLF-C02/lessons/04-security-services-overview.md", "title": "AWS Security Services Overview", "status": "published", "covers_tasks": ["2.2", "2.4"] },
+    { "file": "certs/CLF-C02/lessons/05-analytics-services-overview.md", "title": "Analytics and AI/ML Services Overview", "status": "published", "covers_tasks": ["3.7"] },
+    { "file": "certs/CLF-C02/lessons/06-other-aws-services-survey.md", "title": "Other AWS Services Survey", "status": "published", "covers_tasks": ["3.8"] },
+    { "file": "certs/CLF-C02/lessons/07-support-partners-and-resources.md", "title": "AWS Support, Partners, and Technical Resources", "status": "published", "covers_tasks": ["4.3"] },
+    { "file": "certs/CLF-C02/lessons/08-exam-strategy-and-question-patterns.md", "title": "CLF-C02 Exam Strategy and Question Patterns", "status": "published", "covers_tasks": ["1.1", "2.1", "3.1", "4.1"] }
+  ],
+  "related_service_lessons": {
+    "module-07-ec2/01-ec2-overview.md": ["services/amazon-ec2.md"],
+    "module-08-scaling-and-load-balancing/01-elb-overview.md": ["services/elastic-load-balancing.md"],
+    "module-08-scaling-and-load-balancing/04-auto-scaling-groups.md": ["services/ec2-auto-scaling.md"],
+    "module-17-serverless-lambda/01-lambda-fundamentals.md": ["services/aws-lambda.md"],
+    "module-18-containers-ecs-eks/01-containers-on-aws.md": ["services/amazon-ecs.md", "services/amazon-eks.md", "services/amazon-ecr.md"],
+    "module-12-dynamodb-and-databases/05-elasticache.md": ["services/amazon-elasticache.md"],
+    "certs/CLF-C02/lessons/05-analytics-services-overview.md": ["services/amazon-athena.md", "services/amazon-redshift.md"],
+    "module-22-machine-learning-and-ai/01-ml-services-overview.md": ["services/amazon-sagemaker.md", "services/amazon-bedrock.md"],
+    "module-22-machine-learning-and-ai/04-ai-services.md": ["services/amazon-comprehend.md", "services/amazon-rekognition.md", "services/amazon-transcribe.md", "services/amazon-polly.md"],
+    "certs/CLF-C02/lessons/06-other-aws-services-survey.md": ["services/amazon-ses.md"],
+    "module-09-s3/01-s3-overview.md": ["services/amazon-s3.md"],
+    "module-10-storage-ebs-efs/01-ebs-deep-dive.md": ["services/amazon-ebs.md"],
+    "module-10-storage-ebs-efs/03-efs.md": ["services/amazon-efs.md"],
+    "module-11-rds-and-aurora/01-rds-fundamentals.md": ["services/amazon-rds.md"],
+    "module-12-dynamodb-and-databases/01-dynamodb-fundamentals.md": ["services/amazon-dynamodb.md"],
+    "module-13-vpc-networking/01-vpc-fundamentals.md": ["services/amazon-vpc.md"],
+    "module-14-dns-cdn-and-hybrid/01-route53-fundamentals.md": ["services/amazon-route-53.md"],
+    "module-02-aws-global-infrastructure/03-edge-locations.md": ["services/amazon-cloudfront.md"],
+    "module-19-messaging-and-integration/01-sqs.md": ["services/amazon-sqs.md"],
+    "module-19-messaging-and-integration/02-sns.md": ["services/amazon-sns.md"],
+    "module-04-iam/01-iam-overview.md": ["services/aws-iam.md"],
+    "module-04-iam/06-organizations.md": ["services/aws-organizations.md"],
+    "certs/CLF-C02/lessons/04-security-services-overview.md": ["services/guardduty.md", "services/amazon-security-hub.md", "services/aws-kms.md", "services/aws-waf.md", "services/aws-shield.md"]
+  },
+  "question_bank": {
+    "path": "questions/aws-cp",
+    "blueprint_weighted": false,
+    "target_count": null
+  },
+  "coverage": {
+    "shared_lessons": 49,
+    "cert_specific_needed": 0,
+    "gaps": [
+      "Full blueprint coverage: 8 cert-specific lessons fill the migration, economics, deployment-methods, security-services, analytics, other-services, and support gaps; all four domains map to shared + cert-specific lessons.",
+      "Existing question bank (questions/aws-cp) is mapped but not yet verified as weighted to 24/30/34/12."
+    ]
+  }
+}

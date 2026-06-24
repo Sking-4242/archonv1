@@ -29,7 +29,7 @@ Understanding where each certification sits helps you plan your sequence:
 
 **AWS Certified Solutions Architect – Professional (SAP-C02)**: Advanced. 180 minutes, 75 questions, ~72% passing score. AWS recommends 3+ years of hands-on AWS experience. Questions are longer, scenarios involve more constraints, and answers require synthesizing across multiple service domains simultaneously. Each wrong answer is wrong for a specific reason, not just obviously bad.
 
-**Specialty certifications**: Security (SCS-C02), Database (DBS-C01), Machine Learning (MLS-C01), Data Analytics (DAS-C01), Advanced Networking (ANS-C01), and others. Each goes deep on one domain. Pursue after SAA-C03 based on your professional focus.
+**Specialty certifications**: Security (SCS-C03) and Advanced Networking (ANS-C01) are the current specialties — each goes deep on one domain. (AWS has retired the earlier Database, Data Analytics, and Machine Learning specialties; the Machine Learning focus now lives in the Machine Learning Engineer – Associate, MLA-C01.) Pursue after SAA-C03 based on your professional focus.
 
 **The recommended sequence for most people**: CLF-C02 (optional, skip if you have technical background) → SAA-C03 → role-appropriate specialty or SAP-C02.
 

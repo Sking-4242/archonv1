@@ -13,10 +13,11 @@ export default function ImportTfModal({ onClose, onApply, apiUrl }) {
   const [error, setError] = useState(null);
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef(null);
+  const folderInputRef = useRef(null);
 
   // ── File management ────────────────────────────────────────────────────────
 
-  function addFiles(incoming) {
+  function addFiles(incoming, relativePaths = null) {
     const tf = Array.from(incoming).filter((f) =>
       f.name.endsWith(".tf") || f.name.endsWith(".tfvars")
     );
@@ -25,15 +26,22 @@ export default function ImportTfModal({ onClose, onApply, apiUrl }) {
       return;
     }
     setError(null);
-    // Deduplicate by name
+    // Preserve relative paths when uploading a folder (webkitRelativePath)
+    const enriched = tf.map((f, i) => {
+      const rel = (relativePaths?.[i] || f.webkitRelativePath || f.name).replace(/\\/g, "/");
+      return Object.assign(f, { _archonPath: rel });
+    });
     setFiles((prev) => {
-      const existing = new Set(prev.map((f) => f.name));
-      return [...prev, ...tf.filter((f) => !existing.has(f.name))];
+      const existing = new Set(prev.map((f) => f._archonPath ?? f.name));
+      return [
+        ...prev,
+        ...enriched.filter((f) => !existing.has(f._archonPath ?? f.name)),
+      ];
     });
   }
 
-  function removeFile(name) {
-    setFiles((prev) => prev.filter((f) => f.name !== name));
+  function removeFile(pathOrName) {
+    setFiles((prev) => prev.filter((f) => (f._archonPath ?? f.name) !== pathOrName));
   }
 
   // ── Drag-and-drop ──────────────────────────────────────────────────────────
@@ -52,7 +60,12 @@ export default function ImportTfModal({ onClose, onApply, apiUrl }) {
     setError(null);
     try {
       const formData = new FormData();
-      files.forEach((f) => formData.append("files", f));
+      const relativePaths = files.map((f) => f._archonPath || f.name);
+      formData.append("relative_paths", JSON.stringify(relativePaths));
+      files.forEach((f) => {
+        // Always use the bare filename for multipart — paths go in relative_paths.
+        formData.append("files", f, f.name);
+      });
       const res = await fetch(`${apiUrl}/import-tf`, {
         method: "POST",
         body: formData,
@@ -86,7 +99,11 @@ export default function ImportTfModal({ onClose, onApply, apiUrl }) {
             <p className="text-xs text-gray-500 mt-0.5">
               Upload one or more{" "}
               <code className="bg-gray-100 px-1 rounded font-mono text-gray-700">.tf</code>{" "}
-              files to visualise on the canvas
+              files to visualise on the canvas. Module-heavy configs can also include
+              {" "}
+              <code className="bg-gray-100 px-1 rounded font-mono text-gray-700">modules/**/*.tf</code>
+              {" "}
+              via folder upload (optional).
             </p>
           </div>
           <button
@@ -120,6 +137,15 @@ export default function ImportTfModal({ onClose, onApply, apiUrl }) {
               className="hidden"
               onChange={(e) => e.target.files && addFiles(e.target.files)}
             />
+            <input
+              ref={folderInputRef}
+              type="file"
+              multiple
+              webkitdirectory=""
+              directory=""
+              className="hidden"
+              onChange={(e) => e.target.files && addFiles(e.target.files)}
+            />
             <div className="flex flex-col items-center gap-1">
               <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center mb-1">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -133,6 +159,13 @@ export default function ImportTfModal({ onClose, onApply, apiUrl }) {
                 Drop <code className="font-mono text-gray-700">.tf</code> files here, or{" "}
                 <span className="text-indigo-600 font-medium">browse</span>
               </p>
+              <button
+                type="button"
+                onClick={(e) => { e.stopPropagation(); folderInputRef.current?.click(); }}
+                className="text-xs text-indigo-600 hover:text-indigo-800 font-medium mt-1"
+              >
+                Upload folder (includes modules/)
+              </button>
               <p className="text-xs text-gray-400">Multiple files supported — main.tf, variables.tf, etc.</p>
             </div>
           </div>
@@ -149,18 +182,18 @@ export default function ImportTfModal({ onClose, onApply, apiUrl }) {
                 </p>
               </div>
               {files.map((f) => (
-                <div key={f.name} className="flex items-center justify-between px-3 py-2">
+                <div key={f._archonPath ?? f.name} className="flex items-center justify-between px-3 py-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <span className="text-xs font-mono text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded shrink-0">
                       .tf
                     </span>
-                    <span className="text-xs text-gray-700 truncate">{f.name}</span>
+                    <span className="text-xs text-gray-700 truncate">{f._archonPath ?? f.name}</span>
                     <span className="text-xs text-gray-400 shrink-0">
                       {(f.size / 1024).toFixed(1)} KB
                     </span>
                   </div>
                   <button
-                    onClick={() => removeFile(f.name)}
+                    onClick={() => removeFile(f._archonPath ?? f.name)}
                     className="text-gray-300 hover:text-red-400 transition-colors ml-2 shrink-0"
                     title="Remove"
                   >

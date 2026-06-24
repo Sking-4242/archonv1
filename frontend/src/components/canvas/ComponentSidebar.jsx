@@ -4,11 +4,7 @@ import { AZURE_PALETTE } from "../../utils/azurePalette";
 import { GCP_PALETTE } from "../../utils/gcpPalette";
 import { ONPREM_PALETTE } from "../../utils/onpremPalette";
 import useProviderStore from "../../store/providerStore";
-import { AWS_ICONS } from "../../assets/icons/awsIcons";
-import { AZURE_ICONS } from "../../assets/icons/azureIcons";
-import { GCP_ICONS } from "../../assets/icons/gcpIcons";
-
-const ALL_ICONS = { ...AWS_ICONS, ...AZURE_ICONS, ...GCP_ICONS };
+import { getServiceIconUrl } from "../../assets/icons/serviceIcons";
 
 const PALETTES = {
   aws: PALETTE,
@@ -76,21 +72,24 @@ export default function ComponentSidebar({ onDragStart }) {
             </button>
             {expanded[group.category] && (
               <div className="pb-1">
-                {group.components.map((comp) => (
+                {group.components.map((comp) => {
+                  const iconUrl = getServiceIconUrl(comp.type);
+                  return (
                   <div
                     key={comp.type}
                     draggable
                     onDragStart={(e) => onDragStart(e, comp, group.category)}
                     className="flex items-center gap-2 mx-2 mb-1 px-2 py-1.5 rounded cursor-grab bg-gray-800 hover:bg-gray-700 border border-gray-700 transition-colors"
                   >
-                    {ALL_ICONS[comp.type] ? (
-                      <img src={ALL_ICONS[comp.type]} alt={comp.label} className="w-5 h-5 object-contain flex-shrink-0" />
+                    {iconUrl ? (
+                      <img src={iconUrl} alt={comp.label} className="w-5 h-5 object-contain flex-shrink-0" />
                     ) : (
                       <span className="text-base flex-shrink-0">{comp.icon}</span>
                     )}
                     <span className="text-xs text-gray-200">{comp.label}</span>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

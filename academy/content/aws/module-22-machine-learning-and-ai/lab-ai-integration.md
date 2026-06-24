@@ -2,7 +2,7 @@
 title: "Canvas Lab: AI-Powered Document Processing Pipeline"
 type: canvas
 estimated_minutes: 25
-cert_tags: ["SAA-C03", "MLS-C01"]
+cert_tags: ["SAA-C03", "AIF-C01"]
 canvas_type: open
 ---
 

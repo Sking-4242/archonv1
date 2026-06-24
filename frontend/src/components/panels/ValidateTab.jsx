@@ -94,13 +94,16 @@ function FindingRow({ f, onSelectNode, isAcknowledged, hideLabel }) {
   const [fixing, setFixing] = useState(false);
   const unacknowledge = useValidationStore((s) => s.undismissFinding);
 
+  const ruleId = f.ruleId ?? f.rule_id;
+  const autoFix = ruleId ? RULE_FIXES[ruleId] : null;
+
   const cfg = SEVERITY[f.level];
   const detail = f.suggestion || f.fix;
 
   const handleClick = () => {
     setSelectedNodeId(f.nodeId);
     onSelectNode?.(f.nodeId);
-    const configKey = RULE_TO_CONFIG_KEY[f.rule_id];
+    const configKey = RULE_TO_CONFIG_KEY[ruleId];
     if (configKey) setFocusConfigKey(configKey);
   };
 
@@ -175,7 +178,7 @@ function FindingRow({ f, onSelectNode, isAcknowledged, hideLabel }) {
                 Dismiss
               </button>
             )}
-            {RULE_FIXES[f.rule_id] && !fixing && (
+            {autoFix && !fixing && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -201,7 +204,7 @@ function FindingRow({ f, onSelectNode, isAcknowledged, hideLabel }) {
           <DismissFlow findingId={f.id} onDone={() => setDismissing(false)} />
         </div>
       )}
-      {fixing && RULE_FIXES[f.rule_id] && (
+      {fixing && autoFix && (
         <div
           className="px-4 pb-3"
           onClick={(e) => e.stopPropagation()}
@@ -209,16 +212,15 @@ function FindingRow({ f, onSelectNode, isAcknowledged, hideLabel }) {
           <div className="rounded-lg bg-green-50 border border-green-200 px-3 py-2.5 text-xs space-y-2">
             <p className="font-semibold text-green-800">Apply this fix?</p>
             <p className="text-green-700 leading-relaxed">
-              {fixPreview(f.rule_id, f.nodeLabel)}
+              {fixPreview(ruleId, f.nodeLabel)}
             </p>
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  const fix = RULE_FIXES[f.rule_id];
                   const node = useGraphStore.getState().nodes.find((n) => n.id === f.nodeId);
                   if (node) {
                     updateNodeData(f.nodeId, {
-                      config: { ...(node.data.config ?? {}), [fix.key]: fix.value },
+                      config: { ...(node.data.config ?? {}), [autoFix.key]: autoFix.value },
                     });
                   }
                   setFixing(false);
@@ -493,6 +495,11 @@ export default function ValidateTab({ onSelectNode }) {
         <div className="flex items-center justify-between mb-1.5">
           <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
             Validation · {active.length} finding{active.length !== 1 ? "s" : ""}
+            {activeStandard && activeStandard !== "all" && (
+              <span className="normal-case font-normal text-purple-600">
+                {" "}· {activeStandard}
+              </span>
+            )}
           </p>
           {active.length > 0 && (
             <div className="flex items-center gap-1">

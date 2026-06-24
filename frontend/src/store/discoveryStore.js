@@ -1,44 +1,45 @@
 /**
  * discoveryStore.js
  *
- * Holds the latest discovery report loaded from an archon-cli
- * `discover --format archon` JSON file.
+ * Holds the latest discovery report and wizard preferences (last-used
+ * profile/region so the wizard pre-fills on subsequent opens).
  *
- * Shape of report:
+ * Report shape:
  * {
  *   archonCliVersion: string,
  *   reportType: "discover",
  *   region: string,
- *   nodes: Array<{
- *     id: string,
- *     type: string,          // canvas_type (e.g. "ec2", "rds")
- *     data: {
- *       label: string,
- *       config: object,
- *       service: string,     // e.g. "EC2", "RDS", "Lambda"
- *       awsType: string,     // e.g. "Instance", "DBInstance"
- *       discoveredState: string,
- *     }
- *   }>,
- *   summary: Record<string, number>,  // canvas_type -> count
- *   edges: Array<{
- *     id: string,
- *     source: string,
- *     target: string,
- *     type: string,
- *   }>,
- *   errors: Array<{ service: string, error: string }>,
+ *   nodes: Array<{ id, type, data: { label, config, service, awsType, discoveredState } }>,
+ *   summary: Record<string, number>,
+ *   edges: Array<{ id, source, target, type }>,
+ *   errors: Array<{ service, error }>,
  * }
  */
 
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-const useDiscoveryStore = create((set) => ({
-  report: null,
+const useDiscoveryStore = create(
+  persist(
+    (set) => ({
+      report: null,
+      lastProfile: null,   // null = default credential chain
+      lastRegion: "us-east-1",
 
-  setReport: (report) => set({ report }),
-
-  clearReport: () => set({ report: null }),
-}));
+      setReport: (report) => set({ report }),
+      clearReport: () => set({ report: null }),
+      setLastProfile: (lastProfile) => set({ lastProfile }),
+      setLastRegion: (lastRegion) => set({ lastRegion }),
+    }),
+    {
+      name: "archon-discovery",
+      partialize: (state) => ({
+        lastProfile: state.lastProfile,
+        lastRegion: state.lastRegion,
+        // Don't persist the report — it can be large and goes stale
+      }),
+    }
+  )
+);
 
 export default useDiscoveryStore;

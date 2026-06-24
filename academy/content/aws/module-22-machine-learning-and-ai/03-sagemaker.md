@@ -2,7 +2,7 @@
 title: "Amazon SageMaker: Custom ML Model Development"
 type: content
 estimated_minutes: 13
-cert_tags: ["SAA-C03", "MLS-C01"]
+cert_tags: ["SAA-C03", "AIF-C01", "MLA-C01"]
 ---
 
 # Amazon SageMaker: Custom ML Model Development

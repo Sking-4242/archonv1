@@ -1205,3 +1205,133 @@ def discover_region(region: str, profile: str | None = None) -> DiscoveryReport:
             ))
 
     return report
+
+
+# ─── Service Catalog ──────────────────────────────────────────────────────────
+# Used by the Discovery Wizard to render categorized checkboxes and by the
+# backend streaming endpoint to filter which discoverers to run.
+#
+# Each entry: (category, display_name, discoverer_fn)
+# The display_name is shown in the UI; the fn reference is used to filter
+# _DISCOVERERS when the user selects specific services.
+
+from archon_cli.discover_extended import EXTENDED_DISCOVERERS as _EXT  # noqa: E402 (already imported above)
+from archon_cli.discover_palette import PALETTE_DISCOVERERS as _PAL    # noqa: E402
+
+SERVICE_CATALOG: list[tuple[str, str, object]] = [
+    # Networking
+    ("Network", "VPC", _discover_vpcs),
+    ("Network", "Subnets", _discover_subnets),
+    ("Network", "Internet Gateways", _discover_igws),
+    ("Network", "NAT Gateways", _discover_nat_gateways),
+    ("Network", "Route Tables", _discover_route_tables),
+    ("Network", "Elastic IPs", _discover_eips),
+    ("Network", "Security Groups", _discover_security_groups),
+    ("Network", "Load Balancers (ALB/NLB)", _discover_albs),
+    ("Network", "CloudFront", _discover_cloudfront),
+    ("Network", "Route 53", _discover_route53),
+    ("Network", "VPC Endpoints", _discover_vpc_endpoints),
+    # Compute
+    ("Compute", "EC2 Instances", _discover_ec2_instances),
+    ("Compute", "Auto Scaling Groups", _discover_asg),
+    ("Compute", "Lambda Functions", _discover_lambda),
+    ("Compute", "ECS", _discover_ecs),
+    ("Compute", "EKS", _discover_eks),
+    # Storage
+    ("Storage", "S3 Buckets", _discover_s3),
+    ("Storage", "EBS Volumes", _discover_ebs),
+    ("Storage", "EFS", _discover_efs),
+    # Database
+    ("Database", "RDS", _discover_rds),
+    ("Database", "ElastiCache", _discover_elasticache),
+    ("Database", "DynamoDB", _discover_dynamodb),
+    # Security
+    ("Security", "KMS Keys", _discover_kms),
+    ("Security", "Secrets Manager", _discover_secrets),
+    ("Security", "IAM Roles", _discover_iam_roles),
+    ("Security", "WAF", _discover_waf),
+    ("Security", "CloudTrail", _discover_cloudtrail),
+    # Integration & Messaging
+    ("Integration", "SNS Topics", _discover_sns),
+    ("Integration", "SQS Queues", _discover_sqs),
+    ("Integration", "API Gateway", _discover_api_gateway),
+    ("Integration", "EventBridge", _discover_eventbridge),
+    # Monitoring
+    ("Monitoring", "CloudWatch Alarms", _discover_cloudwatch_alarms),
+]
+
+# Append extended discoverers
+from archon_cli.discover_extended import (  # noqa: E402
+    _discover_transit_gateways, _discover_vpn_gateways, _discover_direct_connect,
+    _discover_global_accelerator, _discover_ecr, _discover_app_runner, _discover_batch,
+    _discover_elastic_beanstalk, _discover_lightsail, _discover_fsx, _discover_backup,
+    _discover_storage_gateway, _discover_redshift, _discover_documentdb, _discover_neptune,
+    _discover_opensearch, _discover_timestream, _discover_acm, _discover_cognito,
+    _discover_guardduty, _discover_config, _discover_step_functions, _discover_kinesis,
+    _discover_kinesis_firehose, _discover_mq, _discover_appsync, _discover_glue,
+    _discover_athena, _discover_emr,
+)
+
+SERVICE_CATALOG.extend([
+    ("Network", "Transit Gateways", _discover_transit_gateways),
+    ("Network", "VPN Gateways", _discover_vpn_gateways),
+    ("Network", "Direct Connect", _discover_direct_connect),
+    ("Network", "Global Accelerator", _discover_global_accelerator),
+    ("Compute", "ECR Repositories", _discover_ecr),
+    ("Compute", "App Runner", _discover_app_runner),
+    ("Compute", "Batch", _discover_batch),
+    ("Compute", "Elastic Beanstalk", _discover_elastic_beanstalk),
+    ("Compute", "Lightsail", _discover_lightsail),
+    ("Storage", "FSx", _discover_fsx),
+    ("Storage", "AWS Backup", _discover_backup),
+    ("Storage", "Storage Gateway", _discover_storage_gateway),
+    ("Database", "Redshift", _discover_redshift),
+    ("Database", "DocumentDB", _discover_documentdb),
+    ("Database", "Neptune", _discover_neptune),
+    ("Database", "OpenSearch", _discover_opensearch),
+    ("Database", "Timestream", _discover_timestream),
+    ("Security", "ACM Certificates", _discover_acm),
+    ("Security", "Cognito", _discover_cognito),
+    ("Security", "GuardDuty", _discover_guardduty),
+    ("Security", "Config", _discover_config),
+    ("Integration", "Step Functions", _discover_step_functions),
+    ("Integration", "Kinesis", _discover_kinesis),
+    ("Integration", "Kinesis Firehose", _discover_kinesis_firehose),
+    ("Integration", "Amazon MQ", _discover_mq),
+    ("Integration", "AppSync", _discover_appsync),
+    ("Analytics", "Glue", _discover_glue),
+    ("Analytics", "Athena", _discover_athena),
+    ("Analytics", "EMR", _discover_emr),
+])
+
+# Append palette discoverers
+from archon_cli.discover_palette import (  # noqa: E402
+    _discover_s3_glacier, _discover_inspector, _discover_security_hub,
+    _discover_shield, _discover_macie, _discover_quicksight,
+    _discover_lakeformation, _discover_bedrock, _discover_rekognition,
+    _discover_comprehend, _discover_textract, _discover_polly,
+    _discover_translate, _discover_lex, _discover_xray,
+)
+
+SERVICE_CATALOG.extend([
+    ("Storage", "S3 Glacier", _discover_s3_glacier),
+    ("Security", "Inspector", _discover_inspector),
+    ("Security", "Security Hub", _discover_security_hub),
+    ("Security", "Shield", _discover_shield),
+    ("Security", "Macie", _discover_macie),
+    ("Analytics", "QuickSight", _discover_quicksight),
+    ("Analytics", "Lake Formation", _discover_lakeformation),
+    ("AI/ML", "Bedrock", _discover_bedrock),
+    ("AI/ML", "Rekognition", _discover_rekognition),
+    ("AI/ML", "Comprehend", _discover_comprehend),
+    ("AI/ML", "Textract", _discover_textract),
+    ("AI/ML", "Polly", _discover_polly),
+    ("AI/ML", "Translate", _discover_translate),
+    ("AI/ML", "Lex", _discover_lex),
+    ("Monitoring", "X-Ray", _discover_xray),
+])
+
+# Lookup: fn -> (category, display_name) for streaming endpoint
+_FN_TO_META: dict[object, tuple[str, str]] = {
+    fn: (cat, name) for cat, name, fn in SERVICE_CATALOG
+}

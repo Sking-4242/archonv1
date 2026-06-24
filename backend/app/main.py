@@ -19,10 +19,12 @@ from app.routers import import_tf as import_tf_router
 from app.routers import import_plan as import_plan_router
 from app.routers import design as design_router
 from app.routers import finops as finops_router
+from app.routers import discover as discover_router
 from app.routers.academy import auth as academy_auth_router
 from app.routers.academy import assignments as academy_assignments_router
 from app.routers.academy import lessons as academy_lessons_router
 from app.routers.academy import library as academy_library_router
+from app.routers.academy import certs as academy_certs_router
 from app.routers.academy import library_links as academy_library_links_router
 from app.routers.academy import modules as academy_modules_router
 from app.routers.academy import notes as academy_notes_router
@@ -65,11 +67,15 @@ app.include_router(import_tf_router.router)
 app.include_router(import_plan_router.router)
 app.include_router(design_router.router)
 app.include_router(finops_router.router)
+app.include_router(discover_router.router)
 app.include_router(academy_auth_router.router)
 app.include_router(academy_assignments_router.router)
 app.include_router(academy_submissions_router.router)
 app.include_router(academy_modules_router.router)
 app.include_router(academy_lessons_router.router)
+# certs must be registered before library: otherwise GET /academy/library/certs
+# is captured by library's /{lesson_id:int} route and fails validation (422).
+app.include_router(academy_certs_router.router)
 app.include_router(academy_library_router.router)
 app.include_router(academy_library_links_router.router)
 app.include_router(academy_notes_router.router)

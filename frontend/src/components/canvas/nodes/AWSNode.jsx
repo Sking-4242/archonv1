@@ -1,10 +1,6 @@
 import { Handle, Position } from "@xyflow/react";
 import useValidationStore from "../../../store/validationStore";
-import { AWS_ICONS } from "../../../assets/icons/awsIcons";
-import { AZURE_ICONS } from "../../../assets/icons/azureIcons";
-import { GCP_ICONS } from "../../../assets/icons/gcpIcons";
-
-const ALL_ICONS = { ...AWS_ICONS, ...AZURE_ICONS, ...GCP_ICONS };
+import { getServiceIconUrl } from "../../../assets/icons/serviceIcons";
 
 const CATEGORY_COLORS = {
   networking: {
@@ -83,7 +79,7 @@ const CHANGE_ACTION_CONFIG = {
   },
 };
 
-export default function AWSNode({ id, data, selected }) {
+export default function AWSNode({ id, data, selected, type }) {
   const colors = CATEGORY_COLORS[data.category] ?? {
     bg: "bg-gray-50",
     border: "border-gray-300",
@@ -99,7 +95,7 @@ export default function AWSNode({ id, data, selected }) {
         ? "info"
         : null;
 
-  const svgUrl = data.nodeType ? ALL_ICONS[data.nodeType] : null;
+  const svgUrl = getServiceIconUrl(data.nodeType ?? type);
 
   // Plan-mode change action
   const changeAction = data.change_action ?? null;

@@ -1,553 +1,553 @@
 [
-  {
-    "id": "aws-soa-t1-01-001",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to receive an email alert whenever CPU utilization on an EC2 instance exceeds 80% for five consecutive minutes. Which combination of AWS services should be used?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Use AWS Config to evaluate the CPUUtilization metric and trigger an SNS notification when the evaluation result is NON_COMPLIANT."
-      },
-      {
-        "label": "B",
-        "text": "Enable AWS CloudTrail to log all EC2 API calls and configure an S3 event notification to trigger a Lambda function that sends an email."
-      },
-      {
-        "label": "C",
-        "text": "Deploy a CloudWatch Logs agent on the EC2 instance, create a metric filter for CPU usage, and set up an SES subscription to send alerts."
-      },
-      {
-        "label": "D",
-        "text": "Create a CloudWatch alarm on the CPUUtilization metric with a threshold of 80%, a period of 300 seconds, and an SNS topic configured to send email notifications."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "B": "CloudTrail logs API calls, not performance metrics, so it cannot monitor CPU utilization.",
-      "A": "AWS Config evaluates resource configuration compliance, not real-time performance metrics like CPU utilization.",
-      "C": "The CloudWatch Logs agent collects log data, not raw CPU metrics; CPUUtilization is a built-in EC2 metric that does not require a logs agent."
-    },
-    "explanation": "CloudWatch natively collects the CPUUtilization metric for EC2 instances. You create an alarm that evaluates the metric over a 300-second (5-minute) period, and when the average exceeds 80%, the alarm transitions to ALARM state and publishes to an SNS topic. An email subscription on that topic delivers the notification.",
-    "module_ref": "soa/monitoring/cloudwatch-alarms",
-    "tags": [
-      "cloudwatch",
-      "alarms",
-      "sns",
-      "ec2",
-      "cpu"
-    ]
+ {
+  "id": "aws-soa-t1-01-001",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to receive an email alert whenever CPU utilization on an EC2 instance exceeds 80% for five consecutive minutes. Which combination of AWS services should be used?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Use AWS Config to evaluate the CPUUtilization metric and trigger an SNS notification when the evaluation result is NON_COMPLIANT."
+   },
+   {
+    "label": "B",
+    "text": "Enable AWS CloudTrail to log all EC2 API calls and configure an S3 event notification to trigger a Lambda function that sends an email."
+   },
+   {
+    "label": "C",
+    "text": "Deploy a CloudWatch Logs agent on the EC2 instance, create a metric filter for CPU usage, and set up an SES subscription to send alerts."
+   },
+   {
+    "label": "D",
+    "text": "Create a CloudWatch alarm on the CPUUtilization metric with a threshold of 80%, a period of 300 seconds, and an SNS topic configured to send email notifications."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "B": "CloudTrail logs API calls, not performance metrics, so it cannot monitor CPU utilization.",
+   "A": "AWS Config evaluates resource configuration compliance, not real-time performance metrics like CPU utilization.",
+   "C": "The CloudWatch Logs agent collects log data, not raw CPU metrics; CPUUtilization is a built-in EC2 metric that does not require a logs agent."
   },
-  {
-    "id": "aws-soa-t1-01-002",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "An administrator wants to view aggregated metrics from multiple EC2 instances running the same application on a single graph. Which CloudWatch feature supports this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "CloudWatch Contributor Insights analyzes log patterns and displays the top contributors as a single metric stream."
-      },
-      {
-        "label": "B",
-        "text": "AWS X-Ray traces requests across services and provides a service map that aggregates instance-level data."
-      },
-      {
-        "label": "C",
-        "text": "CloudWatch metric math allows combining multiple metrics into a single expression that can be displayed on one graph."
-      },
-      {
-        "label": "D",
-        "text": "CloudWatch Logs Insights queries log groups across multiple instances and aggregates results in a time-series view."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "D": "Logs Insights queries log data, not CloudWatch metrics; the result set is a table or bar chart, not a time-series metric graph.",
-      "B": "X-Ray provides distributed tracing for latency and error analysis, not aggregated CPU/disk/network metrics across instances.",
-      "A": "Contributor Insights identifies top-N log contributors; it does not aggregate numeric performance metrics across instances."
-    },
-    "explanation": "CloudWatch metric math lets you perform arithmetic on multiple metrics and render the result as a single time series on a graph. For example, you can sum CPUUtilization across a fleet of instances or compute the average. This is the native CloudWatch way to aggregate instance-level metrics without writing custom code.",
-    "module_ref": "soa/monitoring/cloudwatch-metric-math",
-    "tags": [
-      "cloudwatch",
-      "metric-math",
-      "aggregation",
-      "ec2"
-    ]
+  "explanation": "CloudWatch natively collects the CPUUtilization metric for EC2 instances. You create an alarm that evaluates the metric over a 300-second (5-minute) period, and when the average exceeds 80%, the alarm transitions to ALARM state and publishes to an SNS topic. An email subscription on that topic delivers the notification.",
+  "module_ref": "soa/monitoring/cloudwatch-alarms",
+  "tags": [
+   "cloudwatch",
+   "alarms",
+   "sns",
+   "ec2",
+   "cpu"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-002",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "An administrator wants to view aggregated metrics from multiple EC2 instances running the same application on a single graph. Which CloudWatch feature supports this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "CloudWatch Contributor Insights analyzes log patterns and displays the top contributors as a single metric stream."
+   },
+   {
+    "label": "B",
+    "text": "AWS X-Ray traces requests across services and provides a service map that aggregates instance-level data."
+   },
+   {
+    "label": "C",
+    "text": "CloudWatch metric math allows combining multiple metrics into a single expression that can be displayed on one graph."
+   },
+   {
+    "label": "D",
+    "text": "CloudWatch Logs Insights queries log groups across multiple instances and aggregates results in a time-series view."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "D": "Logs Insights queries log data, not CloudWatch metrics; the result set is a table or bar chart, not a time-series metric graph.",
+   "B": "X-Ray provides distributed tracing for latency and error analysis, not aggregated CPU/disk/network metrics across instances.",
+   "A": "Contributor Insights identifies top-N log contributors; it does not aggregate numeric performance metrics across instances."
   },
-  {
-    "id": "aws-soa-t1-01-003",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A company must retain all AWS API activity logs for auditing purposes for at least 7 years. Which service captures these logs and what storage configuration meets the retention requirement?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable Amazon VPC Flow Logs and store them in CloudWatch Logs with a retention policy of 2,555 days (approximately 7 years)."
-      },
-      {
-        "label": "B",
-        "text": "Enable CloudWatch detailed monitoring on all EC2 instances and export the metrics to S3 using a Data Firehose delivery stream with a 7-year prefix."
-      },
-      {
-        "label": "C",
-        "text": "Configure AWS Config to record all resource changes and store the history in an S3 bucket with versioning enabled."
-      },
-      {
-        "label": "D",
-        "text": "Enable AWS CloudTrail with a trail that delivers log files to an S3 bucket, then configure an S3 lifecycle rule to transition objects to S3 Glacier Deep Archive after 90 days."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "A": "VPC Flow Logs capture network traffic metadata, not API activity. CloudTrail is the service that records API calls.",
-      "C": "AWS Config records resource configuration changes, not all API activity. CloudTrail is required for a full API audit trail.",
-      "B": "CloudWatch detailed monitoring captures performance metrics, not API calls. Metrics also do not constitute an audit trail."
-    },
-    "explanation": "AWS CloudTrail is the AWS service that records every API call made in an account. Delivering log files to S3 provides durable, low-cost long-term storage. Configuring an S3 lifecycle rule to move objects to S3 Glacier Deep Archive (which has a minimum storage duration of 180 days) after an initial period is the cost-effective way to retain audit logs for 7 years.",
-    "module_ref": "soa/monitoring/cloudtrail",
-    "tags": [
-      "cloudtrail",
-      "s3",
-      "glacier",
-      "audit",
-      "retention"
-    ]
+  "explanation": "CloudWatch metric math lets you perform arithmetic on multiple metrics and render the result as a single time series on a graph. For example, you can sum CPUUtilization across a fleet of instances or compute the average. This is the native CloudWatch way to aggregate instance-level metrics without writing custom code.",
+  "module_ref": "soa/monitoring/cloudwatch-metric-math",
+  "tags": [
+   "cloudwatch",
+   "metric-math",
+   "aggregation",
+   "ec2"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-003",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A company must retain all AWS API activity logs for auditing purposes for at least 7 years. Which service captures these logs and what storage configuration meets the retention requirement?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable Amazon VPC Flow Logs and store them in CloudWatch Logs with a retention policy of 2,555 days (approximately 7 years)."
+   },
+   {
+    "label": "B",
+    "text": "Enable CloudWatch detailed monitoring on all EC2 instances and export the metrics to S3 using a Data Firehose delivery stream with a 7-year prefix."
+   },
+   {
+    "label": "C",
+    "text": "Configure AWS Config to record all resource changes and store the history in an S3 bucket with versioning enabled."
+   },
+   {
+    "label": "D",
+    "text": "Enable AWS CloudTrail with a trail that delivers log files to an S3 bucket, then configure an S3 lifecycle rule to transition objects to S3 Glacier Deep Archive after 90 days."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "A": "VPC Flow Logs capture network traffic metadata, not API activity. CloudTrail is the service that records API calls.",
+   "C": "AWS Config records resource configuration changes, not all API activity. CloudTrail is required for a full API audit trail.",
+   "B": "CloudWatch detailed monitoring captures performance metrics, not API calls. Metrics also do not constitute an audit trail."
   },
-  {
-    "id": "aws-soa-t1-01-004",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "An application writes structured JSON log records to CloudWatch Logs. A SysOps administrator needs to count the number of ERROR-level log events per minute. What should the administrator create?",
-    "options": [
-      {
-        "label": "A",
-        "text": "A CloudWatch alarm directly on the log group that counts lines containing the word ERROR and triggers when the count exceeds a threshold per minute."
-      },
-      {
-        "label": "B",
-        "text": "A CloudWatch Logs subscription filter that streams all log events to an SQS queue, where a Lambda function counts ERROR events and publishes to a custom metric."
-      },
-      {
-        "label": "C",
-        "text": "A CloudWatch Logs metric filter that matches the pattern '{ $.level = \"ERROR\" }', increments a custom metric by 1 for each match, and a CloudWatch alarm on that metric."
-      },
-      {
-        "label": "D",
-        "text": "An AWS Config rule that queries the CloudWatch Logs API every minute to count ERROR entries and publishes the result as a compliance metric."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "A": "CloudWatch alarms are based on metrics, not directly on log content. You must first create a metric filter to turn log patterns into a metric.",
-      "B": "Using SQS and Lambda to count log events is a valid architecture but is unnecessarily complex when CloudWatch Logs metric filters natively provide this capability.",
-      "D": "AWS Config evaluates resource configuration compliance; it does not query CloudWatch Logs to count log patterns."
-    },
-    "explanation": "CloudWatch Logs metric filters extract numeric values from log events and publish them as CloudWatch custom metrics. A filter pattern like '{ $.level = \"ERROR\" }' matches JSON log events where the level field is ERROR and increments the metric by 1. Once the custom metric exists, you can set a CloudWatch alarm on it just like any built-in metric.",
-    "module_ref": "soa/monitoring/cloudwatch-logs-metric-filters",
-    "tags": [
-      "cloudwatch-logs",
-      "metric-filter",
-      "custom-metric",
-      "json-logs"
-    ]
+  "explanation": "AWS CloudTrail is the AWS service that records every API call made in an account. Delivering log files to S3 provides durable, low-cost long-term storage. Configuring an S3 lifecycle rule to move objects to S3 Glacier Deep Archive (which has a minimum storage duration of 180 days) after an initial period is the cost-effective way to retain audit logs for 7 years.",
+  "module_ref": "soa/monitoring/cloudtrail",
+  "tags": [
+   "cloudtrail",
+   "s3",
+   "glacier",
+   "audit",
+   "retention"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-004",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "An application writes structured JSON log records to CloudWatch Logs. A SysOps administrator needs to count the number of ERROR-level log events per minute. What should the administrator create?",
+  "options": [
+   {
+    "label": "A",
+    "text": "A CloudWatch alarm directly on the log group that counts lines containing the word ERROR and triggers when the count exceeds a threshold per minute."
+   },
+   {
+    "label": "B",
+    "text": "A CloudWatch Logs subscription filter that streams all log events to an SQS queue, where a Lambda function counts ERROR events and publishes to a custom metric."
+   },
+   {
+    "label": "C",
+    "text": "A CloudWatch Logs metric filter that matches the pattern '{ $.level = \"ERROR\" }', increments a custom metric by 1 for each match, and a CloudWatch alarm on that metric."
+   },
+   {
+    "label": "D",
+    "text": "An AWS Config rule that queries the CloudWatch Logs API every minute to count ERROR entries and publishes the result as a compliance metric."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "A": "CloudWatch alarms are based on metrics, not directly on log content. You must first create a metric filter to turn log patterns into a metric.",
+   "B": "Using SQS and Lambda to count log events is a valid architecture but is unnecessarily complex when CloudWatch Logs metric filters natively provide this capability.",
+   "D": "AWS Config evaluates resource configuration compliance; it does not query CloudWatch Logs to count log patterns."
   },
-  {
-    "id": "aws-soa-t1-01-005",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator wants to automatically reboot an EC2 instance when the system status check fails. Which approach accomplishes this with the least operational overhead?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Write a Lambda function that polls the EC2 DescribeInstanceStatus API every minute and issues a reboot if a status check failure is detected."
-      },
-      {
-        "label": "B",
-        "text": "Enable EC2 Auto Recovery by creating an Auto Scaling group with a minimum capacity of 1 that replaces failed instances automatically."
-      },
-      {
-        "label": "C",
-        "text": "Use AWS Systems Manager Automation to run an SSM document on a schedule that checks instance status and reboots if necessary."
-      },
-      {
-        "label": "D",
-        "text": "Configure a CloudWatch alarm on the StatusCheckFailed_System metric with an EC2 recovery action that automatically reboots or recovers the instance."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "A": "Polling with Lambda introduces delay and complexity; CloudWatch alarms with built-in EC2 actions are the native, lower-overhead solution.",
-      "B": "An Auto Scaling group terminates and replaces the instance rather than recovering the same instance, which changes the instance ID and may not be desired.",
-      "C": "A scheduled SSM Automation document introduces polling delay and manual orchestration compared to the event-driven CloudWatch alarm action."
-    },
-    "explanation": "CloudWatch has a built-in EC2 alarm action called 'Recover' that triggers when the StatusCheckFailed_System metric is breached. When this action fires, AWS migrates the instance to healthy underlying hardware while preserving the instance ID, Elastic IP, and attached EBS volumes. This is the lowest-overhead automated remediation for system status check failures.",
-    "module_ref": "soa/monitoring/ec2-status-checks",
-    "tags": [
-      "cloudwatch",
-      "ec2",
-      "status-checks",
-      "auto-recovery",
-      "remediation"
-    ]
+  "explanation": "CloudWatch Logs metric filters extract numeric values from log events and publish them as CloudWatch custom metrics. A filter pattern like '{ $.level = \"ERROR\" }' matches JSON log events where the level field is ERROR and increments the metric by 1. Once the custom metric exists, you can set a CloudWatch alarm on it just like any built-in metric.",
+  "module_ref": "soa/monitoring/cloudwatch-logs-metric-filters",
+  "tags": [
+   "cloudwatch-logs",
+   "metric-filter",
+   "custom-metric",
+   "json-logs"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-005",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator wants to automatically reboot an EC2 instance when the system status check fails. Which approach accomplishes this with the least operational overhead?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Write a Lambda function that polls the EC2 DescribeInstanceStatus API every minute and issues a reboot if a status check failure is detected."
+   },
+   {
+    "label": "B",
+    "text": "Enable EC2 Auto Recovery by creating an Auto Scaling group with a minimum capacity of 1 that replaces failed instances automatically."
+   },
+   {
+    "label": "C",
+    "text": "Use AWS Systems Manager Automation to run an SSM document on a schedule that checks instance status and reboots if necessary."
+   },
+   {
+    "label": "D",
+    "text": "Configure a CloudWatch alarm on the StatusCheckFailed_System metric with an EC2 recovery action that automatically reboots or recovers the instance."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "A": "Polling with Lambda introduces delay and complexity; CloudWatch alarms with built-in EC2 actions are the native, lower-overhead solution.",
+   "B": "An Auto Scaling group terminates and replaces the instance rather than recovering the same instance, which changes the instance ID and may not be desired.",
+   "C": "A scheduled SSM Automation document introduces polling delay and manual orchestration compared to the event-driven CloudWatch alarm action."
   },
-  {
-    "id": "aws-soa-t1-01-006",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "Which AWS service provides a managed dashboard that aggregates security findings from services such as GuardDuty, Inspector, and Macie into a single view?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Amazon CloudWatch Container Insights aggregates security events from containerized workloads and displays them on a single operational dashboard."
-      },
-      {
-        "label": "B",
-        "text": "AWS Systems Manager OpsCenter aggregates operational findings from security services and provides a single pane of glass for all security events."
-      },
-      {
-        "label": "C",
-        "text": "AWS Trusted Advisor reviews account configurations and aggregates all security service findings into a central recommendations panel."
-      },
-      {
-        "label": "D",
-        "text": "AWS Security Hub collects findings from multiple security services and presents them in a unified, prioritized view with support for compliance standards."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "A": "CloudWatch Container Insights collects performance metrics and logs from containerized workloads; it does not aggregate security findings from GuardDuty or Macie.",
-      "C": "Trusted Advisor provides best-practice recommendations across cost, performance, and security; it does not ingest findings from GuardDuty, Inspector, or Macie.",
-      "B": "OpsCenter manages operational work items (OpsItems); while it can receive findings, it is an operational remediation tool, not a security findings aggregator."
-    },
-    "explanation": "AWS Security Hub is the centralized security posture management service. It automatically collects findings from AWS security services including GuardDuty, Inspector, Macie, Firewall Manager, and IAM Access Analyzer. It normalizes findings into the AWS Security Finding Format (ASFF), scores them by severity, and maps them to compliance frameworks like CIS AWS Foundations Benchmark.",
-    "module_ref": "soa/monitoring/security-hub",
-    "tags": [
-      "security-hub",
-      "guardduty",
-      "inspector",
-      "macie",
-      "aggregation"
-    ]
+  "explanation": "CloudWatch has a built-in EC2 alarm action called 'Recover' that triggers when the StatusCheckFailed_System metric is breached. When this action fires, AWS migrates the instance to healthy underlying hardware while preserving the instance ID, Elastic IP, and attached EBS volumes. This is the lowest-overhead automated remediation for system status check failures.",
+  "module_ref": "soa/monitoring/ec2-status-checks",
+  "tags": [
+   "cloudwatch",
+   "ec2",
+   "status-checks",
+   "auto-recovery",
+   "remediation"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-006",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "Which AWS service provides a managed dashboard that aggregates security findings from services such as GuardDuty, Inspector, and Macie into a single view?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Amazon CloudWatch Container Insights aggregates security events from containerized workloads and displays them on a single operational dashboard."
+   },
+   {
+    "label": "B",
+    "text": "AWS Systems Manager OpsCenter aggregates operational findings from security services and provides a single pane of glass for all security events."
+   },
+   {
+    "label": "C",
+    "text": "AWS Trusted Advisor reviews account configurations and aggregates all security service findings into a central recommendations panel."
+   },
+   {
+    "label": "D",
+    "text": "AWS Security Hub collects findings from multiple security services and presents them in a unified, prioritized view with support for compliance standards."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "A": "CloudWatch Container Insights collects performance metrics and logs from containerized workloads; it does not aggregate security findings from GuardDuty or Macie.",
+   "C": "Trusted Advisor provides best-practice recommendations across cost, performance, and security; it does not ingest findings from GuardDuty, Inspector, or Macie.",
+   "B": "OpsCenter manages operational work items (OpsItems); while it can receive findings, it is an operational remediation tool, not a security findings aggregator."
   },
-  {
-    "id": "aws-soa-t1-01-007",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "An AWS Config rule detects that an S3 bucket has public read access enabled, which violates company policy. A SysOps administrator wants Config to automatically remediate this by removing public access. What should be configured?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable AWS Config auto-remediation by associating the built-in AWS-DisableS3BucketPublicReadWrite managed rule directly with the S3 bucket resource type."
-      },
-      {
-        "label": "B",
-        "text": "Create a CloudWatch Events rule that triggers a Lambda function whenever the Config rule evaluation changes to NON_COMPLIANT, and have Lambda block public access."
-      },
-      {
-        "label": "C",
-        "text": "Associate an AWS Config remediation action with the rule using an SSM Automation document that calls the S3 PutPublicAccessBlock API on non-compliant resources."
-      },
-      {
-        "label": "D",
-        "text": "Configure an S3 bucket policy that automatically denies public access whenever AWS Config detects a violation and publishes the policy change via SNS."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "B": "Using CloudWatch Events and Lambda is a valid approach but is more complex to implement and maintain than the native Config remediation feature.",
-      "A": "AWS-DisableS3BucketPublicReadWrite is an SSM Automation document used as a remediation action, not a Config managed rule itself; you associate it with an existing Config rule.",
-      "D": "S3 bucket policies cannot be configured to respond dynamically to Config evaluations; this describes a non-existent automatic mechanism."
-    },
-    "explanation": "AWS Config supports automatic remediation by associating a remediation action with a Config rule. The remediation action uses an SSM Automation document (for example, AWS-DisableS3BucketPublicReadWrite) that is executed on non-compliant resources. You can configure this as automatic remediation so that Config triggers the automation as soon as a resource becomes non-compliant.",
-    "module_ref": "soa/monitoring/config-remediation",
-    "tags": [
-      "aws-config",
-      "remediation",
-      "ssm-automation",
-      "s3",
-      "compliance"
-    ]
+  "explanation": "AWS Security Hub is the centralized security posture management service. It automatically collects findings from AWS security services including GuardDuty, Inspector, Macie, Firewall Manager, and IAM Access Analyzer. It normalizes findings into the AWS Security Finding Format (ASFF), scores them by severity, and maps them to compliance frameworks like CIS AWS Foundations Benchmark.",
+  "module_ref": "soa/monitoring/security-hub",
+  "tags": [
+   "security-hub",
+   "guardduty",
+   "inspector",
+   "macie",
+   "aggregation"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-007",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "An AWS Config rule detects that an S3 bucket has public read access enabled, which violates company policy. A SysOps administrator wants Config to automatically remediate this by removing public access. What should be configured?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable AWS Config auto-remediation by associating the built-in AWS-DisableS3BucketPublicReadWrite managed rule directly with the S3 bucket resource type."
+   },
+   {
+    "label": "B",
+    "text": "Create a CloudWatch Events rule that triggers a Lambda function whenever the Config rule evaluation changes to NON_COMPLIANT, and have Lambda block public access."
+   },
+   {
+    "label": "C",
+    "text": "Associate an AWS Config remediation action with the rule using an SSM Automation document that calls the S3 PutPublicAccessBlock API on non-compliant resources."
+   },
+   {
+    "label": "D",
+    "text": "Configure an S3 bucket policy that automatically denies public access whenever AWS Config detects a violation and publishes the policy change via SNS."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "B": "Using CloudWatch Events and Lambda is a valid approach but is more complex to implement and maintain than the native Config remediation feature.",
+   "A": "AWS-DisableS3BucketPublicReadWrite is an SSM Automation document used as a remediation action, not a Config managed rule itself; you associate it with an existing Config rule.",
+   "D": "S3 bucket policies cannot be configured to respond dynamically to Config evaluations; this describes a non-existent automatic mechanism."
   },
-  {
-    "id": "aws-soa-t1-01-008",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to install and configure the unified CloudWatch agent on a fleet of EC2 instances to collect custom metrics and logs. Which service provides the most scalable way to run the installation across all instances at once?",
-    "options": [
-      {
-        "label": "A",
-        "text": "AWS CodeDeploy with an AppSpec file that runs a BeforeInstall lifecycle hook script to install and configure the CloudWatch agent on each instance."
-      },
-      {
-        "label": "B",
-        "text": "Amazon EC2 Image Builder with a component that installs the CloudWatch agent and bakes it into a new AMI for all future instances."
-      },
-      {
-        "label": "C",
-        "text": "AWS Systems Manager Run Command with the AWS-ConfigureAWSPackage document to install the CloudWatch agent and AWS-RunShellScript to write the agent configuration file."
-      },
-      {
-        "label": "D",
-        "text": "AWS CloudFormation with a cfn-init helper script in UserData that downloads and installs the CloudWatch agent during instance launch."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "A": "CodeDeploy is designed for application deployments; using it solely to install a monitoring agent on running instances introduces unnecessary complexity.",
-      "D": "cfn-init in UserData only runs during instance launch; it cannot be used to install the agent on already-running instances in the fleet.",
-      "B": "EC2 Image Builder creates a new AMI but does not help install the agent on instances that are already running in the fleet."
-    },
-    "explanation": "AWS Systems Manager Run Command lets you execute commands across multiple instances simultaneously without SSH. The AWS-ConfigureAWSPackage document installs the CloudWatch agent, and AWS-RunShellScript can write the agent configuration. You can target the entire fleet using instance tags or managed instance groups, making it the most scalable approach for running instances.",
-    "module_ref": "soa/monitoring/cloudwatch-agent",
-    "tags": [
-      "cloudwatch-agent",
-      "ssm",
-      "run-command",
-      "fleet-management"
-    ]
+  "explanation": "AWS Config supports automatic remediation by associating a remediation action with a Config rule. The remediation action uses an SSM Automation document (for example, AWS-DisableS3BucketPublicReadWrite) that is executed on non-compliant resources. You can configure this as automatic remediation so that Config triggers the automation as soon as a resource becomes non-compliant.",
+  "module_ref": "soa/monitoring/config-remediation",
+  "tags": [
+   "aws-config",
+   "remediation",
+   "ssm-automation",
+   "s3",
+   "compliance"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-008",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to install and configure the unified CloudWatch agent on a fleet of EC2 instances to collect custom metrics and logs. Which service provides the most scalable way to run the installation across all instances at once?",
+  "options": [
+   {
+    "label": "A",
+    "text": "AWS CodeDeploy with an AppSpec file that runs a BeforeInstall lifecycle hook script to install and configure the CloudWatch agent on each instance."
+   },
+   {
+    "label": "B",
+    "text": "Amazon EC2 Image Builder with a component that installs the CloudWatch agent and bakes it into a new AMI for all future instances."
+   },
+   {
+    "label": "C",
+    "text": "AWS Systems Manager Run Command with the AWS-ConfigureAWSPackage document to install the CloudWatch agent and AWS-RunShellScript to write the agent configuration file."
+   },
+   {
+    "label": "D",
+    "text": "AWS CloudFormation with a cfn-init helper script in UserData that downloads and installs the CloudWatch agent during instance launch."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "A": "CodeDeploy is designed for application deployments; using it solely to install a monitoring agent on running instances introduces unnecessary complexity.",
+   "D": "cfn-init in UserData only runs during instance launch; it cannot be used to install the agent on already-running instances in the fleet.",
+   "B": "EC2 Image Builder creates a new AMI but does not help install the agent on instances that are already running in the fleet."
   },
-  {
-    "id": "aws-soa-t1-01-009",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A CloudWatch alarm transitions to the INSUFFICIENT_DATA state shortly after it is created. What is the most likely cause?",
-    "options": [
-      {
-        "label": "A",
-        "text": "The alarm evaluation period has not yet elapsed, so CloudWatch has not collected enough data points to determine whether the threshold is breached."
-      },
-      {
-        "label": "B",
-        "text": "The EC2 instance is in a stopped state, which causes CloudWatch to report INSUFFICIENT_DATA because no metrics can be collected from a stopped instance."
-      },
-      {
-        "label": "C",
-        "text": "The IAM role attached to the CloudWatch alarm lacks permission to read the underlying metric, causing the evaluation to fail."
-      },
-      {
-        "label": "D",
-        "text": "The SNS topic associated with the alarm does not have an active subscription, which prevents CloudWatch from completing the alarm evaluation."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "C": "CloudWatch alarms do not use IAM roles to read metrics; metric data is available to alarms within the same account without additional permissions.",
-      "B": "A stopped EC2 instance stops publishing metrics, but the alarm state reflects missing data rather than the instance state; however, the most common initial cause is simply insufficient data points at creation time.",
-      "D": "An SNS subscription status does not affect alarm state evaluation; an alarm with no active subscription will still transition to ALARM or OK based on metric data."
-    },
-    "explanation": "When a CloudWatch alarm is first created, it enters the INSUFFICIENT_DATA state because not enough metric data points have been collected yet to evaluate the threshold condition. The alarm transitions to OK or ALARM after the evaluation period has elapsed and sufficient data is available. This is normal behavior for new alarms.",
-    "module_ref": "soa/monitoring/cloudwatch-alarm-states",
-    "tags": [
-      "cloudwatch",
-      "alarm-states",
-      "insufficient-data",
-      "troubleshooting"
-    ]
+  "explanation": "AWS Systems Manager Run Command lets you execute commands across multiple instances simultaneously without SSH. The AWS-ConfigureAWSPackage document installs the CloudWatch agent, and AWS-RunShellScript can write the agent configuration. You can target the entire fleet using instance tags or managed instance groups, making it the most scalable approach for running instances.",
+  "module_ref": "soa/monitoring/cloudwatch-agent",
+  "tags": [
+   "cloudwatch-agent",
+   "ssm",
+   "run-command",
+   "fleet-management"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-009",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A CloudWatch alarm transitions to the INSUFFICIENT_DATA state shortly after it is created. What is the most likely cause?",
+  "options": [
+   {
+    "label": "A",
+    "text": "The alarm evaluation period has not yet elapsed, so CloudWatch has not collected enough data points to determine whether the threshold is breached."
+   },
+   {
+    "label": "B",
+    "text": "The EC2 instance is in a stopped state, which causes CloudWatch to report INSUFFICIENT_DATA because no metrics can be collected from a stopped instance."
+   },
+   {
+    "label": "C",
+    "text": "The IAM role attached to the CloudWatch alarm lacks permission to read the underlying metric, causing the evaluation to fail."
+   },
+   {
+    "label": "D",
+    "text": "The SNS topic associated with the alarm does not have an active subscription, which prevents CloudWatch from completing the alarm evaluation."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "C": "CloudWatch alarms do not use IAM roles to read metrics; metric data is available to alarms within the same account without additional permissions.",
+   "B": "A stopped EC2 instance stops publishing metrics, but the alarm state reflects missing data rather than the instance state; however, the most common initial cause is simply insufficient data points at creation time.",
+   "D": "An SNS subscription status does not affect alarm state evaluation; an alarm with no active subscription will still transition to ALARM or OK based on metric data."
   },
-  {
-    "id": "aws-soa-t1-01-010",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "Which CloudWatch feature allows a SysOps administrator to detect anomalous spikes in application error rates without manually setting a static threshold?",
-    "options": [
-      {
-        "label": "A",
-        "text": "CloudWatch Metric Streams continuously export metric data to a third-party anomaly detection tool, where machine learning models flag unusual patterns."
-      },
-      {
-        "label": "B",
-        "text": "CloudWatch Logs Insights uses SQL-like queries to scan historical log data for statistical outliers and highlights anomalous time windows on a graph."
-      },
-      {
-        "label": "C",
-        "text": "CloudWatch Anomaly Detection uses machine learning to build a model of expected metric values and generates a band; alarms can trigger when the metric falls outside the band."
-      },
-      {
-        "label": "D",
-        "text": "CloudWatch Composite Alarms combine multiple alarms using Boolean logic to detect anomalies only when several related metrics are simultaneously elevated."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "D": "Composite Alarms combine existing alarms with AND/OR logic to reduce alarm noise; they do not perform ML-based anomaly detection on metrics.",
-      "A": "Metric Streams are a data export mechanism; the anomaly detection itself would be performed by the external tool, not by CloudWatch natively.",
-      "B": "Logs Insights queries log data; while it can compute statistics, it does not build ML models or generate anomaly bands on metric time series."
-    },
-    "explanation": "CloudWatch Anomaly Detection trains a machine learning model on up to two weeks of historical metric data to predict expected values. It displays a shaded band of expected behavior on graphs and allows you to create alarms that trigger when the actual metric value deviates from the predicted band, eliminating the need to set static thresholds manually.",
-    "module_ref": "soa/monitoring/cloudwatch-anomaly-detection",
-    "tags": [
-      "cloudwatch",
-      "anomaly-detection",
-      "machine-learning",
-      "dynamic-threshold"
-    ]
+  "explanation": "When a CloudWatch alarm is first created, it enters the INSUFFICIENT_DATA state because not enough metric data points have been collected yet to evaluate the threshold condition. The alarm transitions to OK or ALARM after the evaluation period has elapsed and sufficient data is available. This is normal behavior for new alarms.",
+  "module_ref": "soa/monitoring/cloudwatch-alarm-states",
+  "tags": [
+   "cloudwatch",
+   "alarm-states",
+   "insufficient-data",
+   "troubleshooting"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-010",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "Which CloudWatch feature allows a SysOps administrator to detect anomalous spikes in application error rates without manually setting a static threshold?",
+  "options": [
+   {
+    "label": "A",
+    "text": "CloudWatch Metric Streams continuously export metric data to a third-party anomaly detection tool, where machine learning models flag unusual patterns."
+   },
+   {
+    "label": "B",
+    "text": "CloudWatch Logs Insights uses SQL-like queries to scan historical log data for statistical outliers and highlights anomalous time windows on a graph."
+   },
+   {
+    "label": "C",
+    "text": "CloudWatch Anomaly Detection uses machine learning to build a model of expected metric values and generates a band; alarms can trigger when the metric falls outside the band."
+   },
+   {
+    "label": "D",
+    "text": "CloudWatch Composite Alarms combine multiple alarms using Boolean logic to detect anomalies only when several related metrics are simultaneously elevated."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "D": "Composite Alarms combine existing alarms with AND/OR logic to reduce alarm noise; they do not perform ML-based anomaly detection on metrics.",
+   "A": "Metric Streams are a data export mechanism; the anomaly detection itself would be performed by the external tool, not by CloudWatch natively.",
+   "B": "Logs Insights queries log data; while it can compute statistics, it does not build ML models or generate anomaly bands on metric time series."
   },
-  {
-    "id": "aws-soa-t1-01-011",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to search across multiple CloudWatch Logs log groups to find all occurrences of a specific error message. Which tool is best suited for this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "AWS CloudTrail Lake supports SQL queries across all CloudTrail and CloudWatch Logs data, enabling cross-log-group searches."
-      },
-      {
-        "label": "B",
-        "text": "CloudWatch Metric Filters can search multiple log groups simultaneously and return a list of log events that match the specified pattern."
-      },
-      {
-        "label": "C",
-        "text": "Amazon Athena with a CloudWatch Logs source connector enables cross-log-group queries using standard SQL in the Athena query editor."
-      },
-      {
-        "label": "D",
-        "text": "CloudWatch Logs Insights supports cross-log-group queries that let you search up to 50 log groups simultaneously using a SQL-like query language."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "B": "Metric filters extract and count matching log events to create metrics; they do not return a searchable list of log events and cannot query across multiple log groups interactively.",
-      "A": "CloudTrail Lake stores CloudTrail event data; it does not ingest or query CloudWatch Logs log groups.",
-      "C": "While Athena can query S3 exports of CloudWatch Logs, it requires a separate export step and does not natively query live CloudWatch Logs log groups."
-    },
-    "explanation": "CloudWatch Logs Insights provides an interactive query interface with a SQL-like syntax. You can specify multiple log groups in a single query (up to 50 log groups or all log groups sharing a prefix) and filter, aggregate, and sort log events across all of them in a single result set. This is the native AWS tool for cross-log-group searches.",
-    "module_ref": "soa/monitoring/cloudwatch-logs-insights",
-    "tags": [
-      "cloudwatch-logs",
-      "logs-insights",
-      "cross-log-group",
-      "search"
-    ]
+  "explanation": "CloudWatch Anomaly Detection trains a machine learning model on up to two weeks of historical metric data to predict expected values. It displays a shaded band of expected behavior on graphs and allows you to create alarms that trigger when the actual metric value deviates from the predicted band, eliminating the need to set static thresholds manually.",
+  "module_ref": "soa/monitoring/cloudwatch-anomaly-detection",
+  "tags": [
+   "cloudwatch",
+   "anomaly-detection",
+   "machine-learning",
+   "dynamic-threshold"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-011",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to search across multiple CloudWatch Logs log groups to find all occurrences of a specific error message. Which tool is best suited for this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "AWS CloudTrail Lake supports SQL queries across all CloudTrail and CloudWatch Logs data, enabling cross-log-group searches."
+   },
+   {
+    "label": "B",
+    "text": "CloudWatch Metric Filters can search multiple log groups simultaneously and return a list of log events that match the specified pattern."
+   },
+   {
+    "label": "C",
+    "text": "Amazon Athena with a CloudWatch Logs source connector enables cross-log-group queries using standard SQL in the Athena query editor."
+   },
+   {
+    "label": "D",
+    "text": "CloudWatch Logs Insights supports cross-log-group queries that let you search up to 50 log groups simultaneously using a SQL-like query language."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "B": "Metric filters extract and count matching log events to create metrics; they do not return a searchable list of log events and cannot query across multiple log groups interactively.",
+   "A": "CloudTrail Lake stores CloudTrail event data; it does not ingest or query CloudWatch Logs log groups.",
+   "C": "While Athena can query S3 exports of CloudWatch Logs, it requires a separate export step and does not natively query live CloudWatch Logs log groups."
   },
-  {
-    "id": "aws-soa-t1-01-012",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "AWS Systems Manager OpsCenter is integrated into a SysOps workflow. What type of item does OpsCenter manage?",
-    "options": [
-      {
-        "label": "A",
-        "text": "OpsCenter manages Inventory records, which store detailed hardware and software configuration data collected from SSM-managed EC2 instances."
-      },
-      {
-        "label": "B",
-        "text": "OpsCenter manages Compliance summaries, which aggregate patch and configuration compliance data across all managed instances in the account."
-      },
-      {
-        "label": "C",
-        "text": "OpsCenter manages Maintenance Windows, which are defined time slots during which SSM automation runbooks and patch operations execute on managed instances."
-      },
-      {
-        "label": "D",
-        "text": "OpsCenter manages OpsItems, which are operational work items representing issues, events, and alerts that require investigation or remediation by operations teams."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "C": "Maintenance Windows are a separate SSM feature that schedules operational tasks; they are not the primary item type managed in OpsCenter.",
-      "B": "Compliance summaries are provided by the SSM Compliance feature, not OpsCenter.",
-      "A": "Inventory records are managed by SSM Inventory, a separate capability from OpsCenter."
-    },
-    "explanation": "AWS Systems Manager OpsCenter provides a central location for operations engineers to view, investigate, and resolve operational work items called OpsItems. OpsItems can be created automatically by CloudWatch alarms, EventBridge rules, or AWS services like Security Hub and GuardDuty, or manually by team members. Each OpsItem includes related resources, runbooks, and operational data to accelerate investigation.",
-    "module_ref": "soa/monitoring/ssm-opscenter",
-    "tags": [
-      "ssm",
-      "opscenter",
-      "opsitems",
-      "incident-management"
-    ]
+  "explanation": "CloudWatch Logs Insights provides an interactive query interface with a SQL-like syntax. You can specify multiple log groups in a single query (up to 50 log groups or all log groups sharing a prefix) and filter, aggregate, and sort log events across all of them in a single result set. This is the native AWS tool for cross-log-group searches.",
+  "module_ref": "soa/monitoring/cloudwatch-logs-insights",
+  "tags": [
+   "cloudwatch-logs",
+   "logs-insights",
+   "cross-log-group",
+   "search"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-012",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "AWS Systems Manager OpsCenter is integrated into a SysOps workflow. What type of item does OpsCenter manage?",
+  "options": [
+   {
+    "label": "A",
+    "text": "OpsCenter manages Inventory records, which store detailed hardware and software configuration data collected from SSM-managed EC2 instances."
+   },
+   {
+    "label": "B",
+    "text": "OpsCenter manages Compliance summaries, which aggregate patch and configuration compliance data across all managed instances in the account."
+   },
+   {
+    "label": "C",
+    "text": "OpsCenter manages Maintenance Windows, which are defined time slots during which SSM automation runbooks and patch operations execute on managed instances."
+   },
+   {
+    "label": "D",
+    "text": "OpsCenter manages OpsItems, which are operational work items representing issues, events, and alerts that require investigation or remediation by operations teams."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "C": "Maintenance Windows are a separate SSM feature that schedules operational tasks; they are not the primary item type managed in OpsCenter.",
+   "B": "Compliance summaries are provided by the SSM Compliance feature, not OpsCenter.",
+   "A": "Inventory records are managed by SSM Inventory, a separate capability from OpsCenter."
   },
-  {
-    "id": "aws-soa-t1-01-013",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "below",
-    "test_number": 1,
-    "active": true,
-    "stem": "A SysOps administrator needs to verify that all EC2 instances in an account are sending logs to CloudWatch Logs. Which service provides visibility into which instances have the CloudWatch agent installed and running?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Amazon Inspector scans EC2 instances for installed software and reports whether the CloudWatch agent is present in its vulnerability findings."
-      },
-      {
-        "label": "B",
-        "text": "AWS Config with the ec2-instance-managed-by-systems-manager managed rule reports whether each instance has the agent installed and active."
-      },
-      {
-        "label": "C",
-        "text": "AWS Systems Manager Inventory collects metadata from managed instances including installed applications, so the administrator can query which instances have the CloudWatch agent package installed."
-      },
-      {
-        "label": "D",
-        "text": "CloudWatch Logs itself provides an agent health dashboard showing which registered instances are actively sending log data."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "B": "The ec2-instance-managed-by-systems-manager Config rule checks whether instances are SSM-managed, not specifically whether the CloudWatch agent is installed.",
-      "D": "CloudWatch Logs does not expose an agent health dashboard; you would need to check SSM Inventory or look at whether the log group has recent log streams.",
-      "A": "Amazon Inspector focuses on vulnerability assessments (CVEs, CIS benchmarks), not on reporting specific software installations like monitoring agents."
-    },
-    "explanation": "AWS Systems Manager Inventory gathers metadata from managed EC2 instances including installed applications, running services, and system configuration. By querying the Inventory data, an administrator can identify which instances have the amazon-cloudwatch-agent package installed. This is more scalable and centralized than manually checking each instance.",
-    "module_ref": "soa/monitoring/ssm-inventory",
-    "tags": [
-      "ssm",
-      "inventory",
-      "cloudwatch-agent",
-      "fleet-compliance"
-    ]
-  }
+  "explanation": "AWS Systems Manager OpsCenter provides a central location for operations engineers to view, investigate, and resolve operational work items called OpsItems. OpsItems can be created automatically by CloudWatch alarms, EventBridge rules, or AWS services like Security Hub and GuardDuty, or manually by team members. Each OpsItem includes related resources, runbooks, and operational data to accelerate investigation.",
+  "module_ref": "soa/monitoring/ssm-opscenter",
+  "tags": [
+   "ssm",
+   "opscenter",
+   "opsitems",
+   "incident-management"
+  ]
+ },
+ {
+  "id": "aws-soa-t1-01-013",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "below",
+  "test_number": 1,
+  "active": true,
+  "stem": "A SysOps administrator needs to verify that all EC2 instances in an account are sending logs to CloudWatch Logs. Which service provides visibility into which instances have the CloudWatch agent installed and running?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Amazon Inspector scans EC2 instances for installed software and reports whether the CloudWatch agent is present in its vulnerability findings."
+   },
+   {
+    "label": "B",
+    "text": "AWS Config with the ec2-instance-managed-by-systems-manager managed rule reports whether each instance has the agent installed and active."
+   },
+   {
+    "label": "C",
+    "text": "AWS Systems Manager Inventory collects metadata from managed instances including installed applications, so the administrator can query which instances have the CloudWatch agent package installed."
+   },
+   {
+    "label": "D",
+    "text": "CloudWatch Logs itself provides an agent health dashboard showing which registered instances are actively sending log data."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "B": "The ec2-instance-managed-by-systems-manager Config rule checks whether instances are SSM-managed, not specifically whether the CloudWatch agent is installed.",
+   "D": "CloudWatch Logs does not expose an agent health dashboard; you would need to check SSM Inventory or look at whether the log group has recent log streams.",
+   "A": "Amazon Inspector focuses on vulnerability assessments (CVEs, CIS benchmarks), not on reporting specific software installations like monitoring agents."
+  },
+  "explanation": "AWS Systems Manager Inventory gathers metadata from managed EC2 instances including installed applications, running services, and system configuration. By querying the Inventory data, an administrator can identify which instances have the amazon-cloudwatch-agent package installed. This is more scalable and centralized than manually checking each instance.",
+  "module_ref": "soa/monitoring/ssm-inventory",
+  "tags": [
+   "ssm",
+   "inventory",
+   "cloudwatch-agent",
+   "fleet-compliance"
+  ]
+ }
 ]

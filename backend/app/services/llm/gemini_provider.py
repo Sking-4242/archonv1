@@ -24,7 +24,9 @@ class GeminiProvider(LLMProvider):
         self._model = genai.GenerativeModel(model_name)
 
     def generate(self, system_prompt: str, user_prompt: str) -> str:
-        # Gemini combines system + user into a single prompt
         full_prompt = f"{system_prompt}\n\n{user_prompt}"
-        response = self._model.generate_content(full_prompt)
+        response = self._model.generate_content(
+            full_prompt,
+            generation_config={"max_output_tokens": 16384},
+        )
         return response.text

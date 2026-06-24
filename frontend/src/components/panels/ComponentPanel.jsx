@@ -3,6 +3,7 @@ import useGraphStore from "../../store/graphStore";
 import useSecurityStore from "../../store/securityStore";
 import useIAMStore from "../../store/iamStore";
 import { COMPONENT_CONFIGS } from "../../utils/componentConfig";
+import { getServiceIconUrl } from "../../assets/icons/serviceIcons";
 
 function ConfigField({ field, value, onChange }) {
   if (field.type === "boolean") {
@@ -257,11 +258,21 @@ export default function ComponentPanel({ nodeId }) {
     "ai_ml",
   ];
 
+  const panelIconUrl = getServiceIconUrl(node.data.nodeType ?? node.type);
+
   return (
     <div className="flex flex-col h-full min-h-0">
       {/* Fixed header */}
       <div className="px-4 py-3 border-b border-gray-100 flex items-center gap-2 flex-shrink-0">
-        <span className="text-lg">{node.data.icon}</span>
+        {panelIconUrl ? (
+          <img
+            src={panelIconUrl}
+            alt={node.data.awsType}
+            className="w-6 h-6 object-contain"
+          />
+        ) : (
+          <span className="text-lg">{node.data.icon}</span>
+        )}
         <div>
           <div className="text-xs font-semibold text-gray-800">
             {node.data.awsType}

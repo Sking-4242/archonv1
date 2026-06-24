@@ -1,554 +1,554 @@
 [
-  {
-    "id": "aws-soa-t2-01-001",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator needs to create a single CloudWatch alarm that only fires when BOTH CPU utilization exceeds 90% AND available memory drops below 200 MB simultaneously. Which alarm type supports this logic?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Create a CloudWatch alarm with two conditions linked by an AND operator in the alarm condition field, specifying both metrics and thresholds in a single alarm definition."
-      },
-      {
-        "label": "B",
-        "text": "Use an EventBridge rule with a pattern that matches both a CloudWatch CPUUtilization event above 90% and an AvailableMemory event below 200 MB within the same evaluation period."
-      },
-      {
-        "label": "C",
-        "text": "Create a CloudWatch metric math expression that multiplies the CPU metric by the memory metric and set a single alarm threshold on the resulting expression."
-      },
-      {
-        "label": "D",
-        "text": "Create individual alarms for CPU and memory, then create a CloudWatch Composite Alarm using an AND rule that only enters ALARM state when both child alarms are in ALARM state simultaneously."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "C": "Multiplying CPU by memory produces a number with no meaningful threshold; it does not implement AND logic for independent threshold conditions.",
-      "A": "CloudWatch alarms evaluate a single metric or metric math expression; there is no multi-condition AND operator in a single alarm definition.",
-      "B": "EventBridge rules match events but cannot correlate two independent metric threshold breaches within the same evaluation window at the alarm layer."
-    },
-    "explanation": "CloudWatch Composite Alarms combine the states of multiple child alarms using Boolean expressions (AND, OR, NOT). A composite alarm with rule 'ALARM(cpu-alarm) AND ALARM(memory-alarm)' transitions to ALARM only when both child alarms are simultaneously in ALARM state. This reduces alarm noise and supports multi-condition triggering.",
-    "module_ref": "soa/monitoring/composite-alarms",
-    "tags": [
-      "cloudwatch",
-      "composite-alarm",
-      "boolean-logic",
-      "alert-noise"
-    ]
+ {
+  "id": "aws-soa-t2-01-001",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A SysOps administrator needs to create a single CloudWatch alarm that only fires when BOTH CPU utilization exceeds 90% AND available memory drops below 200 MB simultaneously. Which alarm type supports this logic?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Create a CloudWatch alarm with two conditions linked by an AND operator in the alarm condition field, specifying both metrics and thresholds in a single alarm definition."
+   },
+   {
+    "label": "B",
+    "text": "Use an EventBridge rule with a pattern that matches both a CloudWatch CPUUtilization event above 90% and an AvailableMemory event below 200 MB within the same evaluation period."
+   },
+   {
+    "label": "C",
+    "text": "Create a CloudWatch metric math expression that multiplies the CPU metric by the memory metric and set a single alarm threshold on the resulting expression."
+   },
+   {
+    "label": "D",
+    "text": "Create individual alarms for CPU and memory, then create a CloudWatch Composite Alarm using an AND rule that only enters ALARM state when both child alarms are in ALARM state simultaneously."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "C": "Multiplying CPU by memory produces a number with no meaningful threshold; it does not implement AND logic for independent threshold conditions.",
+   "A": "CloudWatch alarms evaluate a single metric or metric math expression; there is no multi-condition AND operator in a single alarm definition.",
+   "B": "EventBridge rules match events but cannot correlate two independent metric threshold breaches within the same evaluation window at the alarm layer."
   },
-  {
-    "id": "aws-soa-t2-01-002",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "An application produces logs in CloudWatch Logs. A SysOps administrator needs near-real-time streaming of these logs to an Amazon OpenSearch Service domain for analysis. What is the most direct configuration?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Create a CloudWatch Logs subscription filter on the log group that streams matching log events to a Kinesis Data Firehose delivery stream configured to deliver to the OpenSearch domain."
-      },
-      {
-        "label": "B",
-        "text": "Configure a CloudWatch Logs metric filter to extract log data, then use a Kinesis Data Stream to buffer and forward the extracted data to the OpenSearch domain."
-      },
-      {
-        "label": "C",
-        "text": "Enable CloudWatch Logs export to S3 and configure OpenSearch to read from S3 using a dedicated S3 to OpenSearch pipeline every 5 minutes."
-      },
-      {
-        "label": "D",
-        "text": "Schedule a Lambda function to run every minute that uses the CloudWatch Logs FilterLogEvents API to pull recent logs and index them in the OpenSearch domain."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "Metric filters extract metrics (numbers) from logs for CloudWatch; they do not stream raw log records. Kinesis Data Streams require a consumer application, adding complexity.",
-      "D": "Polling with Lambda introduces latency and API throttling risk; subscription filters provide push-based real-time delivery without custom polling code.",
-      "C": "CloudWatch Logs S3 export is a periodic batch export (not near-real-time) and requires a separate ingestion pipeline into OpenSearch."
-    },
-    "explanation": "A CloudWatch Logs subscription filter with a Kinesis Data Firehose destination streams log events in near-real-time. Firehose can directly deliver to OpenSearch Service (formerly Elasticsearch), handle buffering and retries, and optionally transform records with Lambda. This is the fully managed, low-latency path from CloudWatch Logs to OpenSearch.",
-    "module_ref": "soa/monitoring/cloudwatch-logs-subscription",
-    "tags": [
-      "cloudwatch-logs",
-      "subscription-filter",
-      "kinesis-firehose",
-      "opensearch"
-    ]
+  "explanation": "CloudWatch Composite Alarms combine the states of multiple child alarms using Boolean expressions (AND, OR, NOT). A composite alarm with rule 'ALARM(cpu-alarm) AND ALARM(memory-alarm)' transitions to ALARM only when both child alarms are simultaneously in ALARM state. This reduces alarm noise and supports multi-condition triggering.",
+  "module_ref": "soa/monitoring/composite-alarms",
+  "tags": [
+   "cloudwatch",
+   "composite-alarm",
+   "boolean-logic",
+   "alert-noise"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-002",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "An application produces logs in CloudWatch Logs. A SysOps administrator needs near-real-time streaming of these logs to an Amazon OpenSearch Service domain for analysis. What is the most direct configuration?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Create a CloudWatch Logs subscription filter on the log group that streams matching log events to a Kinesis Data Firehose delivery stream configured to deliver to the OpenSearch domain."
+   },
+   {
+    "label": "B",
+    "text": "Configure a CloudWatch Logs metric filter to extract log data, then use a Kinesis Data Stream to buffer and forward the extracted data to the OpenSearch domain."
+   },
+   {
+    "label": "C",
+    "text": "Enable CloudWatch Logs export to S3 and configure OpenSearch to read from S3 using a dedicated S3 to OpenSearch pipeline every 5 minutes."
+   },
+   {
+    "label": "D",
+    "text": "Schedule a Lambda function to run every minute that uses the CloudWatch Logs FilterLogEvents API to pull recent logs and index them in the OpenSearch domain."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "Metric filters extract metrics (numbers) from logs for CloudWatch; they do not stream raw log records. Kinesis Data Streams require a consumer application, adding complexity.",
+   "D": "Polling with Lambda introduces latency and API throttling risk; subscription filters provide push-based real-time delivery without custom polling code.",
+   "C": "CloudWatch Logs S3 export is a periodic batch export (not near-real-time) and requires a separate ingestion pipeline into OpenSearch."
   },
-  {
-    "id": "aws-soa-t2-01-003",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A multi-region application needs a single aggregated view of CloudWatch metrics from us-east-1, eu-west-1, and ap-southeast-1. Without writing custom code, what is the AWS-native way to achieve this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Use the CloudWatch GetMetricData API with cross-region queries, specifying each region in the request to retrieve and display aggregated metric data."
-      },
-      {
-        "label": "B",
-        "text": "Configure CloudWatch cross-account, cross-region dashboards in a central monitoring account; link the source accounts and regions to display their metrics on a unified dashboard."
-      },
-      {
-        "label": "C",
-        "text": "Deploy a CloudWatch agent in each region configured to publish metrics to the central region's CloudWatch namespace, consolidating all metrics in one location."
-      },
-      {
-        "label": "D",
-        "text": "Use CloudWatch Metric Streams in each region to export metrics to a Kinesis Data Firehose that aggregates records into a single S3 bucket, then build dashboards from S3."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "D": "Metric Streams export metrics to Firehose but require a custom dashboard to be built on the S3 data; this is not an AWS-native no-code aggregated view.",
-      "C": "The CloudWatch agent publishes metrics to the region it is configured for; it cannot publish to a different region's CloudWatch namespace.",
-      "A": "GetMetricData API is scoped to a single region per call; it does not support cross-region queries natively."
-    },
-    "explanation": "CloudWatch supports cross-account, cross-region observability by allowing you to link source accounts and regions to a central monitoring account. From the central account's CloudWatch console, you can create dashboards, alarms, and Logs Insights queries that reference metrics and logs from all linked accounts and regions without custom code.",
-    "module_ref": "soa/monitoring/cloudwatch-cross-account",
-    "tags": [
-      "cloudwatch",
-      "cross-account",
-      "cross-region",
-      "dashboard",
-      "observability"
-    ]
+  "explanation": "A CloudWatch Logs subscription filter with a Kinesis Data Firehose destination streams log events in near-real-time. Firehose can directly deliver to OpenSearch Service (formerly Elasticsearch), handle buffering and retries, and optionally transform records with Lambda. This is the fully managed, low-latency path from CloudWatch Logs to OpenSearch.",
+  "module_ref": "soa/monitoring/cloudwatch-logs-subscription",
+  "tags": [
+   "cloudwatch-logs",
+   "subscription-filter",
+   "kinesis-firehose",
+   "opensearch"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-003",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A multi-region application needs a single aggregated view of CloudWatch metrics from us-east-1, eu-west-1, and ap-southeast-1. Without writing custom code, what is the AWS-native way to achieve this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Use the CloudWatch GetMetricData API with cross-region queries, specifying each region in the request to retrieve and display aggregated metric data."
+   },
+   {
+    "label": "B",
+    "text": "Configure CloudWatch cross-account, cross-region dashboards in a central monitoring account; link the source accounts and regions to display their metrics on a unified dashboard."
+   },
+   {
+    "label": "C",
+    "text": "Deploy a CloudWatch agent in each region configured to publish metrics to the central region's CloudWatch namespace, consolidating all metrics in one location."
+   },
+   {
+    "label": "D",
+    "text": "Use CloudWatch Metric Streams in each region to export metrics to a Kinesis Data Firehose that aggregates records into a single S3 bucket, then build dashboards from S3."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "D": "Metric Streams export metrics to Firehose but require a custom dashboard to be built on the S3 data; this is not an AWS-native no-code aggregated view.",
+   "C": "The CloudWatch agent publishes metrics to the region it is configured for; it cannot publish to a different region's CloudWatch namespace.",
+   "A": "GetMetricData API is scoped to a single region per call; it does not support cross-region queries natively."
   },
-  {
-    "id": "aws-soa-t2-01-004",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A CloudWatch alarm with a breaching threshold has been in ALARM state for 30 minutes, but the SNS notification was never received. The SNS topic and email subscription appear correctly configured. What is the most likely cause?",
-    "options": [
-      {
-        "label": "A",
-        "text": "The CloudWatch alarm requires a minimum of 60 consecutive minutes in ALARM state before publishing to SNS to reduce notification noise."
-      },
-      {
-        "label": "B",
-        "text": "The SNS topic is in a different AWS region than the CloudWatch alarm, and cross-region SNS delivery is blocked by default for CloudWatch alarms."
-      },
-      {
-        "label": "C",
-        "text": "The IAM role attached to the CloudWatch alarm lacks sns:Publish permission on the target SNS topic, preventing the alarm from publishing messages."
-      },
-      {
-        "label": "D",
-        "text": "The SNS email subscription was created but the confirmation email was never clicked, leaving the subscription in a pending confirmation state that prevents message delivery."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "A": "CloudWatch alarms publish to SNS as soon as the alarm transitions to ALARM state; there is no minimum duration before publishing.",
-      "C": "CloudWatch alarms use a service role to publish to SNS; while an incorrect role could block publishing, the most common overlooked issue is an unconfirmed subscription.",
-      "B": "CloudWatch alarms can publish to SNS topics in the same region; cross-region SNS publishing is handled at the SNS level, but unconfirmed subscriptions are a more common failure mode."
-    },
-    "explanation": "Amazon SNS email subscriptions require explicit confirmation by clicking a link in a confirmation email sent when the subscription is created. Until the subscriber clicks the confirmation link, the subscription remains in 'PendingConfirmation' state and no messages are delivered. This is the most frequently overlooked cause of missing SNS email notifications.",
-    "module_ref": "soa/monitoring/sns-subscription-confirmation",
-    "tags": [
-      "sns",
-      "email-subscription",
-      "confirmation",
-      "cloudwatch",
-      "troubleshooting"
-    ]
+  "explanation": "CloudWatch supports cross-account, cross-region observability by allowing you to link source accounts and regions to a central monitoring account. From the central account's CloudWatch console, you can create dashboards, alarms, and Logs Insights queries that reference metrics and logs from all linked accounts and regions without custom code.",
+  "module_ref": "soa/monitoring/cloudwatch-cross-account",
+  "tags": [
+   "cloudwatch",
+   "cross-account",
+   "cross-region",
+   "dashboard",
+   "observability"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-004",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A CloudWatch alarm with a breaching threshold has been in ALARM state for 30 minutes, but the SNS notification was never received. The SNS topic and email subscription appear correctly configured. What is the most likely cause?",
+  "options": [
+   {
+    "label": "A",
+    "text": "The CloudWatch alarm requires a minimum of 60 consecutive minutes in ALARM state before publishing to SNS to reduce notification noise."
+   },
+   {
+    "label": "B",
+    "text": "The SNS topic is in a different AWS region than the CloudWatch alarm, and cross-region SNS delivery is blocked by default for CloudWatch alarms."
+   },
+   {
+    "label": "C",
+    "text": "The IAM role attached to the CloudWatch alarm lacks sns:Publish permission on the target SNS topic, preventing the alarm from publishing messages."
+   },
+   {
+    "label": "D",
+    "text": "The SNS email subscription was created but the confirmation email was never clicked, leaving the subscription in a pending confirmation state that prevents message delivery."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "A": "CloudWatch alarms publish to SNS as soon as the alarm transitions to ALARM state; there is no minimum duration before publishing.",
+   "C": "CloudWatch alarms use a service role to publish to SNS; while an incorrect role could block publishing, the most common overlooked issue is an unconfirmed subscription.",
+   "B": "CloudWatch alarms can publish to SNS topics in the same region; cross-region SNS publishing is handled at the SNS level, but unconfirmed subscriptions are a more common failure mode."
   },
-  {
-    "id": "aws-soa-t2-01-005",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "An AWS Config rule detects that multiple EC2 instances are not tagged with the required 'Environment' tag. A SysOps administrator wants Config to automatically add the missing tag using a standard value. Which remediation approach requires the least custom development?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Write a Lambda function that calls the EC2 CreateTags API for non-compliant instances and configure it as a Config remediation action triggered on NON_COMPLIANT evaluations."
-      },
-      {
-        "label": "B",
-        "text": "Use an SCP in AWS Organizations to prevent instance launches without the required tag, and set up a nightly Lambda function to tag any existing untagged instances."
-      },
-      {
-        "label": "C",
-        "text": "Associate the AWS-AddTagsToAWSResources SSM Automation document as a Config remediation action with the tag key and default value as parameters, configured for automatic remediation on non-compliant resources."
-      },
-      {
-        "label": "D",
-        "text": "Create an EventBridge rule that detects Config NON_COMPLIANT events and invokes a CodeBuild project that runs an AWS CLI script to tag the non-compliant instances."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "A": "A custom Lambda function for tagging is valid but requires writing, testing, and maintaining Lambda code, which is more development work than using the existing managed SSM document.",
-      "D": "EventBridge + CodeBuild is overly complex for a tag remediation; using the native Config automatic remediation with an SSM document requires no custom code.",
-      "B": "An SCP prevents future non-compliance but does not remediate existing untagged instances; the nightly Lambda is also custom development."
-    },
-    "explanation": "AWS Systems Manager Automation provides managed documents (runbooks) for common remediation tasks. AWS-AddTagsToAWSResources adds tags to supported AWS resources. By configuring this as an automatic Config remediation action with the tag key and value as parameters, Config executes the runbook immediately when an instance is found non-compliant, with zero custom code.",
-    "module_ref": "soa/monitoring/config-auto-remediation",
-    "tags": [
-      "aws-config",
-      "remediation",
-      "ssm-automation",
-      "tagging",
-      "compliance"
-    ]
+  "explanation": "Amazon SNS email subscriptions require explicit confirmation by clicking a link in a confirmation email sent when the subscription is created. Until the subscriber clicks the confirmation link, the subscription remains in 'PendingConfirmation' state and no messages are delivered. This is the most frequently overlooked cause of missing SNS email notifications.",
+  "module_ref": "soa/monitoring/sns-subscription-confirmation",
+  "tags": [
+   "sns",
+   "email-subscription",
+   "confirmation",
+   "cloudwatch",
+   "troubleshooting"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-005",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "An AWS Config rule detects that multiple EC2 instances are not tagged with the required 'Environment' tag. A SysOps administrator wants Config to automatically add the missing tag using a standard value. Which remediation approach requires the least custom development?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Write a Lambda function that calls the EC2 CreateTags API for non-compliant instances and configure it as a Config remediation action triggered on NON_COMPLIANT evaluations."
+   },
+   {
+    "label": "B",
+    "text": "Use an SCP in AWS Organizations to prevent instance launches without the required tag, and set up a nightly Lambda function to tag any existing untagged instances."
+   },
+   {
+    "label": "C",
+    "text": "Associate the AWS-AddTagsToAWSResources SSM Automation document as a Config remediation action with the tag key and default value as parameters, configured for automatic remediation on non-compliant resources."
+   },
+   {
+    "label": "D",
+    "text": "Create an EventBridge rule that detects Config NON_COMPLIANT events and invokes a CodeBuild project that runs an AWS CLI script to tag the non-compliant instances."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "A": "A custom Lambda function for tagging is valid but requires writing, testing, and maintaining Lambda code, which is more development work than using the existing managed SSM document.",
+   "D": "EventBridge + CodeBuild is overly complex for a tag remediation; using the native Config automatic remediation with an SSM document requires no custom code.",
+   "B": "An SCP prevents future non-compliance but does not remediate existing untagged instances; the nightly Lambda is also custom development."
   },
-  {
-    "id": "aws-soa-t2-01-006",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator is investigating an incident where an application was unavailable for 20 minutes. The team wants to determine exactly what AWS API calls were made during the outage window that may have contributed to the issue. Which service provides this information?",
-    "options": [
-      {
-        "label": "A",
-        "text": "AWS X-Ray traces all API calls between AWS services during an outage and provides a timeline view of every SDK call made during the incident window."
-      },
-      {
-        "label": "B",
-        "text": "VPC Flow Logs capture all TCP connections during the outage window; correlate the source IPs with AWS service IP ranges to identify which AWS services were called."
-      },
-      {
-        "label": "C",
-        "text": "Amazon CloudWatch Logs for the application contain API call records if the application logs its own AWS SDK calls; query the logs with Logs Insights for the outage window."
-      },
-      {
-        "label": "D",
-        "text": "AWS CloudTrail Event History shows management API calls made in the account; filter by the time window of the outage and the relevant services to reconstruct the sequence of changes."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "C": "Application logs are specific to what the application chooses to log; they do not capture all AWS API calls or changes made by other users or services.",
-      "B": "VPC Flow Logs record network-level metadata; they do not capture which AWS API operations were called, by whom, or with what parameters.",
-      "A": "X-Ray traces application requests and service dependencies; it is not a comprehensive audit log of all AWS management API calls across an account."
-    },
-    "explanation": "AWS CloudTrail records every AWS management API call made in an account including the caller identity, time, source IP, request parameters, and response elements. During incident investigation, filtering CloudTrail events by time window and relevant services (EC2, RDS, ELB, etc.) reveals the sequence of changes that preceded or caused the outage.",
-    "module_ref": "soa/monitoring/cloudtrail-incident-investigation",
-    "tags": [
-      "cloudtrail",
-      "incident-response",
-      "audit",
-      "api-history"
-    ]
+  "explanation": "AWS Systems Manager Automation provides managed documents (runbooks) for common remediation tasks. AWS-AddTagsToAWSResources adds tags to supported AWS resources. By configuring this as an automatic Config remediation action with the tag key and value as parameters, Config executes the runbook immediately when an instance is found non-compliant, with zero custom code.",
+  "module_ref": "soa/monitoring/config-auto-remediation",
+  "tags": [
+   "aws-config",
+   "remediation",
+   "ssm-automation",
+   "tagging",
+   "compliance"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-006",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A SysOps administrator is investigating an incident where an application was unavailable for 20 minutes. The team wants to determine exactly what AWS API calls were made during the outage window that may have contributed to the issue. Which service provides this information?",
+  "options": [
+   {
+    "label": "A",
+    "text": "AWS X-Ray traces all API calls between AWS services during an outage and provides a timeline view of every SDK call made during the incident window."
+   },
+   {
+    "label": "B",
+    "text": "VPC Flow Logs capture all TCP connections during the outage window; correlate the source IPs with AWS service IP ranges to identify which AWS services were called."
+   },
+   {
+    "label": "C",
+    "text": "Amazon CloudWatch Logs for the application contain API call records if the application logs its own AWS SDK calls; query the logs with Logs Insights for the outage window."
+   },
+   {
+    "label": "D",
+    "text": "AWS CloudTrail Event History shows management API calls made in the account; filter by the time window of the outage and the relevant services to reconstruct the sequence of changes."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "C": "Application logs are specific to what the application chooses to log; they do not capture all AWS API calls or changes made by other users or services.",
+   "B": "VPC Flow Logs record network-level metadata; they do not capture which AWS API operations were called, by whom, or with what parameters.",
+   "A": "X-Ray traces application requests and service dependencies; it is not a comprehensive audit log of all AWS management API calls across an account."
   },
-  {
-    "id": "aws-soa-t2-01-007",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator needs to monitor a containerized application running on Amazon ECS (EC2 launch type) for memory and CPU usage at the container level. Which solution provides this visibility?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable CloudWatch Container Insights for the ECS cluster; it collects CPU, memory, network, and storage metrics at the cluster, service, and container levels and provides pre-built dashboards."
-      },
-      {
-        "label": "B",
-        "text": "Install the CloudWatch agent as a sidecar container in each ECS task definition to collect container-level metrics and publish them to CloudWatch custom namespaces."
-      },
-      {
-        "label": "C",
-        "text": "Use Amazon CloudWatch built-in ECS metrics (CPUUtilization and MemoryUtilization) which are automatically published at the container level without additional configuration."
-      },
-      {
-        "label": "D",
-        "text": "Deploy Prometheus on the EC2 container instances and configure CloudWatch Metric Streams to ingest Prometheus metrics into CloudWatch for visualization."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "A CloudWatch agent sidecar is not the standard approach for ECS container monitoring; Container Insights is the managed solution that requires no sidecar modifications.",
-      "C": "ECS does publish CPU and memory metrics by default, but only at the service and cluster level; container-level granularity requires Container Insights.",
-      "D": "Prometheus scraping on EC2 instances requires additional setup and is not a direct CloudWatch-native solution; Container Insights is simpler to enable."
-    },
-    "explanation": "CloudWatch Container Insights for ECS collects metrics using the CloudWatch agent deployed as a daemon service (not a sidecar) on EC2 container instances. It provides container-level CPU and memory utilization, disk I/O, and network metrics, along with pre-built CloudWatch dashboards, with a single API call or console toggle to enable.",
-    "module_ref": "soa/monitoring/container-insights-ecs",
-    "tags": [
-      "ecs",
-      "container-insights",
-      "cloudwatch",
-      "container-monitoring"
-    ]
+  "explanation": "AWS CloudTrail records every AWS management API call made in an account including the caller identity, time, source IP, request parameters, and response elements. During incident investigation, filtering CloudTrail events by time window and relevant services (EC2, RDS, ELB, etc.) reveals the sequence of changes that preceded or caused the outage.",
+  "module_ref": "soa/monitoring/cloudtrail-incident-investigation",
+  "tags": [
+   "cloudtrail",
+   "incident-response",
+   "audit",
+   "api-history"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-007",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A SysOps administrator needs to monitor a containerized application running on Amazon ECS (EC2 launch type) for memory and CPU usage at the container level. Which solution provides this visibility?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable CloudWatch Container Insights for the ECS cluster; it collects CPU, memory, network, and storage metrics at the cluster, service, and container levels and provides pre-built dashboards."
+   },
+   {
+    "label": "B",
+    "text": "Install the CloudWatch agent as a sidecar container in each ECS task definition to collect container-level metrics and publish them to CloudWatch custom namespaces."
+   },
+   {
+    "label": "C",
+    "text": "Use Amazon CloudWatch built-in ECS metrics (CPUUtilization and MemoryUtilization) which are automatically published at the container level without additional configuration."
+   },
+   {
+    "label": "D",
+    "text": "Deploy Prometheus on the EC2 container instances and configure CloudWatch Metric Streams to ingest Prometheus metrics into CloudWatch for visualization."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "A CloudWatch agent sidecar is not the standard approach for ECS container monitoring; Container Insights is the managed solution that requires no sidecar modifications.",
+   "C": "ECS does publish CPU and memory metrics by default, but only at the service and cluster level; container-level granularity requires Container Insights.",
+   "D": "Prometheus scraping on EC2 instances requires additional setup and is not a direct CloudWatch-native solution; Container Insights is simpler to enable."
   },
-  {
-    "id": "aws-soa-t2-01-008",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator wants to ensure that CloudTrail log files have not been tampered with after delivery to S3. Which CloudTrail feature provides this assurance?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable CloudTrail log file validation; CloudTrail creates a signed digest file every hour that lists all log files delivered and their SHA-256 hashes, allowing detection of any modification or deletion."
-      },
-      {
-        "label": "B",
-        "text": "Configure S3 Versioning on the CloudTrail log bucket so that any modification creates a new version, preserving the original log file for comparison."
-      },
-      {
-        "label": "C",
-        "text": "Enable KMS encryption for CloudTrail log files; encrypted files cannot be modified without the KMS key, and any modification attempt would fail due to signature verification."
-      },
-      {
-        "label": "D",
-        "text": "Enable S3 Object Lock on the CloudTrail log bucket in Compliance mode to prevent any modification or deletion of log files for a defined retention period."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "D": "S3 Object Lock prevents deletion and modification, but it does not tell you whether files were tampered with before the lock was enabled; log file validation provides cryptographic integrity verification.",
-      "B": "S3 Versioning preserves copies of objects when overwritten, but it does not prevent someone with write access from replacing a log file with a modified version.",
-      "C": "KMS encryption protects confidentiality; it does not prevent an authorized user from decrypting, modifying, re-encrypting, and replacing a log file."
-    },
-    "explanation": "CloudTrail log file validation creates a daily digest file every hour. Each digest file is signed with a private key held by CloudTrail and contains SHA-256 hashes of all log files delivered during that hour. Using the AWS CLI or SDK, you can validate that each log file matches its hash in the digest and that the digest itself has not been tampered with.",
-    "module_ref": "soa/monitoring/cloudtrail-log-validation",
-    "tags": [
-      "cloudtrail",
-      "log-validation",
-      "integrity",
-      "audit",
-      "security"
-    ]
+  "explanation": "CloudWatch Container Insights for ECS collects metrics using the CloudWatch agent deployed as a daemon service (not a sidecar) on EC2 container instances. It provides container-level CPU and memory utilization, disk I/O, and network metrics, along with pre-built CloudWatch dashboards, with a single API call or console toggle to enable.",
+  "module_ref": "soa/monitoring/container-insights-ecs",
+  "tags": [
+   "ecs",
+   "container-insights",
+   "cloudwatch",
+   "container-monitoring"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-008",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A SysOps administrator wants to ensure that CloudTrail log files have not been tampered with after delivery to S3. Which CloudTrail feature provides this assurance?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable CloudTrail log file validation; CloudTrail creates a signed digest file every hour that lists all log files delivered and their SHA-256 hashes, allowing detection of any modification or deletion."
+   },
+   {
+    "label": "B",
+    "text": "Configure S3 Versioning on the CloudTrail log bucket so that any modification creates a new version, preserving the original log file for comparison."
+   },
+   {
+    "label": "C",
+    "text": "Enable KMS encryption for CloudTrail log files; encrypted files cannot be modified without the KMS key, and any modification attempt would fail due to signature verification."
+   },
+   {
+    "label": "D",
+    "text": "Enable S3 Object Lock on the CloudTrail log bucket in Compliance mode to prevent any modification or deletion of log files for a defined retention period."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "D": "S3 Object Lock prevents deletion and modification, but it does not tell you whether files were tampered with before the lock was enabled; log file validation provides cryptographic integrity verification.",
+   "B": "S3 Versioning preserves copies of objects when overwritten, but it does not prevent someone with write access from replacing a log file with a modified version.",
+   "C": "KMS encryption protects confidentiality; it does not prevent an authorized user from decrypting, modifying, re-encrypting, and replacing a log file."
   },
-  {
-    "id": "aws-soa-t2-01-009",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "An application produces approximately 5 GB of CloudWatch Logs per day. A SysOps administrator needs to run ad hoc SQL queries against this log data for the last 30 days without exporting the data. Which tool provides this capability?",
-    "options": [
-      {
-        "label": "A",
-        "text": "CloudWatch Logs Insights provides a query interface that supports filtering, aggregation, sorting, and visualization over log data retained in CloudWatch Logs, up to the configured retention period."
-      },
-      {
-        "label": "B",
-        "text": "Enable CloudTrail Lake and configure it to ingest CloudWatch Logs data, then use CloudTrail Lake's SQL query engine to run complex queries across the log data."
-      },
-      {
-        "label": "C",
-        "text": "Use CloudWatch Metric Filters to pre-aggregate log data into metrics, then query the metrics using the CloudWatch GetMetricData API to analyze trends."
-      },
-      {
-        "label": "D",
-        "text": "Export the CloudWatch Logs to S3 and use Amazon Athena with the CloudWatch Logs source connector to run ANSI SQL queries against the exported log files."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "D": "Exporting to S3 and using Athena requires additional setup and incurs export time; Logs Insights queries data directly in CloudWatch Logs without export.",
-      "C": "Metric filters produce numeric metrics from log patterns; they cannot reconstruct raw log events or support arbitrary SQL queries against historical log records.",
-      "B": "CloudTrail Lake ingests CloudTrail API activity events, not application-level CloudWatch Logs data."
-    },
-    "explanation": "CloudWatch Logs Insights supports an expressive query language that can filter, extract fields from JSON/custom formats, calculate statistics, and visualize results directly on log data stored in CloudWatch Logs. It scans up to the retention period set on the log group. Queries run in seconds to minutes depending on the data volume and time range.",
-    "module_ref": "soa/monitoring/cloudwatch-logs-insights",
-    "tags": [
-      "cloudwatch-logs",
-      "logs-insights",
-      "ad-hoc-queries",
-      "log-analysis"
-    ]
+  "explanation": "CloudTrail log file validation creates a daily digest file every hour. Each digest file is signed with a private key held by CloudTrail and contains SHA-256 hashes of all log files delivered during that hour. Using the AWS CLI or SDK, you can validate that each log file matches its hash in the digest and that the digest itself has not been tampered with.",
+  "module_ref": "soa/monitoring/cloudtrail-log-validation",
+  "tags": [
+   "cloudtrail",
+   "log-validation",
+   "integrity",
+   "audit",
+   "security"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-009",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "An application produces approximately 5 GB of CloudWatch Logs per day. A SysOps administrator needs to run ad hoc SQL queries against this log data for the last 30 days without exporting the data. Which tool provides this capability?",
+  "options": [
+   {
+    "label": "A",
+    "text": "CloudWatch Logs Insights provides a query interface that supports filtering, aggregation, sorting, and visualization over log data retained in CloudWatch Logs, up to the configured retention period."
+   },
+   {
+    "label": "B",
+    "text": "Enable CloudTrail Lake and configure it to ingest CloudWatch Logs data, then use CloudTrail Lake's SQL query engine to run complex queries across the log data."
+   },
+   {
+    "label": "C",
+    "text": "Use CloudWatch Metric Filters to pre-aggregate log data into metrics, then query the metrics using the CloudWatch GetMetricData API to analyze trends."
+   },
+   {
+    "label": "D",
+    "text": "Export the CloudWatch Logs to S3 and use Amazon Athena with the CloudWatch Logs source connector to run ANSI SQL queries against the exported log files."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "D": "Exporting to S3 and using Athena requires additional setup and incurs export time; Logs Insights queries data directly in CloudWatch Logs without export.",
+   "C": "Metric filters produce numeric metrics from log patterns; they cannot reconstruct raw log events or support arbitrary SQL queries against historical log records.",
+   "B": "CloudTrail Lake ingests CloudTrail API activity events, not application-level CloudWatch Logs data."
   },
-  {
-    "id": "aws-soa-t2-01-010",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator needs to automatically remediate when an EC2 instance's disk (EBS volume) utilization exceeds 85%. The remediation should expand the EBS volume without stopping the instance. How should this be automated?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Create a CloudWatch alarm on the VolumeWriteBytes metric for the EBS volume, and configure an EC2 reboot action that triggers a user data script to extend the partition on restart."
-      },
-      {
-        "label": "B",
-        "text": "Enable EBS Elastic Volumes auto-scaling, which automatically increases the volume size when utilization exceeds the configured threshold without any custom automation."
-      },
-      {
-        "label": "C",
-        "text": "Configure an EventBridge rule that triggers a Lambda function to monitor EBS volume capacity every 5 minutes and expand volumes that exceed 85% utilization using the ModifyVolume API."
-      },
-      {
-        "label": "D",
-        "text": "Create a CloudWatch alarm on the disk_used_percent custom metric (from the CloudWatch agent), configure an SSM Automation document as the alarm action that calls ModifyVolume to increase the volume size, and runs growpart/resize2fs inside the OS."
-      }
-    ],
-    "correct": "D",
-    "distractors": {
-      "A": "VolumeWriteBytes measures I/O throughput, not disk space utilization; rebooting the instance is disruptive and unnecessary since EBS Elastic Volumes can be modified while attached.",
-      "C": "EventBridge + Lambda polling every 5 minutes works but introduces up to 5 minutes of lag; a CloudWatch alarm with SSM action is event-driven and requires no custom Lambda code.",
-      "B": "EBS Elastic Volumes auto-scaling is not a built-in AWS feature; volume expansion must be triggered by custom automation."
-    },
-    "explanation": "Disk utilization (disk_used_percent) is a custom metric collected by the CloudWatch agent. A CloudWatch alarm triggers an SSM Automation document that calls the EC2 ModifyVolume API to increase the volume size online (no detach required), then runs OS-level commands (growpart and resize2fs for Linux) to extend the filesystem. All steps can be orchestrated in a single SSM Automation runbook.",
-    "module_ref": "soa/monitoring/ebs-auto-expand",
-    "tags": [
-      "ebs",
-      "cloudwatch",
-      "ssm-automation",
-      "disk-expansion",
-      "remediation"
-    ]
+  "explanation": "CloudWatch Logs Insights supports an expressive query language that can filter, extract fields from JSON/custom formats, calculate statistics, and visualize results directly on log data stored in CloudWatch Logs. It scans up to the retention period set on the log group. Queries run in seconds to minutes depending on the data volume and time range.",
+  "module_ref": "soa/monitoring/cloudwatch-logs-insights",
+  "tags": [
+   "cloudwatch-logs",
+   "logs-insights",
+   "ad-hoc-queries",
+   "log-analysis"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-010",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A SysOps administrator needs to automatically remediate when an EC2 instance's disk (EBS volume) utilization exceeds 85%. The remediation should expand the EBS volume without stopping the instance. How should this be automated?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Create a CloudWatch alarm on the VolumeWriteBytes metric for the EBS volume, and configure an EC2 reboot action that triggers a user data script to extend the partition on restart."
+   },
+   {
+    "label": "B",
+    "text": "Enable EBS Elastic Volumes auto-scaling, which automatically increases the volume size when utilization exceeds the configured threshold without any custom automation."
+   },
+   {
+    "label": "C",
+    "text": "Configure an EventBridge rule that triggers a Lambda function to monitor EBS volume capacity every 5 minutes and expand volumes that exceed 85% utilization using the ModifyVolume API."
+   },
+   {
+    "label": "D",
+    "text": "Create a CloudWatch alarm on the disk_used_percent custom metric (from the CloudWatch agent), configure an SSM Automation document as the alarm action that calls ModifyVolume to increase the volume size, and runs growpart/resize2fs inside the OS."
+   }
+  ],
+  "correct": "D",
+  "distractors": {
+   "A": "VolumeWriteBytes measures I/O throughput, not disk space utilization; rebooting the instance is disruptive and unnecessary since EBS Elastic Volumes can be modified while attached.",
+   "C": "EventBridge + Lambda polling every 5 minutes works but introduces up to 5 minutes of lag; a CloudWatch alarm with SSM action is event-driven and requires no custom Lambda code.",
+   "B": "EBS Elastic Volumes auto-scaling is not a built-in AWS feature; volume expansion must be triggered by custom automation."
   },
-  {
-    "id": "aws-soa-t2-01-011",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "An organization uses AWS Organizations with multiple member accounts. A SysOps administrator needs to configure CloudTrail to record API activity in all current and future member accounts without configuring each account individually. What should be used?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable AWS Config organization-wide configuration recorder in the management account, which also activates CloudTrail for all member accounts as a side effect."
-      },
-      {
-        "label": "B",
-        "text": "Deploy a Lambda function in the management account that is triggered by Organizations CreateAccount events and programmatically enables CloudTrail in each new account."
-      },
-      {
-        "label": "C",
-        "text": "Create an Organization Trail in the management account; it automatically applies to all existing and future member accounts and delivers logs to a centralized S3 bucket."
-      },
-      {
-        "label": "D",
-        "text": "Use CloudFormation StackSets to deploy a CloudTrail trail to every member account, targeting the root OU so future accounts inherit the stack automatically."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "D": "CloudFormation StackSets can deploy CloudTrail, but StackSets do not automatically apply to new accounts added to an OU without additional configuration; Organization Trails handle this natively.",
-      "A": "AWS Config organization-wide configuration recording is independent of CloudTrail; enabling Config does not enable CloudTrail in member accounts.",
-      "B": "A Lambda-based account vending approach is valid but requires maintenance and introduces delay between account creation and CloudTrail activation."
-    },
-    "explanation": "An AWS Organizations Trail is a CloudTrail trail that applies to all accounts in an AWS organization. Created in the management account, it automatically captures API activity in all current member accounts and any accounts added in the future, delivering all logs to a specified S3 bucket in the management account. Member accounts cannot disable or modify the organization trail.",
-    "module_ref": "soa/monitoring/cloudtrail-organization-trail",
-    "tags": [
-      "cloudtrail",
-      "organizations",
-      "organization-trail",
-      "multi-account"
-    ]
+  "explanation": "Disk utilization (disk_used_percent) is a custom metric collected by the CloudWatch agent. A CloudWatch alarm triggers an SSM Automation document that calls the EC2 ModifyVolume API to increase the volume size online (no detach required), then runs OS-level commands (growpart and resize2fs for Linux) to extend the filesystem. All steps can be orchestrated in a single SSM Automation runbook.",
+  "module_ref": "soa/monitoring/ebs-auto-expand",
+  "tags": [
+   "ebs",
+   "cloudwatch",
+   "ssm-automation",
+   "disk-expansion",
+   "remediation"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-011",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "An organization uses AWS Organizations with multiple member accounts. A SysOps administrator needs to configure CloudTrail to record API activity in all current and future member accounts without configuring each account individually. What should be used?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable AWS Config organization-wide configuration recorder in the management account, which also activates CloudTrail for all member accounts as a side effect."
+   },
+   {
+    "label": "B",
+    "text": "Deploy a Lambda function in the management account that is triggered by Organizations CreateAccount events and programmatically enables CloudTrail in each new account."
+   },
+   {
+    "label": "C",
+    "text": "Create an Organization Trail in the management account; it automatically applies to all existing and future member accounts and delivers logs to a centralized S3 bucket."
+   },
+   {
+    "label": "D",
+    "text": "Use CloudFormation StackSets to deploy a CloudTrail trail to every member account, targeting the root OU so future accounts inherit the stack automatically."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "D": "CloudFormation StackSets can deploy CloudTrail, but StackSets do not automatically apply to new accounts added to an OU without additional configuration; Organization Trails handle this natively.",
+   "A": "AWS Config organization-wide configuration recording is independent of CloudTrail; enabling Config does not enable CloudTrail in member accounts.",
+   "B": "A Lambda-based account vending approach is valid but requires maintenance and introduces delay between account creation and CloudTrail activation."
   },
-  {
-    "id": "aws-soa-t2-01-012",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator needs to forward application logs from EC2 instances to CloudWatch Logs and from CloudWatch Logs to a third-party SIEM in near real time without modifying the application. What is the correct architecture?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Install a dual-output syslog forwarder on each EC2 instance that sends logs simultaneously to CloudWatch Logs and directly to the SIEM endpoint, bypassing the CloudWatch Logs subscription path."
-      },
-      {
-        "label": "B",
-        "text": "Install the CloudWatch agent on EC2 instances to forward logs to CloudWatch Logs, then create a CloudWatch Logs subscription filter that streams new log events to a Kinesis Data Firehose delivery stream targeting the SIEM's HTTP endpoint."
-      },
-      {
-        "label": "C",
-        "text": "Install the CloudWatch agent on EC2 instances to forward logs to CloudWatch Logs, then use an S3 export task scheduled every 5 minutes to deliver logs to an S3 bucket where the SIEM pulls them."
-      },
-      {
-        "label": "D",
-        "text": "Configure the CloudWatch agent to write directly to a Kinesis Data Stream and deploy a Lambda consumer that duplicates events to both CloudWatch Logs and the SIEM."
-      }
-    ],
-    "correct": "B",
-    "distractors": {
-      "C": "An S3 export task runs at most every 5 minutes and is batched, not near real-time; subscription filters provide near-real-time streaming.",
-      "A": "Modifying the syslog forwarder requires agent configuration changes on instances; the question asks for no application changes, and a CloudWatch Logs subscription is the non-intrusive forwarding path.",
-      "D": "The CloudWatch agent does not write directly to Kinesis Data Streams; its destinations are CloudWatch Logs, CloudWatch Metrics, and (indirectly) S3."
-    },
-    "explanation": "The CloudWatch agent forwards EC2 logs to CloudWatch Logs without any application code changes. A CloudWatch Logs subscription filter then pushes new log events in near real-time to Kinesis Data Firehose, which supports HTTP endpoint destinations allowing delivery to most SIEM platforms. This pipeline requires no application modifications.",
-    "module_ref": "soa/monitoring/log-forwarding-pipeline",
-    "tags": [
-      "cloudwatch-agent",
-      "subscription-filter",
-      "kinesis-firehose",
-      "siem",
-      "log-forwarding"
-    ]
+  "explanation": "An AWS Organizations Trail is a CloudTrail trail that applies to all accounts in an AWS organization. Created in the management account, it automatically captures API activity in all current member accounts and any accounts added in the future, delivering all logs to a specified S3 bucket in the management account. Member accounts cannot disable or modify the organization trail.",
+  "module_ref": "soa/monitoring/cloudtrail-organization-trail",
+  "tags": [
+   "cloudtrail",
+   "organizations",
+   "organization-trail",
+   "multi-account"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-012",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A SysOps administrator needs to forward application logs from EC2 instances to CloudWatch Logs and from CloudWatch Logs to a third-party SIEM in near real time without modifying the application. What is the correct architecture?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Install a dual-output syslog forwarder on each EC2 instance that sends logs simultaneously to CloudWatch Logs and directly to the SIEM endpoint, bypassing the CloudWatch Logs subscription path."
+   },
+   {
+    "label": "B",
+    "text": "Install the CloudWatch agent on EC2 instances to forward logs to CloudWatch Logs, then create a CloudWatch Logs subscription filter that streams new log events to a Kinesis Data Firehose delivery stream targeting the SIEM's HTTP endpoint."
+   },
+   {
+    "label": "C",
+    "text": "Install the CloudWatch agent on EC2 instances to forward logs to CloudWatch Logs, then use an S3 export task scheduled every 5 minutes to deliver logs to an S3 bucket where the SIEM pulls them."
+   },
+   {
+    "label": "D",
+    "text": "Configure the CloudWatch agent to write directly to a Kinesis Data Stream and deploy a Lambda consumer that duplicates events to both CloudWatch Logs and the SIEM."
+   }
+  ],
+  "correct": "B",
+  "distractors": {
+   "C": "An S3 export task runs at most every 5 minutes and is batched, not near real-time; subscription filters provide near-real-time streaming.",
+   "A": "Modifying the syslog forwarder requires agent configuration changes on instances; the question asks for no application changes, and a CloudWatch Logs subscription is the non-intrusive forwarding path.",
+   "D": "The CloudWatch agent does not write directly to Kinesis Data Streams; its destinations are CloudWatch Logs, CloudWatch Metrics, and (indirectly) S3."
   },
-  {
-    "id": "aws-soa-t2-01-013",
-    "domain": 1,
-    "domain_name": "Monitoring, Logging, and Remediation",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 2,
-    "active": true,
-    "stem": "A SysOps administrator configures a CloudWatch alarm to use the 'treat missing data as breaching' option. Under what circumstances is this the correct configuration?",
-    "options": [
-      {
-        "label": "A",
-        "text": "When the metric is expected to be absent during off-hours and the alarm should stay in OK state during those periods to avoid false alarms."
-      },
-      {
-        "label": "B",
-        "text": "When the metric is published from a Lambda function; treating missing data as breaching ensures the alarm transitions to ALARM state between function invocations."
-      },
-      {
-        "label": "C",
-        "text": "When the absence of data itself indicates a problem, such as a health-check metric that should always be reporting; missing data likely means the agent or the service is down."
-      },
-      {
-        "label": "D",
-        "text": "When the alarm threshold is based on a percentile statistic; treating missing data as breaching ensures percentile calculations are not skewed by sparse datasets."
-      }
-    ],
-    "correct": "C",
-    "distractors": {
-      "A": "If missing data during off-hours should not alarm, you should use 'treat missing data as not breaching' or configure the alarm evaluation window to match business hours; treating as breaching would cause false alarms during off-hours.",
-      "D": "Treating missing data as breaching does not affect how percentile statistics are calculated; it determines the alarm state when data points are absent.",
-      "B": "Lambda functions publish metrics only when they execute; treating absence of metrics between invocations as breaching would cause spurious alarms since gaps are expected."
-    },
-    "explanation": "Treating missing data as breaching is appropriate when the metric should always be present and its absence indicates a failure. For example, a custom health-check metric published every minute by a monitoring agent: if the metric stops arriving, the agent or the monitored service is down. In this case, the alarm should fire on missing data to alert the operations team.",
-    "module_ref": "soa/monitoring/cloudwatch-missing-data",
-    "tags": [
-      "cloudwatch",
-      "missing-data",
-      "alarm-configuration",
-      "health-check"
-    ]
-  }
+  "explanation": "The CloudWatch agent forwards EC2 logs to CloudWatch Logs without any application code changes. A CloudWatch Logs subscription filter then pushes new log events in near real-time to Kinesis Data Firehose, which supports HTTP endpoint destinations allowing delivery to most SIEM platforms. This pipeline requires no application modifications.",
+  "module_ref": "soa/monitoring/log-forwarding-pipeline",
+  "tags": [
+   "cloudwatch-agent",
+   "subscription-filter",
+   "kinesis-firehose",
+   "siem",
+   "log-forwarding"
+  ]
+ },
+ {
+  "id": "aws-soa-t2-01-013",
+  "domain": 1,
+  "domain_name": "Monitoring, Logging, Analysis, Remediation, and Performance Optimization",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 2,
+  "active": true,
+  "stem": "A SysOps administrator configures a CloudWatch alarm to use the 'treat missing data as breaching' option. Under what circumstances is this the correct configuration?",
+  "options": [
+   {
+    "label": "A",
+    "text": "When the metric is expected to be absent during off-hours and the alarm should stay in OK state during those periods to avoid false alarms."
+   },
+   {
+    "label": "B",
+    "text": "When the metric is published from a Lambda function; treating missing data as breaching ensures the alarm transitions to ALARM state between function invocations."
+   },
+   {
+    "label": "C",
+    "text": "When the absence of data itself indicates a problem, such as a health-check metric that should always be reporting; missing data likely means the agent or the service is down."
+   },
+   {
+    "label": "D",
+    "text": "When the alarm threshold is based on a percentile statistic; treating missing data as breaching ensures percentile calculations are not skewed by sparse datasets."
+   }
+  ],
+  "correct": "C",
+  "distractors": {
+   "A": "If missing data during off-hours should not alarm, you should use 'treat missing data as not breaching' or configure the alarm evaluation window to match business hours; treating as breaching would cause false alarms during off-hours.",
+   "D": "Treating missing data as breaching does not affect how percentile statistics are calculated; it determines the alarm state when data points are absent.",
+   "B": "Lambda functions publish metrics only when they execute; treating absence of metrics between invocations as breaching would cause spurious alarms since gaps are expected."
+  },
+  "explanation": "Treating missing data as breaching is appropriate when the metric should always be present and its absence indicates a failure. For example, a custom health-check metric published every minute by a monitoring agent: if the metric stops arriving, the agent or the monitored service is down. In this case, the alarm should fire on missing data to alert the operations team.",
+  "module_ref": "soa/monitoring/cloudwatch-missing-data",
+  "tags": [
+   "cloudwatch",
+   "missing-data",
+   "alarm-configuration",
+   "health-check"
+  ]
+ }
 ]

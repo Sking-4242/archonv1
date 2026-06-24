@@ -1,431 +1,431 @@
 [
-  {
-    "id": "aws-soa-t4-02-001",
-    "domain": 2,
-    "domain_name": "Reliability and Business Continuity",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 4,
-    "active": true,
-    "stem": "An application uses Amazon ElastiCache Redis in cluster mode. A SysOps administrator needs to scale out the cluster to handle increased read traffic without downtime. What is the correct procedure?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Add read replicas to existing shards online; ElastiCache supports adding replicas to a running cluster without disrupting in-flight connections or application availability."
-      },
-      {
-        "label": "B",
-        "text": "Create a new larger ElastiCache cluster, use a blue/green switch by updating the application's Redis endpoint, and drain connections from the old cluster over time."
-      },
-      {
-        "label": "C",
-        "text": "Increase the node type of all existing nodes to a larger instance type; vertical scaling of Redis nodes in cluster mode completes without any connection interruptions."
-      },
-      {
-        "label": "D",
-        "text": "Enable ElastiCache Auto Scaling, which automatically detects increased read traffic and adds replicas during the scaling event with zero manual intervention."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "Creating a new cluster and updating endpoints introduces an application change and potential inconsistency; adding replicas online is less disruptive.",
-      "C": "Changing node types (vertical scaling) in ElastiCache requires modifying each node and may involve brief interruptions; adding read replicas is the horizontal scale-out approach.",
-      "D": "ElastiCache Auto Scaling for Redis does support automatic replica scaling, but the question asks about the correct procedure for a SysOps administrator, making option A the direct correct answer for the manual procedure."
-    },
-    "explanation": "Amazon ElastiCache Redis supports adding read replicas to existing replication groups while the cluster is running. The new replica syncs from the primary via replication without affecting existing connections. This is the standard horizontal scale-out approach for handling increased read traffic.",
-    "module_ref": "soa/reliability/elasticache-add-replica",
-    "tags": [
-      "elasticache",
-      "redis",
-      "read-replica",
-      "scale-out",
-      "no-downtime"
-    ]
+ {
+  "id": "aws-soa-t4-02-001",
+  "domain": 2,
+  "domain_name": "Reliability and Business Continuity",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 4,
+  "active": true,
+  "stem": "An application uses Amazon ElastiCache Redis in cluster mode. A SysOps administrator needs to scale out the cluster to handle increased read traffic without downtime. What is the correct procedure?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Add read replicas to existing shards online; ElastiCache supports adding replicas to a running cluster without disrupting in-flight connections or application availability."
+   },
+   {
+    "label": "B",
+    "text": "Create a new larger ElastiCache cluster, use a blue/green switch by updating the application's Redis endpoint, and drain connections from the old cluster over time."
+   },
+   {
+    "label": "C",
+    "text": "Increase the node type of all existing nodes to a larger instance type; vertical scaling of Redis nodes in cluster mode completes without any connection interruptions."
+   },
+   {
+    "label": "D",
+    "text": "Enable ElastiCache Auto Scaling, which automatically detects increased read traffic and adds replicas during the scaling event with zero manual intervention."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "Creating a new cluster and updating endpoints introduces an application change and potential inconsistency; adding replicas online is less disruptive.",
+   "C": "Changing node types (vertical scaling) in ElastiCache requires modifying each node and may involve brief interruptions; adding read replicas is the horizontal scale-out approach.",
+   "D": "ElastiCache Auto Scaling for Redis does support automatic replica scaling, but the question asks about the correct procedure for a SysOps administrator, making option A the direct correct answer for the manual procedure."
   },
-  {
-    "id": "aws-soa-t4-02-002",
-    "domain": 2,
-    "domain_name": "Reliability and Business Continuity",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 4,
-    "active": true,
-    "stem": "An application running on EC2 behind an ALB uses session data stored in-memory. During an Auto Scaling scale-in event, active user sessions are lost when instances terminate. Connection draining is already enabled. What architectural change permanently solves this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Move session storage from EC2 instance memory to DynamoDB with session TTL enabled; all instances share the same session store, so terminating any instance does not affect active sessions."
-      },
-      {
-        "label": "B",
-        "text": "Increase the ALB deregistration delay to 3,600 seconds (1 hour); this gives users sufficient time to complete their sessions before the instance is terminated."
-      },
-      {
-        "label": "C",
-        "text": "Configure Auto Scaling lifecycle hooks on the Terminating transition with a 1-hour heartbeat; instances remain in service for up to 1 hour allowing active sessions to complete naturally."
-      },
-      {
-        "label": "D",
-        "text": "Enable ALB sticky sessions with application-controlled cookies and a 24-hour duration; sticky sessions ensure users always reconnect to the same instance if it is still running."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "Extending the deregistration delay delays the problem but does not solve it; sessions are still lost when the delay expires and the instance terminates.",
-      "C": "A 1-hour lifecycle hook reduces the likelihood of session loss but still does not guarantee all sessions complete; it also holds instances in service consuming costs.",
-      "D": "Sticky sessions ensure routing to the same instance while it runs; when the instance is eventually terminated, all sticky sessions to it are still lost."
-    },
-    "explanation": "Externalizing session state to a distributed store like DynamoDB makes the application stateless. Any instance can serve any request because session data is retrieved from DynamoDB on every request. Terminating any instance has no impact on user sessions \u2014 they continue seamlessly on any other running instance.",
-    "module_ref": "soa/reliability/dynamodb-session-store",
-    "tags": [
-      "dynamodb",
-      "session-management",
-      "stateless",
-      "auto-scaling",
-      "high-availability"
-    ]
+  "explanation": "Amazon ElastiCache Redis supports adding read replicas to existing replication groups while the cluster is running. The new replica syncs from the primary via replication without affecting existing connections. This is the standard horizontal scale-out approach for handling increased read traffic.",
+  "module_ref": "soa/reliability/elasticache-add-replica",
+  "tags": [
+   "elasticache",
+   "redis",
+   "read-replica",
+   "scale-out",
+   "no-downtime"
+  ]
+ },
+ {
+  "id": "aws-soa-t4-02-002",
+  "domain": 2,
+  "domain_name": "Reliability and Business Continuity",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 4,
+  "active": true,
+  "stem": "An application running on EC2 behind an ALB uses session data stored in-memory. During an Auto Scaling scale-in event, active user sessions are lost when instances terminate. Connection draining is already enabled. What architectural change permanently solves this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Move session storage from EC2 instance memory to DynamoDB with session TTL enabled; all instances share the same session store, so terminating any instance does not affect active sessions."
+   },
+   {
+    "label": "B",
+    "text": "Increase the ALB deregistration delay to 3,600 seconds (1 hour); this gives users sufficient time to complete their sessions before the instance is terminated."
+   },
+   {
+    "label": "C",
+    "text": "Configure Auto Scaling lifecycle hooks on the Terminating transition with a 1-hour heartbeat; instances remain in service for up to 1 hour allowing active sessions to complete naturally."
+   },
+   {
+    "label": "D",
+    "text": "Enable ALB sticky sessions with application-controlled cookies and a 24-hour duration; sticky sessions ensure users always reconnect to the same instance if it is still running."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "Extending the deregistration delay delays the problem but does not solve it; sessions are still lost when the delay expires and the instance terminates.",
+   "C": "A 1-hour lifecycle hook reduces the likelihood of session loss but still does not guarantee all sessions complete; it also holds instances in service consuming costs.",
+   "D": "Sticky sessions ensure routing to the same instance while it runs; when the instance is eventually terminated, all sticky sessions to it are still lost."
   },
-  {
-    "id": "aws-soa-t4-02-003",
-    "domain": 2,
-    "domain_name": "Reliability and Business Continuity",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 4,
-    "active": true,
-    "stem": "A company runs a critical application in one AWS Region. The business requires an RPO of 15 minutes and an RTO of 1 hour. What is the most cost-effective DR strategy that meets both requirements?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Pilot Light with continuous database replication and pre-built AMIs in the DR region; continuous replication meets 15-minute RPO, and launching pre-built resources meets 1-hour RTO."
-      },
-      {
-        "label": "B",
-        "text": "Backup and Restore with 15-minute automated RDS snapshots copied to the DR region; the 1-hour RTO is achievable by pre-staging CloudFormation templates."
-      },
-      {
-        "label": "C",
-        "text": "Warm Standby with a reduced-capacity replica in the DR region running 24/7; scale up completes in minutes satisfying the 1-hour RTO, and real-time replication satisfies the RPO."
-      },
-      {
-        "label": "D",
-        "text": "Active-Active with live traffic in both regions; sub-second RPO and zero RTO exceed requirements but ensure maximum availability."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "RDS automated snapshots run every 5 minutes at most (through transaction logs via PITR), but copying snapshots cross-region and restoring from them typically exceeds 1-hour RTO for non-trivial databases.",
-      "C": "Warm Standby meets requirements but runs infrastructure 24/7 in the DR region, making it more expensive than Pilot Light for a 1-hour RTO window.",
-      "D": "Active-Active is the most expensive option; it exceeds the RPO/RTO requirements and is not cost-optimal."
-    },
-    "explanation": "Pilot Light with continuous database replication (RDS Read Replica or Aurora Global Database) provides a near-zero RPO at low cost. Pre-built AMIs, launch templates, and CloudFormation templates in the DR region enable infrastructure provisioning within 1 hour. Only the database replication runs continuously; compute is on-demand during DR activation.",
-    "module_ref": "soa/reliability/pilot-light-rpo-rto",
-    "tags": [
-      "disaster-recovery",
-      "pilot-light",
-      "rpo",
-      "rto",
-      "cost-effective"
-    ]
+  "explanation": "Externalizing session state to a distributed store like DynamoDB makes the application stateless. Any instance can serve any request because session data is retrieved from DynamoDB on every request. Terminating any instance has no impact on user sessions — they continue seamlessly on any other running instance.",
+  "module_ref": "soa/reliability/dynamodb-session-store",
+  "tags": [
+   "dynamodb",
+   "session-management",
+   "stateless",
+   "auto-scaling",
+   "high-availability"
+  ]
+ },
+ {
+  "id": "aws-soa-t4-02-003",
+  "domain": 2,
+  "domain_name": "Reliability and Business Continuity",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 4,
+  "active": true,
+  "stem": "A company runs a critical application in one AWS Region. The business requires an RPO of 15 minutes and an RTO of 1 hour. What is the most cost-effective DR strategy that meets both requirements?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Pilot Light with continuous database replication and pre-built AMIs in the DR region; continuous replication meets 15-minute RPO, and launching pre-built resources meets 1-hour RTO."
+   },
+   {
+    "label": "B",
+    "text": "Backup and Restore with 15-minute automated RDS snapshots copied to the DR region; the 1-hour RTO is achievable by pre-staging CloudFormation templates."
+   },
+   {
+    "label": "C",
+    "text": "Warm Standby with a reduced-capacity replica in the DR region running 24/7; scale up completes in minutes satisfying the 1-hour RTO, and real-time replication satisfies the RPO."
+   },
+   {
+    "label": "D",
+    "text": "Active-Active with live traffic in both regions; sub-second RPO and zero RTO exceed requirements but ensure maximum availability."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "RDS automated snapshots run every 5 minutes at most (through transaction logs via PITR), but copying snapshots cross-region and restoring from them typically exceeds 1-hour RTO for non-trivial databases.",
+   "C": "Warm Standby meets requirements but runs infrastructure 24/7 in the DR region, making it more expensive than Pilot Light for a 1-hour RTO window.",
+   "D": "Active-Active is the most expensive option; it exceeds the RPO/RTO requirements and is not cost-optimal."
   },
-  {
-    "id": "aws-soa-t4-02-004",
-    "domain": 2,
-    "domain_name": "Reliability and Business Continuity",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 4,
-    "active": true,
-    "stem": "A SysOps administrator notices that an RDS Multi-AZ instance frequently performs failover, resulting in brief application disruptions. CloudTrail shows that the reboots are triggered by the Operations team for patching. How should this be handled to minimize disruption?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Schedule maintenance operations during the RDS maintenance window; AWS applies OS patching during this window using a strategy that minimizes failover time and alerts applications in advance."
-      },
-      {
-        "label": "B",
-        "text": "Disable Multi-AZ during maintenance windows; this prevents automatic failover during reboots, reducing the disruption duration by eliminating the standby synchronization delay."
-      },
-      {
-        "label": "C",
-        "text": "Use RDS Reserved Instances; reserved instances are prioritized for placement on stable hardware, reducing the frequency of OS-level patches that require reboots."
-      },
-      {
-        "label": "D",
-        "text": "Increase the application's database connection retry logic timeout to 10 minutes; application-level retries absorb the failover disruption without requiring any RDS configuration changes."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "Disabling Multi-AZ removes the high availability benefit and means a single-instance failure causes a longer outage; it should never be disabled for maintenance.",
-      "C": "Reserved Instances affect pricing, not hardware placement or patching frequency; they do not reduce OS patching requirements.",
-      "D": "Increasing retry timeouts reduces errors for individual connections but does not reduce the frequency or duration of failover events."
-    },
-    "explanation": "AWS RDS maintenance windows define a weekly time slot during which AWS applies OS and database engine patches. When patching occurs during the maintenance window, AWS uses Multi-AZ to minimize disruption: the standby is patched first, then a controlled failover occurs, then the former primary is patched. This results in the shortest possible application disruption.",
-    "module_ref": "soa/reliability/rds-maintenance-window",
-    "tags": [
-      "rds",
-      "maintenance-window",
-      "patching",
-      "multi-az",
-      "failover"
-    ]
+  "explanation": "Pilot Light with continuous database replication (RDS Read Replica or Aurora Global Database) provides a near-zero RPO at low cost. Pre-built AMIs, launch templates, and CloudFormation templates in the DR region enable infrastructure provisioning within 1 hour. Only the database replication runs continuously; compute is on-demand during DR activation.",
+  "module_ref": "soa/reliability/pilot-light-rpo-rto",
+  "tags": [
+   "disaster-recovery",
+   "pilot-light",
+   "rpo",
+   "rto",
+   "cost-effective"
+  ]
+ },
+ {
+  "id": "aws-soa-t4-02-004",
+  "domain": 2,
+  "domain_name": "Reliability and Business Continuity",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 4,
+  "active": true,
+  "stem": "A SysOps administrator notices that an RDS Multi-AZ instance frequently performs failover, resulting in brief application disruptions. CloudTrail shows that the reboots are triggered by the Operations team for patching. How should this be handled to minimize disruption?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Schedule maintenance operations during the RDS maintenance window; AWS applies OS patching during this window using a strategy that minimizes failover time and alerts applications in advance."
+   },
+   {
+    "label": "B",
+    "text": "Disable Multi-AZ during maintenance windows; this prevents automatic failover during reboots, reducing the disruption duration by eliminating the standby synchronization delay."
+   },
+   {
+    "label": "C",
+    "text": "Use RDS Reserved Instances; reserved instances are prioritized for placement on stable hardware, reducing the frequency of OS-level patches that require reboots."
+   },
+   {
+    "label": "D",
+    "text": "Increase the application's database connection retry logic timeout to 10 minutes; application-level retries absorb the failover disruption without requiring any RDS configuration changes."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "Disabling Multi-AZ removes the high availability benefit and means a single-instance failure causes a longer outage; it should never be disabled for maintenance.",
+   "C": "Reserved Instances affect pricing, not hardware placement or patching frequency; they do not reduce OS patching requirements.",
+   "D": "Increasing retry timeouts reduces errors for individual connections but does not reduce the frequency or duration of failover events."
   },
-  {
-    "id": "aws-soa-t4-02-005",
-    "domain": 2,
-    "domain_name": "Reliability and Business Continuity",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 4,
-    "active": true,
-    "stem": "A SysOps administrator needs to implement graceful shutdown for EC2 instances in an Auto Scaling group when they receive a scale-in signal. The application needs up to 5 minutes to finish in-progress work before terminating. Which feature provides this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Configure an Auto Scaling lifecycle hook for the EC2_INSTANCE_TERMINATING transition with a heartbeat timeout of 300 seconds; the instance receives the hook notification and completes in-progress work before signaling completion."
-      },
-      {
-        "label": "B",
-        "text": "Set the ALB deregistration delay to 300 seconds; the ALB waits 5 minutes before completing deregistration, giving the instance time to finish processing."
-      },
-      {
-        "label": "C",
-        "text": "Configure the Auto Scaling group's Termination Policy to Custom with a 300-second delay; instances wait 5 minutes after selection before termination begins."
-      },
-      {
-        "label": "D",
-        "text": "Use EC2 Instance Stop Protection; protected instances send a graceful shutdown signal to the application before termination, allowing 5 minutes of cleanup time."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "ALB deregistration delay stops new connections; it does not pause the termination process. The instance is still terminated by Auto Scaling after the deregistration delay period.",
-      "C": "There is no 'Custom' Termination Policy with a configurable delay; termination policies control which instance to select, not timing.",
-      "D": "EC2 Instance Stop Protection prevents accidental stops; it does not send graceful shutdown signals or provide configurable cleanup windows."
-    },
-    "explanation": "Auto Scaling lifecycle hooks pause the instance in a wait state (Terminating:Wait) after it is selected for termination. The instance (or a handler) receives the hook notification and can perform cleanup work. After completion, it calls CompleteLifecycleAction or the heartbeat timeout expires, and termination proceeds. This is the standard pattern for graceful shutdown.",
-    "module_ref": "soa/reliability/asg-lifecycle-hook-termination",
-    "tags": [
-      "auto-scaling",
-      "lifecycle-hook",
-      "graceful-shutdown",
-      "termination"
-    ]
+  "explanation": "AWS RDS maintenance windows define a weekly time slot during which AWS applies OS and database engine patches. When patching occurs during the maintenance window, AWS uses Multi-AZ to minimize disruption: the standby is patched first, then a controlled failover occurs, then the former primary is patched. This results in the shortest possible application disruption.",
+  "module_ref": "soa/reliability/rds-maintenance-window",
+  "tags": [
+   "rds",
+   "maintenance-window",
+   "patching",
+   "multi-az",
+   "failover"
+  ]
+ },
+ {
+  "id": "aws-soa-t4-02-005",
+  "domain": 2,
+  "domain_name": "Reliability and Business Continuity",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 4,
+  "active": true,
+  "stem": "A SysOps administrator needs to implement graceful shutdown for EC2 instances in an Auto Scaling group when they receive a scale-in signal. The application needs up to 5 minutes to finish in-progress work before terminating. Which feature provides this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Configure an Auto Scaling lifecycle hook for the EC2_INSTANCE_TERMINATING transition with a heartbeat timeout of 300 seconds; the instance receives the hook notification and completes in-progress work before signaling completion."
+   },
+   {
+    "label": "B",
+    "text": "Set the ALB deregistration delay to 300 seconds; the ALB waits 5 minutes before completing deregistration, giving the instance time to finish processing."
+   },
+   {
+    "label": "C",
+    "text": "Configure the Auto Scaling group's Termination Policy to Custom with a 300-second delay; instances wait 5 minutes after selection before termination begins."
+   },
+   {
+    "label": "D",
+    "text": "Use EC2 Instance Stop Protection; protected instances send a graceful shutdown signal to the application before termination, allowing 5 minutes of cleanup time."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "ALB deregistration delay stops new connections; it does not pause the termination process. The instance is still terminated by Auto Scaling after the deregistration delay period.",
+   "C": "There is no 'Custom' Termination Policy with a configurable delay; termination policies control which instance to select, not timing.",
+   "D": "EC2 Instance Stop Protection prevents accidental stops; it does not send graceful shutdown signals or provide configurable cleanup windows."
   },
-  {
-    "id": "aws-soa-t4-02-006",
-    "domain": 2,
-    "domain_name": "Reliability and Business Continuity",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 4,
-    "active": true,
-    "stem": "An Amazon Aurora PostgreSQL cluster is running in a single region. The operations team wants to implement cross-region DR with the ability to promote the DR region to primary within 1 minute. What is the correct configuration?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Create an Aurora Global Database with the primary cluster in the main region and a secondary cluster in the DR region; in a failover, managed planned failover or detach-and-promote completes in under 1 minute."
-      },
-      {
-        "label": "B",
-        "text": "Create an Aurora Read Replica in the DR region; promoting a cross-region read replica to a standalone cluster typically completes in under 1 minute."
-      },
-      {
-        "label": "C",
-        "text": "Enable Aurora Multi-Master across two regions; Multi-Master supports writes in both regions and automatically redirects traffic to the DR region within 1 minute of a primary failure."
-      },
-      {
-        "label": "D",
-        "text": "Configure AWS DMS to continuously replicate Aurora data to a target Aurora cluster in the DR region; promote the target cluster when needed within the 1-minute RTO."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "Promoting a cross-region Aurora Read Replica creates an independent cluster and typically takes 5-15 minutes; it does not meet the 1-minute RTO.",
-      "C": "Aurora Multi-Master is not supported across regions; it supports multi-writer within a single region only.",
-      "D": "AWS DMS replication introduces additional lag; promotion plus DMS reconfiguration exceeds 1-minute RTO."
-    },
-    "explanation": "Aurora Global Database uses dedicated replication infrastructure with sub-second physical replication lag (typically under 1 second). The managed failover feature (available for Global Database) switches the secondary cluster to primary with a target RTO of under 1 minute. The secondary cluster already has the data; it just needs to accept writes.",
-    "module_ref": "soa/reliability/aurora-global-database",
-    "tags": [
-      "aurora",
-      "global-database",
-      "cross-region",
-      "rto",
-      "failover"
-    ]
+  "explanation": "Auto Scaling lifecycle hooks pause the instance in a wait state (Terminating:Wait) after it is selected for termination. The instance (or a handler) receives the hook notification and can perform cleanup work. After completion, it calls CompleteLifecycleAction or the heartbeat timeout expires, and termination proceeds. This is the standard pattern for graceful shutdown.",
+  "module_ref": "soa/reliability/asg-lifecycle-hook-termination",
+  "tags": [
+   "auto-scaling",
+   "lifecycle-hook",
+   "graceful-shutdown",
+   "termination"
+  ]
+ },
+ {
+  "id": "aws-soa-t4-02-006",
+  "domain": 2,
+  "domain_name": "Reliability and Business Continuity",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 4,
+  "active": true,
+  "stem": "An Amazon Aurora PostgreSQL cluster is running in a single region. The operations team wants to implement cross-region DR with the ability to promote the DR region to primary within 1 minute. What is the correct configuration?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Create an Aurora Global Database with the primary cluster in the main region and a secondary cluster in the DR region; in a failover, managed planned failover or detach-and-promote completes in under 1 minute."
+   },
+   {
+    "label": "B",
+    "text": "Create an Aurora Read Replica in the DR region; promoting a cross-region read replica to a standalone cluster typically completes in under 1 minute."
+   },
+   {
+    "label": "C",
+    "text": "Enable Aurora Multi-Master across two regions; Multi-Master supports writes in both regions and automatically redirects traffic to the DR region within 1 minute of a primary failure."
+   },
+   {
+    "label": "D",
+    "text": "Configure AWS DMS to continuously replicate Aurora data to a target Aurora cluster in the DR region; promote the target cluster when needed within the 1-minute RTO."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "Promoting a cross-region Aurora Read Replica creates an independent cluster and typically takes 5-15 minutes; it does not meet the 1-minute RTO.",
+   "C": "Aurora Multi-Master is not supported across regions; it supports multi-writer within a single region only.",
+   "D": "AWS DMS replication introduces additional lag; promotion plus DMS reconfiguration exceeds 1-minute RTO."
   },
-  {
-    "id": "aws-soa-t4-02-007",
-    "domain": 2,
-    "domain_name": "Reliability and Business Continuity",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 4,
-    "active": true,
-    "stem": "An S3 bucket stores financial records that must be retained for exactly 7 years and then automatically deleted. No manual deletion is permitted during the retention period. What is the correct configuration?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Enable S3 Object Lock in Compliance mode with a 7-year retention period AND configure an S3 lifecycle rule to expire objects after 2,557 days (7 years); the lifecycle rule handles deletion after the lock period ends."
-      },
-      {
-        "label": "B",
-        "text": "Enable S3 Versioning with an MFA Delete policy; set a lifecycle rule to expire non-current versions after 7 years and configure an alert when objects approach expiry."
-      },
-      {
-        "label": "C",
-        "text": "Enable S3 Object Lock in Governance mode with a 7-year retention period; after 7 years an administrator can delete objects using the bypass permission."
-      },
-      {
-        "label": "D",
-        "text": "Configure an AWS Backup plan for the S3 bucket with a 7-year retention period; AWS Backup automatically deletes recovery points after the retention window, deleting the source data."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "MFA Delete requires MFA for deletion; it does not prevent deletion by authorized users and does not enforce the 7-year period automatically.",
-      "C": "Governance mode can be overridden by authorized users during the retention period; for strict compliance, Governance mode does not satisfy 'no manual deletion permitted.'",
-      "D": "AWS Backup manages backup recovery points, not the source S3 objects; deleting recovery points does not delete the original S3 objects."
-    },
-    "explanation": "S3 Object Lock Compliance mode prevents deletion for the exact retention period. After the lock period expires, the objects can be deleted. Adding an S3 lifecycle Expiration rule set to 2,557 days automates deletion after the 7-year retention period, providing both the immutable hold and automatic cleanup.",
-    "module_ref": "soa/reliability/s3-object-lock-lifecycle",
-    "tags": [
-      "s3",
-      "object-lock",
-      "compliance",
-      "lifecycle",
-      "retention"
-    ]
+  "explanation": "Aurora Global Database uses dedicated replication infrastructure with sub-second physical replication lag (typically under 1 second). The managed failover feature (available for Global Database) switches the secondary cluster to primary with a target RTO of under 1 minute. The secondary cluster already has the data; it just needs to accept writes.",
+  "module_ref": "soa/reliability/aurora-global-database",
+  "tags": [
+   "aurora",
+   "global-database",
+   "cross-region",
+   "rto",
+   "failover"
+  ]
+ },
+ {
+  "id": "aws-soa-t4-02-007",
+  "domain": 2,
+  "domain_name": "Reliability and Business Continuity",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 4,
+  "active": true,
+  "stem": "An S3 bucket stores financial records that must be retained for exactly 7 years and then automatically deleted. No manual deletion is permitted during the retention period. What is the correct configuration?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Enable S3 Object Lock in Compliance mode with a 7-year retention period AND configure an S3 lifecycle rule to expire objects after 2,557 days (7 years); the lifecycle rule handles deletion after the lock period ends."
+   },
+   {
+    "label": "B",
+    "text": "Enable S3 Versioning with an MFA Delete policy; set a lifecycle rule to expire non-current versions after 7 years and configure an alert when objects approach expiry."
+   },
+   {
+    "label": "C",
+    "text": "Enable S3 Object Lock in Governance mode with a 7-year retention period; after 7 years an administrator can delete objects using the bypass permission."
+   },
+   {
+    "label": "D",
+    "text": "Configure an AWS Backup plan for the S3 bucket with a 7-year retention period; AWS Backup automatically deletes recovery points after the retention window, deleting the source data."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "MFA Delete requires MFA for deletion; it does not prevent deletion by authorized users and does not enforce the 7-year period automatically.",
+   "C": "Governance mode can be overridden by authorized users during the retention period; for strict compliance, Governance mode does not satisfy 'no manual deletion permitted.'",
+   "D": "AWS Backup manages backup recovery points, not the source S3 objects; deleting recovery points does not delete the original S3 objects."
   },
-  {
-    "id": "aws-soa-t4-02-008",
-    "domain": 2,
-    "domain_name": "Reliability and Business Continuity",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 4,
-    "active": true,
-    "stem": "A SysOps administrator needs to verify that all daily AWS Backup jobs for EC2 instances completed successfully. What is the most efficient monitoring approach?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Create an EventBridge rule matching AWS Backup job state change events with state FAILED or EXPIRED; route to an SNS topic for alerting. Review the AWS Backup console job history for success confirmations."
-      },
-      {
-        "label": "B",
-        "text": "Enable CloudWatch detailed monitoring for all EC2 instances; CloudWatch reports backup job status as a custom metric that can be queried for daily success rates."
-      },
-      {
-        "label": "C",
-        "text": "Create a Lambda function that runs daily and calls the ListBackupJobs API filtered by status=FAILED and date range; send an SNS alert if any failed jobs are found."
-      },
-      {
-        "label": "D",
-        "text": "Enable AWS Backup audit manager; it continuously monitors all backup jobs and produces compliance reports showing daily success and failure rates."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "CloudWatch detailed monitoring provides EC2 infrastructure metrics; it does not publish AWS Backup job status as metrics.",
-      "C": "A scheduled Lambda calling ListBackupJobs is valid but adds complexity compared to the native EventBridge event-driven approach.",
-      "D": "AWS Backup Audit Manager tracks compliance against backup rules and provides reports; for real-time failure alerting, EventBridge events on job state changes are the direct mechanism."
-    },
-    "explanation": "AWS Backup publishes job state change events to EventBridge when jobs transition to COMPLETED, FAILED, EXPIRED, or ABORTED. An EventBridge rule filtering for FAILED or EXPIRED states triggers immediate SNS notifications. Combined with the Backup console's job history dashboard, this provides both real-time alerting and audit visibility.",
-    "module_ref": "soa/reliability/backup-monitoring",
-    "tags": [
-      "aws-backup",
-      "eventbridge",
-      "monitoring",
-      "job-status",
-      "alerting"
-    ]
+  "explanation": "S3 Object Lock Compliance mode prevents deletion for the exact retention period. After the lock period expires, the objects can be deleted. Adding an S3 lifecycle Expiration rule set to 2,557 days automates deletion after the 7-year retention period, providing both the immutable hold and automatic cleanup.",
+  "module_ref": "soa/reliability/s3-object-lock-lifecycle",
+  "tags": [
+   "s3",
+   "object-lock",
+   "compliance",
+   "lifecycle",
+   "retention"
+  ]
+ },
+ {
+  "id": "aws-soa-t4-02-008",
+  "domain": 2,
+  "domain_name": "Reliability and Business Continuity",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 4,
+  "active": true,
+  "stem": "A SysOps administrator needs to verify that all daily AWS Backup jobs for EC2 instances completed successfully. What is the most efficient monitoring approach?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Create an EventBridge rule matching AWS Backup job state change events with state FAILED or EXPIRED; route to an SNS topic for alerting. Review the AWS Backup console job history for success confirmations."
+   },
+   {
+    "label": "B",
+    "text": "Enable CloudWatch detailed monitoring for all EC2 instances; CloudWatch reports backup job status as a custom metric that can be queried for daily success rates."
+   },
+   {
+    "label": "C",
+    "text": "Create a Lambda function that runs daily and calls the ListBackupJobs API filtered by status=FAILED and date range; send an SNS alert if any failed jobs are found."
+   },
+   {
+    "label": "D",
+    "text": "Enable AWS Backup audit manager; it continuously monitors all backup jobs and produces compliance reports showing daily success and failure rates."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "CloudWatch detailed monitoring provides EC2 infrastructure metrics; it does not publish AWS Backup job status as metrics.",
+   "C": "A scheduled Lambda calling ListBackupJobs is valid but adds complexity compared to the native EventBridge event-driven approach.",
+   "D": "AWS Backup Audit Manager tracks compliance against backup rules and provides reports; for real-time failure alerting, EventBridge events on job state changes are the direct mechanism."
   },
-  {
-    "id": "aws-soa-t4-02-009",
-    "domain": 2,
-    "domain_name": "Reliability and Business Continuity",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 4,
-    "active": true,
-    "stem": "A company needs their application to automatically redirect traffic from a failed primary region to a secondary region within 60 seconds. The application uses Application Load Balancers in both regions. What Route 53 configuration achieves this?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Configure Route 53 Failover routing with a health check on the primary ALB endpoint; set the health check interval to 10 seconds with a failure threshold of 3; Route 53 updates DNS to the secondary ALB within approximately 30-40 seconds of primary failure."
-      },
-      {
-        "label": "B",
-        "text": "Configure Route 53 Latency routing with health checks; latency routing automatically detects the primary ALB failure and routes traffic to the secondary region based on improved relative latency."
-      },
-      {
-        "label": "C",
-        "text": "Use Route 53 Geolocation routing with the primary region serving all global traffic and the secondary as a default; failed geolocation records automatically fall back to the default."
-      },
-      {
-        "label": "D",
-        "text": "Configure a Route 53 Traffic Policy with a weighted rule that shifts 100% traffic to the secondary when the primary's health check fails; Traffic Policies update routing within 60 seconds."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "Latency routing routes based on measured network latency; health check failures do not automatically redirect traffic to the secondary region in latency routing.",
-      "C": "Geolocation routing falls back to the default record when no specific record matches the requester's location; it is not designed for automatic failover based on health checks.",
-      "D": "Traffic Policies support complex routing rules but still rely on health checks for failover; the Failover routing policy is the purpose-built solution."
-    },
-    "explanation": "Route 53 Failover routing with health checks provides automatic DNS-based failover. With a 10-second health check interval and 3 consecutive failures required, Route 53 detects failure in ~30-40 seconds and updates the DNS response. The TTL on the Failover records should be set to 60 seconds or less so cached responses expire promptly.",
-    "module_ref": "soa/reliability/route53-failover-rto",
-    "tags": [
-      "route53",
-      "failover",
-      "health-check",
-      "rto",
-      "dns"
-    ]
+  "explanation": "AWS Backup publishes job state change events to EventBridge when jobs transition to COMPLETED, FAILED, EXPIRED, or ABORTED. An EventBridge rule filtering for FAILED or EXPIRED states triggers immediate SNS notifications. Combined with the Backup console's job history dashboard, this provides both real-time alerting and audit visibility.",
+  "module_ref": "soa/reliability/backup-monitoring",
+  "tags": [
+   "aws-backup",
+   "eventbridge",
+   "monitoring",
+   "job-status",
+   "alerting"
+  ]
+ },
+ {
+  "id": "aws-soa-t4-02-009",
+  "domain": 2,
+  "domain_name": "Reliability and Business Continuity",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 4,
+  "active": true,
+  "stem": "A company needs their application to automatically redirect traffic from a failed primary region to a secondary region within 60 seconds. The application uses Application Load Balancers in both regions. What Route 53 configuration achieves this?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Configure Route 53 Failover routing with a health check on the primary ALB endpoint; set the health check interval to 10 seconds with a failure threshold of 3; Route 53 updates DNS to the secondary ALB within approximately 30-40 seconds of primary failure."
+   },
+   {
+    "label": "B",
+    "text": "Configure Route 53 Latency routing with health checks; latency routing automatically detects the primary ALB failure and routes traffic to the secondary region based on improved relative latency."
+   },
+   {
+    "label": "C",
+    "text": "Use Route 53 Geolocation routing with the primary region serving all global traffic and the secondary as a default; failed geolocation records automatically fall back to the default."
+   },
+   {
+    "label": "D",
+    "text": "Configure a Route 53 Traffic Policy with a weighted rule that shifts 100% traffic to the secondary when the primary's health check fails; Traffic Policies update routing within 60 seconds."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "Latency routing routes based on measured network latency; health check failures do not automatically redirect traffic to the secondary region in latency routing.",
+   "C": "Geolocation routing falls back to the default record when no specific record matches the requester's location; it is not designed for automatic failover based on health checks.",
+   "D": "Traffic Policies support complex routing rules but still rely on health checks for failover; the Failover routing policy is the purpose-built solution."
   },
-  {
-    "id": "aws-soa-t4-02-010",
-    "domain": 2,
-    "domain_name": "Reliability and Business Continuity",
-    "type": "single",
-    "difficulty": "at",
-    "test_number": 4,
-    "active": true,
-    "stem": "A SysOps administrator needs to test the entire disaster recovery runbook for a multi-tier application (web, app, database) without impacting the production environment. What approach allows a realistic DR test?",
-    "options": [
-      {
-        "label": "A",
-        "text": "Perform a DR test in an isolated VPC in the DR region using the same CloudFormation templates and replicated data; the test environment mirrors production without any shared resources or connectivity to production."
-      },
-      {
-        "label": "B",
-        "text": "Use AWS Fault Injection Service in the production environment with blast radius controls; FIS experiments validate DR runbooks against real production load without full isolation."
-      },
-      {
-        "label": "C",
-        "text": "Perform the DR test during off-peak hours in the production DR region; use reduced traffic to validate the runbook while limiting user impact."
-      },
-      {
-        "label": "D",
-        "text": "Schedule a CloudFormation stack drift detection run; drift detection validates that the DR template matches the production environment, confirming DR readiness without a live test."
-      }
-    ],
-    "correct": "A",
-    "distractors": {
-      "B": "FIS in production introduces real risk even with blast radius controls; isolated environment testing is safer and more thorough for runbook validation.",
-      "C": "Testing in the production DR region during off-peak hours still uses production infrastructure; failover activation disrupts the real DR readiness.",
-      "D": "Drift detection validates template-to-resource consistency; it does not test whether the DR runbook can successfully restore the application."
-    },
-    "explanation": "An isolated DR test creates the full DR environment in a separate VPC using the DR runbook, same templates, and replicated data without any connectivity to production. The test validates every step of the runbook, measures actual RTO, and confirms the DR environment works end-to-end without any production risk.",
-    "module_ref": "soa/reliability/dr-isolated-test",
-    "tags": [
-      "disaster-recovery",
-      "dr-test",
-      "isolated",
-      "runbook",
-      "validation"
-    ]
-  }
+  "explanation": "Route 53 Failover routing with health checks provides automatic DNS-based failover. With a 10-second health check interval and 3 consecutive failures required, Route 53 detects failure in ~30-40 seconds and updates the DNS response. The TTL on the Failover records should be set to 60 seconds or less so cached responses expire promptly.",
+  "module_ref": "soa/reliability/route53-failover-rto",
+  "tags": [
+   "route53",
+   "failover",
+   "health-check",
+   "rto",
+   "dns"
+  ]
+ },
+ {
+  "id": "aws-soa-t4-02-010",
+  "domain": 2,
+  "domain_name": "Reliability and Business Continuity",
+  "type": "single",
+  "difficulty": "at",
+  "test_number": 4,
+  "active": true,
+  "stem": "A SysOps administrator needs to test the entire disaster recovery runbook for a multi-tier application (web, app, database) without impacting the production environment. What approach allows a realistic DR test?",
+  "options": [
+   {
+    "label": "A",
+    "text": "Perform a DR test in an isolated VPC in the DR region using the same CloudFormation templates and replicated data; the test environment mirrors production without any shared resources or connectivity to production."
+   },
+   {
+    "label": "B",
+    "text": "Use AWS Fault Injection Service in the production environment with blast radius controls; FIS experiments validate DR runbooks against real production load without full isolation."
+   },
+   {
+    "label": "C",
+    "text": "Perform the DR test during off-peak hours in the production DR region; use reduced traffic to validate the runbook while limiting user impact."
+   },
+   {
+    "label": "D",
+    "text": "Schedule a CloudFormation stack drift detection run; drift detection validates that the DR template matches the production environment, confirming DR readiness without a live test."
+   }
+  ],
+  "correct": "A",
+  "distractors": {
+   "B": "FIS in production introduces real risk even with blast radius controls; isolated environment testing is safer and more thorough for runbook validation.",
+   "C": "Testing in the production DR region during off-peak hours still uses production infrastructure; failover activation disrupts the real DR readiness.",
+   "D": "Drift detection validates template-to-resource consistency; it does not test whether the DR runbook can successfully restore the application."
+  },
+  "explanation": "An isolated DR test creates the full DR environment in a separate VPC using the DR runbook, same templates, and replicated data without any connectivity to production. The test validates every step of the runbook, measures actual RTO, and confirms the DR environment works end-to-end without any production risk.",
+  "module_ref": "soa/reliability/dr-isolated-test",
+  "tags": [
+   "disaster-recovery",
+   "dr-test",
+   "isolated",
+   "runbook",
+   "validation"
+  ]
+ }
 ]

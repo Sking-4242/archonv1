@@ -2858,6 +2858,11 @@ const useValidationStore = create((set, get) => ({
   nodeFindings: {},
   warnings: {},
   dismissedIds: loadAcknowledged(),
+  activeStandard: "all",
+
+  setActiveStandard(standard) {
+    set({ activeStandard: standard });
+  },
 
   updateFindings(nodes, edges, securityGroups, iamRoles) {
     const { findings, nodeFindings, warnings } = computeFindings(

@@ -669,12 +669,34 @@ _SYSTEM_PROMPT = (
     "- Use meaningful Terraform resource names (snake_case, descriptive).\n"
     "- Organize blocks: terraform{} and provider{} first, then variable{} blocks,"
     " then data{} blocks, then resource{} blocks, then output{} blocks last.\n"
-    "- Include a terraform{} block with required_providers (hashicorp/aws) and an"
-    " S3 backend configuration using variables for bucket/key/region.\n"
+    "- Include a terraform{} block with required_providers (hashicorp/aws) pinned"
+    " to version constraint '~> 5.0', and an S3 backend configuration using"
+    " variables for bucket/key/region.\n"
     "- Include output{} blocks for every resource listed in the component's"
     " → outputs hints.\n"
     "- If a component lists config values, reproduce those attribute key-value"
     " pairs exactly in the generated HCL resource block.\n\n"
+    "CROSS-RESOURCE WIRING RULES — failure to follow these produces broken HCL:\n"
+    "- NEVER copy literal canvas node ID strings (e.g. 'node-abc123') into resource"
+    " attribute values. These are internal UI identifiers, not real AWS resource IDs.\n"
+    "- ALWAYS resolve references using Terraform expressions. For example: if a"
+    " component's vpc_id field refers to the canvas VPC node, write"
+    " `vpc_id = aws_vpc.<name>.id` — not the raw canvas ID string.\n"
+    "- Similarly resolve subnet_id → `aws_subnet.<name>.id`,"
+    " security_group_ids → `[aws_security_group.<name>.id]`,"
+    " iam_role_id → `aws_iam_role.<name>.arn`, and so on.\n"
+    "- Connections listed under 'Connections:' indicate data-flow or dependency."
+    " Use them to infer resource references (e.g. Lambda → SQS means the Lambda"
+    " function should reference the SQS queue ARN).\n\n"
+    "DATA SOURCE RULES:\n"
+    "- NEVER hardcode availability zone strings (e.g. 'us-east-1a'). Instead add:"
+    " `data \"aws_availability_zones\" \"available\" { state = \"available\" }`"
+    " and reference zones as `data.aws_availability_zones.available.names[0]`.\n"
+    "- NEVER hardcode AMI IDs. Use a `data \"aws_ami\"` data source filtered by"
+    " owner and name pattern, and reference `data.aws_ami.<name>.id`.\n"
+    "- NEVER hardcode the AWS account ID. Use"
+    " `data \"aws_caller_identity\" \"current\" {}` and reference"
+    " `data.aws_caller_identity.current.account_id`.\n\n"
     "COMPANION RESOURCE RULES — these must never be omitted:\n"
     "- Lambda: MUST include aws_iam_role with AWSLambdaBasicExecutionRole AND"
     " aws_cloudwatch_log_group named /aws/lambda/<function_name>.\n"
@@ -749,7 +771,7 @@ def _get_resource_hint(component_type: str) -> list[str]:
     return lines
 
 
-def _serialize_components(components) -> str:
+def _serialize_components(components, *, include_resource_hints: bool = True) -> str:
     if not components:
         return "(none)"
     lines = []
@@ -767,9 +789,9 @@ def _serialize_components(components) -> str:
             lines.append(f"    vpc_id: {c.vpc_id}")
         if getattr(c, "instructions", None):
             lines.append(f"    instructions: {_sanitize(c.instructions)}")
-        # Inject deterministic resource hints from the map
-        hint_lines = _get_resource_hint(c.type)
-        lines.extend(hint_lines)
+        if include_resource_hints:
+            hint_lines = _get_resource_hint(c.type)
+            lines.extend(hint_lines)
     return "\n".join(lines)
 
 
@@ -828,11 +850,16 @@ def _serialize_edges(edges) -> str:
     return "\n".join(lines)
 
 
-def build_architecture_context(graph: Graph) -> str:
+def build_architecture_context(
+    graph: Graph,
+    *,
+    include_resource_hints: bool = True,
+) -> str:
     return (
         f"Architecture: {graph.name}\n"
         f"Region: {graph.region}\n\n"
-        f"Components:\n{_serialize_components(graph.components)}\n\n"
+        f"Components:\n"
+        f"{_serialize_components(graph.components, include_resource_hints=include_resource_hints)}\n\n"
         f"Connections:\n{_serialize_edges(graph.edges)}\n\n"
         f"Security Groups:\n{_serialize_security_groups(graph.security_groups)}\n\n"
         f"IAM Roles:\n{_serialize_iam_roles(graph.iam_roles)}"
@@ -851,3 +878,34 @@ def build_prompt(graph: Graph) -> tuple[str, str]:
         "Generate the Terraform HCL now."
     )
     return system, user
+
+
+_REFINEMENT_SYSTEM_PROMPT = (
+    "You are a senior Terraform engineer. Complete the HCL scaffold below.\n\n"
+    "RULES:\n"
+    "- Output raw HCL only. No markdown, fences, or explanation.\n"
+    "- Fill every # REQUIRED comment with valid values.\n"
+    "- NEVER use canvas node ID strings in attribute values — use TF references.\n"
+    "- Keep correct scaffold content; fix broken refs, add missing companions.\n"
+    "- Data sources: use data.aws_availability_zones.available.names[N],"
+    " data.aws_ami, data.aws_caller_identity.current — never hardcode AZs,"
+    " AMIs, or account IDs.\n"
+    "- Companions (never omit): Lambda→IAM role+logs; RDS→subnet group;"
+    " ECS→task exec role; S3→public access block+encryption;"
+    " ALB→listener+target group; NAT→EIP;"
+    " ElastiCache/MemoryDB/Redshift→subnet group.\n"
+    "- Secrets/passwords: var.* with sensitive = true — never hardcode.\n"
+    "- Block order: terraform/provider, variables, data, resources, outputs.\n"
+    "- Output the COMPLETE HCL file — never truncate; every `{` must have a matching `}`."
+)
+
+
+def build_refinement_prompt(graph: Graph, scaffold: str) -> tuple[str, str]:
+    """Build system/user prompts for AI refinement of a deterministic scaffold."""
+    user = (
+        f"{build_architecture_context(graph, include_resource_hints=False)}\n\n"
+        f"--- SCAFFOLD ---\n"
+        f"{scaffold}\n\n"
+        "Complete and correct the scaffold now. Output the full, complete HCL file."
+    )
+    return _REFINEMENT_SYSTEM_PROMPT, user

@@ -16,6 +16,18 @@ export async function getLibraryLesson(id) {
   return api.get(`/academy/library/${id}`);
 }
 
+// ── Certification tracks ──────────────────────────────────────────────────────
+
+export async function listCerts(course) {
+  return api.get(`/academy/library/certs?course=${encodeURIComponent(course)}`);
+}
+
+export async function getCert(course, code) {
+  return api.get(
+    `/academy/library/certs/${encodeURIComponent(code)}?course=${encodeURIComponent(course)}`
+  );
+}
+
 export async function markLibraryComplete(id) {
   return api.post(`/academy/library/${id}/complete`, {});
 }

@@ -10,7 +10,7 @@
       "order": 1,
       "difficulty": "beginner",
       "cert_tags": [
-        "aws_ccp"
+        "CLF-C02"
       ],
       "lessons": [
         {
@@ -19,7 +19,7 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         },
         {
@@ -28,7 +28,7 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         },
         {
@@ -37,7 +37,7 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         },
         {
@@ -46,7 +46,7 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         },
         {
@@ -55,7 +55,7 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         },
         {
@@ -64,7 +64,7 @@
           "minutes": 20,
           "type": "canvas",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         }
       ]
@@ -76,8 +76,8 @@
       "order": 2,
       "difficulty": "beginner",
       "cert_tags": [
-        "aws_ccp",
-        "aws_saa"
+        "CLF-C02",
+        "SAA-C03"
       ],
       "lessons": [
         {
@@ -86,8 +86,8 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa"
+            "CLF-C02",
+            "SAA-C03"
           ]
         },
         {
@@ -96,8 +96,8 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa"
+            "CLF-C02",
+            "SAA-C03"
           ]
         },
         {
@@ -106,8 +106,8 @@
           "minutes": 6,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa"
+            "CLF-C02",
+            "SAA-C03"
           ]
         },
         {
@@ -116,8 +116,8 @@
           "minutes": 6,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa"
+            "CLF-C02",
+            "SAA-C03"
           ]
         },
         {
@@ -126,7 +126,7 @@
           "minutes": 15,
           "type": "canvas",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         }
       ]
@@ -138,7 +138,7 @@
       "order": 3,
       "difficulty": "beginner",
       "cert_tags": [
-        "aws_ccp"
+        "CLF-C02"
       ],
       "lessons": [
         {
@@ -147,7 +147,7 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         },
         {
@@ -156,7 +156,7 @@
           "minutes": 5,
           "type": "content",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         },
         {
@@ -165,8 +165,8 @@
           "minutes": 10,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa"
+            "CLF-C02",
+            "SAA-C03"
           ]
         },
         {
@@ -175,7 +175,7 @@
           "minutes": 6,
           "type": "content",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         },
         {
@@ -184,8 +184,8 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_soa"
+            "CLF-C02",
+            "SOA-C03"
           ]
         },
         {
@@ -194,7 +194,7 @@
           "minutes": 20,
           "type": "canvas",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         }
       ]
@@ -206,9 +206,9 @@
       "order": 4,
       "difficulty": "beginner",
       "cert_tags": [
-        "aws_ccp",
-        "aws_saa",
-        "aws_scs"
+        "CLF-C02",
+        "SAA-C03",
+        "SCS-C03"
       ],
       "lessons": [
         {
@@ -217,10 +217,10 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_dva",
-            "aws_soa"
+            "CLF-C02",
+            "SAA-C03",
+            "DVA-C02",
+            "SOA-C03"
           ]
         },
         {
@@ -229,9 +229,9 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_soa"
+            "CLF-C02",
+            "SAA-C03",
+            "SOA-C03"
           ]
         },
         {
@@ -240,10 +240,10 @@
           "minutes": 10,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_soa",
-            "aws_dva"
+            "CLF-C02",
+            "SAA-C03",
+            "SOA-C03",
+            "DVA-C02"
           ]
         },
         {
@@ -252,9 +252,9 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_scs"
+            "CLF-C02",
+            "SAA-C03",
+            "SCS-C03"
           ]
         },
         {
@@ -263,9 +263,9 @@
           "minutes": 6,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_scs"
+            "CLF-C02",
+            "SAA-C03",
+            "SCS-C03"
           ]
         },
         {
@@ -274,10 +274,10 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_soa",
-            "aws_scs"
+            "CLF-C02",
+            "SAA-C03",
+            "SOA-C03",
+            "SCS-C03"
           ]
         },
         {
@@ -286,8 +286,8 @@
           "minutes": 30,
           "type": "canvas",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa"
+            "CLF-C02",
+            "SAA-C03"
           ]
         }
       ]
@@ -299,9 +299,9 @@
       "order": 5,
       "difficulty": "beginner",
       "cert_tags": [
-        "aws_ccp",
-        "aws_saa",
-        "aws_scs"
+        "CLF-C02",
+        "SAA-C03",
+        "SCS-C03"
       ],
       "lessons": [
         {
@@ -310,8 +310,8 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa"
+            "CLF-C02",
+            "SAA-C03"
           ]
         },
         {
@@ -320,9 +320,9 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_scs"
+            "CLF-C02",
+            "SAA-C03",
+            "SCS-C03"
           ]
         },
         {
@@ -331,7 +331,7 @@
           "minutes": 6,
           "type": "content",
           "cert_tags": [
-            "aws_ccp"
+            "CLF-C02"
           ]
         },
         {
@@ -340,8 +340,8 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa"
+            "CLF-C02",
+            "SAA-C03"
           ]
         }
       ]
@@ -353,9 +353,9 @@
       "order": 6,
       "difficulty": "beginner",
       "cert_tags": [
-        "aws_ccp",
-        "aws_saa",
-        "aws_sap"
+        "CLF-C02",
+        "SAA-C03",
+        "SAP-C02"
       ],
       "lessons": [
         {
@@ -364,9 +364,9 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_sap"
+            "CLF-C02",
+            "SAA-C03",
+            "SAP-C02"
           ]
         },
         {
@@ -375,9 +375,9 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_sap"
+            "CLF-C02",
+            "SAA-C03",
+            "SAP-C02"
           ]
         },
         {
@@ -386,9 +386,9 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_sap"
+            "CLF-C02",
+            "SAA-C03",
+            "SAP-C02"
           ]
         },
         {
@@ -397,9 +397,9 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_sap"
+            "CLF-C02",
+            "SAA-C03",
+            "SAP-C02"
           ]
         },
         {
@@ -408,9 +408,9 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_sap"
+            "CLF-C02",
+            "SAA-C03",
+            "SAP-C02"
           ]
         },
         {
@@ -419,9 +419,9 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_sap"
+            "CLF-C02",
+            "SAA-C03",
+            "SAP-C02"
           ]
         },
         {
@@ -430,9 +430,9 @@
           "minutes": 5,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_sap"
+            "CLF-C02",
+            "SAA-C03",
+            "SAP-C02"
           ]
         },
         {
@@ -441,8 +441,8 @@
           "minutes": 25,
           "type": "canvas",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa"
+            "CLF-C02",
+            "SAA-C03"
           ]
         }
       ]
@@ -454,9 +454,9 @@
       "order": 7,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_soa",
-        "aws_dva"
+        "SAA-C03",
+        "SOA-C03",
+        "DVA-C02"
       ],
       "lessons": [
         {
@@ -465,10 +465,10 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_soa",
-            "aws_dva"
+            "CLF-C02",
+            "SAA-C03",
+            "SOA-C03",
+            "DVA-C02"
           ]
         },
         {
@@ -477,9 +477,9 @@
           "minutes": 10,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_soa"
+            "CLF-C02",
+            "SAA-C03",
+            "SOA-C03"
           ]
         },
         {
@@ -488,9 +488,9 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_saa",
-            "aws_soa",
-            "aws_dva"
+            "SAA-C03",
+            "SOA-C03",
+            "DVA-C02"
           ]
         },
         {
@@ -499,9 +499,9 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_soa"
+            "CLF-C02",
+            "SAA-C03",
+            "SOA-C03"
           ]
         },
         {
@@ -510,9 +510,9 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_saa",
-            "aws_soa",
-            "aws_dva"
+            "SAA-C03",
+            "SOA-C03",
+            "DVA-C02"
           ]
         },
         {
@@ -521,9 +521,9 @@
           "minutes": 9,
           "type": "content",
           "cert_tags": [
-            "aws_saa",
-            "aws_soa",
-            "aws_dva"
+            "SAA-C03",
+            "SOA-C03",
+            "DVA-C02"
           ]
         },
         {
@@ -532,8 +532,8 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_saa",
-            "aws_soa"
+            "SAA-C03",
+            "SOA-C03"
           ]
         },
         {
@@ -542,8 +542,8 @@
           "minutes": 25,
           "type": "canvas",
           "cert_tags": [
-            "aws_saa",
-            "aws_soa"
+            "SAA-C03",
+            "SOA-C03"
           ]
         },
         {
@@ -552,8 +552,8 @@
           "minutes": 30,
           "type": "canvas",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa"
+            "CLF-C02",
+            "SAA-C03"
           ]
         }
       ]
@@ -565,8 +565,8 @@
       "order": 8,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_soa"
+        "SAA-C03",
+        "SOA-C03"
       ],
       "lessons": [
         {
@@ -575,9 +575,9 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_saa",
-            "aws_soa",
-            "aws_dva"
+            "SAA-C03",
+            "SOA-C03",
+            "DVA-C02"
           ]
         },
         {
@@ -586,9 +586,9 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_saa",
-            "aws_soa",
-            "aws_dva"
+            "SAA-C03",
+            "SOA-C03",
+            "DVA-C02"
           ]
         },
         {
@@ -597,8 +597,8 @@
           "minutes": 7,
           "type": "content",
           "cert_tags": [
-            "aws_saa",
-            "aws_soa"
+            "SAA-C03",
+            "SOA-C03"
           ]
         },
         {
@@ -607,9 +607,9 @@
           "minutes": 9,
           "type": "content",
           "cert_tags": [
-            "aws_ccp",
-            "aws_saa",
-            "aws_soa"
+            "CLF-C02",
+            "SAA-C03",
+            "SOA-C03"
           ]
         },
         {
@@ -618,8 +618,8 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "aws_saa",
-            "aws_soa"
+            "SAA-C03",
+            "SOA-C03"
           ]
         },
         {
@@ -628,8 +628,8 @@
           "minutes": 45,
           "type": "canvas",
           "cert_tags": [
-            "aws_saa",
-            "aws_soa"
+            "SAA-C03",
+            "SOA-C03"
           ]
         }
       ]
@@ -641,9 +641,9 @@
       "order": 9,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_soa",
-        "aws_dea"
+        "SAA-C03",
+        "SOA-C03",
+        "DEA-C01"
       ],
       "lessons": [
         {
@@ -756,8 +756,8 @@
       "order": 10,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_soa"
+        "SAA-C03",
+        "SOA-C03"
       ],
       "lessons": [
         {
@@ -829,8 +829,7 @@
       "order": 11,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_dbs"
+        "SAA-C03"
       ],
       "lessons": [
         {
@@ -919,9 +918,8 @@
       "order": 12,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_dbs",
-        "aws_dea"
+        "SAA-C03",
+        "DEA-C01"
       ],
       "lessons": [
         {
@@ -1013,8 +1011,8 @@
       "order": 13,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_ans"
+        "SAA-C03",
+        "ANS-C01"
       ],
       "lessons": [
         {
@@ -1102,9 +1100,9 @@
           "minutes": 10,
           "type": "content",
           "cert_tags": [
-            "aws_saa",
-            "aws_soa",
-            "aws_scs"
+            "SAA-C03",
+            "SOA-C03",
+            "SCS-C03"
           ]
         },
         {
@@ -1136,8 +1134,8 @@
       "order": 14,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_ans"
+        "SAA-C03",
+        "ANS-C01"
       ],
       "lessons": [
         {
@@ -1228,8 +1226,8 @@
       "order": 15,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_scs"
+        "SAA-C03",
+        "SCS-C03"
       ],
       "lessons": [
         {
@@ -1240,7 +1238,7 @@
           "cert_tags": [
             "SAA-C03",
             "SAP-C02",
-            "SCS-C02"
+            "SCS-C03"
           ]
         },
         {
@@ -1251,7 +1249,7 @@
           "cert_tags": [
             "SAA-C03",
             "SAP-C02",
-            "SCS-C02"
+            "SCS-C03"
           ]
         },
         {
@@ -1262,7 +1260,7 @@
           "cert_tags": [
             "SAA-C03",
             "DVA-C02",
-            "SCS-C02"
+            "SCS-C03"
           ]
         },
         {
@@ -1273,7 +1271,7 @@
           "cert_tags": [
             "SAA-C03",
             "SAP-C02",
-            "SCS-C02"
+            "SCS-C03"
           ]
         },
         {
@@ -1284,7 +1282,7 @@
           "cert_tags": [
             "SAA-C03",
             "SAP-C02",
-            "SCS-C02"
+            "SCS-C03"
           ]
         },
         {
@@ -1295,7 +1293,7 @@
           "cert_tags": [
             "SAA-C03",
             "SAP-C02",
-            "SCS-C02"
+            "SCS-C03"
           ]
         },
         {
@@ -1306,7 +1304,7 @@
           "cert_tags": [
             "SAA-C03",
             "SAP-C02",
-            "SCS-C02"
+            "SCS-C03"
           ]
         },
         {
@@ -1341,7 +1339,7 @@
           "cert_tags": [
             "SAA-C03",
             "SAP-C02",
-            "SCS-C02"
+            "SCS-C03"
           ]
         }
       ]
@@ -1353,9 +1351,9 @@
       "order": 16,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_soa",
-        "aws_dop"
+        "SAA-C03",
+        "SOA-C03",
+        "DOP-C02"
       ],
       "lessons": [
         {
@@ -1377,7 +1375,7 @@
           "cert_tags": [
             "SAA-C03",
             "DVA-C02",
-            "SCS-C02"
+            "SCS-C03"
           ]
         },
         {
@@ -1408,7 +1406,7 @@
           "cert_tags": [
             "SAA-C03",
             "SAP-C02",
-            "SCS-C02"
+            "SCS-C03"
           ]
         },
         {
@@ -1464,8 +1462,8 @@
       "order": 17,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_dva"
+        "SAA-C03",
+        "DVA-C02"
       ],
       "lessons": [
         {
@@ -1563,9 +1561,9 @@
       "order": 18,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_dva",
-        "aws_dop"
+        "SAA-C03",
+        "DVA-C02",
+        "DOP-C02"
       ],
       "lessons": [
         {
@@ -1607,7 +1605,7 @@
           "cert_tags": [
             "SAA-C03",
             "SAP-C02",
-            "SCS-C02"
+            "SCS-C03"
           ]
         },
         {
@@ -1646,8 +1644,8 @@
       "order": 19,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_saa",
-        "aws_dva"
+        "SAA-C03",
+        "DVA-C02"
       ],
       "lessons": [
         {
@@ -1728,8 +1726,8 @@
       "order": 20,
       "difficulty": "intermediate",
       "cert_tags": [
-        "aws_dva",
-        "aws_dop"
+        "DVA-C02",
+        "DOP-C02"
       ],
       "lessons": [
         {
@@ -1826,8 +1824,8 @@
       "order": 21,
       "difficulty": "advanced",
       "cert_tags": [
-        "aws_dea",
-        "aws_saa"
+        "DEA-C01",
+        "SAA-C03"
       ],
       "lessons": [
         {
@@ -1916,8 +1914,7 @@
       "order": 22,
       "difficulty": "advanced",
       "cert_tags": [
-        "aws_mla",
-        "aws_mls"
+        "MLA-C01"
       ],
       "lessons": [
         {
@@ -1927,7 +1924,6 @@
           "type": "content",
           "cert_tags": [
             "SAA-C03",
-            "MLS-C01",
             "CLF-C02"
           ]
         },
@@ -1937,8 +1933,7 @@
           "minutes": 10,
           "type": "content",
           "cert_tags": [
-            "SAA-C03",
-            "MLS-C01"
+            "SAA-C03"
           ]
         },
         {
@@ -1947,8 +1942,7 @@
           "minutes": 10,
           "type": "content",
           "cert_tags": [
-            "SAA-C03",
-            "MLS-C01"
+            "SAA-C03"
           ]
         },
         {
@@ -1958,7 +1952,6 @@
           "type": "content",
           "cert_tags": [
             "SAA-C03",
-            "MLS-C01",
             "CLF-C02"
           ]
         },
@@ -1968,7 +1961,6 @@
           "minutes": 8,
           "type": "content",
           "cert_tags": [
-            "MLS-C01",
             "SAA-C03"
           ]
         },
@@ -1978,8 +1970,7 @@
           "minutes": 25,
           "type": "canvas",
           "cert_tags": [
-            "SAA-C03",
-            "MLS-C01"
+            "SAA-C03"
           ]
         },
         {
@@ -1988,8 +1979,7 @@
           "minutes": 25,
           "type": "canvas",
           "cert_tags": [
-            "SAA-C03",
-            "MLS-C01"
+            "SAA-C03"
           ]
         },
         {
@@ -2015,8 +2005,8 @@
       "order": 23,
       "difficulty": "advanced",
       "cert_tags": [
-        "aws_sap",
-        "aws_saa"
+        "SAP-C02",
+        "SAA-C03"
       ],
       "lessons": [
         {
@@ -2085,8 +2075,8 @@
       "order": 24,
       "difficulty": "advanced",
       "cert_tags": [
-        "aws_sap",
-        "aws_soa"
+        "SAP-C02",
+        "SOA-C03"
       ],
       "lessons": [
         {
@@ -2157,8 +2147,8 @@
       "order": 25,
       "difficulty": "expert",
       "cert_tags": [
-        "aws_sap",
-        "aws_dop"
+        "SAP-C02",
+        "DOP-C02"
       ],
       "lessons": [
         {

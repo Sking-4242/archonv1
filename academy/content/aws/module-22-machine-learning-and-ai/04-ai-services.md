@@ -2,7 +2,7 @@
 title: "AI Services: Rekognition, Comprehend, Textract, and More"
 type: content
 estimated_minutes: 12
-cert_tags: ["SAA-C03", "MLS-C01", "CLF-C02"]
+cert_tags: ["CLF-C02", "SAA-C03", "AIF-C01", "MLA-C01"]
 ---
 
 # AI Services: Rekognition, Comprehend, Textract, and More

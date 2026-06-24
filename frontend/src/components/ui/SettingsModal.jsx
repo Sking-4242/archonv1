@@ -1,6 +1,7 @@
 import { useState } from "react";
 import useSettingsStore from "../../store/settingsStore";
 import AccountPanel from "./AccountPanel";
+import AwsCredentialsPanel from "./AwsCredentialsPanel";
 
 const PROVIDER_LABELS = {
   anthropic: "Anthropic",
@@ -52,6 +53,7 @@ export default function SettingsModal({ onClose, initialTab = "llm" }) {
         <div className="flex border-b px-6 gap-4">
           {[
             ["llm", "LLM"],
+            ["aws", "AWS"],
             ["account", "Account"],
           ].map(([id, label]) => (
             <button
@@ -72,6 +74,8 @@ export default function SettingsModal({ onClose, initialTab = "llm" }) {
         <div className="px-6 py-5 space-y-5 overflow-y-auto flex-1">
           {tab === "account" ? (
             <AccountPanel />
+          ) : tab === "aws" ? (
+            <AwsCredentialsPanel />
           ) : (
             <>
               <div>

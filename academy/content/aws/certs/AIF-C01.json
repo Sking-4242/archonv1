@@ -1,0 +1,228 @@
+{
+  "cert": {
+    "code": "AIF-C01",
+    "name": "AWS Certified AI Practitioner",
+    "short_name": "AI Practitioner",
+    "level": "foundational",
+    "status": "active",
+    "retires_on": null,
+    "exam_guide_url": "https://docs.aws.amazon.com/aws-certification/latest/examguides/ai-practitioner-01.html",
+    "blueprint_version": "1.0"
+  },
+  "exam": {
+    "scored_questions": 50,
+    "unscored_questions": 15,
+    "duration_minutes": 90,
+    "passing_score": 700,
+    "scoring_model": "compensatory",
+    "question_formats": ["multiple choice", "multiple response", "ordering", "matching"],
+    "cost_usd": 100,
+    "prerequisites": []
+  },
+  "domains": [
+    {
+      "id": "D1",
+      "title": "Fundamentals of AI and ML",
+      "weight": 20,
+      "tasks": [
+        {
+          "id": "1.1",
+          "title": "Explain basic AI concepts and terminologies",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/01-ai-ml-deep-learning-genai-concepts.md", "emphasis": "core", "note": "AI/ML/DL/GenAI/agentic definitions and nesting." },
+            { "ref": "certs/AIF-C01/lessons/02-types-of-machine-learning.md", "emphasis": "core", "note": "Supervised, unsupervised, reinforcement." },
+            { "ref": "certs/AIF-C01/lessons/03-data-and-inference-types.md", "emphasis": "core", "note": "Data types; batch/real-time/async/serverless inference." }
+          ]
+        },
+        {
+          "id": "1.2",
+          "title": "Identify practical use cases for AI",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/04-practical-use-cases-and-when-not-to-use-ai.md", "emphasis": "core", "note": "Value, when not to use AI, technique selection, traditional ML vs. FM." },
+            { "ref": "certs/AIF-C01/lessons/05-language-and-speech-ai-services.md", "emphasis": "core", "note": "Comprehend, Transcribe, Translate, Lex, Polly." },
+            { "ref": "module-22-machine-learning-and-ai/01-ml-services-overview.md", "emphasis": "supporting", "note": "Three-tier AI/ML service model." },
+            { "ref": "module-22-machine-learning-and-ai/04-ai-services.md", "emphasis": "supporting", "note": "Rekognition, Comprehend, Textract use cases." }
+          ]
+        },
+        {
+          "id": "1.3",
+          "title": "Describe the AI/ML development lifecycle",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/06-ml-lifecycle-mlops-and-metrics.md", "emphasis": "core", "note": "Pipeline stages, MLOps, performance & business metrics." },
+            { "ref": "module-22-machine-learning-and-ai/03-sagemaker.md", "emphasis": "supporting", "note": "SageMaker lifecycle stages." },
+            { "ref": "module-22-machine-learning-and-ai/05-ml-operations.md", "emphasis": "supporting", "note": "MLOps pipelines and monitoring." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D2",
+      "title": "Fundamentals of Generative AI",
+      "weight": 24,
+      "tasks": [
+        {
+          "id": "2.1",
+          "title": "Explain the basic concepts of generative AI",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/07-how-genai-works-tokens-embeddings-transformers.md", "emphasis": "core", "note": "Tokens, embeddings, vectors, transformers, diffusion." },
+            { "ref": "certs/AIF-C01/lessons/08-foundation-models-and-fm-lifecycle.md", "emphasis": "core", "note": "FM lifecycle: data/model selection through feedback." },
+            { "ref": "certs/AIF-C01/lessons/09-agentic-ai-foundations.md", "emphasis": "core", "note": "Agents, MCP, multi-agent, memory, orchestration." }
+          ]
+        },
+        {
+          "id": "2.2",
+          "title": "Understand capabilities and limitations of GenAI for business problems",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/10-genai-capabilities-limitations-model-selection.md", "emphasis": "core", "note": "Advantages, hallucination/nondeterminism, selection factors, business value." }
+          ]
+        },
+        {
+          "id": "2.3",
+          "title": "Describe AWS infrastructure and technologies for building GenAI applications",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/11-building-genai-on-aws-bedrock-pricing.md", "emphasis": "core", "note": "Bedrock, SageMaker, token pricing, throughput trade-offs." },
+            { "ref": "module-22-machine-learning-and-ai/02-bedrock.md", "emphasis": "supporting", "note": "Bedrock models, Knowledge Bases, Agents, Guardrails." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D3",
+      "title": "Applications of Foundation Models",
+      "weight": 28,
+      "tasks": [
+        {
+          "id": "3.1",
+          "title": "Describe design considerations for applications that use FMs",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/12-designing-fm-applications-selection-inference-parameters.md", "emphasis": "core", "note": "Selection criteria; temperature/top-p/length; prompt caching." },
+            { "ref": "certs/AIF-C01/lessons/13-rag-and-vector-databases.md", "emphasis": "core", "note": "RAG, vector stores, customization cost trade-offs." },
+            { "ref": "module-22-machine-learning-and-ai/02-bedrock.md", "emphasis": "supporting", "note": "Bedrock Knowledge Bases for managed RAG." }
+          ]
+        },
+        {
+          "id": "3.2",
+          "title": "Choose effective prompt engineering techniques",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/14-prompt-engineering-techniques.md", "emphasis": "core", "note": "Zero/few-shot, CoT, templates, injection risks, Prompt Management." }
+          ]
+        },
+        {
+          "id": "3.3",
+          "title": "Describe the training and fine-tuning process for FMs",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/15-training-and-fine-tuning-fms.md", "emphasis": "core", "note": "Fine-tuning methods, RLHF, data preparation." },
+            { "ref": "module-22-machine-learning-and-ai/03-sagemaker.md", "emphasis": "supporting", "note": "Training jobs and model customization." }
+          ]
+        },
+        {
+          "id": "3.4",
+          "title": "Describe methods to evaluate FM performance",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/16-evaluating-fm-performance.md", "emphasis": "core", "note": "Human/automated/benchmark eval; ROUGE/BLEU/BERTScore; app eval." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D4",
+      "title": "Guidelines for Responsible AI",
+      "weight": 14,
+      "tasks": [
+        {
+          "id": "4.1",
+          "title": "Explain the development of responsible AI systems",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/17-responsible-ai-bias-fairness-safety.md", "emphasis": "core", "note": "Bias/fairness/safety/veracity; Clarify, Model Monitor, A2I, Guardrails." }
+          ]
+        },
+        {
+          "id": "4.2",
+          "title": "Recognize the importance of transparent and explainable models",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/18-transparency-and-explainability.md", "emphasis": "core", "note": "Transparency vs. explainability; Model Cards, Clarify; trade-offs." }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "D5",
+      "title": "Security, Compliance, and Governance for AI Solutions",
+      "weight": 14,
+      "tasks": [
+        {
+          "id": "5.1",
+          "title": "Explain methods to secure AI systems",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/19-securing-ai-systems-on-aws.md", "emphasis": "core", "note": "IAM, encryption, Macie, PrivateLink, Guardrails, AgentCore; grounding." },
+            { "ref": "module-04-iam/01-iam-overview.md", "emphasis": "supporting", "note": "IAM access control for AI resources." },
+            { "ref": "module-05-shared-responsibility-and-compliance/01-shared-responsibility.md", "emphasis": "supporting", "note": "Shared responsibility model." },
+            { "ref": "module-15-security-services/02-kms.md", "emphasis": "supporting", "note": "Encryption at rest with KMS." },
+            { "ref": "module-15-security-services/04-acm-cloudhsm-macie.md", "emphasis": "supporting", "note": "Amazon Macie for sensitive-data discovery." },
+            { "ref": "module-13-vpc-networking/05-vpc-endpoints.md", "emphasis": "skim", "note": "PrivateLink for private service access." }
+          ]
+        },
+        {
+          "id": "5.2",
+          "title": "Recognize governance and compliance regulations for AI systems",
+          "lessons": [
+            { "ref": "certs/AIF-C01/lessons/20-ai-governance-and-compliance.md", "emphasis": "core", "note": "Config, CloudTrail, Audit Manager, Artifact; data governance; scoping matrix." }
+          ]
+        }
+      ]
+    }
+  ],
+  "cert_specific_lessons": [
+    { "file": "certs/AIF-C01/lessons/01-ai-ml-deep-learning-genai-concepts.md", "title": "AI, ML, Deep Learning, and GenAI: Concepts and Terminology", "status": "published", "covers_tasks": ["1.1"] },
+    { "file": "certs/AIF-C01/lessons/02-types-of-machine-learning.md", "title": "Types of Machine Learning: Supervised, Unsupervised, Reinforcement", "status": "published", "covers_tasks": ["1.1"] },
+    { "file": "certs/AIF-C01/lessons/03-data-and-inference-types.md", "title": "Data and Inference in AI Systems", "status": "published", "covers_tasks": ["1.1"] },
+    { "file": "certs/AIF-C01/lessons/04-practical-use-cases-and-when-not-to-use-ai.md", "title": "Practical AI Use Cases — and When Not to Use AI", "status": "published", "covers_tasks": ["1.2"] },
+    { "file": "certs/AIF-C01/lessons/05-language-and-speech-ai-services.md", "title": "Language and Speech AI Services on AWS", "status": "published", "covers_tasks": ["1.2"] },
+    { "file": "certs/AIF-C01/lessons/06-ml-lifecycle-mlops-and-metrics.md", "title": "The AI/ML Lifecycle, MLOps, and Evaluation Metrics", "status": "published", "covers_tasks": ["1.3"] },
+    { "file": "certs/AIF-C01/lessons/07-how-genai-works-tokens-embeddings-transformers.md", "title": "How Generative AI Works: Tokens, Embeddings, Vectors, and Transformers", "status": "published", "covers_tasks": ["2.1"] },
+    { "file": "certs/AIF-C01/lessons/08-foundation-models-and-fm-lifecycle.md", "title": "Foundation Models and the FM Lifecycle", "status": "published", "covers_tasks": ["2.1"] },
+    { "file": "certs/AIF-C01/lessons/09-agentic-ai-foundations.md", "title": "Agentic AI Foundations: Agents, MCP, and Multi-Agent Patterns", "status": "published", "covers_tasks": ["2.1"] },
+    { "file": "certs/AIF-C01/lessons/10-genai-capabilities-limitations-model-selection.md", "title": "GenAI Capabilities, Limitations, and Model Selection", "status": "published", "covers_tasks": ["2.2"] },
+    { "file": "certs/AIF-C01/lessons/11-building-genai-on-aws-bedrock-pricing.md", "title": "Building GenAI on AWS: Bedrock, SageMaker, and Token-Based Pricing", "status": "published", "covers_tasks": ["2.3"] },
+    { "file": "certs/AIF-C01/lessons/12-designing-fm-applications-selection-inference-parameters.md", "title": "Designing FM Applications: Selection Criteria and Inference Parameters", "status": "published", "covers_tasks": ["3.1"] },
+    { "file": "certs/AIF-C01/lessons/13-rag-and-vector-databases.md", "title": "Retrieval Augmented Generation (RAG) and Vector Databases", "status": "published", "covers_tasks": ["3.1"] },
+    { "file": "certs/AIF-C01/lessons/14-prompt-engineering-techniques.md", "title": "Prompt Engineering Techniques", "status": "published", "covers_tasks": ["3.2"] },
+    { "file": "certs/AIF-C01/lessons/15-training-and-fine-tuning-fms.md", "title": "Training and Fine-Tuning Foundation Models", "status": "published", "covers_tasks": ["3.3"] },
+    { "file": "certs/AIF-C01/lessons/16-evaluating-fm-performance.md", "title": "Evaluating Foundation Model Performance", "status": "published", "covers_tasks": ["3.4"] },
+    { "file": "certs/AIF-C01/lessons/17-responsible-ai-bias-fairness-safety.md", "title": "Responsible AI: Bias, Fairness, Safety, and Veracity", "status": "published", "covers_tasks": ["4.1"] },
+    { "file": "certs/AIF-C01/lessons/18-transparency-and-explainability.md", "title": "Transparency and Explainability in AI Models", "status": "published", "covers_tasks": ["4.2"] },
+    { "file": "certs/AIF-C01/lessons/19-securing-ai-systems-on-aws.md", "title": "Securing AI Systems on AWS", "status": "published", "covers_tasks": ["5.1"] },
+    { "file": "certs/AIF-C01/lessons/20-ai-governance-and-compliance.md", "title": "AI Governance and Compliance", "status": "published", "covers_tasks": ["5.2"] },
+    { "file": "certs/AIF-C01/lessons/21-exam-strategy-and-question-patterns.md", "title": "AIF-C01 Exam Strategy and Question Patterns", "status": "published", "covers_tasks": ["1.1", "2.1", "3.1", "4.1", "5.1"] }
+  ],
+  "related_service_lessons": {
+    "certs/AIF-C01/lessons/03-data-and-inference-types.md": ["services/amazon-s3.md", "services/aws-glue.md", "services/amazon-athena.md", "services/amazon-kinesis.md", "services/amazon-redshift.md"],
+    "certs/AIF-C01/lessons/11-building-genai-on-aws-bedrock-pricing.md": ["services/amazon-bedrock.md", "services/aws-lambda.md", "services/amazon-api-gateway.md", "services/amazon-s3.md"],
+    "module-22-machine-learning-and-ai/01-ml-services-overview.md": ["services/amazon-sagemaker.md", "services/amazon-bedrock.md"],
+    "module-22-machine-learning-and-ai/02-bedrock.md": ["services/amazon-bedrock.md"],
+    "module-22-machine-learning-and-ai/03-sagemaker.md": ["services/amazon-sagemaker.md"],
+    "module-22-machine-learning-and-ai/04-ai-services.md": ["services/amazon-comprehend.md", "services/amazon-rekognition.md", "services/amazon-textract.md", "services/amazon-transcribe.md", "services/amazon-polly.md", "services/amazon-translate.md", "services/amazon-lex.md", "services/amazon-kendra.md"],
+    "certs/AIF-C01/lessons/05-language-and-speech-ai-services.md": ["services/amazon-comprehend.md", "services/amazon-transcribe.md", "services/amazon-polly.md", "services/amazon-translate.md", "services/amazon-lex.md"],
+    "certs/AIF-C01/lessons/06-ml-lifecycle-mlops-and-metrics.md": ["services/amazon-sagemaker.md"],
+    "certs/AIF-C01/lessons/13-rag-and-vector-databases.md": ["services/amazon-kendra.md", "services/amazon-opensearch.md"],
+    "certs/AIF-C01/lessons/19-securing-ai-systems-on-aws.md": ["services/aws-iam.md", "services/aws-kms.md", "services/amazon-macie.md"],
+    "module-04-iam/01-iam-overview.md": ["services/aws-iam.md"],
+    "module-15-security-services/02-kms.md": ["services/aws-kms.md"],
+    "module-15-security-services/04-acm-cloudhsm-macie.md": ["services/amazon-macie.md"],
+    "module-13-vpc-networking/05-vpc-endpoints.md": ["services/amazon-vpc.md"]
+  },
+  "question_bank": {
+    "path": null,
+    "blueprint_weighted": false,
+    "target_count": null
+  },
+  "coverage": {
+    "shared_lessons": 10,
+    "cert_specific_needed": 0,
+    "gaps": [
+      "Full blueprint coverage: 21 cert-specific lessons across all five domains, plus reuse of 10 shared ML/AI and security lessons.",
+      "No AIF-C01 practice-question bank exists yet (questions/aws-aif) — follow-up to author and weight to 20/24/28/14/14.",
+      "Module-22 shared lessons reused here still carry the retired MLS-C01 tag in their frontmatter — pending cleanup."
+    ]
+  }
+}

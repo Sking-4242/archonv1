@@ -1,0 +1,40 @@
+{
+  "cert": {
+    "code": "ANS-C01",
+    "name": "AWS Certified Advanced Networking - Specialty",
+    "short_name": "Advanced Networking Specialty",
+    "level": "specialty",
+    "status": "active",
+    "retires_on": null,
+    "exam_guide_url": "https://docs.aws.amazon.com/aws-certification/latest/examguides/advanced-networking-specialty-01.html",
+    "blueprint_version": null
+  },
+  "exam": {
+    "scored_questions": 65,
+    "unscored_questions": 10,
+    "duration_minutes": 170,
+    "passing_score": 750,
+    "scoring_model": "compensatory",
+    "question_formats": [
+      "multiple choice",
+      "multiple response"
+    ],
+    "cost_usd": 300,
+    "prerequisites": []
+  },
+  "domains": [],
+  "cert_specific_lessons": [],
+  "question_bank": {
+    "path": null,
+    "blueprint_weighted": false,
+    "target_count": null
+  },
+  "coverage": {
+    "shared_lessons": 0,
+    "cert_specific_needed": 0,
+    "gaps": [
+      "Placeholder \u2014 blueprint domains and lesson mapping not yet authored for this certification."
+    ]
+  },
+  "_placeholder": true
+}

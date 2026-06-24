@@ -60,9 +60,11 @@ export const nodeTypes = {
   security_group: AWSNode,
   iam_role: AWSNode,
   kms_key: AWSNode,
+  kms: AWSNode,
   acm: AWSNode,
   cognito: AWSNode,
   secretsmanager: AWSNode,
+  secrets_manager: AWSNode,
   waf: AWSNode,
   shield: AWSNode,
   guardduty: AWSNode,
@@ -72,6 +74,9 @@ export const nodeTypes = {
 
   // AWS — Integration
   sns: AWSNode,
+  timestream: AWSNode,
+  network_firewall: AWSNode,
+  ses: AWSNode,
   sqs: AWSNode,
   eventbridge: AWSNode,
   step_functions: AWSNode,
@@ -347,4 +352,5 @@ export const nodeTypes = {
 
   // Generic — unknown Terraform resource types imported from .tf files
   generic_tf: AWSNode,
+  terraform_module: AWSNode,
 };
