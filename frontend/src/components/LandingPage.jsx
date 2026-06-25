@@ -4,10 +4,10 @@ import useSettingsStore from "../store/settingsStore";
 import useProviderStore from "../store/providerStore";
 import LandingAccountBar from "./LandingAccountBar";
 import { TEMPLATES, TEMPLATES_BY_PROVIDER } from "../utils/templates";
+import ProviderLogo, { PROVIDER_LABELS } from "./ui/ProviderLogo";
+import { getServiceIconUrl } from "../assets/icons/serviceIcons";
 
 // ── Constants ────────────────────────────────────────────────────────────────
-
-const PROVIDER_LABELS = { aws: "AWS", azure: "Azure", gcp: "GCP", onprem: "On-Prem" };
 
 const INFRA_PROVIDERS = [
   { id: "aws",    label: "AWS"     },
@@ -76,56 +76,6 @@ const PROVIDER_GALLERY_TABS = [
   { id: "gcp",    label: "GCP"     },
   { id: "onprem", label: "On-Prem" },
 ];
-
-// ── Provider Logo ─────────────────────────────────────────────────────────────
-
-function ProviderLogo({ provider, size = 28 }) {
-  if (provider === "aws") {
-    return (
-      <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-label="AWS">
-        <rect width="48" height="48" rx="9" fill="#FF9900" />
-        <text x="24" y="21" textAnchor="middle" fill="white" fontSize="11" fontWeight="800" fontFamily="Arial,sans-serif">AWS</text>
-        <path d="M15 31 C19 35 29 35 33 31" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-        <polyline points="30,28 33,31 30,34" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    );
-  }
-  if (provider === "azure") {
-    return (
-      <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-label="Azure">
-        <rect width="48" height="48" rx="9" fill="#0078D4" />
-        <path d="M22 13 L13 35 H20 L24 26 L31 35 H38 L28 13 Z" fill="white" />
-      </svg>
-    );
-  }
-  if (provider === "gcp") {
-    return (
-      <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-label="Google Cloud">
-        <rect width="48" height="48" rx="9" fill="white" stroke="#e2e8f0" strokeWidth="1.5" />
-        {/* Cloud body */}
-        <path d="M30 30 H18 a6 6 0 0 1 0-12 h0.4 A8 8 0 0 1 34 24 a6 6 0 0 1-4 6Z" fill="#4285F4" />
-        {/* Google G bar */}
-        <rect x="23" y="27" width="7" height="3" rx="1.5" fill="white" />
-        {/* Color dots */}
-        <circle cx="19" cy="36" r="2.5" fill="#EA4335" />
-        <circle cx="26" cy="36" r="2.5" fill="#FBBC05" />
-        <circle cx="33" cy="36" r="2.5" fill="#34A853" />
-      </svg>
-    );
-  }
-  // on-prem — simple server rack SVG
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" fill="none" aria-label="On-Prem">
-      <rect width="48" height="48" rx="9" fill="#475569" />
-      <rect x="12" y="14" width="24" height="6" rx="2" fill="white" opacity="0.9" />
-      <rect x="12" y="22" width="24" height="6" rx="2" fill="white" opacity="0.7" />
-      <rect x="12" y="30" width="24" height="6" rx="2" fill="white" opacity="0.5" />
-      <circle cx="32" cy="17" r="1.5" fill="#4ade80" />
-      <circle cx="32" cy="25" r="1.5" fill="#4ade80" />
-      <circle cx="32" cy="33" r="1.5" fill="#facc15" />
-    </svg>
-  );
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -201,20 +151,35 @@ function ArchitectureThumbnail({ graph }) {
         const p = nodeMap[n.id];
         if (!p) return null;
         const color = CATEGORY_COLORS[n.data?.category] ?? DEFAULT_COLOR;
-        const icon = n.data?.icon ?? "";
+        const nodeType = n.type ?? n.data?.nodeType ?? "";
+        const iconSrc = nodeType ? getServiceIconUrl(nodeType) : null;
         return (
           <g key={n.id}>
-            <rect
-              x={p.x - sz / 2} y={p.y - sz / 2}
-              width={sz} height={sz}
-              rx={2}
-              fill={color} fillOpacity={0.75}
-            />
-            {sz >= 9 && (
-              <text x={p.x} y={p.y + sz + 3} textAnchor="middle"
-                fontSize={7} fill="#64748b">
-                {icon}
-              </text>
+            {iconSrc ? (
+              <>
+                <rect
+                  x={p.x - sz / 2} y={p.y - sz / 2}
+                  width={sz} height={sz}
+                  rx={2}
+                  fill="white" fillOpacity={0.95}
+                  stroke={color} strokeWidth={0.6}
+                />
+                <image
+                  href={iconSrc}
+                  x={p.x - sz / 2 + 1}
+                  y={p.y - sz / 2 + 1}
+                  width={sz - 2}
+                  height={sz - 2}
+                  preserveAspectRatio="xMidYMid meet"
+                />
+              </>
+            ) : (
+              <rect
+                x={p.x - sz / 2} y={p.y - sz / 2}
+                width={sz} height={sz}
+                rx={2}
+                fill={color} fillOpacity={0.75}
+              />
             )}
           </g>
         );

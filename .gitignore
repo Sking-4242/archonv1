@@ -9,6 +9,9 @@ dist/
 .vite/
 *.tsbuildinfo
 
+# Downloaded icon zips (official sets copied into icons/{aws,azure,gcp}/)
+frontend/src/assets/icons/_tmp/
+
 # Python
 __pycache__/
 *.pyc

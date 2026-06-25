@@ -1,6 +1,6 @@
 import { Handle, Position } from "@xyflow/react";
 import useValidationStore from "../../../store/validationStore";
-import { getServiceIconUrl } from "../../../assets/icons/serviceIcons";
+import ServiceIcon from "../../ui/ServiceIcon";
 
 const CATEGORY_COLORS = {
   networking: {
@@ -95,8 +95,6 @@ export default function AWSNode({ id, data, selected, type }) {
         ? "info"
         : null;
 
-  const svgUrl = getServiceIconUrl(data.nodeType ?? type);
-
   // Plan-mode change action
   const changeAction = data.change_action ?? null;
   const changeCfg = changeAction ? CHANGE_ACTION_CONFIG[changeAction] : null;
@@ -145,11 +143,12 @@ export default function AWSNode({ id, data, selected, type }) {
         />
 
         <div className="mb-1 flex items-center justify-center h-8">
-          {svgUrl ? (
-            <img src={svgUrl} alt={data.label} className="w-7 h-7 object-contain" />
-          ) : (
-            <span className={`text-2xl ${colors.icon}`}>{data.icon}</span>
-          )}
+          <ServiceIcon
+            nodeType={data.nodeType ?? type}
+            label={data.label ?? data.awsType}
+            size={28}
+            fallbackEmoji={data.icon}
+          />
         </div>
         <div className="text-xs font-semibold text-gray-700 leading-tight">
           {data.awsType}

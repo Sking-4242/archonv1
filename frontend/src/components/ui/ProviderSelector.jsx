@@ -1,10 +1,11 @@
 import useProviderStore from "../../store/providerStore";
 import useGraphStore from "../../store/graphStore";
+import ProviderLogo, { PROVIDER_LABELS } from "./ProviderLogo";
 
 const PROVIDERS = [
-  { id: "aws",    label: "AWS"     },
-  { id: "azure",  label: "Azure"   },
-  { id: "gcp",    label: "GCP"     },
+  { id: "aws", label: "AWS" },
+  { id: "azure", label: "Azure" },
+  { id: "gcp", label: "GCP" },
   { id: "onprem", label: "On-Prem" },
 ];
 
@@ -18,7 +19,7 @@ export default function ProviderSelector() {
     if (newProvider === infraProvider) return;
     if (nodes.length > 0) {
       const ok = window.confirm(
-        `Switch to ${newProvider.toUpperCase()}? This will clear the current canvas.`,
+        `Switch to ${PROVIDER_LABELS[newProvider] ?? newProvider}? This will clear the current canvas.`,
       );
       if (!ok) return;
       resetState();
@@ -43,6 +44,7 @@ export default function ProviderSelector() {
                 : "bg-gray-800 text-gray-300 hover:bg-gray-700",
             ].join(" ")}
           >
+            <ProviderLogo provider={p.id} size={16} />
             <span>{p.label}</span>
           </button>
         ))}

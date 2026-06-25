@@ -15,7 +15,7 @@ import useDiscoveryStore from "../../store/discoveryStore";
 import useGraphStore from "../../store/graphStore";
 import useAccessStore from "../../store/accessStore";
 import UpgradePrompt from "../ui/UpgradePrompt";
-import { getServiceIconUrl } from "../../assets/icons/serviceIcons";
+import ServiceIcon from "../ui/ServiceIcon";
 
 // ─── State badge ──────────────────────────────────────────────────────────────
 
@@ -44,15 +44,15 @@ function StateBadge({ state }) {
 
 function ResourceRow({ node, onAdd, added }) {
   const { label, awsType, discoveredState } = node.data;
-  const icon = getServiceIconUrl(node.type);
 
   return (
     <div className="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 group">
-      {icon ? (
-        <img src={icon} alt={node.type} className="w-5 h-5 flex-shrink-0" />
-      ) : (
-        <div className="w-5 h-5 flex-shrink-0 rounded bg-gray-200" />
-      )}
+      <ServiceIcon
+        nodeType={node.type}
+        label={node.data?.awsType}
+        size={20}
+        fallbackEmoji={node.data?.icon}
+      />
       <div className="flex-1 min-w-0">
         <div className="text-xs font-medium text-gray-800 truncate" title={label}>
           {label}

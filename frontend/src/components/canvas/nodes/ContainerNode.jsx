@@ -1,5 +1,5 @@
 import { Handle, Position, NodeResizer } from "@xyflow/react";
-import { getServiceIconUrl } from "../../../assets/icons/serviceIcons";
+import ServiceIcon from "../../ui/ServiceIcon";
 
 const STYLES = {
   vpc: {
@@ -16,7 +16,6 @@ const STYLES = {
 
 export default function ContainerNode({ data, selected, type }) {
   const s = STYLES[type] ?? STYLES.vpc;
-  const svgUrl = getServiceIconUrl(data.nodeType ?? type);
 
   return (
     <>
@@ -58,13 +57,12 @@ export default function ContainerNode({ data, selected, type }) {
             userSelect: "none",
           }}
         >
-          <span style={{ display: "flex", alignItems: "center", width: 16, height: 16 }}>
-            {svgUrl ? (
-              <img src={svgUrl} alt={data.awsType} style={{ width: 16, height: 16, objectFit: "contain" }} />
-            ) : (
-              data.icon
-            )}
-          </span>
+          <ServiceIcon
+            nodeType={data.nodeType ?? type}
+            label={data.awsType}
+            size={16}
+            fallbackEmoji={data.icon}
+          />
           <span>{data.awsType}</span>
           <span style={{ fontWeight: 400, color: s.headerColor, opacity: 0.7 }}>
             {data.label}
